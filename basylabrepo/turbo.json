@@ -20,6 +20,9 @@
     "db:generate": {
       "cache": false
     },
+    "db:migrate": {
+      "cache": false
+    },
     "db:push": {
       "cache": false
     },
@@ -27,6 +30,12 @@
       "cache": false
     },
     "db:seed": {
+      "cache": false
+    },
+    "db:clean": {
+      "cache": false
+    },
+    "db:wait": {
       "cache": false
     },
     "db:studio": {

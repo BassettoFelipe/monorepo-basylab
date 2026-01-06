@@ -19,9 +19,12 @@
     "docker:logs": "docker-compose logs -f",
     "docker:reset": "docker-compose down -v && docker-compose up -d",
     "db:generate": "turbo run db:generate",
+    "db:migrate": "turbo run db:migrate",
     "db:push": "turbo run db:push",
     "db:push:force": "turbo run db:push:force",
     "db:seed": "turbo run db:seed",
+    "db:clean": "turbo run db:clean",
+    "db:wait": "turbo run db:wait",
     "db:studio": "turbo run db:studio",
     "db:reset": "turbo run db:reset"
   },

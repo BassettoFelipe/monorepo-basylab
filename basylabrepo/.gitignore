@@ -71,9 +71,8 @@ Thumbs.db
 *.sqlite3
 drizzle/
 
-# Other monorepo folders (git submodules/external repos)
-3balug/
-dinefy/
-gradely/
-timearena/
-basyadmin/
+# Other repos outside monorepo (git submodules/external repos)
+/3balug/
+/dinefy/
+/gradely/
+/timearena/

@@ -3,31 +3,31 @@ import { GetContractUseCase } from "@/use-cases/contracts/get-contract/get-contr
 import { ListContractsUseCase } from "@/use-cases/contracts/list-contracts/list-contracts.use-case";
 import { TerminateContractUseCase } from "@/use-cases/contracts/terminate-contract/terminate-contract.use-case";
 import { UpdateContractUseCase } from "@/use-cases/contracts/update-contract/update-contract.use-case";
-import {
-  contractRepository,
-  propertyOwnerRepository,
-  propertyRepository,
-  tenantRepository,
-  userRepository,
-} from "./repositories";
+import { repositories } from "./repositories";
 
 export function createContractUseCases() {
   return {
     create: new CreateContractUseCase(
-      contractRepository,
-      propertyRepository,
-      propertyOwnerRepository,
-      tenantRepository,
+      repositories.contractRepository,
+      repositories.propertyRepository,
+      repositories.propertyOwnerRepository,
+      repositories.tenantRepository,
     ),
-    list: new ListContractsUseCase(contractRepository),
+    list: new ListContractsUseCase(repositories.contractRepository),
     get: new GetContractUseCase(
-      contractRepository,
-      propertyRepository,
-      propertyOwnerRepository,
-      tenantRepository,
-      userRepository,
+      repositories.contractRepository,
+      repositories.propertyRepository,
+      repositories.propertyOwnerRepository,
+      repositories.tenantRepository,
+      repositories.userRepository,
     ),
-    update: new UpdateContractUseCase(contractRepository, tenantRepository),
-    terminate: new TerminateContractUseCase(contractRepository, propertyRepository),
+    update: new UpdateContractUseCase(
+      repositories.contractRepository,
+      repositories.tenantRepository,
+    ),
+    terminate: new TerminateContractUseCase(
+      repositories.contractRepository,
+      repositories.propertyRepository,
+    ),
   };
 }

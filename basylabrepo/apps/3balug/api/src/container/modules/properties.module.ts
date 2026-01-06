@@ -3,29 +3,29 @@ import { DeletePropertyUseCase } from "@/use-cases/properties/delete-property/de
 import { GetPropertyUseCase } from "@/use-cases/properties/get-property/get-property.use-case";
 import { ListPropertiesUseCase } from "@/use-cases/properties/list-properties/list-properties.use-case";
 import { UpdatePropertyUseCase } from "@/use-cases/properties/update-property/update-property.use-case";
-import {
-  contractRepository,
-  propertyOwnerRepository,
-  propertyPhotoRepository,
-  propertyRepository,
-  userRepository,
-} from "./repositories";
+import { repositories } from "./repositories";
 
 export function createPropertyUseCases() {
   return {
-    create: new CreatePropertyUseCase(propertyRepository, propertyOwnerRepository),
-    list: new ListPropertiesUseCase(propertyRepository),
-    get: new GetPropertyUseCase(
-      propertyRepository,
-      propertyOwnerRepository,
-      propertyPhotoRepository,
-      userRepository,
+    create: new CreatePropertyUseCase(
+      repositories.propertyRepository,
+      repositories.propertyOwnerRepository,
     ),
-    update: new UpdatePropertyUseCase(propertyRepository, propertyOwnerRepository),
+    list: new ListPropertiesUseCase(repositories.propertyRepository),
+    get: new GetPropertyUseCase(
+      repositories.propertyRepository,
+      repositories.propertyOwnerRepository,
+      repositories.propertyPhotoRepository,
+      repositories.userRepository,
+    ),
+    update: new UpdatePropertyUseCase(
+      repositories.propertyRepository,
+      repositories.propertyOwnerRepository,
+    ),
     delete: new DeletePropertyUseCase(
-      propertyRepository,
-      contractRepository,
-      propertyPhotoRepository,
+      repositories.propertyRepository,
+      repositories.contractRepository,
+      repositories.propertyPhotoRepository,
     ),
   };
 }

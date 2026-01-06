@@ -1,8 +1,8 @@
 import { CleanupExpiredPaymentsJob } from "@/jobs/cleanup-expired-payments.job";
-import { pendingPaymentRepository } from "./repositories";
+import { repositories } from "./repositories";
 
 export function createJobs() {
   return {
-    cleanupExpiredPayments: new CleanupExpiredPaymentsJob(pendingPaymentRepository),
+    cleanupExpiredPayments: new CleanupExpiredPaymentsJob(repositories.pendingPaymentRepository),
   };
 }

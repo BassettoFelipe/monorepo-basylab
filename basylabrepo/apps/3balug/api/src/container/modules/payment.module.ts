@@ -3,35 +3,33 @@ import { CreatePendingPaymentUseCase } from "@/use-cases/payment/create-pending-
 import { GetPendingPaymentUseCase } from "@/use-cases/payment/get-pending-payment/get-pending-payment.use-case";
 import { ProcessCreditCardPaymentUseCase } from "@/use-cases/payment/process-credit-card-payment/process-credit-card-payment.use-case";
 import { ProcessPaymentWebhookUseCase } from "@/use-cases/payment/process-payment-webhook/process-payment-webhook.use-case";
-import {
-  pendingPaymentRepository,
-  planRepository,
-  subscriptionRepository,
-  userRepository,
-} from "./repositories";
-import { userCacheService } from "./services";
+import { repositories } from "./repositories";
+import { services } from "./services";
 
 export function createPaymentUseCases() {
   return {
     createPendingPayment: new CreatePendingPaymentUseCase(
-      userRepository,
-      planRepository,
-      pendingPaymentRepository,
+      repositories.userRepository,
+      repositories.planRepository,
+      repositories.pendingPaymentRepository,
     ),
-    getPendingPayment: new GetPendingPaymentUseCase(pendingPaymentRepository, planRepository),
+    getPendingPayment: new GetPendingPaymentUseCase(
+      repositories.pendingPaymentRepository,
+      repositories.planRepository,
+    ),
     processCardPayment: new ProcessCreditCardPaymentUseCase(
-      pendingPaymentRepository,
-      planRepository,
-      userRepository,
-      subscriptionRepository,
+      repositories.pendingPaymentRepository,
+      repositories.planRepository,
+      repositories.userRepository,
+      repositories.subscriptionRepository,
       paymentGateway,
     ),
     processWebhook: new ProcessPaymentWebhookUseCase(
-      pendingPaymentRepository,
-      userRepository,
-      subscriptionRepository,
-      planRepository,
-      userCacheService,
+      repositories.pendingPaymentRepository,
+      repositories.userRepository,
+      repositories.subscriptionRepository,
+      repositories.planRepository,
+      services.userCacheService,
       paymentGateway,
     ),
   };

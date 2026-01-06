@@ -6,52 +6,55 @@ import { ListCustomFieldsUseCase } from "@/use-cases/custom-fields/list-custom-f
 import { ReorderCustomFieldsUseCase } from "@/use-cases/custom-fields/reorder-custom-fields/reorder-custom-fields.use-case";
 import { SaveMyFieldsUseCase } from "@/use-cases/custom-fields/save-my-fields/save-my-fields.use-case";
 import { UpdateCustomFieldUseCase } from "@/use-cases/custom-fields/update-custom-field/update-custom-field.use-case";
-import {
-  customFieldRepository,
-  customFieldResponseRepository,
-  planFeatureRepository,
-  subscriptionRepository,
-  userRepository,
-} from "./repositories";
-import { customFieldCacheService } from "./services";
+import { repositories } from "./repositories";
+import { services } from "./services";
 
 export function createCustomFieldUseCases() {
   return {
     create: new CreateCustomFieldUseCase(
-      customFieldRepository,
-      subscriptionRepository,
-      planFeatureRepository,
-      customFieldCacheService,
+      repositories.customFieldRepository,
+      repositories.subscriptionRepository,
+      repositories.planFeatureRepository,
+      services.customFieldCacheService,
     ),
     list: new ListCustomFieldsUseCase(
-      customFieldRepository,
-      subscriptionRepository,
-      planFeatureRepository,
-      customFieldCacheService,
+      repositories.customFieldRepository,
+      repositories.subscriptionRepository,
+      repositories.planFeatureRepository,
+      services.customFieldCacheService,
     ),
-    update: new UpdateCustomFieldUseCase(customFieldRepository, customFieldCacheService),
-    delete: new DeleteCustomFieldUseCase(customFieldRepository, customFieldCacheService),
-    reorder: new ReorderCustomFieldsUseCase(customFieldRepository, customFieldCacheService),
+    update: new UpdateCustomFieldUseCase(
+      repositories.customFieldRepository,
+      services.customFieldCacheService,
+    ),
+    delete: new DeleteCustomFieldUseCase(
+      repositories.customFieldRepository,
+      services.customFieldCacheService,
+    ),
+    reorder: new ReorderCustomFieldsUseCase(
+      repositories.customFieldRepository,
+      services.customFieldCacheService,
+    ),
     getMyFields: new GetMyFieldsUseCase(
-      userRepository,
-      subscriptionRepository,
-      customFieldRepository,
-      customFieldResponseRepository,
-      planFeatureRepository,
+      repositories.userRepository,
+      repositories.subscriptionRepository,
+      repositories.customFieldRepository,
+      repositories.customFieldResponseRepository,
+      repositories.planFeatureRepository,
     ),
     saveMyFields: new SaveMyFieldsUseCase(
-      userRepository,
-      subscriptionRepository,
-      customFieldRepository,
-      customFieldResponseRepository,
-      planFeatureRepository,
+      repositories.userRepository,
+      repositories.subscriptionRepository,
+      repositories.customFieldRepository,
+      repositories.customFieldResponseRepository,
+      repositories.planFeatureRepository,
     ),
     getUserFields: new GetUserFieldsUseCase(
-      userRepository,
-      subscriptionRepository,
-      customFieldRepository,
-      customFieldResponseRepository,
-      planFeatureRepository,
+      repositories.userRepository,
+      repositories.subscriptionRepository,
+      repositories.customFieldRepository,
+      repositories.customFieldResponseRepository,
+      repositories.planFeatureRepository,
     ),
   };
 }

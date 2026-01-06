@@ -5,42 +5,37 @@ import { DeleteUserUseCase } from "@/use-cases/users/delete-user/delete-user.use
 import { GetUserUseCase } from "@/use-cases/users/get-user/get-user.use-case";
 import { ListUsersUseCase } from "@/use-cases/users/list-users/list-users.use-case";
 import { UpdateUserUseCase } from "@/use-cases/users/update-user/update-user.use-case";
-import {
-  companyRepository,
-  customFieldRepository,
-  customFieldResponseRepository,
-  planFeatureRepository,
-  planRepository,
-  subscriptionRepository,
-  userRepository,
-} from "./repositories";
-import { userCacheService } from "./services";
+import { repositories } from "./repositories";
+import { services } from "./services";
 
 export function createUsersUseCases() {
   return {
     getUser: new GetUserUseCase(),
     createUser: new CreateUserUseCase(
-      userRepository,
-      companyRepository,
-      subscriptionRepository,
-      planRepository,
-      customFieldRepository,
-      customFieldResponseRepository,
-      planFeatureRepository,
+      repositories.userRepository,
+      repositories.companyRepository,
+      repositories.subscriptionRepository,
+      repositories.planRepository,
+      repositories.customFieldRepository,
+      repositories.customFieldResponseRepository,
+      repositories.planFeatureRepository,
     ),
     listUsers: new ListUsersUseCase(
-      userRepository,
-      customFieldRepository,
-      customFieldResponseRepository,
+      repositories.userRepository,
+      repositories.customFieldRepository,
+      repositories.customFieldResponseRepository,
     ),
     updateUser: new UpdateUserUseCase(
-      userRepository,
-      subscriptionRepository,
-      planRepository,
-      userCacheService,
+      repositories.userRepository,
+      repositories.subscriptionRepository,
+      repositories.planRepository,
+      services.userCacheService,
     ),
-    deactivateUser: new DeactivateUserUseCase(userRepository, userCacheService),
-    deleteUser: new DeleteUserUseCase(userRepository),
-    activateUser: new ActivateUserUseCase(userRepository, userCacheService),
+    deactivateUser: new DeactivateUserUseCase(
+      repositories.userRepository,
+      services.userCacheService,
+    ),
+    deleteUser: new DeleteUserUseCase(repositories.userRepository),
+    activateUser: new ActivateUserUseCase(repositories.userRepository, services.userCacheService),
   };
 }

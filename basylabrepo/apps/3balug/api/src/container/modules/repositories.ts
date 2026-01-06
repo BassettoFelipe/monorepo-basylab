@@ -28,21 +28,36 @@ import { SubscriptionDrizzleRepository } from "@/repositories/providers/drizzle/
 import { TenantDrizzleRepository } from "@/repositories/providers/drizzle/tenant.repository";
 import { UserDrizzleRepository } from "@/repositories/providers/drizzle/user.repository";
 
-export let userRepository: IUserRepository = new UserDrizzleRepository(db);
-export let companyRepository: ICompanyRepository = new CompanyDrizzleRepository(db);
-export let planRepository: IPlanRepository = new PlanDrizzleRepository(db);
-export let planFeatureRepository: IPlanFeatureRepository = new PlanFeatureDrizzleRepository(db);
-export let subscriptionRepository: ISubscriptionRepository = new SubscriptionDrizzleRepository(db);
-export let pendingPaymentRepository: IPendingPaymentRepository =
-  new PendingPaymentDrizzleRepository(db);
-export let customFieldRepository: ICustomFieldRepository = new CustomFieldDrizzleRepository(db);
-export let customFieldResponseRepository: ICustomFieldResponseRepository =
-  new CustomFieldResponseDrizzleRepository(db);
-export let propertyOwnerRepository: IPropertyOwnerRepository =
-  new PropertyOwnerDrizzleRepository(db);
-export let tenantRepository: ITenantRepository = new TenantDrizzleRepository(db);
-export let propertyRepository: IPropertyRepository = new PropertyDrizzleRepository(db);
-export let propertyPhotoRepository: IPropertyPhotoRepository =
-  new PropertyPhotoDrizzleRepository(db);
-export let contractRepository: IContractRepository = new ContractDrizzleRepository(db);
-export let documentRepository: IDocumentRepository = new DocumentDrizzleRepository(db);
+export interface Repositories {
+  userRepository: IUserRepository;
+  companyRepository: ICompanyRepository;
+  planRepository: IPlanRepository;
+  planFeatureRepository: IPlanFeatureRepository;
+  subscriptionRepository: ISubscriptionRepository;
+  pendingPaymentRepository: IPendingPaymentRepository;
+  customFieldRepository: ICustomFieldRepository;
+  customFieldResponseRepository: ICustomFieldResponseRepository;
+  propertyOwnerRepository: IPropertyOwnerRepository;
+  tenantRepository: ITenantRepository;
+  propertyRepository: IPropertyRepository;
+  propertyPhotoRepository: IPropertyPhotoRepository;
+  contractRepository: IContractRepository;
+  documentRepository: IDocumentRepository;
+}
+
+export const repositories: Repositories = {
+  userRepository: new UserDrizzleRepository(db),
+  companyRepository: new CompanyDrizzleRepository(db),
+  planRepository: new PlanDrizzleRepository(db),
+  planFeatureRepository: new PlanFeatureDrizzleRepository(db),
+  subscriptionRepository: new SubscriptionDrizzleRepository(db),
+  pendingPaymentRepository: new PendingPaymentDrizzleRepository(db),
+  customFieldRepository: new CustomFieldDrizzleRepository(db),
+  customFieldResponseRepository: new CustomFieldResponseDrizzleRepository(db),
+  propertyOwnerRepository: new PropertyOwnerDrizzleRepository(db),
+  tenantRepository: new TenantDrizzleRepository(db),
+  propertyRepository: new PropertyDrizzleRepository(db),
+  propertyPhotoRepository: new PropertyPhotoDrizzleRepository(db),
+  contractRepository: new ContractDrizzleRepository(db),
+  documentRepository: new DocumentDrizzleRepository(db),
+};

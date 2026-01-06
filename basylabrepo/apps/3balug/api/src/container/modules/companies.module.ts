@@ -1,11 +1,11 @@
 import { GetCompanyUseCase } from "@/use-cases/companies/get-company/get-company.use-case";
 import { UpdateCompanyUseCase } from "@/use-cases/companies/update-company/update-company.use-case";
-import { companyRepository } from "./repositories";
-import { companyCacheService } from "./services";
+import { repositories } from "./repositories";
+import { services } from "./services";
 
 export function createCompanyUseCases() {
   return {
-    get: new GetCompanyUseCase(companyRepository, companyCacheService),
-    update: new UpdateCompanyUseCase(companyRepository, companyCacheService),
+    get: new GetCompanyUseCase(repositories.companyRepository, services.companyCacheService),
+    update: new UpdateCompanyUseCase(repositories.companyRepository, services.companyCacheService),
   };
 }

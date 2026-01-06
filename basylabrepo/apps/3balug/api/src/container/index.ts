@@ -28,8 +28,8 @@ import { createPropertyPhotoUseCases } from "./modules/property-photos.module";
 import { createSubscriptionUseCases } from "./modules/subscriptions.module";
 import { createTenantUseCases } from "./modules/tenants.module";
 import { createUsersUseCases } from "./modules/users.module";
-import * as repositories from "./modules/repositories";
-import * as services from "./modules/services";
+import { repositories } from "./modules/repositories";
+import { services } from "./modules/services";
 
 export const auth = createAuthUseCases();
 export const users = createUsersUseCases();

@@ -10,6 +10,14 @@ import {
 const redisClient = getRedis();
 const cacheProvider = new RedisCacheProvider(redisClient);
 
-export let userCacheService: IUserCacheService = new UserCacheService(cacheProvider);
-export const customFieldCacheService = new CustomFieldCacheService(cacheProvider);
-export const companyCacheService = new CompanyCacheService(cacheProvider);
+export interface Services {
+  userCacheService: IUserCacheService;
+  customFieldCacheService: CustomFieldCacheService;
+  companyCacheService: CompanyCacheService;
+}
+
+export const services: Services = {
+  userCacheService: new UserCacheService(cacheProvider),
+  customFieldCacheService: new CustomFieldCacheService(cacheProvider),
+  companyCacheService: new CompanyCacheService(cacheProvider),
+};

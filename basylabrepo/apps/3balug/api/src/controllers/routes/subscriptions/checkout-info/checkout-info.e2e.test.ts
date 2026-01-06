@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
 import { clearTestData, createTestApp } from "@/test/setup";
 import { addDays, generateTestEmail } from "@/test/test-helpers";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { JwtUtils } from "@/utils/jwt.utils";
 
 describe("GET /subscriptions/checkout-info", () => {
@@ -23,7 +23,7 @@ describe("GET /subscriptions/checkout-info", () => {
     // Create verified user
     const user = await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword(password),
+      password: await PasswordUtils.hash(password),
       name: "Test User",
       isEmailVerified: true,
     });
@@ -140,7 +140,7 @@ describe("GET /subscriptions/checkout-info", () => {
     // Create unverified user
     const user = await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Unverified User",
       isEmailVerified: false,
       verificationSecret: "secret",
@@ -267,7 +267,7 @@ describe("GET /subscriptions/checkout-info", () => {
     // Create user without subscription
     const user = await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Test User",
       isEmailVerified: true,
     });

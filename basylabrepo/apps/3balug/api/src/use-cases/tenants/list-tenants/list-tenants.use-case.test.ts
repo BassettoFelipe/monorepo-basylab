@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, test } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
+import { ForbiddenError, InternalServerError } from "@basylab/core/errors";
 import type { Company } from "@/db/schema/companies";
 import type { Tenant } from "@/db/schema/tenants";
 import type { User } from "@/db/schema/users";
-import { ForbiddenError, InternalServerError } from "@/errors";
 import {
   InMemoryCompanyRepository,
   InMemoryTenantRepository,
   InMemoryUserRepository,
 } from "@/test/mock-repository";
 import { USER_ROLES } from "@/types/roles";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { ListTenantsUseCase } from "./list-tenants.use-case";
 
 describe("ListTenantsUseCase", () => {
@@ -37,7 +37,7 @@ describe("ListTenantsUseCase", () => {
     // Create owner user
     ownerUser = await userRepository.create({
       email: "owner@test.com",
-      password: await CryptoUtils.hashPassword("Test@123"),
+      password: await PasswordUtils.hash("Test@123"),
       name: "Owner User",
       role: USER_ROLES.OWNER,
       isActive: true,
@@ -59,7 +59,7 @@ describe("ListTenantsUseCase", () => {
     // Create manager user
     managerUser = await userRepository.create({
       email: "manager@test.com",
-      password: await CryptoUtils.hashPassword("Test@123"),
+      password: await PasswordUtils.hash("Test@123"),
       name: "Manager User",
       role: USER_ROLES.MANAGER,
       companyId: company.id,
@@ -70,7 +70,7 @@ describe("ListTenantsUseCase", () => {
     // Create broker user
     brokerUser = await userRepository.create({
       email: "broker@test.com",
-      password: await CryptoUtils.hashPassword("Test@123"),
+      password: await PasswordUtils.hash("Test@123"),
       name: "Broker User",
       role: USER_ROLES.BROKER,
       companyId: company.id,
@@ -81,7 +81,7 @@ describe("ListTenantsUseCase", () => {
     // Create insurance analyst user
     insuranceAnalystUser = await userRepository.create({
       email: "analyst@test.com",
-      password: await CryptoUtils.hashPassword("Test@123"),
+      password: await PasswordUtils.hash("Test@123"),
       name: "Analyst User",
       role: USER_ROLES.INSURANCE_ANALYST,
       companyId: company.id,
@@ -169,7 +169,7 @@ describe("ListTenantsUseCase", () => {
       // Criar novo broker sem locatários
       const newBroker = await userRepository.create({
         email: "newbroker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "New Broker",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -307,7 +307,7 @@ describe("ListTenantsUseCase", () => {
       // Criar outra empresa com locatários
       const otherOwner = await userRepository.create({
         email: "other@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Other Owner",
         role: USER_ROLES.OWNER,
         isActive: true,
@@ -347,7 +347,7 @@ describe("ListTenantsUseCase", () => {
     test("deve lançar erro se usuário não tem empresa vinculada", async () => {
       const userWithoutCompany = await userRepository.create({
         email: "orphan@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Orphan User",
         role: USER_ROLES.OWNER,
         isActive: true,
@@ -364,7 +364,7 @@ describe("ListTenantsUseCase", () => {
     test("ADMIN não está na lista de roles permitidos e deve lançar erro", async () => {
       const adminUser = await userRepository.create({
         email: "admin@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Admin User",
         role: USER_ROLES.ADMIN,
         companyId: company.id,

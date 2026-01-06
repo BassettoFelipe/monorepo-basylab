@@ -1,7 +1,7 @@
+import { InvalidTokenError } from "@basylab/core/errors";
 import { Elysia } from "elysia";
 import { env } from "@/config/env";
 import { auth } from "@/container";
-import { InvalidTokenError } from "@/errors";
 import { refreshResponseSchema } from "./schema";
 
 const REFRESH_TOKEN_COOKIE_KEY = "refreshToken=";

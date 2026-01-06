@@ -4,7 +4,7 @@ import {
   OperationNotAllowedError,
   SubscriptionNotFoundError,
   UserNotFoundError,
-} from "@/errors";
+} from "@basylab/core/errors";
 import type { ISubscriptionRepository } from "@/repositories/contracts/subscription.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import type { CheckoutTokenPayload } from "@/utils/jwt.utils";

@@ -1,16 +1,15 @@
-import { logger } from "@/config/logger";
-import type { Tenant } from "@/db/schema/tenants";
-import type { User } from "@/db/schema/users";
 import {
   BadRequestError,
   ConflictError,
   ForbiddenError,
   InternalServerError,
   NotFoundError,
-} from "@/errors";
+} from "@basylab/core/errors";
+import type { ContactValidator, DocumentValidator } from "@basylab/core/validation";
+import { logger } from "@/config/logger";
+import type { Tenant } from "@/db/schema/tenants";
+import type { User } from "@/db/schema/users";
 import type { ITenantRepository } from "@/repositories/contracts/tenant.repository";
-import type { ContactValidationService } from "@/services/validation/contact-validation.service";
-import type { DocumentValidationService } from "@/services/validation/document-validation.service";
 import { USER_ROLES } from "@/types/roles";
 
 type UpdateTenantInput = {
@@ -37,8 +36,8 @@ type UpdateTenantOutput = Tenant;
 export class UpdateTenantUseCase {
   constructor(
     private readonly tenantRepository: ITenantRepository,
-    private readonly documentValidationService: DocumentValidationService,
-    private readonly contactValidationService: ContactValidationService,
+    private readonly documentValidator: DocumentValidator,
+    private readonly contactValidator: ContactValidator,
   ) {}
 
   async execute(input: UpdateTenantInput): Promise<UpdateTenantOutput> {
@@ -65,10 +64,10 @@ export class UpdateTenantUseCase {
     }
 
     if (input.cpf !== undefined) {
-      const normalizedCpf = this.documentValidationService.validateDocument(input.cpf, "cpf");
+      const normalizedCpf = this.documentValidator.validateDocument(input.cpf, "cpf");
 
       if (normalizedCpf !== tenant.cpf) {
-        await this.documentValidationService.validateDocumentUniqueness(
+        await this.documentValidator.validateDocumentUniqueness(
           normalizedCpf,
           updatedBy.companyId,
           this.tenantRepository,
@@ -82,11 +81,11 @@ export class UpdateTenantUseCase {
 
     if (input.email !== undefined) {
       const normalizedEmail = input.email
-        ? this.contactValidationService.normalizeEmail(input.email)
+        ? this.contactValidator.normalizeEmail(input.email)
         : null;
 
       if (normalizedEmail && normalizedEmail !== tenant.email?.toLowerCase().trim()) {
-        await this.contactValidationService.validateEmailUniqueness(
+        await this.contactValidator.validateEmailUniqueness(
           normalizedEmail,
           updatedBy.companyId,
           this.tenantRepository,
@@ -99,9 +98,7 @@ export class UpdateTenantUseCase {
     }
 
     if (input.phone !== undefined) {
-      updateData.phone = input.phone
-        ? this.contactValidationService.normalizePhone(input.phone)
-        : null;
+      updateData.phone = input.phone ? this.contactValidator.normalizePhone(input.phone) : null;
     }
 
     if (input.address !== undefined) {
@@ -118,7 +115,7 @@ export class UpdateTenantUseCase {
 
     if (input.zipCode !== undefined) {
       updateData.zipCode = input.zipCode
-        ? this.contactValidationService.normalizeZipCode(input.zipCode)
+        ? this.contactValidator.normalizeZipCode(input.zipCode)
         : null;
     }
 
@@ -143,7 +140,7 @@ export class UpdateTenantUseCase {
 
     if (input.emergencyPhone !== undefined) {
       updateData.emergencyPhone = input.emergencyPhone
-        ? this.contactValidationService.normalizePhone(input.emergencyPhone)
+        ? this.contactValidator.normalizePhone(input.emergencyPhone)
         : null;
     }
 

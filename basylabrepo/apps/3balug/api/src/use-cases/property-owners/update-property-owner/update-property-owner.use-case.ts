@@ -1,16 +1,15 @@
-import { logger } from "@/config/logger";
-import type { PropertyOwner } from "@/db/schema/property-owners";
-import type { User } from "@/db/schema/users";
 import {
   BadRequestError,
   ConflictError,
   ForbiddenError,
   InternalServerError,
   NotFoundError,
-} from "@/errors";
+} from "@basylab/core/errors";
+import type { ContactValidator, DocumentValidator } from "@basylab/core/validation";
+import { logger } from "@/config/logger";
+import type { PropertyOwner } from "@/db/schema/property-owners";
+import type { User } from "@/db/schema/users";
 import type { IPropertyOwnerRepository } from "@/repositories/contracts/property-owner.repository";
-import type { ContactValidationService } from "@/services/validation/contact-validation.service";
-import type { DocumentValidationService } from "@/services/validation/document-validation.service";
 import { USER_ROLES } from "@/types/roles";
 
 type UpdatePropertyOwnerInput = {
@@ -34,8 +33,8 @@ type UpdatePropertyOwnerOutput = PropertyOwner;
 export class UpdatePropertyOwnerUseCase {
   constructor(
     private readonly propertyOwnerRepository: IPropertyOwnerRepository,
-    private readonly documentValidationService: DocumentValidationService,
-    private readonly contactValidationService: ContactValidationService,
+    private readonly documentValidator: DocumentValidator,
+    private readonly contactValidator: ContactValidator,
   ) {}
 
   async execute(input: UpdatePropertyOwnerInput): Promise<UpdatePropertyOwnerOutput> {
@@ -65,13 +64,13 @@ export class UpdatePropertyOwnerUseCase {
     if (input.document !== undefined || input.documentType !== undefined) {
       const newDocumentType = input.documentType ?? propertyOwner.documentType;
       const newDocument = input.document ?? propertyOwner.document;
-      const normalizedDocument = this.documentValidationService.validateDocument(
+      const normalizedDocument = this.documentValidator.validateDocument(
         newDocument,
         newDocumentType as "cpf" | "cnpj",
       );
 
       if (normalizedDocument !== propertyOwner.document) {
-        await this.documentValidationService.validateDocumentUniqueness(
+        await this.documentValidator.validateDocumentUniqueness(
           normalizedDocument,
           updatedBy.companyId,
           this.propertyOwnerRepository,
@@ -86,11 +85,11 @@ export class UpdatePropertyOwnerUseCase {
 
     if (input.email !== undefined) {
       const normalizedEmail = input.email
-        ? this.contactValidationService.normalizeEmail(input.email)
+        ? this.contactValidator.normalizeEmail(input.email)
         : null;
 
       if (normalizedEmail && normalizedEmail !== propertyOwner.email?.toLowerCase().trim()) {
-        await this.contactValidationService.validateEmailUniqueness(
+        await this.contactValidator.validateEmailUniqueness(
           normalizedEmail,
           updatedBy.companyId,
           this.propertyOwnerRepository,
@@ -103,9 +102,7 @@ export class UpdatePropertyOwnerUseCase {
     }
 
     if (input.phone !== undefined) {
-      updateData.phone = input.phone
-        ? this.contactValidationService.normalizePhone(input.phone)
-        : null;
+      updateData.phone = input.phone ? this.contactValidator.normalizePhone(input.phone) : null;
     }
 
     if (input.address !== undefined) {
@@ -122,7 +119,7 @@ export class UpdatePropertyOwnerUseCase {
 
     if (input.zipCode !== undefined) {
       updateData.zipCode = input.zipCode
-        ? this.contactValidationService.normalizeZipCode(input.zipCode)
+        ? this.contactValidator.normalizeZipCode(input.zipCode)
         : null;
     }
 

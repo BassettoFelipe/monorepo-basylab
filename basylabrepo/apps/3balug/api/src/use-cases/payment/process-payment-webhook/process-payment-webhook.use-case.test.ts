@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { PaymentAlreadyProcessedError } from "@/errors";
+import { PaymentAlreadyProcessedError } from "@basylab/core/errors";
+import type { IUserCacheService } from "@/services/cache";
 import type { IPendingPaymentRepository } from "@/repositories/contracts/pending-payment.repository";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
 import type { ISubscriptionRepository } from "@/repositories/contracts/subscription.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
-import type { IUserCacheService } from "@/services/contracts/user-cache-service.interface";
 import type { IPaymentGateway } from "@/services/payment/contracts/payment-gateway.interface";
 import type { PendingPayment } from "@/types/pending-payment";
 import type { Plan } from "@/types/plan";

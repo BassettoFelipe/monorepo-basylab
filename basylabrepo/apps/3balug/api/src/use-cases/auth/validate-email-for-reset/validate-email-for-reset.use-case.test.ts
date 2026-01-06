@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { EmailNotVerifiedError, UserNotFoundError } from "@/errors";
+import { EmailNotVerifiedError, UserNotFoundError } from "@basylab/core/errors";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import type { User } from "@/types/user";
 import { ValidateEmailForResetUseCase } from "./validate-email-for-reset.use-case";

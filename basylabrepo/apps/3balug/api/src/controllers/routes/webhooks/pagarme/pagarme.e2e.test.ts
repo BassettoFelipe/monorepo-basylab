@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
 import { clearTestData, createTestApp } from "@/test/setup";
 import { generateTestEmail } from "@/test/test-helpers";
-import { CryptoUtils } from "@/utils/crypto.utils";
 
 describe("POST /webhooks/pagarme", () => {
   const { client, planRepository, pendingPaymentRepository } = createTestApp();
@@ -17,7 +17,7 @@ describe("POST /webhooks/pagarme", () => {
 
     await pendingPaymentRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Test User",
       planId: testPlan.id,
       status: "pending",
@@ -45,7 +45,7 @@ describe("POST /webhooks/pagarme", () => {
 
     await pendingPaymentRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Test User",
       planId: testPlan.id,
       status: "pending",
@@ -232,7 +232,7 @@ describe("POST /webhooks/pagarme", () => {
     const pendingPayments = await Promise.all([
       pendingPaymentRepository.create({
         email: generateTestEmail("concurrent-1"),
-        password: await CryptoUtils.hashPassword("TestPassword123!"),
+        password: await PasswordUtils.hash("TestPassword123!"),
         name: "Test User 1",
         planId: testPlan.id,
         status: "pending",
@@ -241,7 +241,7 @@ describe("POST /webhooks/pagarme", () => {
       }),
       pendingPaymentRepository.create({
         email: generateTestEmail("concurrent-2"),
-        password: await CryptoUtils.hashPassword("TestPassword123!"),
+        password: await PasswordUtils.hash("TestPassword123!"),
         name: "Test User 2",
         planId: testPlan.id,
         status: "pending",
@@ -250,7 +250,7 @@ describe("POST /webhooks/pagarme", () => {
       }),
       pendingPaymentRepository.create({
         email: generateTestEmail("concurrent-3"),
-        password: await CryptoUtils.hashPassword("TestPassword123!"),
+        password: await PasswordUtils.hash("TestPassword123!"),
         name: "Test User 3",
         planId: testPlan.id,
         status: "pending",
@@ -393,7 +393,7 @@ describe("POST /webhooks/pagarme", () => {
 
     await pendingPaymentRepository.create({
       email: generateTestEmail("webhook-security"),
-      password: await CryptoUtils.hashPassword("SecretPassword123!"),
+      password: await PasswordUtils.hash("SecretPassword123!"),
       name: "Test User",
       planId: testPlan.id,
       status: "pending",

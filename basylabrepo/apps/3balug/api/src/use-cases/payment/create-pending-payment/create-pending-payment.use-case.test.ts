@@ -1,38 +1,59 @@
 import { afterAll, beforeEach, describe, expect, it, mock } from "bun:test";
-import { EmailAlreadyExistsError, PlanNotFoundError, WeakPasswordError } from "@/errors";
+import {
+  PasswordUtils as OriginalPasswordUtils,
+  RandomUtils as OriginalRandomUtils,
+} from "@basylab/core/crypto";
+import {
+  EmailAlreadyExistsError,
+  PlanNotFoundError,
+  WeakPasswordError,
+} from "@basylab/core/errors";
+import {
+  Sanitizers as OriginalSanitizers,
+  Validators as OriginalValidators,
+} from "@basylab/core/validation";
 import type { IPendingPaymentRepository } from "@/repositories/contracts/pending-payment.repository";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import type { PendingPayment } from "@/types/pending-payment";
 import type { Plan } from "@/types/plan";
-import { CryptoUtils as OriginalCryptoUtils } from "@/utils/crypto.utils";
-import { ValidationUtils as OriginalValidationUtils } from "@/utils/validation.utils";
 import { CreatePendingPaymentUseCase } from "./create-pending-payment.use-case";
 
 // Mocks
 const mockHashPassword = mock(() => Promise.resolve("$2b$10$hashedPassword"));
 const mockValidatePasswordStrength = mock((): string[] => []);
 
-mock.module("@/utils/crypto.utils", () => ({
-  CryptoUtils: {
-    ...OriginalCryptoUtils,
-    hashPassword: mockHashPassword,
+mock.module("@basylab/core/crypto", () => ({
+  PasswordUtils: {
+    ...OriginalPasswordUtils,
+    hash: mockHashPassword,
+  },
+  RandomUtils: {
+    generateUUID: () => "mock-uuid",
+    generateSecureString: () => "mock-secure-string",
+    generatePassword: () => "mock-password",
   },
 }));
 
-mock.module("@/utils/validation.utils", () => ({
-  ValidationUtils: {
-    ...OriginalValidationUtils,
+mock.module("@basylab/core/validation", () => ({
+  Validators: {
+    ...OriginalValidators,
     validatePasswordStrength: mockValidatePasswordStrength,
+  },
+  Sanitizers: {
+    sanitizeName: (name: string) => name.trim(),
+    sanitizeEmail: (email: string) => email.toLowerCase().trim(),
   },
 }));
 
 afterAll(() => {
-  mock.module("@/utils/crypto.utils", () => ({
-    CryptoUtils: OriginalCryptoUtils,
+  mock.module("@basylab/core/crypto", () => ({
+    PasswordUtils: OriginalPasswordUtils,
+    RandomUtils: OriginalRandomUtils,
   }));
-  mock.module("@/utils/validation.utils", () => ({
-    ValidationUtils: OriginalValidationUtils,
+  mock.module("@basylab/core/validation", () => ({
+    Validators: OriginalValidators,
+    Sanitizers: OriginalSanitizers,
   }));
 });
 

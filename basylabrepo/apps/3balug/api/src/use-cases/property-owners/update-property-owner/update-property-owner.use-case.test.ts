@@ -1,23 +1,22 @@
 import { beforeEach, describe, expect, test } from "bun:test";
-import type { Company } from "@/db/schema/companies";
-import type { PropertyOwner } from "@/db/schema/property-owners";
-import type { User } from "@/db/schema/users";
+import { PasswordUtils } from "@basylab/core/crypto";
 import {
   BadRequestError,
   ConflictError,
   ForbiddenError,
   InternalServerError,
   NotFoundError,
-} from "@/errors";
-import { ContactValidationService } from "@/services/validation/contact-validation.service";
-import { DocumentValidationService } from "@/services/validation/document-validation.service";
+} from "@basylab/core/errors";
+import { ContactValidator, DocumentValidator } from "@basylab/core/validation";
+import type { Company } from "@/db/schema/companies";
+import type { PropertyOwner } from "@/db/schema/property-owners";
+import type { User } from "@/db/schema/users";
 import {
   InMemoryCompanyRepository,
   InMemoryPropertyOwnerRepository,
   InMemoryUserRepository,
 } from "@/test/mock-repository";
 import { USER_ROLES } from "@/types/roles";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { UpdatePropertyOwnerUseCase } from "./update-property-owner.use-case";
 
 describe("UpdatePropertyOwnerUseCase", () => {
@@ -25,8 +24,8 @@ describe("UpdatePropertyOwnerUseCase", () => {
   let propertyOwnerRepository: InMemoryPropertyOwnerRepository;
   let userRepository: InMemoryUserRepository;
   let companyRepository: InMemoryCompanyRepository;
-  let documentValidationService: DocumentValidationService;
-  let contactValidationService: ContactValidationService;
+  let documentValidator: DocumentValidator;
+  let contactValidator: ContactValidator;
 
   let ownerUser: User;
   let brokerUser: User;
@@ -40,20 +39,20 @@ describe("UpdatePropertyOwnerUseCase", () => {
     companyRepository = new InMemoryCompanyRepository();
 
     // Setup services
-    documentValidationService = new DocumentValidationService();
-    contactValidationService = new ContactValidationService();
+    documentValidator = new DocumentValidator();
+    contactValidator = new ContactValidator();
 
     // Create use case
     useCase = new UpdatePropertyOwnerUseCase(
       propertyOwnerRepository,
-      documentValidationService,
-      contactValidationService,
+      documentValidator,
+      contactValidator,
     );
 
     // Create owner user
     ownerUser = await userRepository.create({
       email: "owner@test.com",
-      password: await CryptoUtils.hashPassword("Test@123"),
+      password: await PasswordUtils.hash("Test@123"),
       name: "Owner User",
       role: USER_ROLES.OWNER,
       isActive: true,
@@ -75,7 +74,7 @@ describe("UpdatePropertyOwnerUseCase", () => {
     // Create broker user
     brokerUser = await userRepository.create({
       email: "broker@test.com",
-      password: await CryptoUtils.hashPassword("Test@123"),
+      password: await PasswordUtils.hash("Test@123"),
       name: "Broker User",
       role: USER_ROLES.BROKER,
       companyId: company.id,
@@ -217,7 +216,7 @@ describe("UpdatePropertyOwnerUseCase", () => {
     test("deve lançar erro quando usuário não tem empresa vinculada", async () => {
       const userWithoutCompany = await userRepository.create({
         email: "nocompany@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "User Without Company",
         role: USER_ROLES.OWNER,
         isActive: true,
@@ -305,7 +304,7 @@ describe("UpdatePropertyOwnerUseCase", () => {
       // Create another company
       const anotherOwner = await userRepository.create({
         email: "another@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Another Owner",
         role: USER_ROLES.OWNER,
         isActive: true,
@@ -535,7 +534,7 @@ describe("UpdatePropertyOwnerUseCase", () => {
     test("MANAGER pode editar qualquer proprietário da empresa", async () => {
       const managerUser = await userRepository.create({
         email: "manager@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Manager User",
         role: USER_ROLES.MANAGER,
         companyId: company.id,
@@ -555,7 +554,7 @@ describe("UpdatePropertyOwnerUseCase", () => {
     test("ADMIN pode editar qualquer proprietário da empresa", async () => {
       const adminUser = await userRepository.create({
         email: "admin@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Admin User",
         role: USER_ROLES.ADMIN,
         companyId: company.id,
@@ -578,7 +577,7 @@ describe("UpdatePropertyOwnerUseCase", () => {
       // Create another company
       const anotherOwner = await userRepository.create({
         email: "another@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Another Owner",
         role: USER_ROLES.OWNER,
         isActive: true,

@@ -6,7 +6,7 @@ import {
   PaymentGatewayError,
   PendingPaymentNotFoundError,
   PlanNotFoundError,
-} from "@/errors";
+} from "@basylab/core/errors";
 import type { IPendingPaymentRepository } from "@/repositories/contracts/pending-payment.repository";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
 import type { ISubscriptionRepository } from "@/repositories/contracts/subscription.repository";

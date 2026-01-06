@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it, mock } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
 import { clearTestData, createTestApp } from "@/test/setup";
 import { addMinutes, generateTestEmail } from "@/test/test-helpers";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { TotpUtils } from "@/utils/totp.utils";
 
 // Mock do email service
@@ -33,7 +33,7 @@ describe("POST /auth/resend-verification-code", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("Test@1234"),
+      password: await PasswordUtils.hash("Test@1234"),
       name: "Test User",
       isEmailVerified: false,
       verificationSecret,
@@ -69,7 +69,7 @@ describe("POST /auth/resend-verification-code", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("Test@1234"),
+      password: await PasswordUtils.hash("Test@1234"),
       name: "Verified User",
       isEmailVerified: true,
     });
@@ -88,7 +88,7 @@ describe("POST /auth/resend-verification-code", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("Test@1234"),
+      password: await PasswordUtils.hash("Test@1234"),
       name: "Cooldown Test",
       isEmailVerified: false,
       verificationSecret: TotpUtils.generateSecret(),
@@ -115,7 +115,7 @@ describe("POST /auth/resend-verification-code", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("Test@1234"),
+      password: await PasswordUtils.hash("Test@1234"),
       name: "Max Attempts User",
       isEmailVerified: false,
       verificationSecret: TotpUtils.generateSecret(),
@@ -137,7 +137,7 @@ describe("POST /auth/resend-verification-code", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("Test@1234"),
+      password: await PasswordUtils.hash("Test@1234"),
       name: "Brute Test",
       isEmailVerified: false,
       verificationSecret: TotpUtils.generateSecret(),
@@ -172,7 +172,7 @@ describe("POST /auth/resend-verification-code", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("Test@1234"),
+      password: await PasswordUtils.hash("Test@1234"),
       name: "Fail Test",
       isEmailVerified: false,
       verificationSecret: TotpUtils.generateSecret(),

@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { ForbiddenError } from "@basylab/core/errors";
 import type { User } from "@/db/schema/users";
-import { ForbiddenError } from "@/errors";
 import type { ICustomFieldRepository } from "@/repositories/contracts/custom-field.repository";
 import type { ICustomFieldResponseRepository } from "@/repositories/contracts/custom-field-response.repository";
+import type { IPlanFeatureRepository } from "@/repositories/contracts/plan-feature.repository";
 import type { ISubscriptionRepository } from "@/repositories/contracts/subscription.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
-import type { IFeatureService } from "@/services/contracts/feature-service.interface";
 import { PLAN_FEATURES } from "@/types/features";
 import { GetUserFieldsUseCase } from "./get-user-fields.use-case";
 
@@ -15,7 +15,7 @@ describe("GetUserFieldsUseCase", () => {
   let mockSubscriptionRepository: ISubscriptionRepository;
   let mockCustomFieldRepository: ICustomFieldRepository;
   let mockCustomFieldResponseRepository: ICustomFieldResponseRepository;
-  let mockFeatureService: IFeatureService;
+  let mockPlanFeatureRepository: IPlanFeatureRepository;
 
   const mockCurrentUser: User = {
     id: "current-user-123",
@@ -97,7 +97,7 @@ describe("GetUserFieldsUseCase", () => {
       findByUserId: mock(() => Promise.resolve(mockResponses)),
     } as any;
 
-    mockFeatureService = {
+    mockPlanFeatureRepository = {
       planHasFeature: mock(() => Promise.resolve(true)),
     } as any;
 
@@ -106,7 +106,7 @@ describe("GetUserFieldsUseCase", () => {
       mockSubscriptionRepository,
       mockCustomFieldRepository,
       mockCustomFieldResponseRepository,
-      mockFeatureService,
+      mockPlanFeatureRepository,
     );
   });
 
@@ -264,14 +264,14 @@ describe("GetUserFieldsUseCase", () => {
       expect(mockSubscriptionRepository.findCurrentByUserId).toHaveBeenCalledWith(
         "current-user-123",
       );
-      expect(mockFeatureService.planHasFeature).toHaveBeenCalledWith(
+      expect(mockPlanFeatureRepository.planHasFeature).toHaveBeenCalledWith(
         "premium",
         PLAN_FEATURES.CUSTOM_FIELDS,
       );
     });
 
     test("deve retornar apenas userInfo quando plano não tem feature", async () => {
-      (mockFeatureService.planHasFeature as any).mockResolvedValueOnce(false);
+      (mockPlanFeatureRepository.planHasFeature as any).mockResolvedValueOnce(false);
 
       const result = await useCase.execute({
         currentUser: mockCurrentUser,
@@ -737,7 +737,7 @@ describe("GetUserFieldsUseCase", () => {
       expect(mockSubscriptionRepository.findCurrentByUserId).toHaveBeenCalledWith(
         "current-user-123",
       );
-      expect(mockFeatureService.planHasFeature).toHaveBeenCalledWith(
+      expect(mockPlanFeatureRepository.planHasFeature).toHaveBeenCalledWith(
         "premium",
         PLAN_FEATURES.CUSTOM_FIELDS,
       );
@@ -799,7 +799,7 @@ describe("GetUserFieldsUseCase", () => {
     });
 
     test("deve retornar userInfo mas não campos quando não tem feature", async () => {
-      (mockFeatureService.planHasFeature as any).mockResolvedValueOnce(false);
+      (mockPlanFeatureRepository.planHasFeature as any).mockResolvedValueOnce(false);
 
       const result = await useCase.execute({
         currentUser: mockCurrentUser,
@@ -858,7 +858,7 @@ describe("GetUserFieldsUseCase", () => {
     });
 
     test("deve retornar userInfo mesmo quando não há feature", async () => {
-      (mockFeatureService.planHasFeature as any).mockResolvedValueOnce(false);
+      (mockPlanFeatureRepository.planHasFeature as any).mockResolvedValueOnce(false);
 
       const result = await useCase.execute({
         currentUser: mockCurrentUser,

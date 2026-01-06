@@ -1,5 +1,9 @@
+import {
+  AuthenticationRequiredError,
+  InvalidTokenError,
+  TokenExpiredError,
+} from "@basylab/core/errors";
 import { Elysia } from "elysia";
-import { AuthenticationRequiredError, InvalidTokenError, TokenExpiredError } from "@/errors";
 import { JwtUtils } from "@/utils/jwt.utils";
 
 /**

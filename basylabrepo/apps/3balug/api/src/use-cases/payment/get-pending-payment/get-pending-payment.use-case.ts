@@ -1,4 +1,4 @@
-import { PendingPaymentNotFoundError, PlanNotFoundError } from "@/errors";
+import { PendingPaymentNotFoundError, PlanNotFoundError } from "@basylab/core/errors";
 import type { IPendingPaymentRepository } from "@/repositories/contracts/pending-payment.repository";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
 

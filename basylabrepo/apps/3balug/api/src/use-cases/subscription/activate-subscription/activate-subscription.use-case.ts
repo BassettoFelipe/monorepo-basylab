@@ -7,11 +7,11 @@ import {
   PlanNotFoundError,
   SubscriptionNotFoundError,
   UserNotFoundError,
-} from "@/errors";
+} from "@basylab/core/errors";
+import type { IUserCacheService } from "@/services/cache";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
 import type { ISubscriptionRepository } from "@/repositories/contracts/subscription.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
-import type { IUserCacheService } from "@/services/contracts/user-cache-service.interface";
 import { paymentGateway } from "@/services/payment";
 
 type ActivateSubscriptionInput = {

@@ -1,5 +1,9 @@
+import {
+  EmailNotVerifiedError,
+  EmailSendFailedError,
+  UserNotFoundError,
+} from "@basylab/core/errors";
 import { PASSWORD_RESET } from "@/constants/auth.constants";
-import { EmailNotVerifiedError, EmailSendFailedError, UserNotFoundError } from "@/errors";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import { emailService } from "@/services/email/email.service";
 import { TotpUtils } from "@/utils/totp.utils";
@@ -88,7 +92,7 @@ export class GetPasswordResetStatusUseCase {
         passwordResetResendBlockedUntil: null,
       });
 
-      const resetCode = TotpUtils.generateCode(secret);
+      const resetCode = await TotpUtils.generateCode(secret);
 
       try {
         await emailService.sendPasswordResetCode(user.email, user.name, resetCode);

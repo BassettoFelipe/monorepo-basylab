@@ -1,0 +1,8 @@
+export { authRoutes } from './auth.routes'
+export { billingAdminRoutes, billingApiRoutes } from './billing.routes'
+export { eventAdminRoutes, eventApiRoutes } from './event.routes'
+export { featureRoutes } from './feature.routes'
+export { managerRoutes } from './manager.routes'
+export { planRoutes } from './plan.routes'
+export { tenantRoutes } from './tenant.routes'
+export { ticketAdminRoutes, ticketApiRoutes } from './ticket.routes'

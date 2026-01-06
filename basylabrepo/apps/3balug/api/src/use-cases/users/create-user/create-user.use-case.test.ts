@@ -1,16 +1,17 @@
 import { afterAll, beforeEach, describe, expect, mock, test } from "bun:test";
-import type { Company } from "@/db/schema/companies";
-import type { Plan } from "@/db/schema/plans";
-import type { Subscription } from "@/db/schema/subscriptions";
-import type { User } from "@/db/schema/users";
+import { PasswordUtils } from "@basylab/core/crypto";
 import {
   EmailAlreadyExistsError,
   ForbiddenError,
   InternalServerError,
   PlanLimitExceededError,
   UnauthorizedError,
-} from "@/errors";
-import type { IFeatureService } from "@/services/contracts/feature-service.interface";
+} from "@basylab/core/errors";
+import type { Company } from "@/db/schema/companies";
+import type { Plan } from "@/db/schema/plans";
+import type { Subscription } from "@/db/schema/subscriptions";
+import type { User } from "@/db/schema/users";
+import type { IPlanFeatureRepository } from "@/repositories/contracts/plan-feature.repository";
 import { EmailServiceError, emailService as originalEmailService } from "@/services/email";
 import {
   InMemoryCompanyRepository,
@@ -21,7 +22,6 @@ import {
   InMemoryUserRepository,
 } from "@/test/mock-repository";
 import { USER_ROLES } from "@/types/roles";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { CreateUserUseCase } from "./create-user.use-case";
 
 const mockSendUserInvitation = mock(() => Promise.resolve());
@@ -50,7 +50,7 @@ describe("CreateUserUseCase", () => {
   let planRepository: InMemoryPlanRepository;
   let customFieldRepository: InMemoryCustomFieldRepository;
   let customFieldResponseRepository: InMemoryCustomFieldResponseRepository;
-  let mockFeatureService: IFeatureService;
+  let mockPlanFeatureRepository: IPlanFeatureRepository;
 
   let ownerUser: User;
   let company: Company;
@@ -73,7 +73,7 @@ describe("CreateUserUseCase", () => {
     // Link plan repository to subscription repository
     subscriptionRepository.setPlanRepository(planRepository);
 
-    mockFeatureService = {
+    mockPlanFeatureRepository = {
       planHasFeature: mock(() => Promise.resolve(false)),
       getPlanFeatures: mock(() => Promise.resolve([])),
       getPlansWithFeature: mock(() => Promise.resolve([])),
@@ -86,7 +86,7 @@ describe("CreateUserUseCase", () => {
       planRepository,
       customFieldRepository,
       customFieldResponseRepository,
-      mockFeatureService,
+      mockPlanFeatureRepository,
     );
 
     // Create plans
@@ -129,7 +129,7 @@ describe("CreateUserUseCase", () => {
     // Create owner user (without company first)
     ownerUser = await userRepository.create({
       email: "owner@test.com",
-      password: await CryptoUtils.hashPassword("Test@123"),
+      password: await PasswordUtils.hash("Test@123"),
       name: "Owner User",
       role: USER_ROLES.OWNER,
       isActive: true,
@@ -166,7 +166,7 @@ describe("CreateUserUseCase", () => {
     test("deve lançar erro se usuário não é owner", async () => {
       const brokerUser = await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -193,7 +193,7 @@ describe("CreateUserUseCase", () => {
     test("deve lançar erro se owner não tem empresa vinculada", async () => {
       const ownerWithoutCompany = await userRepository.create({
         email: "orphan@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Orphan Owner",
         role: USER_ROLES.OWNER,
         isActive: true,
@@ -720,7 +720,7 @@ describe("CreateUserUseCase", () => {
       // Criar um manager
       const manager = await userRepository.create({
         email: "manager@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Manager User",
         role: USER_ROLES.MANAGER,
         companyId: company.id,
@@ -757,7 +757,7 @@ describe("CreateUserUseCase", () => {
     test("deve permitir manager criar broker", async () => {
       const manager = await userRepository.create({
         email: "manager@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Manager User",
         role: USER_ROLES.MANAGER,
         companyId: company.id,
@@ -787,7 +787,7 @@ describe("CreateUserUseCase", () => {
     });
 
     test("deve salvar custom fields quando feature está habilitada", async () => {
-      mockFeatureService.planHasFeature = mock(() => Promise.resolve(true));
+      mockPlanFeatureRepository.planHasFeature = mock(() => Promise.resolve(true));
 
       // Criar campos customizados
       const field1 = await customFieldRepository.create({
@@ -828,7 +828,7 @@ describe("CreateUserUseCase", () => {
     });
 
     test("deve lançar erro se campo obrigatório não for preenchido", async () => {
-      mockFeatureService.planHasFeature = mock(() => Promise.resolve(true));
+      mockPlanFeatureRepository.planHasFeature = mock(() => Promise.resolve(true));
 
       const field = await customFieldRepository.create({
         companyId: company.id,
@@ -856,7 +856,7 @@ describe("CreateUserUseCase", () => {
     });
 
     test("não deve salvar custom fields se feature não está habilitada", async () => {
-      mockFeatureService.planHasFeature = mock(() => Promise.resolve(false));
+      mockPlanFeatureRepository.planHasFeature = mock(() => Promise.resolve(false));
 
       const field1 = await customFieldRepository.create({
         companyId: company.id,
@@ -882,7 +882,7 @@ describe("CreateUserUseCase", () => {
     });
 
     test("deve ignorar campos inativos ao salvar", async () => {
-      mockFeatureService.planHasFeature = mock(() => Promise.resolve(true));
+      mockPlanFeatureRepository.planHasFeature = mock(() => Promise.resolve(true));
 
       const activeField = await customFieldRepository.create({
         companyId: company.id,

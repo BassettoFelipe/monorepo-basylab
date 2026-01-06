@@ -1,4 +1,4 @@
-import { PASSWORD_RESET } from "@/constants/auth.constants";
+import { PasswordUtils } from "@basylab/core/crypto";
 import {
   EmailNotVerifiedError,
   InvalidPasswordResetCodeError,
@@ -6,10 +6,10 @@ import {
   TooManyRequestsError,
   UserNotFoundError,
   WeakPasswordError,
-} from "@/errors";
+} from "@basylab/core/errors";
+import { Validators } from "@basylab/core/validation";
+import { PASSWORD_RESET } from "@/constants/auth.constants";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
-import { CryptoUtils } from "@/utils/crypto.utils";
-import { validatePasswordStrength } from "@/utils/password-validator";
 import { TotpUtils } from "@/utils/totp.utils";
 
 export interface ConfirmPasswordResetInput {
@@ -84,7 +84,7 @@ export class ConfirmPasswordResetUseCase {
     }
 
     // Validate TOTP code
-    const isCodeValid = TotpUtils.verifyCode(user.passwordResetSecret, code);
+    const isCodeValid = await TotpUtils.verifyCode(user.passwordResetSecret, code);
     if (!isCodeValid) {
       // Increment attempts
       const newAttempts = currentAttempts + 1;
@@ -102,13 +102,13 @@ export class ConfirmPasswordResetUseCase {
     }
 
     // Validate password strength
-    const passwordValidation = validatePasswordStrength(newPassword);
-    if (!passwordValidation.isValid) {
-      throw new WeakPasswordError(passwordValidation.errors?.join(", ") || "Senha muito fraca.");
+    const passwordErrors = Validators.validatePasswordStrength(newPassword);
+    if (passwordErrors.length > 0) {
+      throw new WeakPasswordError(passwordErrors.join(", "));
     }
 
     // Hash the new password
-    const hashedPassword = await CryptoUtils.hashPassword(newPassword);
+    const hashedPassword = await PasswordUtils.hash(newPassword);
 
     await this.userRepository.update(user.id, {
       password: hashedPassword,

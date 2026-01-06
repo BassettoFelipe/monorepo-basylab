@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
-import { AccountAlreadyVerifiedError, UserNotFoundError } from "@/errors";
+import { AccountAlreadyVerifiedError, UserNotFoundError } from "@basylab/core/errors";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import { GetResendStatusUseCase } from "./get-resend-status.use-case";
 

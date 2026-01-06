@@ -4,7 +4,7 @@ import {
   EmailSendFailedError,
   TooManyAttemptsError,
   UserNotFoundError,
-} from "@/errors";
+} from "@basylab/core/errors";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import { EmailServiceError, emailService as originalEmailService } from "@/services/email";
 import type { User } from "@/types/user";
@@ -13,7 +13,7 @@ import { ResendPasswordResetCodeUseCase } from "./resend-password-reset-code.use
 
 // Mocks
 const mockGenerateSecret = mock(() => "TOTP_SECRET_NEW");
-const mockGenerateCode = mock(() => "654321");
+const mockGenerateCode = mock(() => Promise.resolve("654321"));
 const mockSendPasswordResetCode = mock(() => Promise.resolve());
 
 mock.module("@/utils/totp.utils", () => ({
@@ -82,7 +82,7 @@ describe("ResendPasswordResetCodeUseCase", () => {
     mockSendPasswordResetCode.mockClear();
 
     mockGenerateSecret.mockReturnValue("TOTP_SECRET_NEW");
-    mockGenerateCode.mockReturnValue("654321");
+    mockGenerateCode.mockResolvedValue("654321");
     mockSendPasswordResetCode.mockResolvedValue(undefined);
 
     userRepository = {

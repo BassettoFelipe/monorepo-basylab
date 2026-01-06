@@ -7,6 +7,7 @@ import type { ICustomFieldResponseRepository } from "@/repositories/contracts/cu
 import type { IDocumentRepository } from "@/repositories/contracts/document.repository";
 import type { IPendingPaymentRepository } from "@/repositories/contracts/pending-payment.repository";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
+import type { IPlanFeatureRepository } from "@/repositories/contracts/plan-feature.repository";
 import type { IPropertyRepository } from "@/repositories/contracts/property.repository";
 import type { IPropertyOwnerRepository } from "@/repositories/contracts/property-owner.repository";
 import type { IPropertyPhotoRepository } from "@/repositories/contracts/property-photo.repository";
@@ -15,10 +16,6 @@ import type { ITenantRepository } from "@/repositories/contracts/tenant.reposito
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import type { App } from "@/server";
 import { app } from "@/server";
-import { replaceService } from "@/services/container";
-import type { IFeatureService } from "@/services/contracts/feature-service.interface";
-import type { PlanFeatureSlug } from "@/types/features";
-import { PLAN_FEATURES } from "@/types/features";
 
 /**
  * Type-safe Eden Treaty client for the application
@@ -32,6 +29,7 @@ import {
   InMemoryCustomFieldResponseRepository,
   InMemoryDocumentRepository,
   InMemoryPendingPaymentRepository,
+  InMemoryPlanFeatureRepository,
   InMemoryPlanRepository,
   InMemoryPropertyOwnerRepository,
   InMemoryPropertyPhotoRepository,
@@ -42,39 +40,10 @@ import {
   InMemoryUserRepository,
 } from "./mock-repository";
 
-/**
- * Mock FeatureService that returns features based on plan slug
- * without hitting the real database
- */
-class MockFeatureService implements IFeatureService {
-  private planFeatures: Record<string, PlanFeatureSlug[]> = {
-    house: [PLAN_FEATURES.CUSTOM_FIELDS],
-    imobiliaria: [PLAN_FEATURES.CUSTOM_FIELDS],
-    basico: [],
-  };
-
-  async planHasFeature(planSlug: string, feature: PlanFeatureSlug): Promise<boolean> {
-    const features = this.planFeatures[planSlug] || [];
-    return features.includes(feature);
-  }
-
-  async getPlanFeatures(planSlug: string): Promise<PlanFeatureSlug[]> {
-    return this.planFeatures[planSlug] || [];
-  }
-
-  async getPlansWithFeature(feature: PlanFeatureSlug): Promise<string[]> {
-    return Object.entries(this.planFeatures)
-      .filter(([_, features]) => features.includes(feature))
-      .map(([slug]) => slug);
-  }
-}
-
-// Inject mock feature service immediately
-replaceService("featureService", new MockFeatureService());
-
 let userRepository: InMemoryUserRepository | null = null;
 let companyRepository: InMemoryCompanyRepository | null = null;
 let planRepository: InMemoryPlanRepository | null = null;
+let planFeatureRepository: InMemoryPlanFeatureRepository | null = null;
 let subscriptionRepository: InMemorySubscriptionRepository | null = null;
 let pendingPaymentRepository: InMemoryPendingPaymentRepository | null = null;
 let propertyOwnerRepository: InMemoryPropertyOwnerRepository | null = null;
@@ -107,6 +76,14 @@ export function getPlanRepository(): IPlanRepository {
     planRepository.seedTestPlans();
   }
   return planRepository;
+}
+
+export function getPlanFeatureRepository(): IPlanFeatureRepository {
+  if (!planFeatureRepository) {
+    planFeatureRepository = new InMemoryPlanFeatureRepository();
+    planFeatureRepository.setPlanRepository(getPlanRepository() as InMemoryPlanRepository);
+  }
+  return planFeatureRepository;
 }
 
 export function getSubscriptionRepository(): ISubscriptionRepository {
@@ -212,6 +189,7 @@ export function createTestApp() {
   const testUserRepository = getUserRepository() as InMemoryUserRepository;
   const testCompanyRepository = getCompanyRepository() as InMemoryCompanyRepository;
   const testPlanRepository = getPlanRepository() as InMemoryPlanRepository;
+  const testPlanFeatureRepository = getPlanFeatureRepository() as InMemoryPlanFeatureRepository;
   const testSubscriptionRepository = getSubscriptionRepository() as InMemorySubscriptionRepository;
   const testPendingPaymentRepository =
     getPendingPaymentRepository() as InMemoryPendingPaymentRepository;
@@ -232,11 +210,13 @@ export function createTestApp() {
   testUserRepository.setCompanyRepository(testCompanyRepository);
   testUserRepository.setSubscriptionRepository(testSubscriptionRepository);
   testContractRepository.setPropertyRepository(testPropertyRepository);
+  testPlanFeatureRepository.setPlanRepository(testPlanRepository);
 
   injectTestRepositories({
     userRepository: testUserRepository,
     companyRepository: testCompanyRepository,
     planRepository: testPlanRepository,
+    planFeatureRepository: testPlanFeatureRepository,
     subscriptionRepository: testSubscriptionRepository,
     pendingPaymentRepository: testPendingPaymentRepository,
     propertyOwnerRepository: testPropertyOwnerRepository,
@@ -260,6 +240,7 @@ export function createTestApp() {
     userRepository: testUserRepository,
     companyRepository: testCompanyRepository,
     planRepository: testPlanRepository,
+    planFeatureRepository: testPlanFeatureRepository,
     subscriptionRepository: testSubscriptionRepository,
     pendingPaymentRepository: testPendingPaymentRepository,
     propertyOwnerRepository: testPropertyOwnerRepository,

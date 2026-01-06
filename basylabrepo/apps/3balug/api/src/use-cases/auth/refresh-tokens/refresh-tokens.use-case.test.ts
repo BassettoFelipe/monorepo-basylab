@@ -1,5 +1,5 @@
 import { afterAll, beforeEach, describe, expect, mock, test } from "bun:test";
-import { InvalidTokenError, UserNotFoundError } from "@/errors";
+import { InvalidTokenError, UserNotFoundError } from "@basylab/core/errors";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import { JwtUtils as OriginalJwtUtils } from "@/utils/jwt.utils";
 import { RefreshTokensUseCase } from "./refresh-tokens.use-case";

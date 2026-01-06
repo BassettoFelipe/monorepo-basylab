@@ -1,5 +1,5 @@
+import { PlanNotFoundError } from "@basylab/core/errors";
 import type { Plan } from "@/db/schema/plans";
-import { PlanNotFoundError } from "@/errors";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
 
 type GetPlanInput = {

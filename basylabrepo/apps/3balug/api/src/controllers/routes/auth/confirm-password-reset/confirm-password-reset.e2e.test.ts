@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
 import { clearTestData, createTestApp } from "@/test/setup";
 import { addMinutes, generateTestEmail } from "@/test/test-helpers";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { TotpUtils } from "@/utils/totp.utils";
 
 describe("POST /auth/confirm-password-reset", () => {
@@ -14,11 +14,11 @@ describe("POST /auth/confirm-password-reset", () => {
   it("should reset password with valid code", async () => {
     const email = generateTestEmail("reset-password");
     const resetSecret = TotpUtils.generateSecret();
-    const code = TotpUtils.generateCode(resetSecret);
+    const code = await TotpUtils.generateCode(resetSecret);
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("OldPassword123!"),
+      password: await PasswordUtils.hash("OldPassword123!"),
       name: "Test User",
       isEmailVerified: true,
       passwordResetSecret: resetSecret,
@@ -43,7 +43,7 @@ describe("POST /auth/confirm-password-reset", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("OldPassword123!"),
+      password: await PasswordUtils.hash("OldPassword123!"),
       name: "Test User",
       isEmailVerified: true,
       passwordResetSecret: resetSecret,
@@ -77,7 +77,7 @@ describe("POST /auth/confirm-password-reset", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("OldPassword123!"),
+      password: await PasswordUtils.hash("OldPassword123!"),
       name: "Test User",
       isEmailVerified: true,
       passwordResetSecret: resetSecret,
@@ -97,11 +97,11 @@ describe("POST /auth/confirm-password-reset", () => {
   it("should reject weak password", async () => {
     const email = generateTestEmail("weak-password");
     const resetSecret = TotpUtils.generateSecret();
-    const code = TotpUtils.generateCode(resetSecret);
+    const code = await TotpUtils.generateCode(resetSecret);
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("OldPassword123!"),
+      password: await PasswordUtils.hash("OldPassword123!"),
       name: "Test User",
       isEmailVerified: true,
       passwordResetSecret: resetSecret,
@@ -153,11 +153,11 @@ describe("POST /auth/confirm-password-reset", () => {
   it("should clear reset secret after successful reset", async () => {
     const email = generateTestEmail("clear-secret");
     const resetSecret = TotpUtils.generateSecret();
-    const code = TotpUtils.generateCode(resetSecret);
+    const code = await TotpUtils.generateCode(resetSecret);
 
     const user = await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("OldPassword123!"),
+      password: await PasswordUtils.hash("OldPassword123!"),
       name: "Test User",
       isEmailVerified: true,
       passwordResetSecret: resetSecret,

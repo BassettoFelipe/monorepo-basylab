@@ -1,10 +1,11 @@
-import { env } from "@/config/env";
+import { PasswordUtils } from "@basylab/core/crypto";
 import {
   AccountDeactivatedError,
   EmailNotVerifiedError,
   InvalidCredentialsError,
   SubscriptionRequiredError,
-} from "@/errors";
+} from "@basylab/core/errors";
+import { env } from "@/config/env";
 import type { ICustomFieldRepository } from "@/repositories/contracts/custom-field.repository";
 import type { IPlanFeatureRepository } from "@/repositories/contracts/plan-feature.repository";
 import type {
@@ -13,7 +14,6 @@ import type {
 } from "@/repositories/contracts/subscription.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import { PLAN_FEATURES } from "@/types/features";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { JwtUtils } from "@/utils/jwt.utils";
 
 type LoginInput = {
@@ -64,7 +64,7 @@ export class LoginUseCase {
       throw new InvalidCredentialsError();
     }
 
-    const isPasswordValid = await CryptoUtils.verifyPassword(input.password, user.password);
+    const isPasswordValid = await PasswordUtils.verify(input.password, user.password);
 
     if (!isPasswordValid) {
       throw new InvalidCredentialsError();
@@ -127,7 +127,7 @@ export class LoginUseCase {
       user.createdBy &&
       user.companyId &&
       subscription.plan?.slug &&
-      (await this.planFeatureRepository.hasPlanFeature(
+      (await this.planFeatureRepository.planHasFeature(
         subscription.plan.slug,
         PLAN_FEATURES.CUSTOM_FIELDS,
       ));

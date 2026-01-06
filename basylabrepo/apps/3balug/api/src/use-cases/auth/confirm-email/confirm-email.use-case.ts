@@ -1,5 +1,3 @@
-import { env } from "@/config/env";
-import { EMAIL_VERIFICATION } from "@/constants/auth.constants";
 import {
   AccountAlreadyVerifiedError,
   InvalidVerificationCodeError,
@@ -8,7 +6,9 @@ import {
   TooManyRequestsError,
   UserNotFoundError,
   VerificationCodeExpiredError,
-} from "@/errors";
+} from "@basylab/core/errors";
+import { env } from "@/config/env";
+import { EMAIL_VERIFICATION } from "@/constants/auth.constants";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
 import type { ISubscriptionRepository } from "@/repositories/contracts/subscription.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
@@ -77,7 +77,7 @@ export class ConfirmEmailUseCase {
       }
     }
 
-    const isValidCode = TotpUtils.verifyCode(user.verificationSecret, input.code);
+    const isValidCode = await TotpUtils.verifyCode(user.verificationSecret, input.code);
     if (!isValidCode) {
       const newAttempts = currentAttempts + 1;
       const now = new Date();

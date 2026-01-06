@@ -1,7 +1,7 @@
+import { BadRequestError, ForbiddenError, NotFoundError } from "@basylab/core/errors";
 import type { User } from "@/db/schema/users";
-import { BadRequestError, ForbiddenError, NotFoundError } from "@/errors";
+import type { ICustomFieldCacheService } from "@/services/cache";
 import type { ICustomFieldRepository } from "@/repositories/contracts/custom-field.repository";
-import type { ICustomFieldCacheService } from "@/services/cache/custom-field-cache.service";
 import { USER_ROLES } from "@/types/roles";
 
 type DeleteCustomFieldInput = {

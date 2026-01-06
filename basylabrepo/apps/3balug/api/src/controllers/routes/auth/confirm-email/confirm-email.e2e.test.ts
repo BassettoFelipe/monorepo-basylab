@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
 import { clearTestData, createTestApp } from "@/test/setup";
 import { addMinutes, generateTestEmail } from "@/test/test-helpers";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { TotpUtils } from "@/utils/totp.utils";
 
 describe("POST /auth/confirm-email", () => {
@@ -15,11 +15,11 @@ describe("POST /auth/confirm-email", () => {
     const email = generateTestEmail("confirm");
     const plans = await planRepository.findAll();
     const verificationSecret = TotpUtils.generateSecret();
-    const code = TotpUtils.generateCode(verificationSecret);
+    const code = await TotpUtils.generateCode(verificationSecret);
 
     const user = await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Test User",
       isEmailVerified: false,
       verificationSecret,
@@ -59,7 +59,7 @@ describe("POST /auth/confirm-email", () => {
 
     const user = await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Test User",
       isEmailVerified: false,
       verificationSecret,
@@ -97,7 +97,7 @@ describe("POST /auth/confirm-email", () => {
 
     const user = await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Verified User",
       isEmailVerified: true,
       verificationSecret: null,
@@ -124,7 +124,7 @@ describe("POST /auth/confirm-email", () => {
 
     const user = await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Expired User",
       isEmailVerified: false,
       verificationSecret: TotpUtils.generateSecret(),
@@ -153,7 +153,7 @@ describe("POST /auth/confirm-email", () => {
 
     const user = await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Brute Force Test",
       isEmailVerified: false,
       verificationSecret,
@@ -220,11 +220,11 @@ describe("POST /auth/confirm-email", () => {
     const email = generateTestEmail("security");
     const plans = await planRepository.findAll();
     const verificationSecret = TotpUtils.generateSecret();
-    const code = TotpUtils.generateCode(verificationSecret);
+    const code = await TotpUtils.generateCode(verificationSecret);
 
     const user = await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Security Test",
       isEmailVerified: false,
       verificationSecret,
@@ -255,7 +255,7 @@ describe("POST /auth/confirm-email", () => {
 
     const user = await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Attempts Test",
       isEmailVerified: false,
       verificationSecret,
@@ -294,11 +294,11 @@ describe("POST /auth/confirm-email", () => {
     const email = generateTestEmail("activate-sub");
     const plans = await planRepository.findAll();
     const verificationSecret = TotpUtils.generateSecret();
-    const code = TotpUtils.generateCode(verificationSecret);
+    const code = await TotpUtils.generateCode(verificationSecret);
 
     const user = await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Activation Test",
       isEmailVerified: false,
       verificationSecret,

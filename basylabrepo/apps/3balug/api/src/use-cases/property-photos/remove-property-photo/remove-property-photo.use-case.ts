@@ -1,6 +1,6 @@
+import { ForbiddenError, InternalServerError, NotFoundError } from "@basylab/core/errors";
 import { logger } from "@/config/logger";
 import type { User } from "@/db/schema/users";
-import { ForbiddenError, InternalServerError, NotFoundError } from "@/errors";
 import type { IPropertyRepository } from "@/repositories/contracts/property.repository";
 import type { IPropertyPhotoRepository } from "@/repositories/contracts/property-photo.repository";
 import type { IStorageService } from "@/services/storage";

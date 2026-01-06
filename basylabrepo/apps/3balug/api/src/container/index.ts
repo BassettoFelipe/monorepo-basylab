@@ -1,5 +1,12 @@
 import { getRedis } from "@/config/redis";
 import { db } from "@/db";
+import {
+  CompanyCacheService,
+  CustomFieldCacheService,
+  type IUserCacheService,
+  RedisCacheProvider,
+  UserCacheService,
+} from "@/services/cache";
 import { CleanupExpiredPaymentsJob } from "@/jobs/cleanup-expired-payments.job";
 import type { ICompanyRepository } from "@/repositories/contracts/company.repository";
 import type { IContractRepository } from "@/repositories/contracts/contract.repository";
@@ -29,16 +36,9 @@ import { PropertyPhotoDrizzleRepository } from "@/repositories/providers/drizzle
 import { SubscriptionDrizzleRepository } from "@/repositories/providers/drizzle/subscription.repository";
 import { TenantDrizzleRepository } from "@/repositories/providers/drizzle/tenant.repository";
 import { UserDrizzleRepository } from "@/repositories/providers/drizzle/user.repository";
-import { CustomFieldCacheService } from "@/services/cache/custom-field-cache.service";
-import {
-  getContactValidationService,
-  getDocumentValidationService,
-  getFeatureService,
-} from "@/services/container";
-import type { IUserCacheService } from "@/services/contracts/user-cache-service.interface";
+import { getContactValidator, getDocumentValidator } from "@/services/container";
 import { paymentGateway } from "@/services/payment";
 import { getStorageService } from "@/services/storage";
-import { UserCacheService } from "@/services/user-cache.service";
 import { ConfirmEmailUseCase } from "@/use-cases/auth/confirm-email/confirm-email.use-case";
 import { ConfirmPasswordResetUseCase } from "@/use-cases/auth/confirm-password-reset/confirm-password-reset.use-case";
 import { GetMeUseCase } from "@/use-cases/auth/get-me/get-me.use-case";
@@ -108,7 +108,7 @@ import { UpdateUserUseCase } from "@/use-cases/users/update-user/update-user.use
 let userRepository: IUserRepository = new UserDrizzleRepository(db);
 let companyRepository: ICompanyRepository = new CompanyDrizzleRepository(db);
 let planRepository: IPlanRepository = new PlanDrizzleRepository(db);
-const planFeatureRepository: IPlanFeatureRepository = new PlanFeatureDrizzleRepository(db);
+let planFeatureRepository: IPlanFeatureRepository = new PlanFeatureDrizzleRepository(db);
 let subscriptionRepository: ISubscriptionRepository = new SubscriptionDrizzleRepository(db);
 let pendingPaymentRepository: IPendingPaymentRepository = new PendingPaymentDrizzleRepository(db);
 let customFieldRepository: ICustomFieldRepository = new CustomFieldDrizzleRepository(db);
@@ -123,8 +123,10 @@ let documentRepository: IDocumentRepository = new DocumentDrizzleRepository(db);
 
 // Services
 const redisClient = getRedis();
-let userCacheService: IUserCacheService = new UserCacheService(redisClient);
-const customFieldCacheService = new CustomFieldCacheService();
+const cacheProvider = new RedisCacheProvider(redisClient);
+let userCacheService: IUserCacheService = new UserCacheService(cacheProvider);
+const customFieldCacheService = new CustomFieldCacheService(cacheProvider);
+const companyCacheService = new CompanyCacheService(cacheProvider);
 
 // Auth
 export const auth = {
@@ -148,7 +150,7 @@ export const auth = {
     subscriptionRepository,
     customFieldRepository,
     customFieldResponseRepository,
-    getFeatureService(),
+    planFeatureRepository,
   ),
 };
 
@@ -162,7 +164,7 @@ export const users = {
     planRepository,
     customFieldRepository,
     customFieldResponseRepository,
-    getFeatureService(),
+    planFeatureRepository,
   ),
   listUsers: new ListUsersUseCase(
     userRepository,
@@ -228,13 +230,13 @@ export const customFields = {
   create: new CreateCustomFieldUseCase(
     customFieldRepository,
     subscriptionRepository,
-    getFeatureService(),
+    planFeatureRepository,
     customFieldCacheService,
   ),
   list: new ListCustomFieldsUseCase(
     customFieldRepository,
     subscriptionRepository,
-    getFeatureService(),
+    planFeatureRepository,
     customFieldCacheService,
   ),
   update: new UpdateCustomFieldUseCase(customFieldRepository, customFieldCacheService),
@@ -245,21 +247,21 @@ export const customFields = {
     subscriptionRepository,
     customFieldRepository,
     customFieldResponseRepository,
-    getFeatureService(),
+    planFeatureRepository,
   ),
   saveMyFields: new SaveMyFieldsUseCase(
     userRepository,
     subscriptionRepository,
     customFieldRepository,
     customFieldResponseRepository,
-    getFeatureService(),
+    planFeatureRepository,
   ),
   getUserFields: new GetUserFieldsUseCase(
     userRepository,
     subscriptionRepository,
     customFieldRepository,
     customFieldResponseRepository,
-    getFeatureService(),
+    planFeatureRepository,
   ),
 };
 
@@ -267,33 +269,25 @@ export const customFields = {
 export const propertyOwners = {
   create: new CreatePropertyOwnerUseCase(
     propertyOwnerRepository,
-    getDocumentValidationService(),
-    getContactValidationService(),
+    getDocumentValidator(),
+    getContactValidator(),
   ),
   list: new ListPropertyOwnersUseCase(propertyOwnerRepository),
   get: new GetPropertyOwnerUseCase(propertyOwnerRepository),
   update: new UpdatePropertyOwnerUseCase(
     propertyOwnerRepository,
-    getDocumentValidationService(),
-    getContactValidationService(),
+    getDocumentValidator(),
+    getContactValidator(),
   ),
   delete: new DeletePropertyOwnerUseCase(propertyOwnerRepository, propertyRepository),
 };
 
 // Tenants
 export const tenants = {
-  create: new CreateTenantUseCase(
-    tenantRepository,
-    getDocumentValidationService(),
-    getContactValidationService(),
-  ),
+  create: new CreateTenantUseCase(tenantRepository, getDocumentValidator(), getContactValidator()),
   list: new ListTenantsUseCase(tenantRepository),
   get: new GetTenantUseCase(tenantRepository),
-  update: new UpdateTenantUseCase(
-    tenantRepository,
-    getDocumentValidationService(),
-    getContactValidationService(),
-  ),
+  update: new UpdateTenantUseCase(tenantRepository, getDocumentValidator(), getContactValidator()),
   delete: new DeleteTenantUseCase(tenantRepository, contractRepository),
 };
 
@@ -347,8 +341,8 @@ export const dashboard = {
 
 // Companies
 export const companies = {
-  get: new GetCompanyUseCase(companyRepository),
-  update: new UpdateCompanyUseCase(companyRepository),
+  get: new GetCompanyUseCase(companyRepository, companyCacheService),
+  update: new UpdateCompanyUseCase(companyRepository, companyCacheService),
 };
 
 // Property Photos
@@ -389,6 +383,9 @@ export const container = {
   },
   get planRepository() {
     return planRepository;
+  },
+  get planFeatureRepository() {
+    return planFeatureRepository;
   },
   get subscriptionRepository() {
     return subscriptionRepository;
@@ -442,6 +439,7 @@ export function injectTestRepositories(repositories: {
   userRepository?: IUserRepository;
   companyRepository?: ICompanyRepository;
   planRepository?: IPlanRepository;
+  planFeatureRepository?: IPlanFeatureRepository;
   subscriptionRepository?: ISubscriptionRepository;
   pendingPaymentRepository?: IPendingPaymentRepository;
   propertyOwnerRepository?: IPropertyOwnerRepository;
@@ -457,6 +455,8 @@ export function injectTestRepositories(repositories: {
   if (repositories.userRepository) userRepository = repositories.userRepository;
   if (repositories.companyRepository) companyRepository = repositories.companyRepository;
   if (repositories.planRepository) planRepository = repositories.planRepository;
+  if (repositories.planFeatureRepository)
+    planFeatureRepository = repositories.planFeatureRepository;
   if (repositories.subscriptionRepository)
     subscriptionRepository = repositories.subscriptionRepository;
   if (repositories.pendingPaymentRepository)
@@ -526,15 +526,15 @@ export function injectTestRepositories(repositories: {
   // Property Owners use cases
   propertyOwners.create = new CreatePropertyOwnerUseCase(
     propertyOwnerRepository,
-    getDocumentValidationService(),
-    getContactValidationService(),
+    getDocumentValidator(),
+    getContactValidator(),
   );
   propertyOwners.list = new ListPropertyOwnersUseCase(propertyOwnerRepository);
   propertyOwners.get = new GetPropertyOwnerUseCase(propertyOwnerRepository);
   propertyOwners.update = new UpdatePropertyOwnerUseCase(
     propertyOwnerRepository,
-    getDocumentValidationService(),
-    getContactValidationService(),
+    getDocumentValidator(),
+    getContactValidator(),
   );
   propertyOwners.delete = new DeletePropertyOwnerUseCase(
     propertyOwnerRepository,
@@ -544,15 +544,15 @@ export function injectTestRepositories(repositories: {
   // Tenants use cases
   tenants.create = new CreateTenantUseCase(
     tenantRepository,
-    getDocumentValidationService(),
-    getContactValidationService(),
+    getDocumentValidator(),
+    getContactValidator(),
   );
   tenants.list = new ListTenantsUseCase(tenantRepository);
   tenants.get = new GetTenantUseCase(tenantRepository);
   tenants.update = new UpdateTenantUseCase(
     tenantRepository,
-    getDocumentValidationService(),
-    getContactValidationService(),
+    getDocumentValidator(),
+    getContactValidator(),
   );
   tenants.delete = new DeleteTenantUseCase(tenantRepository, contractRepository);
 
@@ -621,8 +621,8 @@ export function injectTestRepositories(repositories: {
   );
 
   // Companies use cases
-  companies.get = new GetCompanyUseCase(companyRepository);
-  companies.update = new UpdateCompanyUseCase(companyRepository);
+  companies.get = new GetCompanyUseCase(companyRepository, companyCacheService);
+  companies.update = new UpdateCompanyUseCase(companyRepository, companyCacheService);
 
   // Dashboard use cases
   dashboard.getStats = new GetDashboardStatsUseCase(
@@ -667,7 +667,7 @@ export function injectTestRepositories(repositories: {
     subscriptionRepository,
     customFieldRepository,
     customFieldResponseRepository,
-    getFeatureService(),
+    planFeatureRepository,
   );
 
   // Users use cases (remaining)
@@ -679,7 +679,7 @@ export function injectTestRepositories(repositories: {
     planRepository,
     customFieldRepository,
     customFieldResponseRepository,
-    getFeatureService(),
+    planFeatureRepository,
   );
   users.listUsers = new ListUsersUseCase(
     userRepository,
@@ -692,13 +692,13 @@ export function injectTestRepositories(repositories: {
   customFields.create = new CreateCustomFieldUseCase(
     customFieldRepository,
     subscriptionRepository,
-    getFeatureService(),
+    planFeatureRepository,
     customFieldCacheService,
   );
   customFields.list = new ListCustomFieldsUseCase(
     customFieldRepository,
     subscriptionRepository,
-    getFeatureService(),
+    planFeatureRepository,
     customFieldCacheService,
   );
   customFields.update = new UpdateCustomFieldUseCase(
@@ -718,20 +718,20 @@ export function injectTestRepositories(repositories: {
     subscriptionRepository,
     customFieldRepository,
     customFieldResponseRepository,
-    getFeatureService(),
+    planFeatureRepository,
   );
   customFields.saveMyFields = new SaveMyFieldsUseCase(
     userRepository,
     subscriptionRepository,
     customFieldRepository,
     customFieldResponseRepository,
-    getFeatureService(),
+    planFeatureRepository,
   );
   customFields.getUserFields = new GetUserFieldsUseCase(
     userRepository,
     subscriptionRepository,
     customFieldRepository,
     customFieldResponseRepository,
-    getFeatureService(),
+    planFeatureRepository,
   );
 }

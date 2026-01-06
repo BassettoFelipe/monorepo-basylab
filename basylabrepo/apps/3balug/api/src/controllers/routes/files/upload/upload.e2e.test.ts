@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
 import { clearTestData, createTestApp } from "@/test/setup";
 import { generateTestEmail } from "@/test/test-helpers";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { JwtUtils } from "@/utils/jwt.utils";
 
 describe("POST /files/upload", () => {
@@ -15,7 +15,7 @@ describe("POST /files/upload", () => {
     const email = generateTestEmail("file-upload");
     const user = await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "File Upload User",
       isEmailVerified: true,
       isActive: true,

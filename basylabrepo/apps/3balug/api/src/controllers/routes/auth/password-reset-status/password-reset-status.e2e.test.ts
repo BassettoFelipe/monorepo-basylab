@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it, mock } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
 import { clearTestData, createTestApp } from "@/test/setup";
 import { addMinutes, generateTestEmail } from "@/test/test-helpers";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { TotpUtils } from "@/utils/totp.utils";
 
 // Mock do email service
@@ -32,7 +32,7 @@ describe("GET /auth/password-reset-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Test User",
       isEmailVerified: true,
     });
@@ -60,7 +60,7 @@ describe("GET /auth/password-reset-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Test User",
       isEmailVerified: true,
       passwordResetSecret: secret,
@@ -83,7 +83,7 @@ describe("GET /auth/password-reset-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Cooldown User",
       isEmailVerified: true,
       passwordResetSecret: TotpUtils.generateSecret(),
@@ -110,7 +110,7 @@ describe("GET /auth/password-reset-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Blocked User",
       isEmailVerified: true,
       passwordResetSecret: TotpUtils.generateSecret(),
@@ -136,7 +136,7 @@ describe("GET /auth/password-reset-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Throttled User",
       isEmailVerified: true,
       passwordResetSecret: TotpUtils.generateSecret(),
@@ -170,7 +170,7 @@ describe("GET /auth/password-reset-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Unverified User",
       isEmailVerified: false,
       verificationSecret: TotpUtils.generateSecret(),
@@ -221,7 +221,7 @@ describe("GET /auth/password-reset-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Security Test",
       isEmailVerified: true,
     });
@@ -241,7 +241,7 @@ describe("GET /auth/password-reset-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Format Test",
       isEmailVerified: true,
     });

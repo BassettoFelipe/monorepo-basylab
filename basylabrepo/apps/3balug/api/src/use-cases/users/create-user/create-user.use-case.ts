@@ -1,21 +1,21 @@
-import { env } from "@/config/env";
-import { logger } from "@/config/logger";
-import type { User } from "@/db/schema/users";
 import {
   BadRequestError,
   EmailAlreadyExistsError,
   ForbiddenError,
   InternalServerError,
   PlanLimitExceededError,
-} from "@/errors";
+} from "@basylab/core/errors";
+import { env } from "@/config/env";
+import { logger } from "@/config/logger";
+import type { User } from "@/db/schema/users";
 import type { ICompanyRepository } from "@/repositories/contracts/company.repository";
 import type { ICustomFieldRepository } from "@/repositories/contracts/custom-field.repository";
 import type { ICustomFieldResponseRepository } from "@/repositories/contracts/custom-field-response.repository";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
+import type { IPlanFeatureRepository } from "@/repositories/contracts/plan-feature.repository";
 import type { ISubscriptionRepository } from "@/repositories/contracts/subscription.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
-import type { IFeatureService } from "@/services/contracts/feature-service.interface";
-import { emailService } from "@/services/email/email.service";
+import { emailService } from "@/services/email";
 import { PLAN_FEATURES } from "@/types/features";
 import type { UserRole } from "@/types/roles";
 import { USER_ROLES } from "@/types/roles";
@@ -53,7 +53,7 @@ export class CreateUserUseCase {
     private readonly planRepository: IPlanRepository,
     private readonly customFieldRepository: ICustomFieldRepository,
     private readonly customFieldResponseRepository: ICustomFieldResponseRepository,
-    private readonly featureService: IFeatureService,
+    private readonly planFeatureRepository: IPlanFeatureRepository,
   ) {}
 
   async execute(input: CreateUserInput): Promise<CreateUserOutput> {
@@ -176,7 +176,7 @@ export class CreateUserUseCase {
       }
 
       if (input.customFields && input.customFields.length > 0) {
-        const hasCustomFieldsFeature = await this.featureService.planHasFeature(
+        const hasCustomFieldsFeature = await this.planFeatureRepository.planHasFeature(
           plan.slug,
           PLAN_FEATURES.CUSTOM_FIELDS,
         );

@@ -1,4 +1,8 @@
-import { AccountDeactivatedError, InvalidTokenError, UserNotFoundError } from "@/errors";
+import {
+  AccountDeactivatedError,
+  InvalidTokenError,
+  UserNotFoundError,
+} from "@basylab/core/errors";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import { JwtUtils } from "@/utils/jwt.utils";
 

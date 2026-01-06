@@ -1,8 +1,8 @@
+import { InternalServerError, NotFoundError } from "@basylab/core/errors";
 import type { Company } from "@/db/schema/companies";
 import type { User } from "@/db/schema/users";
-import { InternalServerError, NotFoundError } from "@/errors";
 import type { ICompanyRepository } from "@/repositories/contracts/company.repository";
-import { CompanyCacheService } from "@/services/cache/company-cache.service";
+import type { ICompanyCacheService } from "@/services/cache";
 
 type GetCompanyInput = {
   requestedBy: User;
@@ -21,9 +21,10 @@ type GetCompanyOutput = {
 };
 
 export class GetCompanyUseCase {
-  private readonly cache = new CompanyCacheService();
-
-  constructor(private readonly companyRepository: ICompanyRepository) {}
+  constructor(
+    private readonly companyRepository: ICompanyRepository,
+    private readonly cache: ICompanyCacheService,
+  ) {}
 
   async execute(input: GetCompanyInput): Promise<GetCompanyOutput> {
     const user = input.requestedBy;

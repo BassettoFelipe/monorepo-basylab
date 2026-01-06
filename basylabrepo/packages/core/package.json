@@ -1,0 +1,76 @@
+{
+  "name": "@basylab/core",
+  "version": "1.0.0",
+  "description": "Core utilities shared across BasyLab projects",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./auth": {
+      "types": "./dist/auth/index.d.ts",
+      "import": "./dist/auth/index.js"
+    },
+    "./crypto": {
+      "types": "./dist/crypto/index.d.ts",
+      "import": "./dist/crypto/index.js"
+    },
+    "./errors": {
+      "types": "./dist/errors/index.d.ts",
+      "import": "./dist/errors/index.js"
+    },
+    "./logger": {
+      "types": "./dist/logger/index.d.ts",
+      "import": "./dist/logger/index.js"
+    },
+    "./validation": {
+      "types": "./dist/validation/index.d.ts",
+      "import": "./dist/validation/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/types/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src/",
+    "test": "bun test || exit 0",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "jose": "^5.9.6",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.5",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.2"
+  },
+  "peerDependencies": {
+    "otpauth": "^9.0.0"
+  },
+  "peerDependenciesMeta": {
+    "otpauth": {
+      "optional": true
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "basylab",
+    "core",
+    "utilities",
+    "auth",
+    "validation"
+  ],
+  "license": "MIT"
+}

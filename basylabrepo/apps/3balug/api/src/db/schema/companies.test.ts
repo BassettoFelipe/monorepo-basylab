@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
 import postgres from "postgres";
-import { CryptoUtils } from "../../utils/crypto.utils";
 
 const DATABASE_URL =
   process.env.DATABASE_URL || "postgresql://crm_imobil:crm_imobil123@localhost:5432/crm_imobil";
@@ -12,7 +12,7 @@ describe("Companies Schema", () => {
 
   beforeAll(async () => {
     // Create a test user for FK constraints
-    const hashedPassword = await CryptoUtils.hashPassword("Test@123");
+    const hashedPassword = await PasswordUtils.hash("Test@123");
     const [user] = await sql`
 			INSERT INTO users (email, password, name, role, is_active)
 			VALUES ('test-companies@test.com', ${hashedPassword}, 'Test User', 'owner', true)
@@ -151,7 +151,7 @@ describe("Companies Schema", () => {
   });
 
   test("should prevent deletion of user if they own a company (restrict)", async () => {
-    const hashedPassword = await CryptoUtils.hashPassword("Test@123");
+    const hashedPassword = await PasswordUtils.hash("Test@123");
     const [newUser] = await sql`
 			INSERT INTO users (email, password, name, role)
 			VALUES ('owner-test@test.com', ${hashedPassword}, 'Owner Test', 'owner')
@@ -220,7 +220,7 @@ describe("Companies Schema", () => {
   });
 
   test("should query companies by owner", async () => {
-    const hashedPassword = await CryptoUtils.hashPassword("Test@123");
+    const hashedPassword = await PasswordUtils.hash("Test@123");
     const [owner] = await sql`
 			INSERT INTO users (email, password, name, role)
 			VALUES ('multi-company-owner@test.com', ${hashedPassword}, 'Multi Owner', 'owner')

@@ -1,8 +1,13 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
+import {
+  BadRequestError,
+  ForbiddenError,
+  InternalServerError,
+  NotFoundError,
+} from "@basylab/core/errors";
 import type { User } from "@/db/schema/users";
-import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from "@/errors";
+import type { IUserCacheService } from "@/services/cache";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
-import type { IUserCacheService } from "@/services/contracts/user-cache-service.interface";
 import { USER_ROLES } from "@/types/roles";
 import { ActivateUserUseCase } from "./activate-user.use-case";
 

@@ -1,6 +1,6 @@
+import { StorageUrlUtils } from "@basylab/core";
+import { BadRequestError } from "@basylab/core/errors";
 import { logger } from "@/config/logger";
-import { BadRequestError } from "@/errors";
-import { extractKeyFromUrl } from "@/helpers/s3-url.helper";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import type { IStorageService } from "@/services/storage";
 
@@ -28,7 +28,7 @@ export class DeleteAvatarUseCase {
 
     // Extrair key do URL e remover do storage
     try {
-      const key = extractKeyFromUrl(user.avatarUrl);
+      const key = StorageUrlUtils.extractS3Key(user.avatarUrl);
       if (key) {
         await this.storageService.delete(key);
       }

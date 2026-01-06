@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
 import postgres from "postgres";
 import { USER_ROLES } from "../../types/roles";
-import { CryptoUtils } from "../../utils/crypto.utils";
 
 const DATABASE_URL =
   process.env.DATABASE_URL || "postgresql://crm_imobil:crm_imobil123@localhost:5432/crm_imobil";
@@ -14,7 +14,7 @@ describe("Users Schema - Multi-tenancy", () => {
 
   beforeAll(async () => {
     // Create a test owner and company
-    const hashedPassword = await CryptoUtils.hashPassword("Test@123");
+    const hashedPassword = await PasswordUtils.hash("Test@123");
     const [owner] = await sql`
 			INSERT INTO users (email, password, name, role, is_active)
 			VALUES ('test-owner@test.com', ${hashedPassword}, 'Test Owner', 'owner', true)
@@ -47,7 +47,7 @@ describe("Users Schema - Multi-tenancy", () => {
   });
 
   test("should create user with role and company", async () => {
-    const hashedPassword = await CryptoUtils.hashPassword("Test@123");
+    const hashedPassword = await PasswordUtils.hash("Test@123");
     const [user] = await sql`
 			INSERT INTO users (email, password, name, role, company_id, is_active)
 			VALUES (
@@ -73,7 +73,7 @@ describe("Users Schema - Multi-tenancy", () => {
   });
 
   test("should create user with default role (owner)", async () => {
-    const hashedPassword = await CryptoUtils.hashPassword("Test@123");
+    const hashedPassword = await PasswordUtils.hash("Test@123");
     const [user] = await sql`
 			INSERT INTO users (email, password, name)
 			VALUES ('default-role@test.com', ${hashedPassword}, 'Default Role User')
@@ -87,7 +87,7 @@ describe("Users Schema - Multi-tenancy", () => {
   });
 
   test("should create all types of roles", async () => {
-    const hashedPassword = await CryptoUtils.hashPassword("Test@123");
+    const hashedPassword = await PasswordUtils.hash("Test@123");
     const roles = Object.values(USER_ROLES);
 
     for (const role of roles) {
@@ -110,7 +110,7 @@ describe("Users Schema - Multi-tenancy", () => {
   });
 
   test("should enforce unique email constraint", async () => {
-    const hashedPassword = await CryptoUtils.hashPassword("Test@123");
+    const hashedPassword = await PasswordUtils.hash("Test@123");
     const email = "unique@test.com";
 
     await sql`
@@ -133,7 +133,7 @@ describe("Users Schema - Multi-tenancy", () => {
   });
 
   test("should allow NULL company_id", async () => {
-    const hashedPassword = await CryptoUtils.hashPassword("Test@123");
+    const hashedPassword = await PasswordUtils.hash("Test@123");
     const [user] = await sql`
 			INSERT INTO users (email, password, name, role)
 			VALUES ('no-company@test.com', ${hashedPassword}, 'No Company User', 'admin')
@@ -146,7 +146,7 @@ describe("Users Schema - Multi-tenancy", () => {
   });
 
   test("should cascade delete users when company is deleted", async () => {
-    const hashedPassword = await CryptoUtils.hashPassword("Test@123");
+    const hashedPassword = await PasswordUtils.hash("Test@123");
 
     // Create owner
     const [owner] = await sql`
@@ -192,7 +192,7 @@ describe("Users Schema - Multi-tenancy", () => {
   });
 
   test("should query active users only", async () => {
-    const hashedPassword = await CryptoUtils.hashPassword("Test@123");
+    const hashedPassword = await PasswordUtils.hash("Test@123");
 
     const [activeUser] = await sql`
 			INSERT INTO users (email, password, name, role, company_id, is_active)
@@ -222,7 +222,7 @@ describe("Users Schema - Multi-tenancy", () => {
   });
 
   test("should query users by company and role", async () => {
-    const hashedPassword = await CryptoUtils.hashPassword("Test@123");
+    const hashedPassword = await PasswordUtils.hash("Test@123");
 
     await sql`
 			INSERT INTO users (email, password, name, role, company_id, is_active)

@@ -1,6 +1,6 @@
+import { StorageUrlUtils } from "@basylab/core";
+import { BadRequestError } from "@basylab/core/errors";
 import { logger } from "@/config/logger";
-import { BadRequestError } from "@/errors";
-import { extractKeyFromUrl } from "@/helpers/s3-url.helper";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import { getImageProcessor } from "@/services/image";
 import type { IStorageService } from "@/services/storage";
@@ -61,7 +61,7 @@ export class UploadAvatarUseCase {
 
     if (user.avatarUrl) {
       try {
-        const oldKey = extractKeyFromUrl(user.avatarUrl);
+        const oldKey = StorageUrlUtils.extractS3Key(user.avatarUrl);
         if (oldKey) {
           await this.storageService.delete(oldKey);
         }

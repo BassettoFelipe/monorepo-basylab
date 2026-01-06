@@ -1,15 +1,14 @@
-import { logger } from "@/config/logger";
-import type { User } from "@/db/schema/users";
 import {
   BadRequestError,
   ConflictError,
   ForbiddenError,
   InternalServerError,
   NotFoundError,
-} from "@/errors";
+} from "@basylab/core/errors";
+import type { ContactValidator, DocumentValidator } from "@basylab/core/validation";
+import { logger } from "@/config/logger";
+import type { User } from "@/db/schema/users";
 import type { IPropertyOwnerRepository } from "@/repositories/contracts/property-owner.repository";
-import type { ContactValidationService } from "@/services/validation/contact-validation.service";
-import type { DocumentValidationService } from "@/services/validation/document-validation.service";
 
 type CreatePropertyOwnerInput = {
   name: string;
@@ -46,8 +45,8 @@ type CreatePropertyOwnerOutput = {
 export class CreatePropertyOwnerUseCase {
   constructor(
     private readonly propertyOwnerRepository: IPropertyOwnerRepository,
-    private readonly documentValidationService: DocumentValidationService,
-    private readonly contactValidationService: ContactValidationService,
+    private readonly documentValidator: DocumentValidator,
+    private readonly contactValidator: ContactValidator,
   ) {}
 
   async execute(input: CreatePropertyOwnerInput): Promise<CreatePropertyOwnerOutput> {
@@ -57,32 +56,28 @@ export class CreatePropertyOwnerUseCase {
       throw new InternalServerError("Usuário sem empresa vinculada");
     }
 
-    const normalizedDocument =
-      await this.documentValidationService.normalizeValidateAndCheckUniqueness(
-        input.document,
-        input.documentType,
+    const normalizedDocument = await this.documentValidator.normalizeValidateAndCheckUniqueness(
+      input.document,
+      input.documentType,
+      createdBy.companyId,
+      this.propertyOwnerRepository,
+      "um proprietário",
+    );
+
+    let normalizedEmail: string | null = null;
+    if (input.email) {
+      normalizedEmail = await this.contactValidator.normalizeValidateAndCheckEmailUniqueness(
+        input.email,
         createdBy.companyId,
         this.propertyOwnerRepository,
         "um proprietário",
       );
-
-    let normalizedEmail: string | null = null;
-    if (input.email) {
-      normalizedEmail =
-        await this.contactValidationService.normalizeValidateAndCheckEmailUniqueness(
-          input.email,
-          createdBy.companyId,
-          this.propertyOwnerRepository,
-          "um proprietário",
-        );
     }
 
-    const normalizedPhone = input.phone
-      ? this.contactValidationService.normalizePhone(input.phone)
-      : null;
+    const normalizedPhone = input.phone ? this.contactValidator.normalizePhone(input.phone) : null;
 
     const normalizedZipCode = input.zipCode
-      ? this.contactValidationService.normalizeZipCode(input.zipCode)
+      ? this.contactValidator.normalizeZipCode(input.zipCode)
       : null;
 
     try {

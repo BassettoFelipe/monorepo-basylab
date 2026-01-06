@@ -1,5 +1,9 @@
 import { afterAll, beforeEach, describe, expect, it, mock } from "bun:test";
-import { EmailNotVerifiedError, EmailSendFailedError, UserNotFoundError } from "@/errors";
+import {
+  EmailNotVerifiedError,
+  EmailSendFailedError,
+  UserNotFoundError,
+} from "@basylab/core/errors";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import { EmailServiceError, emailService as originalEmailService } from "@/services/email";
 import type { User } from "@/types/user";
@@ -8,7 +12,7 @@ import { GetPasswordResetStatusUseCase } from "./get-password-reset-status.use-c
 
 // Mocks
 const mockGenerateSecret = mock(() => "TOTP_SECRET_123");
-const mockGenerateCode = mock(() => "123456");
+const mockGenerateCode = mock(() => Promise.resolve("123456"));
 const mockSendPasswordResetCode = mock(() => Promise.resolve());
 
 mock.module("@/utils/totp.utils", () => ({
@@ -77,7 +81,7 @@ describe("GetPasswordResetStatusUseCase", () => {
     mockSendPasswordResetCode.mockClear();
 
     mockGenerateSecret.mockReturnValue("TOTP_SECRET_123");
-    mockGenerateCode.mockReturnValue("123456");
+    mockGenerateCode.mockResolvedValue("123456");
     mockSendPasswordResetCode.mockResolvedValue(undefined);
 
     userRepository = {

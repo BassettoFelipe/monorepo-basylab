@@ -6,7 +6,7 @@ import {
   SubscriptionNotFoundError,
   UserNotFoundError,
   VerificationCodeExpiredError,
-} from "@/errors";
+} from "@basylab/core/errors";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
 import type { ISubscriptionRepository } from "@/repositories/contracts/subscription.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
@@ -14,13 +14,7 @@ import { JwtUtils as OriginalJwtUtils } from "@/utils/jwt.utils";
 import { TotpUtils as OriginalTotpUtils } from "@/utils/totp.utils";
 import { ConfirmEmailUseCase } from "./confirm-email.use-case";
 
-const mockVerifyCode = mock(() => true);
-mock.module("@/utils/totp.utils", () => ({
-  TotpUtils: {
-    verifyCode: mockVerifyCode,
-  },
-}));
-
+const mockVerifyCode = mock(() => Promise.resolve(true));
 const mockGenerateToken = mock(() => Promise.resolve("checkout-token-123"));
 const mockVerifyToken = mock(() =>
   Promise.resolve({
@@ -30,6 +24,7 @@ const mockVerifyToken = mock(() =>
   }),
 );
 const mockParseExpirationToSeconds = mock(() => 1800);
+
 mock.module("@/utils/jwt.utils", () => ({
   JwtUtils: {
     generateToken: mockGenerateToken,
@@ -38,9 +33,19 @@ mock.module("@/utils/jwt.utils", () => ({
   },
 }));
 
+mock.module("@/utils/totp.utils", () => ({
+  TotpUtils: {
+    verifyCode: mockVerifyCode,
+  },
+}));
+
 afterAll(() => {
-  mock.module("@/utils/jwt.utils", () => ({ JwtUtils: OriginalJwtUtils }));
-  mock.module("@/utils/totp.utils", () => ({ TotpUtils: OriginalTotpUtils }));
+  mock.module("@/utils/jwt.utils", () => ({
+    JwtUtils: OriginalJwtUtils,
+  }));
+  mock.module("@/utils/totp.utils", () => ({
+    TotpUtils: OriginalTotpUtils,
+  }));
 });
 
 describe("ConfirmEmailUseCase", () => {
@@ -117,7 +122,7 @@ describe("ConfirmEmailUseCase", () => {
     mockGenerateToken.mockClear();
     mockParseExpirationToSeconds.mockClear();
 
-    mockVerifyCode.mockReturnValue(true);
+    mockVerifyCode.mockResolvedValue(true);
     mockGenerateToken.mockResolvedValue("checkout-token-123");
     mockParseExpirationToSeconds.mockReturnValue(1800);
 
@@ -273,13 +278,13 @@ describe("ConfirmEmailUseCase", () => {
     });
 
     test("should throw InvalidVerificationCodeError when code is invalid", async () => {
-      mockVerifyCode.mockReturnValue(false);
+      mockVerifyCode.mockResolvedValue(false);
 
       await expect(useCase.execute(validInput)).rejects.toThrow(InvalidVerificationCodeError);
     });
 
     test("should throw InvalidVerificationCodeError for wrong code", async () => {
-      mockVerifyCode.mockReturnValue(false);
+      mockVerifyCode.mockResolvedValue(false);
 
       try {
         await useCase.execute(validInput);
@@ -289,7 +294,7 @@ describe("ConfirmEmailUseCase", () => {
       }
     });
 
-    test("should verify code using TotpUtils", async () => {
+    test("should verify code using TotpService", async () => {
       await useCase.execute(validInput);
 
       expect(mockVerifyCode).toHaveBeenCalledWith(mockUser.verificationSecret, validInput.code);

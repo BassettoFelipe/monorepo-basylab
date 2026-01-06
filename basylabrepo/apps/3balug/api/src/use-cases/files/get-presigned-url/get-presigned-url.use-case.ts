@@ -1,6 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { getExtension, sanitizeFileName } from "@/helpers/file-utils.helper";
-import { isTypeAllowed } from "@/helpers/file-validation.helper";
+import { FileUtils, FileValidation } from "@basylab/core";
 import type { IStorageService } from "@/services/storage";
 
 interface GetPresignedUrlInput {
@@ -25,15 +24,15 @@ export class GetPresignedUrlUseCase {
     const { fileName, contentType, userId, fieldId, allowedTypes } = input;
 
     if (allowedTypes && allowedTypes.length > 0) {
-      const allowed = isTypeAllowed(contentType, allowedTypes);
+      const allowed = FileValidation.isTypeAllowed(contentType, allowedTypes);
       if (!allowed) {
         throw new Error(`Tipo de arquivo não permitido. Tipos aceitos: ${allowedTypes.join(", ")}`);
       }
     }
 
-    const fileExtension = getExtension(fileName, contentType);
+    const fileExtension = FileUtils.getExtension(fileName, contentType);
     const uniqueId = randomUUID();
-    const sanitized = sanitizeFileName(fileName);
+    const sanitized = FileUtils.sanitizeFileName(fileName);
 
     const keyParts = ["files", userId];
     if (fieldId) {

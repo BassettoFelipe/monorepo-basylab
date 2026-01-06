@@ -1,7 +1,7 @@
+import { ForbiddenError, InternalServerError, NotFoundError } from "@basylab/core/errors";
 import type { ContractStatus } from "@/db/schema/contracts";
 import type { ListingType, PropertyStatus, PropertyType } from "@/db/schema/properties";
 import type { User } from "@/db/schema/users";
-import { ForbiddenError, InternalServerError, NotFoundError } from "@/errors";
 import type { IContractRepository } from "@/repositories/contracts/contract.repository";
 import type { IPropertyRepository } from "@/repositories/contracts/property.repository";
 import type { IPropertyOwnerRepository } from "@/repositories/contracts/property-owner.repository";

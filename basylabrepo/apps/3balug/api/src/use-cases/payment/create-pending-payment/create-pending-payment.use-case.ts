@@ -1,9 +1,13 @@
-import { EmailAlreadyExistsError, PlanNotFoundError, WeakPasswordError } from "@/errors";
+import { PasswordUtils } from "@basylab/core/crypto";
+import {
+  EmailAlreadyExistsError,
+  PlanNotFoundError,
+  WeakPasswordError,
+} from "@basylab/core/errors";
+import { Validators } from "@basylab/core/validation";
 import type { IPendingPaymentRepository } from "@/repositories/contracts/pending-payment.repository";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
-import { CryptoUtils } from "@/utils/crypto.utils";
-import { ValidationUtils } from "@/utils/validation.utils";
 
 type CreatePendingPaymentInput = {
   email: string;
@@ -25,7 +29,7 @@ export class CreatePendingPaymentUseCase {
   ) {}
 
   async execute(input: CreatePendingPaymentInput): Promise<CreatePendingPaymentOutput> {
-    const passwordErrors = ValidationUtils.validatePasswordStrength(input.password);
+    const passwordErrors = Validators.validatePasswordStrength(input.password);
     if (passwordErrors.length > 0) {
       throw new WeakPasswordError(`A senha deve conter: ${passwordErrors.join(", ")}`);
     }
@@ -50,7 +54,7 @@ export class CreatePendingPaymentUseCase {
       throw new PlanNotFoundError();
     }
 
-    const hashedPassword = await CryptoUtils.hashPassword(input.password);
+    const hashedPassword = await PasswordUtils.hash(input.password);
 
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 30);

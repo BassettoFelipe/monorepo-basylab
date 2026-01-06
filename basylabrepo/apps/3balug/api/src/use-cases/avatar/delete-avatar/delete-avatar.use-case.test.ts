@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
-import { BadRequestError } from "@/errors";
+import { BadRequestError } from "@basylab/core/errors";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import type { IStorageService } from "@/services/storage";
 import { DeleteAvatarUseCase } from "./delete-avatar.use-case";

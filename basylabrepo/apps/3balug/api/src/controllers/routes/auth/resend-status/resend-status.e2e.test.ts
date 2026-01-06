@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
 import { clearTestData, createTestApp } from "@/test/setup";
 import { addMinutes, generateTestEmail } from "@/test/test-helpers";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { TotpUtils } from "@/utils/totp.utils";
 
 describe("POST /auth/resend-status", () => {
@@ -17,7 +17,7 @@ describe("POST /auth/resend-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Test User",
       isEmailVerified: false,
       verificationSecret,
@@ -42,7 +42,7 @@ describe("POST /auth/resend-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Test User",
       isEmailVerified: false,
       verificationSecret: TotpUtils.generateSecret(),
@@ -65,7 +65,7 @@ describe("POST /auth/resend-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Cooldown User",
       isEmailVerified: false,
       verificationSecret: TotpUtils.generateSecret(),
@@ -88,7 +88,7 @@ describe("POST /auth/resend-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Limit User",
       isEmailVerified: false,
       verificationSecret: TotpUtils.generateSecret(),
@@ -120,7 +120,7 @@ describe("POST /auth/resend-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Verified User",
       isEmailVerified: true,
       verificationSecret: null,
@@ -159,7 +159,7 @@ describe("POST /auth/resend-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Security Test",
       isEmailVerified: false,
       verificationSecret: TotpUtils.generateSecret(),
@@ -183,7 +183,7 @@ describe("POST /auth/resend-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Format Test",
       isEmailVerified: false,
       verificationSecret: TotpUtils.generateSecret(),
@@ -218,7 +218,7 @@ describe("POST /auth/resend-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Case Test",
       isEmailVerified: false,
       verificationSecret: TotpUtils.generateSecret(),
@@ -244,7 +244,7 @@ describe("POST /auth/resend-status", () => {
 
     await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Cooldown Calc",
       isEmailVerified: false,
       verificationSecret: TotpUtils.generateSecret(),

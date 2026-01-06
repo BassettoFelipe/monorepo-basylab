@@ -1,6 +1,6 @@
+import { AppError } from "@basylab/core/errors";
 import type { Elysia } from "elysia";
 import { logger } from "@/config/logger";
-import { AppError } from "@/errors/app.error";
 import { HttpError } from "@/errors/http-error";
 
 const translateValidationMessage = (message: string): string => {

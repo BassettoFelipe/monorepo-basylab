@@ -1,5 +1,5 @@
+import { BadRequestError, InvalidTokenError } from "@basylab/core/errors";
 import { Elysia } from "elysia";
-import { BadRequestError, InvalidTokenError } from "@/errors";
 import { type CheckoutTokenPayload, JwtUtils } from "@/utils/jwt.utils";
 
 /**

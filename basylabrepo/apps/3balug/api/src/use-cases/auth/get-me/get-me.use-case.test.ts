@@ -4,7 +4,7 @@ import { FIELD_TYPES } from "@/db/schema/custom-fields";
 import type { Plan } from "@/db/schema/plans";
 import type { Subscription } from "@/db/schema/subscriptions";
 import type { User } from "@/db/schema/users";
-import type { IFeatureService } from "@/services/contracts/feature-service.interface";
+import type { IPlanFeatureRepository } from "@/repositories/contracts/plan-feature.repository";
 import {
   InMemoryCompanyRepository,
   InMemoryCustomFieldRepository,
@@ -24,7 +24,7 @@ describe("GetMeUseCase", () => {
   let customFieldResponseRepository: InMemoryCustomFieldResponseRepository;
   let planRepository: InMemoryPlanRepository;
   let companyRepository: InMemoryCompanyRepository;
-  let mockFeatureService: IFeatureService;
+  let mockPlanFeatureRepository: IPlanFeatureRepository;
 
   let company: Company;
   let housePlan: Plan;
@@ -45,8 +45,8 @@ describe("GetMeUseCase", () => {
     // Link repositories
     subscriptionRepository.setPlanRepository(planRepository);
 
-    // Create mock feature service
-    mockFeatureService = {
+    // Create mock plan feature repository
+    mockPlanFeatureRepository = {
       planHasFeature: mock(() => Promise.resolve(true)),
       getPlanFeatures: mock(() => Promise.resolve([])),
       getPlansWithFeature: mock(() => Promise.resolve([])),
@@ -57,7 +57,7 @@ describe("GetMeUseCase", () => {
       subscriptionRepository,
       customFieldRepository,
       customFieldResponseRepository,
-      mockFeatureService,
+      mockPlanFeatureRepository,
     );
 
     // Create test data
@@ -393,7 +393,7 @@ describe("GetMeUseCase", () => {
         order: 0,
       });
 
-      mockFeatureService.planHasFeature = mock(() => Promise.resolve(false));
+      mockPlanFeatureRepository.planHasFeature = mock(() => Promise.resolve(false));
 
       const subscription = await subscriptionRepository.findCurrentByUserId(ownerUser.id);
 

@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, test } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
+import { UnauthorizedError } from "@basylab/core/errors";
 import type { Company } from "@/db/schema/companies";
 import type { User } from "@/db/schema/users";
-import { UnauthorizedError } from "@/errors";
 import {
   InMemoryCompanyRepository,
   InMemoryCustomFieldRepository,
@@ -9,7 +10,6 @@ import {
   InMemoryUserRepository,
 } from "@/test/mock-repository";
 import { USER_ROLES } from "@/types/roles";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { ListUsersUseCase } from "./list-users.use-case";
 
 describe("ListUsersUseCase", () => {
@@ -38,7 +38,7 @@ describe("ListUsersUseCase", () => {
     // Create owner user (without company first)
     ownerUser = await userRepository.create({
       email: "owner@test.com",
-      password: await CryptoUtils.hashPassword("Test@123"),
+      password: await PasswordUtils.hash("Test@123"),
       name: "Owner User",
       role: USER_ROLES.OWNER,
       isActive: true,
@@ -74,7 +74,7 @@ describe("ListUsersUseCase", () => {
     test("deve permitir manager listar usuários", async () => {
       const manager = await userRepository.create({
         email: "manager@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Manager User",
         role: USER_ROLES.MANAGER,
         companyId: company.id,
@@ -93,7 +93,7 @@ describe("ListUsersUseCase", () => {
     test("deve lançar erro se broker tentar listar", async () => {
       const broker = await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -113,7 +113,7 @@ describe("ListUsersUseCase", () => {
     test("deve lançar erro se insurance analyst tentar listar", async () => {
       const analyst = await userRepository.create({
         email: "analyst@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Analyst User",
         role: USER_ROLES.INSURANCE_ANALYST,
         companyId: company.id,
@@ -133,7 +133,7 @@ describe("ListUsersUseCase", () => {
     test("deve lançar erro se usuário não tem empresa vinculada", async () => {
       const orphanOwner = await userRepository.create({
         email: "orphan@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Orphan Owner",
         role: USER_ROLES.OWNER,
         isActive: true,
@@ -153,7 +153,7 @@ describe("ListUsersUseCase", () => {
       // Criar usuários de teste
       await userRepository.create({
         email: "broker1@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker 1",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -163,7 +163,7 @@ describe("ListUsersUseCase", () => {
 
       await userRepository.create({
         email: "broker2@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker 2",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -173,7 +173,7 @@ describe("ListUsersUseCase", () => {
 
       await userRepository.create({
         email: "manager1@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Manager 1",
         role: USER_ROLES.MANAGER,
         companyId: company.id,
@@ -183,7 +183,7 @@ describe("ListUsersUseCase", () => {
 
       await userRepository.create({
         email: "analyst1@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Analyst 1",
         role: USER_ROLES.INSURANCE_ANALYST,
         companyId: company.id,
@@ -194,7 +194,7 @@ describe("ListUsersUseCase", () => {
       // Criar usuário inativo
       await userRepository.create({
         email: "broker3@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker 3 (Inativo)",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -282,7 +282,7 @@ describe("ListUsersUseCase", () => {
       for (let i = 1; i <= 25; i++) {
         await userRepository.create({
           email: `broker${i}@test.com`,
-          password: await CryptoUtils.hashPassword("Test@123"),
+          password: await PasswordUtils.hash("Test@123"),
           name: `Broker ${i}`,
           role: USER_ROLES.BROKER,
           companyId: company.id,
@@ -343,7 +343,7 @@ describe("ListUsersUseCase", () => {
       // Criar usuários com delays para garantir ordem diferente
       const user1 = await userRepository.create({
         email: "broker1@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker 1",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -355,7 +355,7 @@ describe("ListUsersUseCase", () => {
 
       const user2 = await userRepository.create({
         email: "broker2@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker 2",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -367,7 +367,7 @@ describe("ListUsersUseCase", () => {
 
       const user3 = await userRepository.create({
         email: "broker3@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker 3",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -391,7 +391,7 @@ describe("ListUsersUseCase", () => {
       // Criar outra empresa e usuários
       const owner2 = await userRepository.create({
         email: "owner2@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Owner 2",
         role: USER_ROLES.OWNER,
         isActive: true,
@@ -411,7 +411,7 @@ describe("ListUsersUseCase", () => {
       // Adicionar usuários na company 1
       await userRepository.create({
         email: "broker1@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker 1 - Company 1",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -422,7 +422,7 @@ describe("ListUsersUseCase", () => {
       // Adicionar usuários na company 2
       await userRepository.create({
         email: "broker2@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker 2 - Company 2",
         role: USER_ROLES.BROKER,
         companyId: company2.id,
@@ -453,7 +453,7 @@ describe("ListUsersUseCase", () => {
     test("deve retornar campos corretos no formato UserListItem", async () => {
       await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -483,7 +483,7 @@ describe("ListUsersUseCase", () => {
     test("deve retornar phone no formato correto", async () => {
       await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         phone: "11999999999",
@@ -502,7 +502,7 @@ describe("ListUsersUseCase", () => {
     test("deve retornar phone null quando não fornecido", async () => {
       await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         phone: null,
@@ -521,7 +521,7 @@ describe("ListUsersUseCase", () => {
     test("deve retornar createdAt como string ISO", async () => {
       await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -544,7 +544,7 @@ describe("ListUsersUseCase", () => {
       // Criar usuários de teste
       await userRepository.create({
         email: "broker1@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker 1",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -610,7 +610,7 @@ describe("ListUsersUseCase", () => {
       // Criar mais um usuário
       await userRepository.create({
         email: "broker2@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker 2",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -698,7 +698,7 @@ describe("ListUsersUseCase", () => {
     test("deve excluir o próprio usuário da listagem (manager)", async () => {
       const manager = await userRepository.create({
         email: "manager@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Manager User",
         role: USER_ROLES.MANAGER,
         companyId: company.id,
@@ -708,7 +708,7 @@ describe("ListUsersUseCase", () => {
 
       await userRepository.create({
         email: "broker1@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker 1",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -729,7 +729,7 @@ describe("ListUsersUseCase", () => {
     test("deve excluir owner da listagem", async () => {
       await userRepository.create({
         email: "broker1@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker 1",
         role: USER_ROLES.BROKER,
         companyId: company.id,

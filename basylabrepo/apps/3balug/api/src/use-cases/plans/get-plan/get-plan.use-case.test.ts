@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { PlanNotFoundError } from "@/errors";
+import { PlanNotFoundError } from "@basylab/core/errors";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
 import type { Plan } from "@/types/plan";
 import { GetPlanUseCase } from "./get-plan.use-case";

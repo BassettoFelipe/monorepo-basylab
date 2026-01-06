@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
+import {
+  OperationNotAllowedError,
+  PlanNotFoundError,
+  SubscriptionNotFoundError,
+} from "@basylab/core/errors";
 import type { User } from "@/db/schema/users";
-import { OperationNotAllowedError, PlanNotFoundError, SubscriptionNotFoundError } from "@/errors";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
 import type { ISubscriptionRepository } from "@/repositories/contracts/subscription.repository";
 import { USER_ROLES } from "@/types/roles";

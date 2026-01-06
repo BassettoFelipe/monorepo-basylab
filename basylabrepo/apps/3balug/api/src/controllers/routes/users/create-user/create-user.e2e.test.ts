@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
 import { clearTestData, createTestApp } from "@/test/setup";
 import { generateTestEmail } from "@/test/test-helpers";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { JwtUtils } from "@/utils/jwt.utils";
 
 describe("POST /api/users - Create User E2E", () => {
@@ -56,7 +56,7 @@ describe("POST /api/users - Create User E2E", () => {
 
       const brokerUser = await userRepository.create({
         email: generateTestEmail("broker"),
-        password: await CryptoUtils.hashPassword("SecureTest@2024!"),
+        password: await PasswordUtils.hash("SecureTest@2024!"),
         name: "Broker User",
         role: "broker",
         companyId: company.id,
@@ -130,7 +130,7 @@ describe("POST /api/users - Create User E2E", () => {
 
       const managerUser = await userRepository.create({
         email: generateTestEmail("manager"),
-        password: await CryptoUtils.hashPassword("SecureTest@2024!"),
+        password: await PasswordUtils.hash("SecureTest@2024!"),
         name: "Manager User",
         role: "manager",
         companyId: company.id,
@@ -198,7 +198,7 @@ describe("POST /api/users - Create User E2E", () => {
       // Create first user (should work - within limit)
       await userRepository.create({
         email: generateTestEmail("first-broker"),
-        password: await CryptoUtils.hashPassword("SecureTest@2024!"),
+        password: await PasswordUtils.hash("SecureTest@2024!"),
         name: "First Broker",
         role: "broker",
         companyId: company.id,
@@ -426,7 +426,7 @@ describe("POST /api/users - Create User E2E", () => {
       const existingEmail = generateTestEmail("existing");
       await userRepository.create({
         email: existingEmail,
-        password: await CryptoUtils.hashPassword("SecureTest@2024!"),
+        password: await PasswordUtils.hash("SecureTest@2024!"),
         name: "Existing User",
         role: "broker",
         companyId: company.id,

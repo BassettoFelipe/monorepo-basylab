@@ -4,12 +4,14 @@ import type { Plan } from "@/db/schema/plans";
 import type { Subscription } from "@/db/schema/subscriptions";
 import type { User } from "@/db/schema/users";
 import { USER_ROLES } from "@/types/roles";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { generateTestEmail } from "./test-helpers";
+
+// Use crypto.randomUUID directly to avoid mock interference from tests that mock @basylab/core/crypto
+const generateUUID = (): string => crypto.randomUUID();
 
 export function createMockUser(overrides?: Partial<User>): User {
   return {
-    id: overrides?.id || CryptoUtils.generateUUID(),
+    id: overrides?.id || generateUUID(),
     email: overrides?.email || generateTestEmail("user"),
     name: overrides?.name || "Test User",
     password: overrides?.password || "$2b$12$hashedpassword123",
@@ -59,7 +61,7 @@ export function createUnverifiedUser(overrides?: Partial<User>): User {
 
 export function createMockPlan(overrides?: Partial<Plan>): Plan {
   return {
-    id: overrides?.id || CryptoUtils.generateUUID(),
+    id: overrides?.id || generateUUID(),
     name: overrides?.name || "Basic Plan",
     slug: overrides?.slug || "basico",
     description: overrides?.description || "Basic plan description",
@@ -127,9 +129,9 @@ export function createMockSubscription(overrides?: Partial<Subscription>): Subsc
   endDate.setMonth(endDate.getMonth() + 1);
 
   return {
-    id: overrides?.id || CryptoUtils.generateUUID(),
-    userId: overrides?.userId || CryptoUtils.generateUUID(),
-    planId: overrides?.planId || CryptoUtils.generateUUID(),
+    id: overrides?.id || generateUUID(),
+    userId: overrides?.userId || generateUUID(),
+    planId: overrides?.planId || generateUUID(),
     status: overrides?.status || "active",
     startDate: overrides?.startDate || now,
     endDate: overrides?.endDate || endDate,
@@ -193,11 +195,11 @@ export function createMockPendingPayment(overrides?: Partial<PendingPayment>): P
   expiresAt.setMinutes(expiresAt.getMinutes() + 30);
 
   return {
-    id: overrides?.id || CryptoUtils.generateUUID(),
+    id: overrides?.id || generateUUID(),
     email: overrides?.email || generateTestEmail("payment"),
     name: overrides?.name || "Payment User",
     password: overrides?.password || "$2b$12$hashedpassword123",
-    planId: overrides?.planId || CryptoUtils.generateUUID(),
+    planId: overrides?.planId || generateUUID(),
     pagarmeOrderId: overrides?.pagarmeOrderId || null,
     pagarmeChargeId: overrides?.pagarmeChargeId || null,
     processedWebhookId: overrides?.processedWebhookId || null,
@@ -241,7 +243,7 @@ export function createCompleteUserSetup(overrides?: {
 
 export function createMockCompany(overrides?: Partial<Company>): Company {
   return {
-    id: overrides?.id || CryptoUtils.generateUUID(),
+    id: overrides?.id || generateUUID(),
     name: overrides?.name || "Test Company",
     cnpj: overrides?.cnpj || null,
     ownerId: overrides?.ownerId ?? null,

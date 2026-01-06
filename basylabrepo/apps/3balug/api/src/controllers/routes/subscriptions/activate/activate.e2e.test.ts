@@ -1,8 +1,8 @@
 import { afterAll, beforeEach, describe, expect, it, mock } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
 import type { IPaymentGateway } from "@/services/payment/contracts/payment-gateway.interface";
 import { clearTestData, createTestApp } from "@/test/setup";
 import { addDays, generateTestEmail } from "@/test/test-helpers";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { JwtUtils } from "@/utils/jwt.utils";
 
 // Mock do payment gateway
@@ -74,7 +74,7 @@ describe("POST /subscriptions/activate", () => {
     // Create verified user
     const user = await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword(password),
+      password: await PasswordUtils.hash(password),
       name: "Test User",
       isEmailVerified: true,
     });
@@ -347,7 +347,7 @@ describe("POST /subscriptions/activate", () => {
     // Create another user
     const otherUser = await userRepository.create({
       email: generateTestEmail("other-user"),
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Other User",
       isEmailVerified: true,
     });
@@ -493,7 +493,7 @@ describe("POST /subscriptions/activate", () => {
     // Create user without subscription
     const user = await userRepository.create({
       email,
-      password: await CryptoUtils.hashPassword("TestPassword123!"),
+      password: await PasswordUtils.hash("TestPassword123!"),
       name: "Test User",
       isEmailVerified: true,
     });

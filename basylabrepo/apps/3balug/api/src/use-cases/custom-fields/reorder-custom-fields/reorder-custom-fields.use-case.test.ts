@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, test } from "bun:test";
+import { BadRequestError, ForbiddenError } from "@basylab/core/errors";
 import type { Company } from "@/db/schema/companies";
 import type { CustomField } from "@/db/schema/custom-fields";
 import { FIELD_TYPES } from "@/db/schema/custom-fields";
 import type { User } from "@/db/schema/users";
-import { BadRequestError, ForbiddenError } from "@/errors";
 import {
   InMemoryCompanyRepository,
   InMemoryCustomFieldRepository,

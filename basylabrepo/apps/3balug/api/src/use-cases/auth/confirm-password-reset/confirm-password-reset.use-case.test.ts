@@ -1,31 +1,39 @@
 import { afterAll, beforeEach, describe, expect, it, mock } from "bun:test";
 import {
+  PasswordUtils as OriginalPasswordUtils,
+  RandomUtils as OriginalRandomUtils,
+} from "@basylab/core/crypto";
+import {
   EmailNotVerifiedError,
   InvalidPasswordResetCodeError,
   PasswordResetCodeExpiredError,
   TooManyRequestsError,
   UserNotFoundError,
   WeakPasswordError,
-} from "@/errors";
+} from "@basylab/core/errors";
+import {
+  Sanitizers as OriginalSanitizers,
+  Validators as OriginalValidators,
+} from "@basylab/core/validation";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import type { User } from "@/types/user";
-import { CryptoUtils as OriginalCryptoUtils } from "@/utils/crypto.utils";
-import { validatePasswordStrength as originalValidatePasswordStrength } from "@/utils/password-validator";
 import { TotpUtils as OriginalTotpUtils } from "@/utils/totp.utils";
 import { ConfirmPasswordResetUseCase } from "./confirm-password-reset.use-case";
 
 // Mocks
 const mockHashPassword = mock(() => Promise.resolve("$2b$10$hashedPassword"));
-const mockVerifyCode = mock(() => true);
-const mockValidatePasswordStrength = mock(() => ({
-  isValid: true,
-  errors: [] as string[],
-}));
+const mockVerifyCode = mock(() => Promise.resolve(true));
+const mockValidatePasswordStrength = mock(() => [] as string[]);
 
-mock.module("@/utils/crypto.utils", () => ({
-  CryptoUtils: {
-    ...OriginalCryptoUtils,
-    hashPassword: mockHashPassword,
+mock.module("@basylab/core/crypto", () => ({
+  PasswordUtils: {
+    ...OriginalPasswordUtils,
+    hash: mockHashPassword,
+  },
+  RandomUtils: {
+    generateUUID: () => "mock-uuid",
+    generateSecureString: () => "mock-secure-string",
+    generatePassword: () => "mock-password",
   },
 }));
 
@@ -36,19 +44,28 @@ mock.module("@/utils/totp.utils", () => ({
   },
 }));
 
-mock.module("@/utils/password-validator", () => ({
-  validatePasswordStrength: mockValidatePasswordStrength,
+mock.module("@basylab/core/validation", () => ({
+  Validators: {
+    ...OriginalValidators,
+    validatePasswordStrength: mockValidatePasswordStrength,
+  },
+  Sanitizers: {
+    sanitizeName: (name: string) => name.trim(),
+    sanitizeEmail: (email: string) => email.toLowerCase().trim(),
+  },
 }));
 
 afterAll(() => {
-  mock.module("@/utils/crypto.utils", () => ({
-    CryptoUtils: OriginalCryptoUtils,
+  mock.module("@basylab/core/crypto", () => ({
+    PasswordUtils: OriginalPasswordUtils,
+    RandomUtils: OriginalRandomUtils,
   }));
   mock.module("@/utils/totp.utils", () => ({
     TotpUtils: OriginalTotpUtils,
   }));
-  mock.module("@/utils/password-validator", () => ({
-    validatePasswordStrength: originalValidatePasswordStrength,
+  mock.module("@basylab/core/validation", () => ({
+    Validators: OriginalValidators,
+    Sanitizers: OriginalSanitizers,
   }));
 });
 
@@ -92,11 +109,8 @@ describe("ConfirmPasswordResetUseCase", () => {
     mockValidatePasswordStrength.mockClear();
 
     mockHashPassword.mockResolvedValue("$2b$10$hashedPassword");
-    mockVerifyCode.mockReturnValue(true);
-    mockValidatePasswordStrength.mockReturnValue({
-      isValid: true,
-      errors: [] as string[],
-    });
+    mockVerifyCode.mockResolvedValue(true);
+    mockValidatePasswordStrength.mockReturnValue([] as string[]);
 
     userRepository = {
       findByEmail: mock(() => Promise.resolve({ ...mockUser })),
@@ -323,7 +337,7 @@ describe("ConfirmPasswordResetUseCase", () => {
     });
 
     it("deve incrementar tentativas e lançar erro se código inválido", async () => {
-      mockVerifyCode.mockReturnValue(false); // Código inválido
+      mockVerifyCode.mockResolvedValue(false); // Código inválido
 
       const input = {
         email: "test@example.com",
@@ -347,10 +361,10 @@ describe("ConfirmPasswordResetUseCase", () => {
 
   describe("Validações de senha", () => {
     it("deve lançar erro se senha for fraca", async () => {
-      mockValidatePasswordStrength.mockReturnValue({
-        isValid: false,
-        errors: ["Senha deve ter pelo menos 8 caracteres", "Senha deve conter letras maiúsculas"],
-      });
+      mockValidatePasswordStrength.mockReturnValue([
+        "Senha deve ter pelo menos 8 caracteres",
+        "Senha deve conter letras maiúsculas",
+      ]);
 
       const input = {
         email: "test@example.com",

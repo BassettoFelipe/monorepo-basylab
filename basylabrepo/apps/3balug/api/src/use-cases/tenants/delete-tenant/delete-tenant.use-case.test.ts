@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, test } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
+import { BadRequestError, InternalServerError, NotFoundError } from "@basylab/core/errors";
 import type { Company } from "@/db/schema/companies";
 import type { Tenant } from "@/db/schema/tenants";
 import type { User } from "@/db/schema/users";
-import { BadRequestError, InternalServerError, NotFoundError } from "@/errors";
 import {
   InMemoryCompanyRepository,
   InMemoryContractRepository,
@@ -10,7 +11,6 @@ import {
   InMemoryUserRepository,
 } from "@/test/mock-repository";
 import { USER_ROLES } from "@/types/roles";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { DeleteTenantUseCase } from "./delete-tenant.use-case";
 
 describe("DeleteTenantUseCase", () => {
@@ -37,7 +37,7 @@ describe("DeleteTenantUseCase", () => {
     // Create owner user
     ownerUser = await userRepository.create({
       email: "owner@test.com",
-      password: await CryptoUtils.hashPassword("Test@123"),
+      password: await PasswordUtils.hash("Test@123"),
       name: "Owner User",
       role: USER_ROLES.OWNER,
       isActive: true,
@@ -98,7 +98,7 @@ describe("DeleteTenantUseCase", () => {
     test("deve lançar erro se usuário não tem empresa vinculada", async () => {
       const userWithoutCompany = await userRepository.create({
         email: "orphan@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Orphan User",
         role: USER_ROLES.OWNER,
         isActive: true,
@@ -126,7 +126,7 @@ describe("DeleteTenantUseCase", () => {
       // Criar outra empresa
       const otherOwner = await userRepository.create({
         email: "other@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Other Owner",
         role: USER_ROLES.OWNER,
         isActive: true,
@@ -431,7 +431,7 @@ describe("DeleteTenantUseCase", () => {
       // Criar outra empresa
       const otherOwner = await userRepository.create({
         email: "other@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Other Owner",
         role: USER_ROLES.OWNER,
         isActive: true,

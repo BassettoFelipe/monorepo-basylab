@@ -2,12 +2,12 @@ import {
   PaymentAlreadyProcessedError,
   PendingPaymentNotFoundError,
   PlanNotFoundError,
-} from "@/errors";
+} from "@basylab/core/errors";
+import type { IUserCacheService } from "@/services/cache";
 import type { IPendingPaymentRepository } from "@/repositories/contracts/pending-payment.repository";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
 import type { ISubscriptionRepository } from "@/repositories/contracts/subscription.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
-import type { IUserCacheService } from "@/services/contracts/user-cache-service.interface";
 import type { IPaymentGateway } from "@/services/payment/contracts/payment-gateway.interface";
 
 type ProcessPaymentWebhookInput = {

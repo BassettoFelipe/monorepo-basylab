@@ -1,9 +1,13 @@
+import {
+  BadRequestError,
+  ConflictError,
+  InternalServerError,
+  NotFoundError,
+} from "@basylab/core/errors";
+import type { ContactValidator, DocumentValidator } from "@basylab/core/validation";
 import { logger } from "@/config/logger";
 import type { User } from "@/db/schema/users";
-import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from "@/errors";
 import type { ITenantRepository } from "@/repositories/contracts/tenant.repository";
-import type { ContactValidationService } from "@/services/validation/contact-validation.service";
-import type { DocumentValidationService } from "@/services/validation/document-validation.service";
 
 type CreateTenantInput = {
   name: string;
@@ -46,8 +50,8 @@ type CreateTenantOutput = {
 export class CreateTenantUseCase {
   constructor(
     private readonly tenantRepository: ITenantRepository,
-    private readonly documentValidationService: DocumentValidationService,
-    private readonly contactValidationService: ContactValidationService,
+    private readonly documentValidator: DocumentValidator,
+    private readonly contactValidator: ContactValidator,
   ) {}
 
   async execute(input: CreateTenantInput): Promise<CreateTenantOutput> {
@@ -57,7 +61,7 @@ export class CreateTenantUseCase {
       throw new InternalServerError("Usuário sem empresa vinculada");
     }
 
-    const normalizedCpf = await this.documentValidationService.normalizeValidateAndCheckUniqueness(
+    const normalizedCpf = await this.documentValidator.normalizeValidateAndCheckUniqueness(
       input.cpf,
       "cpf",
       createdBy.companyId,
@@ -67,25 +71,22 @@ export class CreateTenantUseCase {
 
     let normalizedEmail: string | null = null;
     if (input.email) {
-      normalizedEmail =
-        await this.contactValidationService.normalizeValidateAndCheckEmailUniqueness(
-          input.email,
-          createdBy.companyId,
-          this.tenantRepository,
-          "um locatário",
-        );
+      normalizedEmail = await this.contactValidator.normalizeValidateAndCheckEmailUniqueness(
+        input.email,
+        createdBy.companyId,
+        this.tenantRepository,
+        "um locatário",
+      );
     }
 
-    const normalizedPhone = input.phone
-      ? this.contactValidationService.normalizePhone(input.phone)
-      : null;
+    const normalizedPhone = input.phone ? this.contactValidator.normalizePhone(input.phone) : null;
 
     const normalizedEmergencyPhone = input.emergencyPhone
-      ? this.contactValidationService.normalizePhone(input.emergencyPhone)
+      ? this.contactValidator.normalizePhone(input.emergencyPhone)
       : null;
 
     const normalizedZipCode = input.zipCode
-      ? this.contactValidationService.normalizeZipCode(input.zipCode)
+      ? this.contactValidator.normalizeZipCode(input.zipCode)
       : null;
 
     if (

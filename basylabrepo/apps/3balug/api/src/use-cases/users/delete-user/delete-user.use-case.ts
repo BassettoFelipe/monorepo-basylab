@@ -1,6 +1,11 @@
+import {
+  BadRequestError,
+  ForbiddenError,
+  InternalServerError,
+  NotFoundError,
+} from "@basylab/core/errors";
 import { logger } from "@/config/logger";
 import type { User } from "@/db/schema/users";
-import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from "@/errors";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import type { UserRole } from "@/types/roles";
 import { USER_ROLES } from "@/types/roles";

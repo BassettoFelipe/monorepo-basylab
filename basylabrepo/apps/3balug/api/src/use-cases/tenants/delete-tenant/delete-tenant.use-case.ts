@@ -1,6 +1,6 @@
+import { BadRequestError, InternalServerError, NotFoundError } from "@basylab/core/errors";
 import { logger } from "@/config/logger";
 import type { User } from "@/db/schema/users";
-import { BadRequestError, InternalServerError, NotFoundError } from "@/errors";
 import type { IContractRepository } from "@/repositories/contracts/contract.repository";
 import type { ITenantRepository } from "@/repositories/contracts/tenant.repository";
 

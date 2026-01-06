@@ -1,4 +1,4 @@
-import { EmailNotVerifiedError, UserNotFoundError } from "@/errors";
+import { EmailNotVerifiedError, UserNotFoundError } from "@basylab/core/errors";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 
 export interface ValidateEmailForResetInput {

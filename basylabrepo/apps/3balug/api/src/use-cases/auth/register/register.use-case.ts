@@ -1,5 +1,4 @@
-import { env } from "@/config/env";
-import { logger } from "@/config/logger";
+import { PasswordUtils } from "@basylab/core/crypto";
 import {
   EmailAlreadyExistsError,
   EmailNotVerifiedError,
@@ -7,14 +6,15 @@ import {
   InternalServerError,
   PlanNotFoundError,
   WeakPasswordError,
-} from "@/errors";
+} from "@basylab/core/errors";
+import { Validators } from "@basylab/core/validation";
+import { env } from "@/config/env";
+import { logger } from "@/config/logger";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import { EmailServiceError, emailService } from "@/services/email/email.service";
 import { USER_ROLES } from "@/types/roles";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { TotpUtils } from "@/utils/totp.utils";
-import { ValidationUtils } from "@/utils/validation.utils";
 
 type RegisterInput = {
   email: string;
@@ -38,7 +38,7 @@ export class RegisterUseCase {
   ) {}
 
   async execute(input: RegisterInput): Promise<RegisterOutput> {
-    const passwordErrors = ValidationUtils.validatePasswordStrength(input.password);
+    const passwordErrors = Validators.validatePasswordStrength(input.password);
     if (passwordErrors.length > 0) {
       throw new WeakPasswordError(`A senha deve conter: ${passwordErrors.join(", ")}`);
     }
@@ -61,10 +61,10 @@ export class RegisterUseCase {
       throw new PlanNotFoundError();
     }
 
-    const hashedPassword = await CryptoUtils.hashPassword(input.password);
+    const hashedPassword = await PasswordUtils.hash(input.password);
     const verificationSecret = TotpUtils.generateSecret();
     const verificationExpiresAt = new Date(Date.now() + env.TOTP_STEP_SECONDS * 1000);
-    const verificationCode = TotpUtils.generateCode(verificationSecret);
+    const verificationCode = await TotpUtils.generateCode(verificationSecret);
 
     const result = await this.createUserWithTransaction({
       normalizedEmail,

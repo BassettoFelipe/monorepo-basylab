@@ -1,11 +1,11 @@
+import { ForbiddenError, InternalServerError, NotFoundError } from "@basylab/core/errors";
 import { logger } from "@/config/logger";
 import { DOCUMENT_ENTITY_TYPES } from "@/db/schema/documents";
 import type { User } from "@/db/schema/users";
-import { ForbiddenError, InternalServerError, NotFoundError } from "@/errors";
 import type { IDocumentRepository } from "@/repositories/contracts/document.repository";
 import type { IPropertyOwnerRepository } from "@/repositories/contracts/property-owner.repository";
 import type { ITenantRepository } from "@/repositories/contracts/tenant.repository";
-import type { IStorageService } from "@/services/storage/storage.contract";
+import type { IStorageService } from "@/services/storage";
 import type { UserRole } from "@/types/roles";
 import { USER_ROLES } from "@/types/roles";
 

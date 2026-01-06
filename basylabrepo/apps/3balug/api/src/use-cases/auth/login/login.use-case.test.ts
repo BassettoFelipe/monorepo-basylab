@@ -1,21 +1,29 @@
 import { afterAll, beforeEach, describe, expect, mock, test } from "bun:test";
 import {
+  PasswordUtils as OriginalPasswordUtils,
+  RandomUtils as OriginalRandomUtils,
+} from "@basylab/core/crypto";
+import {
   EmailNotVerifiedError,
   InvalidCredentialsError,
   SubscriptionRequiredError,
-} from "@/errors";
+} from "@basylab/core/errors";
 import type { ICustomFieldRepository } from "@/repositories/contracts/custom-field.repository";
 import type { ISubscriptionRepository } from "@/repositories/contracts/subscription.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
-import { CryptoUtils as OriginalCryptoUtils } from "@/utils/crypto.utils";
 import { JwtUtils as OriginalJwtUtils } from "@/utils/jwt.utils";
 import { LoginUseCase } from "./login.use-case";
 
 const mockVerifyPassword = mock(() => Promise.resolve(true));
-mock.module("@/utils/crypto.utils", () => ({
-  CryptoUtils: {
-    ...OriginalCryptoUtils,
-    verifyPassword: mockVerifyPassword,
+mock.module("@basylab/core/crypto", () => ({
+  PasswordUtils: {
+    ...OriginalPasswordUtils,
+    verify: mockVerifyPassword,
+  },
+  RandomUtils: {
+    generateUUID: () => "mock-uuid",
+    generateSecureString: () => "mock-secure-string",
+    generatePassword: () => "mock-password",
   },
 }));
 
@@ -39,8 +47,9 @@ mock.module("@/utils/jwt.utils", () => ({
 
 afterAll(() => {
   mock.module("@/utils/jwt.utils", () => ({ JwtUtils: OriginalJwtUtils }));
-  mock.module("@/utils/crypto.utils", () => ({
-    CryptoUtils: OriginalCryptoUtils,
+  mock.module("@basylab/core/crypto", () => ({
+    PasswordUtils: OriginalPasswordUtils,
+    RandomUtils: OriginalRandomUtils,
   }));
 });
 
@@ -157,7 +166,7 @@ describe("LoginUseCase", () => {
     };
 
     mockPlanFeatureRepository = {
-      hasPlanFeature: mock(() => Promise.resolve(false)),
+      planHasFeature: mock(() => Promise.resolve(false)),
       getPlanFeatures: mock(() => Promise.resolve([])),
       getPlansWithFeature: mock(() => Promise.resolve([])),
     };
@@ -550,7 +559,7 @@ describe("LoginUseCase", () => {
         companyId: "company-123",
       };
       mockUserRepository.findByEmail = mock(() => Promise.resolve(createdUser));
-      mockPlanFeatureRepository.hasPlanFeature = mock(() => Promise.resolve(false));
+      mockPlanFeatureRepository.planHasFeature = mock(() => Promise.resolve(false));
 
       const result = await useCase.execute(validInput);
 
@@ -564,7 +573,7 @@ describe("LoginUseCase", () => {
         companyId: "company-123",
       };
       mockUserRepository.findByEmail = mock(() => Promise.resolve(createdUser));
-      mockPlanFeatureRepository.hasPlanFeature = mock(() => Promise.resolve(true));
+      mockPlanFeatureRepository.planHasFeature = mock(() => Promise.resolve(true));
       mockCustomFieldRepository.hasUserPendingRequiredFields = mock(() => Promise.resolve(true));
 
       const result = await useCase.execute(validInput);
@@ -579,7 +588,7 @@ describe("LoginUseCase", () => {
         companyId: "company-123",
       };
       mockUserRepository.findByEmail = mock(() => Promise.resolve(createdUser));
-      mockPlanFeatureRepository.hasPlanFeature = mock(() => Promise.resolve(true));
+      mockPlanFeatureRepository.planHasFeature = mock(() => Promise.resolve(true));
       mockCustomFieldRepository.hasUserPendingRequiredFields = mock(() => Promise.resolve(true));
 
       const result = await useCase.execute(validInput);
@@ -594,7 +603,7 @@ describe("LoginUseCase", () => {
         companyId: "company-123",
       };
       mockUserRepository.findByEmail = mock(() => Promise.resolve(createdUser));
-      mockPlanFeatureRepository.hasPlanFeature = mock(() => Promise.resolve(true));
+      mockPlanFeatureRepository.planHasFeature = mock(() => Promise.resolve(true));
       mockCustomFieldRepository.hasUserPendingRequiredFields = mock(() => Promise.resolve(false));
 
       const result = await useCase.execute(validInput);
@@ -609,7 +618,7 @@ describe("LoginUseCase", () => {
         companyId: "company-123",
       };
       mockUserRepository.findByEmail = mock(() => Promise.resolve(createdUser));
-      mockPlanFeatureRepository.hasPlanFeature = mock(() => Promise.resolve(true));
+      mockPlanFeatureRepository.planHasFeature = mock(() => Promise.resolve(true));
       mockCustomFieldRepository.hasUserPendingRequiredFields = mock(() => Promise.resolve(true));
 
       const result = await useCase.execute(validInput);
@@ -624,7 +633,7 @@ describe("LoginUseCase", () => {
         companyId: "company-123",
       };
       mockUserRepository.findByEmail = mock(() => Promise.resolve(createdUser));
-      mockPlanFeatureRepository.hasPlanFeature = mock(() => Promise.resolve(true));
+      mockPlanFeatureRepository.planHasFeature = mock(() => Promise.resolve(true));
       mockCustomFieldRepository.hasUserPendingRequiredFields = mock(() => Promise.resolve(true));
 
       const result = await useCase.execute(validInput);

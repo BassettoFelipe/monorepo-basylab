@@ -1,9 +1,9 @@
 import type { User } from "@/db/schema/users";
 import type { ICustomFieldRepository } from "@/repositories/contracts/custom-field.repository";
 import type { ICustomFieldResponseRepository } from "@/repositories/contracts/custom-field-response.repository";
+import type { IPlanFeatureRepository } from "@/repositories/contracts/plan-feature.repository";
 import type { ISubscriptionRepository } from "@/repositories/contracts/subscription.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
-import type { IFeatureService } from "@/services/contracts/feature-service.interface";
 import { PLAN_FEATURES } from "@/types/features";
 
 type FieldWithValue = {
@@ -59,7 +59,7 @@ export class GetMyFieldsUseCase {
     private readonly subscriptionRepository: ISubscriptionRepository,
     private readonly customFieldRepository: ICustomFieldRepository,
     private readonly customFieldResponseRepository: ICustomFieldResponseRepository,
-    private readonly featureService: IFeatureService,
+    private readonly planFeatureRepository: IPlanFeatureRepository,
   ) {}
 
   async execute(input: GetMyFieldsInput): Promise<GetMyFieldsOutput> {
@@ -80,7 +80,7 @@ export class GetMyFieldsUseCase {
 
     const hasFeature =
       subscription?.plan?.slug &&
-      (await this.featureService.planHasFeature(
+      (await this.planFeatureRepository.planHasFeature(
         subscription.plan.slug,
         PLAN_FEATURES.CUSTOM_FIELDS,
       ));

@@ -1,5 +1,3 @@
-import { logger } from "@/config/logger";
-import type { User } from "@/db/schema/users";
 import {
   BadRequestError,
   EmailAlreadyExistsError,
@@ -7,11 +5,13 @@ import {
   InternalServerError,
   NotFoundError,
   PlanLimitExceededError,
-} from "@/errors";
+} from "@basylab/core/errors";
+import { logger } from "@/config/logger";
+import type { User } from "@/db/schema/users";
+import type { IUserCacheService } from "@/services/cache";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
 import type { ISubscriptionRepository } from "@/repositories/contracts/subscription.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
-import type { IUserCacheService } from "@/services/contracts/user-cache-service.interface";
 import type { UserRole } from "@/types/roles";
 import { USER_ROLES } from "@/types/roles";
 import { PermissionsUtils } from "@/utils/permissions.utils";

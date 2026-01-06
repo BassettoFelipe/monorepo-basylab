@@ -1,27 +1,14 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { InternalServerError, NotFoundError } from "@basylab/core/errors";
 import type { User } from "@/db/schema/users";
-import { InternalServerError, NotFoundError } from "@/errors";
 import type { ICompanyRepository } from "@/repositories/contracts/company.repository";
+import type { ICompanyCacheService } from "@/services/cache";
 import { GetCompanyUseCase } from "./get-company.use-case";
-
-// Mock do CompanyCacheService
-const mockCache = {
-  get: mock(() => Promise.resolve(null)),
-  set: mock(() => Promise.resolve()),
-  delete: mock(() => Promise.resolve()),
-};
-
-mock.module("@/services/cache/company-cache.service", () => ({
-  CompanyCacheService: class {
-    get = mockCache.get;
-    set = mockCache.set;
-    delete = mockCache.delete;
-  },
-}));
 
 describe("GetCompanyUseCase", () => {
   let useCase: GetCompanyUseCase;
   let mockCompanyRepository: ICompanyRepository;
+  let mockCache: ICompanyCacheService;
   let mockUser: User;
 
   beforeEach(() => {
@@ -43,6 +30,12 @@ describe("GetCompanyUseCase", () => {
       ),
     } as any;
 
+    mockCache = {
+      get: mock(() => Promise.resolve(null)),
+      set: mock(() => Promise.resolve()),
+      invalidate: mock(() => Promise.resolve()),
+    };
+
     mockUser = {
       id: "user-123",
       companyId: "company-123",
@@ -50,13 +43,7 @@ describe("GetCompanyUseCase", () => {
       email: "user@test.com",
     } as User;
 
-    useCase = new GetCompanyUseCase(mockCompanyRepository);
-
-    // Reset cache mocks
-    (mockCache.get as any).mockClear();
-    (mockCache.set as any).mockClear();
-    (mockCache.delete as any).mockClear();
-    (mockCache.get as any).mockResolvedValue(null);
+    useCase = new GetCompanyUseCase(mockCompanyRepository, mockCache);
   });
 
   describe("Casos de Sucesso", () => {

@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { BadRequestError, ForbiddenError } from "@basylab/core/errors";
 import type { User } from "@/db/schema/users";
-import { BadRequestError, ForbiddenError } from "@/errors";
 import type { ICustomFieldRepository } from "@/repositories/contracts/custom-field.repository";
 import type { ICustomFieldResponseRepository } from "@/repositories/contracts/custom-field-response.repository";
+import type { IPlanFeatureRepository } from "@/repositories/contracts/plan-feature.repository";
 import type { ISubscriptionRepository } from "@/repositories/contracts/subscription.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
-import type { IFeatureService } from "@/services/contracts/feature-service.interface";
 import { PLAN_FEATURES } from "@/types/features";
 import { SaveMyFieldsUseCase } from "./save-my-fields.use-case";
 
@@ -15,7 +15,7 @@ describe("SaveMyFieldsUseCase", () => {
   let mockSubscriptionRepository: ISubscriptionRepository;
   let mockCustomFieldRepository: ICustomFieldRepository;
   let mockCustomFieldResponseRepository: ICustomFieldResponseRepository;
-  let mockFeatureService: IFeatureService;
+  let mockPlanFeatureRepository: IPlanFeatureRepository;
 
   const mockUser: User = {
     id: "user-123",
@@ -67,7 +67,7 @@ describe("SaveMyFieldsUseCase", () => {
       upsertMany: mock(() => Promise.resolve()),
     } as any;
 
-    mockFeatureService = {
+    mockPlanFeatureRepository = {
       planHasFeature: mock(() => Promise.resolve(true)),
     } as any;
 
@@ -76,7 +76,7 @@ describe("SaveMyFieldsUseCase", () => {
       mockSubscriptionRepository,
       mockCustomFieldRepository,
       mockCustomFieldResponseRepository,
-      mockFeatureService,
+      mockPlanFeatureRepository,
     );
   });
 
@@ -188,14 +188,14 @@ describe("SaveMyFieldsUseCase", () => {
       });
 
       expect(mockSubscriptionRepository.findCurrentByUserId).toHaveBeenCalledWith("user-123");
-      expect(mockFeatureService.planHasFeature).toHaveBeenCalledWith(
+      expect(mockPlanFeatureRepository.planHasFeature).toHaveBeenCalledWith(
         "premium",
         PLAN_FEATURES.CUSTOM_FIELDS,
       );
     });
 
     test("deve rejeitar quando plano não tem feature", async () => {
-      (mockFeatureService.planHasFeature as any).mockResolvedValueOnce(false);
+      (mockPlanFeatureRepository.planHasFeature as any).mockResolvedValueOnce(false);
 
       await expect(
         useCase.execute({
@@ -468,7 +468,7 @@ describe("SaveMyFieldsUseCase", () => {
       });
 
       expect(mockSubscriptionRepository.findCurrentByUserId).toHaveBeenCalledWith("user-123");
-      expect(mockFeatureService.planHasFeature).toHaveBeenCalledWith(
+      expect(mockPlanFeatureRepository.planHasFeature).toHaveBeenCalledWith(
         "premium",
         PLAN_FEATURES.CUSTOM_FIELDS,
       );
@@ -554,7 +554,7 @@ describe("SaveMyFieldsUseCase", () => {
       (mockSubscriptionRepository.findCurrentByUserId as any).mockResolvedValueOnce({
         plan: { slug: "business" },
       });
-      (mockFeatureService.planHasFeature as any).mockResolvedValueOnce(true);
+      (mockPlanFeatureRepository.planHasFeature as any).mockResolvedValueOnce(true);
 
       const result = await useCase.execute({
         user: mockUser,
@@ -568,7 +568,7 @@ describe("SaveMyFieldsUseCase", () => {
       (mockSubscriptionRepository.findCurrentByUserId as any).mockResolvedValueOnce({
         plan: { slug: "basic" },
       });
-      (mockFeatureService.planHasFeature as any).mockResolvedValueOnce(false);
+      (mockPlanFeatureRepository.planHasFeature as any).mockResolvedValueOnce(false);
 
       await expect(
         useCase.execute({

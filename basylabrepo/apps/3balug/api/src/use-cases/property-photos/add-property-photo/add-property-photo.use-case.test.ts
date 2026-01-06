@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { BadRequestError, ForbiddenError, NotFoundError } from "@basylab/core/errors";
 import type { User } from "@/db/schema/users";
-import { BadRequestError, ForbiddenError, NotFoundError } from "@/errors";
 import type { IPropertyRepository } from "@/repositories/contracts/property.repository";
 import type { IPropertyPhotoRepository } from "@/repositories/contracts/property-photo.repository";
 import { USER_ROLES } from "@/types/roles";

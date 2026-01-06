@@ -1,6 +1,6 @@
+import { ForbiddenError, InternalServerError } from "@basylab/core/errors";
 import type { Contract, ContractStatus } from "@/db/schema/contracts";
 import type { User } from "@/db/schema/users";
-import { ForbiddenError, InternalServerError } from "@/errors";
 import type { IContractRepository } from "@/repositories/contracts/contract.repository";
 import type { UserRole } from "@/types/roles";
 import { USER_ROLES } from "@/types/roles";

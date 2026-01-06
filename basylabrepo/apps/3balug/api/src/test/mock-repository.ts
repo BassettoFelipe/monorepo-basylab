@@ -16,6 +16,7 @@ import type { NewPropertyPhoto, PropertyPhoto } from "@/db/schema/property-photo
 import type { NewSubscription, Subscription } from "@/db/schema/subscriptions";
 import type { NewTenant, Tenant } from "@/db/schema/tenants";
 import type { NewUser, User } from "@/db/schema/users";
+import type { CachedUserState, IUserCacheService } from "@/services/cache";
 import type { ICompanyRepository } from "@/repositories/contracts/company.repository";
 import type {
   ContractFilters,
@@ -52,10 +53,10 @@ import type {
   TenantListResult,
 } from "@/repositories/contracts/tenant.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
-import type { IUserCacheService } from "@/services/contracts/user-cache-service.interface";
-import type { CachedUserState } from "@/services/user-cache.service";
 import type { PlanFeatureSlug } from "@/types/features";
-import { CryptoUtils } from "@/utils/crypto.utils";
+
+// Use crypto.randomUUID directly to avoid mock interference from tests that mock @basylab/core/crypto
+const generateUUID = (): string => crypto.randomUUID();
 
 export class InMemoryUserRepository implements IUserRepository {
   private users: Map<string, User> = new Map();
@@ -95,7 +96,7 @@ export class InMemoryUserRepository implements IUserRepository {
 
   async create(data: NewUser): Promise<User> {
     const user: User = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       email: data.email,
       password: data.password ?? null,
       name: data.name,
@@ -163,9 +164,9 @@ export class InMemoryUserRepository implements IUserRepository {
     companyId: string;
     subscriptionId: string;
   }> {
-    const userId = CryptoUtils.generateUUID();
-    const companyId = CryptoUtils.generateUUID();
-    const subscriptionId = CryptoUtils.generateUUID();
+    const userId = generateUUID();
+    const companyId = generateUUID();
+    const subscriptionId = generateUUID();
 
     const newUser: User = {
       id: userId,
@@ -268,7 +269,7 @@ export class InMemoryPlanRepository implements IPlanRepository {
 
   async create(data: NewPlan): Promise<Plan> {
     const plan: Plan = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       name: data.name,
       slug: data.slug,
       description: data.description ?? null,
@@ -306,7 +307,7 @@ export class InMemoryPlanRepository implements IPlanRepository {
 
   seedTestPlans(): void {
     const basicPlan: Plan = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       name: "Plano Básico",
       slug: "basico",
       description: "Plano básico para imobiliárias pequenas",
@@ -323,7 +324,7 @@ export class InMemoryPlanRepository implements IPlanRepository {
     };
 
     const imobiliariaPlan: Plan = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       name: "Plano Imobiliária",
       slug: "imobiliaria",
       description: "Plano completo para imobiliárias",
@@ -340,7 +341,7 @@ export class InMemoryPlanRepository implements IPlanRepository {
     };
 
     const housePlan: Plan = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       name: "Plano House",
       slug: "house",
       description: "Plano enterprise para grandes imobiliárias",
@@ -373,7 +374,7 @@ export class InMemoryPlanFeatureRepository implements IPlanFeatureRepository {
     this.planRepository = repo;
   }
 
-  async hasPlanFeature(planSlug: string, feature: PlanFeatureSlug): Promise<boolean> {
+  async planHasFeature(planSlug: string, feature: PlanFeatureSlug): Promise<boolean> {
     if (!this.planRepository) {
       throw new Error("Plan repository not set");
     }
@@ -483,7 +484,7 @@ export class InMemorySubscriptionRepository implements ISubscriptionRepository {
 
   async create(data: NewSubscription): Promise<Subscription> {
     const subscription: Subscription = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       userId: data.userId,
       planId: data.planId,
       status: data.status ?? "pending",
@@ -545,7 +546,7 @@ export class InMemoryPendingPaymentRepository implements IPendingPaymentReposito
 
   async create(data: NewPendingPayment): Promise<PendingPayment> {
     const payment: PendingPayment = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       email: data.email,
       name: data.name,
       password: data.password,
@@ -614,8 +615,8 @@ export class InMemoryPendingPaymentRepository implements IPendingPaymentReposito
       throw new Error("Payment already processed");
     }
 
-    const userId = params.userId || CryptoUtils.generateUUID();
-    const subscriptionId = CryptoUtils.generateUUID();
+    const userId = params.userId || generateUUID();
+    const subscriptionId = generateUUID();
 
     const updated: PendingPayment = {
       ...payment,
@@ -664,7 +665,7 @@ export class InMemoryCompanyRepository implements ICompanyRepository {
 
   async create(data: NewCompany): Promise<Company> {
     const company: Company = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       name: data.name,
       cnpj: data.cnpj ?? null,
       ownerId: data.ownerId ?? null,
@@ -767,7 +768,7 @@ export class InMemoryCustomFieldRepository implements ICustomFieldRepository {
 
   async create(data: NewCustomField): Promise<CustomField> {
     const field: CustomField = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       companyId: data.companyId,
       label: data.label,
       type: data.type,
@@ -868,7 +869,7 @@ export class InMemoryCustomFieldResponseRepository implements ICustomFieldRespon
 
   async create(data: NewCustomFieldResponse): Promise<CustomFieldResponse> {
     const response: CustomFieldResponse = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       userId: data.userId,
       fieldId: data.fieldId,
       value: data.value ?? null,
@@ -1010,7 +1011,7 @@ export class InMemoryPropertyOwnerRepository implements IPropertyOwnerRepository
 
   async create(data: NewPropertyOwner): Promise<PropertyOwner> {
     const owner: PropertyOwner = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       companyId: data.companyId,
       name: data.name,
       document: data.document,
@@ -1139,7 +1140,7 @@ export class InMemoryTenantRepository implements ITenantRepository {
 
   async create(data: NewTenant): Promise<Tenant> {
     const tenant: Tenant = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       companyId: data.companyId,
       name: data.name,
       cpf: data.cpf,
@@ -1301,7 +1302,7 @@ export class InMemoryPropertyRepository implements IPropertyRepository {
 
   async create(data: NewProperty): Promise<Property> {
     const property: Property = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       companyId: data.companyId,
       ownerId: data.ownerId,
       brokerId: data.brokerId ?? null,
@@ -1441,7 +1442,7 @@ export class InMemoryPropertyPhotoRepository implements IPropertyPhotoRepository
 
   async create(data: NewPropertyPhoto): Promise<PropertyPhoto> {
     const photo: PropertyPhoto = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       propertyId: data.propertyId,
       filename: data.filename,
       originalName: data.originalName,
@@ -1467,7 +1468,7 @@ export class InMemoryPropertyPhotoRepository implements IPropertyPhotoRepository
 
     // Cria a nova foto como principal
     const photo: PropertyPhoto = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       propertyId: data.propertyId,
       filename: data.filename,
       originalName: data.originalName,
@@ -1646,7 +1647,7 @@ export class InMemoryContractRepository implements IContractRepository {
 
   async create(data: NewContract): Promise<Contract> {
     const contract: Contract = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       companyId: data.companyId,
       propertyId: data.propertyId,
       ownerId: data.ownerId,
@@ -1889,7 +1890,7 @@ export class InMemoryDocumentRepository implements IDocumentRepository {
 
   async create(data: NewDocument): Promise<Document> {
     const doc: Document = {
-      id: CryptoUtils.generateUUID(),
+      id: generateUUID(),
       companyId: data.companyId,
       entityType: data.entityType,
       entityId: data.entityId,

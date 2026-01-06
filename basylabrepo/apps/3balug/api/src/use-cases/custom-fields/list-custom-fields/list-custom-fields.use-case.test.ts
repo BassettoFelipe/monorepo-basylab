@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { BadRequestError, ForbiddenError } from "@basylab/core/errors";
 import type { Company } from "@/db/schema/companies";
 import { FIELD_TYPES } from "@/db/schema/custom-fields";
 import type { Plan } from "@/db/schema/plans";
 import type { Subscription } from "@/db/schema/subscriptions";
 import type { User } from "@/db/schema/users";
-import { BadRequestError, ForbiddenError } from "@/errors";
-import type { IFeatureService } from "@/services/contracts/feature-service.interface";
+import type { IPlanFeatureRepository } from "@/repositories/contracts/plan-feature.repository";
 import {
   InMemoryCompanyRepository,
   InMemoryCustomFieldRepository,
@@ -24,7 +24,7 @@ describe("ListCustomFieldsUseCase", () => {
   let userRepository: InMemoryUserRepository;
   let companyRepository: InMemoryCompanyRepository;
   let planRepository: InMemoryPlanRepository;
-  let mockFeatureService: IFeatureService;
+  let mockPlanFeatureRepository: IPlanFeatureRepository;
 
   let ownerUser: User;
   let managerUser: User;
@@ -46,7 +46,7 @@ describe("ListCustomFieldsUseCase", () => {
     subscriptionRepository.setPlanRepository(planRepository);
 
     // Create mock feature service
-    mockFeatureService = {
+    mockPlanFeatureRepository = {
       planHasFeature: mock(() => Promise.resolve(true)),
       getPlanFeatures: mock(() => Promise.resolve([])),
       getPlansWithFeature: mock(() => Promise.resolve([])),
@@ -55,7 +55,7 @@ describe("ListCustomFieldsUseCase", () => {
     useCase = new ListCustomFieldsUseCase(
       customFieldRepository,
       subscriptionRepository,
-      mockFeatureService,
+      mockPlanFeatureRepository,
     );
 
     // Create plans
@@ -227,7 +227,7 @@ describe("ListCustomFieldsUseCase", () => {
       });
 
       // Mock feature service to return false
-      mockFeatureService.planHasFeature = mock(() => Promise.resolve(false));
+      mockPlanFeatureRepository.planHasFeature = mock(() => Promise.resolve(false));
 
       const result = await useCase.execute({
         user: ownerUser,
@@ -334,13 +334,13 @@ describe("ListCustomFieldsUseCase", () => {
     });
 
     test("deve verificar chamada ao featureService com plano correto", async () => {
-      mockFeatureService.planHasFeature = mock(() => Promise.resolve(true));
+      mockPlanFeatureRepository.planHasFeature = mock(() => Promise.resolve(true));
 
       await useCase.execute({
         user: ownerUser,
       });
 
-      expect(mockFeatureService.planHasFeature).toHaveBeenCalledWith(
+      expect(mockPlanFeatureRepository.planHasFeature).toHaveBeenCalledWith(
         housePlan.slug,
         PLAN_FEATURES.CUSTOM_FIELDS,
       );

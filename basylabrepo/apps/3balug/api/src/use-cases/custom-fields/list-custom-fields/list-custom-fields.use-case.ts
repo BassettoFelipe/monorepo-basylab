@@ -1,10 +1,10 @@
+import { BadRequestError, ForbiddenError } from "@basylab/core/errors";
 import type { CustomField } from "@/db/schema/custom-fields";
 import type { User } from "@/db/schema/users";
-import { BadRequestError, ForbiddenError } from "@/errors";
+import type { ICustomFieldCacheService } from "@/services/cache";
 import type { ICustomFieldRepository } from "@/repositories/contracts/custom-field.repository";
+import type { IPlanFeatureRepository } from "@/repositories/contracts/plan-feature.repository";
 import type { ISubscriptionRepository } from "@/repositories/contracts/subscription.repository";
-import type { ICustomFieldCacheService } from "@/services/cache/custom-field-cache.service";
-import type { IFeatureService } from "@/services/contracts/feature-service.interface";
 import { PLAN_FEATURES } from "@/types/features";
 import { USER_ROLES } from "@/types/roles";
 
@@ -22,7 +22,7 @@ export class ListCustomFieldsUseCase {
   constructor(
     private readonly customFieldRepository: ICustomFieldRepository,
     private readonly subscriptionRepository: ISubscriptionRepository,
-    private readonly featureService: IFeatureService,
+    private readonly planFeatureRepository: IPlanFeatureRepository,
     private readonly cache?: ICustomFieldCacheService,
   ) {}
 
@@ -39,7 +39,7 @@ export class ListCustomFieldsUseCase {
     const subscription = await this.subscriptionRepository.findCurrentByUserId(input.user.id);
 
     if (subscription?.plan?.slug) {
-      hasFeature = await this.featureService.planHasFeature(
+      hasFeature = await this.planFeatureRepository.planHasFeature(
         subscription.plan.slug,
         PLAN_FEATURES.CUSTOM_FIELDS,
       );

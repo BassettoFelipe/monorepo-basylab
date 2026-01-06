@@ -5,7 +5,11 @@ import {
   EmailSendFailedError,
   PlanNotFoundError,
   WeakPasswordError,
-} from "@/errors";
+} from "@basylab/core/errors";
+import {
+  Sanitizers as OriginalSanitizers,
+  Validators as OriginalValidators,
+} from "@basylab/core/validation";
 import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import { EmailServiceError, emailService as originalEmailService } from "@/services/email";
@@ -15,6 +19,13 @@ import { RegisterUseCase } from "./register.use-case";
 
 const mockSendVerificationCode = mock(() => Promise.resolve());
 const mockSendUserInvitation = mock(() => Promise.resolve());
+const mockValidatePasswordStrength = mock((password: string): string[] => {
+  // Simulate real validation for weak passwords
+  if (password === "weak") {
+    return ["Senha deve ter pelo menos 8 caracteres"];
+  }
+  return [];
+});
 
 mock.module("@/services/email/email.service", () => ({
   emailService: {
@@ -26,10 +37,22 @@ mock.module("@/services/email/email.service", () => ({
   EmailServiceError,
 }));
 
+mock.module("@basylab/core/validation", () => ({
+  Validators: {
+    ...OriginalValidators,
+    validatePasswordStrength: mockValidatePasswordStrength,
+  },
+  Sanitizers: OriginalSanitizers,
+}));
+
 afterAll(() => {
   mock.module("@/services/email/email.service", () => ({
     emailService: originalEmailService,
     EmailServiceError,
+  }));
+  mock.module("@basylab/core/validation", () => ({
+    Validators: OriginalValidators,
+    Sanitizers: OriginalSanitizers,
   }));
 });
 

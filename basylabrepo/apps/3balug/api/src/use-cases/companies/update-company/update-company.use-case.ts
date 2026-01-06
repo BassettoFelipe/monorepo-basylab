@@ -1,8 +1,8 @@
+import { ForbiddenError, InternalServerError } from "@basylab/core/errors";
 import { logger } from "@/config/logger";
 import type { User } from "@/db/schema/users";
-import { ForbiddenError, InternalServerError } from "@/errors";
 import type { ICompanyRepository } from "@/repositories/contracts/company.repository";
-import { CompanyCacheService } from "@/services/cache/company-cache.service";
+import type { ICompanyCacheService } from "@/services/cache";
 import { USER_ROLES } from "@/types/roles";
 
 type UpdateCompanyInput = {
@@ -17,9 +17,10 @@ type UpdateCompanyOutput = {
 };
 
 export class UpdateCompanyUseCase {
-  private readonly cache = new CompanyCacheService();
-
-  constructor(private readonly companyRepository: ICompanyRepository) {}
+  constructor(
+    private readonly companyRepository: ICompanyRepository,
+    private readonly cache: ICompanyCacheService,
+  ) {}
 
   async execute(input: UpdateCompanyInput): Promise<UpdateCompanyOutput> {
     const user = input.updatedBy;

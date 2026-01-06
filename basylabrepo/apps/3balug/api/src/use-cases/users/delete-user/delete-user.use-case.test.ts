@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from "@/errors";
+import {
+  BadRequestError,
+  ForbiddenError,
+  InternalServerError,
+  NotFoundError,
+} from "@basylab/core/errors";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import type { User } from "@/types/user";
 import { DeleteUserUseCase } from "./delete-user.use-case";

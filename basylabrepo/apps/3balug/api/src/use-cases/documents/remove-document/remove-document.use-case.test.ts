@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { ForbiddenError, InternalServerError, NotFoundError } from "@basylab/core/errors";
 import type { Company } from "@/db/schema/companies";
 import type { Document } from "@/db/schema/documents";
 import { DOCUMENT_ENTITY_TYPES, DOCUMENT_TYPES } from "@/db/schema/documents";
 import type { PropertyOwner } from "@/db/schema/property-owners";
 import type { Tenant } from "@/db/schema/tenants";
 import type { User } from "@/db/schema/users";
-import { ForbiddenError, InternalServerError, NotFoundError } from "@/errors";
-import type { IStorageService } from "@/services/storage/storage.contract";
+import type { IStorageService } from "@/services/storage";
 import {
   InMemoryCompanyRepository,
   InMemoryDocumentRepository,

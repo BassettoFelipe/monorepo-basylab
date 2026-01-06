@@ -1,5 +1,5 @@
+import { InsufficientPermissionsError, UnauthorizedError } from "@basylab/core/errors";
 import { Elysia } from "elysia";
-import { InsufficientPermissionsError, UnauthorizedError } from "@/errors";
 import type { UserRole } from "@/types/roles";
 import type { AuthContext } from "./auth.middleware";
 

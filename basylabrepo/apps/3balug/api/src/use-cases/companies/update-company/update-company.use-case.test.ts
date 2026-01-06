@@ -1,24 +1,15 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { ForbiddenError, InternalServerError } from "@basylab/core/errors";
 import type { User } from "@/db/schema/users";
-import { ForbiddenError, InternalServerError } from "@/errors";
 import type { ICompanyRepository } from "@/repositories/contracts/company.repository";
+import type { ICompanyCacheService } from "@/services/cache";
 import { USER_ROLES } from "@/types/roles";
 import { UpdateCompanyUseCase } from "./update-company.use-case";
-
-// Mock do CompanyCacheService
-const mockCache = {
-  invalidate: mock(() => Promise.resolve()),
-};
-
-mock.module("@/services/cache/company-cache.service", () => ({
-  CompanyCacheService: class {
-    invalidate = mockCache.invalidate;
-  },
-}));
 
 describe("UpdateCompanyUseCase", () => {
   let useCase: UpdateCompanyUseCase;
   let mockCompanyRepository: ICompanyRepository;
+  let mockCache: ICompanyCacheService;
   let mockOwner: User;
 
   beforeEach(() => {
@@ -40,6 +31,12 @@ describe("UpdateCompanyUseCase", () => {
       ),
     } as any;
 
+    mockCache = {
+      get: mock(() => Promise.resolve(null)),
+      set: mock(() => Promise.resolve()),
+      invalidate: mock(() => Promise.resolve()),
+    };
+
     mockOwner = {
       id: "user-123",
       companyId: "company-123",
@@ -48,10 +45,7 @@ describe("UpdateCompanyUseCase", () => {
       role: USER_ROLES.OWNER,
     } as User;
 
-    useCase = new UpdateCompanyUseCase(mockCompanyRepository);
-
-    // Reset cache mocks
-    (mockCache.invalidate as any).mockClear();
+    useCase = new UpdateCompanyUseCase(mockCompanyRepository, mockCache);
   });
 
   describe("Casos de Sucesso", () => {

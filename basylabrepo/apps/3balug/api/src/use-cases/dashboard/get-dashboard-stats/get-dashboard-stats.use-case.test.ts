@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from "bun:test";
+import { ForbiddenError, InternalServerError } from "@basylab/core/errors";
 import type { Company } from "@/db/schema/companies";
 import type { User } from "@/db/schema/users";
-import { ForbiddenError, InternalServerError } from "@/errors";
 import {
   InMemoryCompanyRepository,
   InMemoryContractRepository,

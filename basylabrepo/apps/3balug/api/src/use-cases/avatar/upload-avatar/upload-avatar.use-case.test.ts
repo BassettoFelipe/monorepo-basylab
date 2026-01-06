@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
-import { BadRequestError } from "@/errors";
+import { BadRequestError } from "@basylab/core/errors";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
-import type { ImageProcessorService } from "@/services/image";
+import type { IImageProcessorService } from "@/services/image";
 import type { IStorageService } from "@/services/storage";
 import { UploadAvatarUseCase } from "./upload-avatar.use-case";
 
 // Mock do getImageProcessor
-const mockImageProcessor: ImageProcessorService = {
+const mockImageProcessor: IImageProcessorService = {
   validateImage: mock(() => Promise.resolve({ valid: true })),
   processAvatar: mock(() =>
     Promise.resolve({

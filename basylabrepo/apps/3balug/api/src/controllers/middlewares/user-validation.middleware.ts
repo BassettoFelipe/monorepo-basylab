@@ -1,13 +1,13 @@
-import { Elysia } from "elysia";
-import { logger } from "@/config/logger";
-import { container } from "@/container";
-import type { User } from "@/db/schema/users";
 import {
   AccountDeactivatedError,
   AuthenticationRequiredError,
   SubscriptionRequiredError,
   UserNotFoundError,
-} from "@/errors";
+} from "@basylab/core/errors";
+import { Elysia } from "elysia";
+import { logger } from "@/config/logger";
+import { container } from "@/container";
+import type { User } from "@/db/schema/users";
 import type { CurrentSubscription } from "@/repositories/contracts/subscription.repository";
 import type { AuthContext } from "./auth.middleware";
 

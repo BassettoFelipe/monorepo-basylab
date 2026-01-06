@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, test } from "bun:test";
-import type { Company } from "@/db/schema/companies";
-import type { Plan } from "@/db/schema/plans";
-import type { User } from "@/db/schema/users";
+import { PasswordUtils } from "@basylab/core/crypto";
 import {
   EmailAlreadyExistsError,
   ForbiddenError,
@@ -9,8 +7,11 @@ import {
   NotFoundError,
   PlanLimitExceededError,
   UnauthorizedError,
-} from "@/errors";
-import type { IUserCacheService } from "@/services/contracts/user-cache-service.interface";
+} from "@basylab/core/errors";
+import type { Company } from "@/db/schema/companies";
+import type { Plan } from "@/db/schema/plans";
+import type { User } from "@/db/schema/users";
+import type { IUserCacheService } from "@/services/cache";
 import {
   InMemoryCompanyRepository,
   InMemoryPlanRepository,
@@ -18,7 +19,6 @@ import {
   InMemoryUserRepository,
 } from "@/test/mock-repository";
 import { USER_ROLES } from "@/types/roles";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { UpdateUserUseCase } from "./update-user.use-case";
 
 // Mock do UserCacheService
@@ -70,7 +70,7 @@ describe("UpdateUserUseCase", () => {
 
     ownerUser = await userRepository.create({
       email: "owner@test.com",
-      password: await CryptoUtils.hashPassword("Test@123"),
+      password: await PasswordUtils.hash("Test@123"),
       name: "Owner User",
       role: USER_ROLES.OWNER,
       isActive: true,
@@ -104,7 +104,7 @@ describe("UpdateUserUseCase", () => {
     test("deve permitir apenas owner atualizar usuários", async () => {
       const broker = await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -114,7 +114,7 @@ describe("UpdateUserUseCase", () => {
 
       const targetUser = await userRepository.create({
         email: "target@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Target User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -138,7 +138,7 @@ describe("UpdateUserUseCase", () => {
     test("deve lançar erro se owner não tem empresa", async () => {
       const orphanOwner = await userRepository.create({
         email: "orphan@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Orphan Owner",
         role: USER_ROLES.OWNER,
         isActive: true,
@@ -167,7 +167,7 @@ describe("UpdateUserUseCase", () => {
     test("deve lançar erro ao tentar editar usuário de outra empresa", async () => {
       const owner2 = await userRepository.create({
         email: "owner2@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Owner 2",
         role: USER_ROLES.OWNER,
         isActive: true,
@@ -184,7 +184,7 @@ describe("UpdateUserUseCase", () => {
 
       const userCompany2 = await userRepository.create({
         email: "broker-company2@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker Company 2",
         role: USER_ROLES.BROKER,
         companyId: company2.id,
@@ -222,7 +222,7 @@ describe("UpdateUserUseCase", () => {
     beforeEach(async () => {
       brokerUser = await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -301,7 +301,7 @@ describe("UpdateUserUseCase", () => {
     test("deve lançar erro se novo email já existe", async () => {
       await userRepository.create({
         email: "existing@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Existing User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -311,7 +311,7 @@ describe("UpdateUserUseCase", () => {
 
       const brokerUser = await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -331,7 +331,7 @@ describe("UpdateUserUseCase", () => {
     test("deve permitir manter o mesmo email", async () => {
       const brokerUser = await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -356,7 +356,7 @@ describe("UpdateUserUseCase", () => {
       // Criar 2 gerentes (limite do plano House)
       await userRepository.create({
         email: "manager1@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Manager 1",
         role: USER_ROLES.MANAGER,
         companyId: company.id,
@@ -366,7 +366,7 @@ describe("UpdateUserUseCase", () => {
 
       await userRepository.create({
         email: "manager2@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Manager 2",
         role: USER_ROLES.MANAGER,
         companyId: company.id,
@@ -377,7 +377,7 @@ describe("UpdateUserUseCase", () => {
       // Tentar promover broker a manager (excede limite)
       const broker = await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -397,7 +397,7 @@ describe("UpdateUserUseCase", () => {
     test("deve permitir mudar role de manager para broker", async () => {
       const manager = await userRepository.create({
         email: "manager@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Manager User",
         role: USER_ROLES.MANAGER,
         companyId: company.id,
@@ -417,7 +417,7 @@ describe("UpdateUserUseCase", () => {
     test("não deve validar limite se usuário já é manager", async () => {
       const manager = await userRepository.create({
         email: "manager@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Manager User",
         role: USER_ROLES.MANAGER,
         companyId: company.id,

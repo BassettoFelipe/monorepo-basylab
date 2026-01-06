@@ -1,6 +1,6 @@
+import { ForbiddenError, InternalServerError } from "@basylab/core/errors";
 import type { ListingType, Property, PropertyStatus, PropertyType } from "@/db/schema/properties";
 import type { User } from "@/db/schema/users";
-import { ForbiddenError, InternalServerError } from "@/errors";
 import type { IPropertyRepository } from "@/repositories/contracts/property.repository";
 import type { UserRole } from "@/types/roles";
 import { USER_ROLES } from "@/types/roles";

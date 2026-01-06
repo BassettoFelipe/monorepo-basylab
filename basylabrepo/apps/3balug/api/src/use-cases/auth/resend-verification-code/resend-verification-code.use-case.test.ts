@@ -1,11 +1,11 @@
 import { afterAll, beforeEach, describe, expect, mock, test } from "bun:test";
-import type { User } from "@/db/schema/users";
 import {
   AccountAlreadyVerifiedError,
   EmailSendFailedError,
   ResendLimitExceededError,
   UserNotFoundError,
-} from "@/errors";
+} from "@basylab/core/errors";
+import type { User } from "@/db/schema/users";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import { EmailServiceError, emailService as originalEmailService } from "@/services/email";
 import { ResendVerificationCodeUseCase } from "./resend-verification-code.use-case";

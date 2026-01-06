@@ -1,12 +1,12 @@
-import { env } from "@/config/env";
-import { logger } from "@/config/logger";
-import { EMAIL_VERIFICATION } from "@/constants/auth.constants";
 import {
   AccountAlreadyVerifiedError,
   EmailSendFailedError,
   ResendLimitExceededError,
   UserNotFoundError,
-} from "@/errors";
+} from "@basylab/core/errors";
+import { env } from "@/config/env";
+import { logger } from "@/config/logger";
+import { EMAIL_VERIFICATION } from "@/constants/auth.constants";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 import { emailService } from "@/services/email/email.service";
 import { TotpUtils } from "@/utils/totp.utils";
@@ -76,7 +76,7 @@ export class ResendVerificationCodeUseCase {
 
     const verificationSecret = TotpUtils.generateSecret();
     const verificationExpiresAt = new Date(now.getTime() + env.TOTP_STEP_SECONDS * 1000);
-    const verificationCode = TotpUtils.generateCode(verificationSecret);
+    const verificationCode = await TotpUtils.generateCode(verificationSecret);
 
     const previousVerificationSecret = user.verificationSecret;
     const previousVerificationExpiresAt = user.verificationExpiresAt;

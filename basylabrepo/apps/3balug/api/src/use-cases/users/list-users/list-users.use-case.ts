@@ -1,5 +1,5 @@
+import { ForbiddenError, InternalServerError } from "@basylab/core/errors";
 import type { User } from "@/db/schema/users";
-import { ForbiddenError, InternalServerError } from "@/errors";
 import type { ICustomFieldRepository } from "@/repositories/contracts/custom-field.repository";
 import type { ICustomFieldResponseRepository } from "@/repositories/contracts/custom-field-response.repository";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";

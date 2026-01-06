@@ -1,18 +1,22 @@
-import jwt from "@elysiajs/jwt";
-import { Elysia } from "elysia";
+import { createJwtUtils, type TokenPayload } from "@basylab/core/auth";
 import { env } from "@/config/env";
 
-type TokenType = "access" | "refresh" | "resetPassword" | "checkout";
+/**
+ * Token types supported by the application
+ */
+export type TokenType = "access" | "refresh" | "resetPassword" | "checkout";
 
-interface JwtPayload {
-  sub: string;
-  exp: number;
-  iat: number;
+/**
+ * JWT payload with app-specific fields
+ */
+export interface JwtPayload extends TokenPayload {
   role?: string;
   companyId?: string | null;
-  [key: string]: unknown;
 }
 
+/**
+ * Checkout token specific payload
+ */
 export interface CheckoutTokenPayload extends JwtPayload {
   purpose: "checkout";
   user: {
@@ -31,23 +35,63 @@ export interface CheckoutTokenPayload extends JwtPayload {
   };
 }
 
-const secrets: Record<TokenType, string> = {
-  access: env.JWT_ACCESS_SECRET,
-  refresh: env.JWT_REFRESH_SECRET,
-  resetPassword: env.JWT_RESET_PASSWORD_SECRET,
-  checkout: env.JWT_CHECKOUT_SECRET,
-};
+/**
+ * JWT configuration per token type
+ */
+interface JwtTokenConfig {
+  secret: string;
+  expiresIn: string;
+}
 
-const expirations: Record<TokenType, string> = {
-  access: env.JWT_ACCESS_EXPIRES_IN,
-  refresh: env.JWT_REFRESH_EXPIRES_IN,
-  resetPassword: env.JWT_RESET_PASSWORD_EXPIRES_IN,
-  checkout: env.JWT_CHECKOUT_EXPIRES_IN,
-};
+/**
+ * Get JWT configuration for a token type
+ */
+function getTokenConfig(type: TokenType): JwtTokenConfig {
+  const configs: Record<TokenType, JwtTokenConfig> = {
+    access: {
+      secret: env.JWT_ACCESS_SECRET,
+      expiresIn: env.JWT_ACCESS_EXPIRES_IN,
+    },
+    refresh: {
+      secret: env.JWT_REFRESH_SECRET,
+      expiresIn: env.JWT_REFRESH_EXPIRES_IN,
+    },
+    resetPassword: {
+      secret: env.JWT_RESET_PASSWORD_SECRET,
+      expiresIn: env.JWT_RESET_PASSWORD_EXPIRES_IN,
+    },
+    checkout: {
+      secret: env.JWT_CHECKOUT_SECRET,
+      expiresIn: env.JWT_CHECKOUT_EXPIRES_IN,
+    },
+  };
 
-function parseExpirationSeconds(exp: string): number {
+  return configs[type];
+}
+
+// Lazy-initialized JWT utils per token type
+const jwtInstances = new Map<TokenType, ReturnType<typeof createJwtUtils>>();
+
+function getJwtInstance(type: TokenType) {
+  let instance = jwtInstances.get(type);
+  if (!instance) {
+    const config = getTokenConfig(type);
+    instance = createJwtUtils({
+      secret: config.secret,
+      issuer: "3balug",
+    });
+    jwtInstances.set(type, instance);
+  }
+  return instance;
+}
+
+/**
+ * Parse expiration string to seconds
+ * Supports: 30s, 15m, 1h, 7d
+ */
+function parseExpirationToSeconds(exp: string): number {
   const match = exp.match(/^(\d+)([smhd])$/);
-  if (!match) {
+  if (!match?.[1] || !match[2]) {
     throw new Error(`Invalid expiration format: ${exp}`);
   }
 
@@ -61,64 +105,57 @@ function parseExpirationSeconds(exp: string): number {
     d: 24 * 60 * 60,
   };
 
-  return value * multipliers[unit];
+  return value * (multipliers[unit] ?? 1);
 }
 
-function createJwtInstance(type: TokenType) {
-  const app = new Elysia().use(
-    jwt({
-      name: "jwt",
-      secret: secrets[type],
-    }),
-  );
-
-  return app.decorator.jwt;
-}
-
-const jwtInstances: Record<TokenType, ReturnType<typeof createJwtInstance>> = {
-  access: createJwtInstance("access"),
-  refresh: createJwtInstance("refresh"),
-  resetPassword: createJwtInstance("resetPassword"),
-  checkout: createJwtInstance("checkout"),
-};
-
+/**
+ * JWT Utils - handles token generation and verification
+ */
 export const JwtUtils = {
+  /**
+   * Generate a signed JWT token
+   */
   async generateToken(
     userId: string,
     type: TokenType,
     additionalPayload?: Record<string, unknown>,
   ): Promise<string> {
-    const nowSeconds = Math.floor(Date.now() / 1000);
-    const expiresInSeconds = parseExpirationSeconds(expirations[type]);
+    const config = getTokenConfig(type);
+    const jwtInstance = getJwtInstance(type);
 
-    const jwtInstance = jwtInstances[type];
-    return jwtInstance.sign({
-      sub: userId,
-      exp: nowSeconds + expiresInSeconds,
-      iat: true,
-      ...additionalPayload,
+    return jwtInstance.sign(userId, {
+      expiresIn: config.expiresIn,
+      additionalClaims: additionalPayload,
     });
   },
 
+  /**
+   * Verify and decode a JWT token
+   */
   async verifyToken(token: string, type: TokenType): Promise<JwtPayload | null> {
-    const jwtInstance = jwtInstances[type];
+    const jwtInstance = getJwtInstance(type);
     const payload = await jwtInstance.verify(token);
 
     if (!payload) {
       return null;
     }
 
-    const typedPayload = payload as unknown as JwtPayload;
-    const nowSeconds = Math.floor(Date.now() / 1000);
-
-    if (typedPayload.exp < nowSeconds) {
-      return null;
-    }
-
-    return typedPayload;
+    return payload as JwtPayload;
   },
 
-  parseExpirationToSeconds(exp: string): number {
-    return parseExpirationSeconds(exp);
+  /**
+   * Get expiration time in seconds for a token type
+   */
+  getExpirationSeconds(type: TokenType): number {
+    const config = getTokenConfig(type);
+    return parseExpirationToSeconds(config.expiresIn);
   },
+
+  /**
+   * Parse expiration string to seconds
+   */
+  parseExpirationToSeconds,
 };
+
+// Re-export types for convenience
+export type { TokenType as JwtTokenType };

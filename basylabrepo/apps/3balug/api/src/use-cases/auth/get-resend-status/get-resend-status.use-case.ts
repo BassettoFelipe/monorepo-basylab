@@ -1,5 +1,5 @@
+import { AccountAlreadyVerifiedError, UserNotFoundError } from "@basylab/core/errors";
 import { EMAIL_VERIFICATION } from "@/constants/auth.constants";
-import { AccountAlreadyVerifiedError, UserNotFoundError } from "@/errors";
 import type { IUserRepository } from "@/repositories/contracts/user.repository";
 
 interface GetResendStatusOutput {

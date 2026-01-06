@@ -1,11 +1,16 @@
 import { beforeEach, describe, expect, test } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
+import {
+  ForbiddenError,
+  InternalServerError,
+  NotFoundError,
+  UnauthorizedError,
+} from "@basylab/core/errors";
 import type { Company } from "@/db/schema/companies";
 import type { User } from "@/db/schema/users";
-import { ForbiddenError, InternalServerError, NotFoundError, UnauthorizedError } from "@/errors";
-import type { IUserCacheService } from "@/services/contracts/user-cache-service.interface";
+import type { IUserCacheService } from "@/services/cache";
 import { InMemoryCompanyRepository, InMemoryUserRepository } from "@/test/mock-repository";
 import { USER_ROLES } from "@/types/roles";
-import { CryptoUtils } from "@/utils/crypto.utils";
 import { DeactivateUserUseCase } from "./deactivate-user.use-case";
 
 // Mock do UserCacheService
@@ -34,7 +39,7 @@ describe("DeactivateUserUseCase", () => {
 
     ownerUser = await userRepository.create({
       email: "owner@test.com",
-      password: await CryptoUtils.hashPassword("Test@123"),
+      password: await PasswordUtils.hash("Test@123"),
       name: "Owner User",
       role: USER_ROLES.OWNER,
       isActive: true,
@@ -56,7 +61,7 @@ describe("DeactivateUserUseCase", () => {
     test("deve permitir apenas owner desativar usuários", async () => {
       const broker = await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -66,7 +71,7 @@ describe("DeactivateUserUseCase", () => {
 
       const targetUser = await userRepository.create({
         email: "target@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Target User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -89,7 +94,7 @@ describe("DeactivateUserUseCase", () => {
     test("deve lançar erro se owner não tem empresa", async () => {
       const orphanOwner = await userRepository.create({
         email: "orphan@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Orphan Owner",
         role: USER_ROLES.OWNER,
         isActive: true,
@@ -116,7 +121,7 @@ describe("DeactivateUserUseCase", () => {
     test("deve lançar erro ao tentar desativar usuário de outra empresa", async () => {
       const owner2 = await userRepository.create({
         email: "owner2@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Owner 2",
         role: USER_ROLES.OWNER,
         isActive: true,
@@ -133,7 +138,7 @@ describe("DeactivateUserUseCase", () => {
 
       const userCompany2 = await userRepository.create({
         email: "broker-company2@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker Company 2",
         role: USER_ROLES.BROKER,
         companyId: company2.id,
@@ -161,7 +166,7 @@ describe("DeactivateUserUseCase", () => {
     test("deve lançar erro ao tentar desativar usuário já desativado", async () => {
       const broker = await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -182,7 +187,7 @@ describe("DeactivateUserUseCase", () => {
     test("deve desativar broker com sucesso", async () => {
       const broker = await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -209,7 +214,7 @@ describe("DeactivateUserUseCase", () => {
     test("deve desativar manager com sucesso", async () => {
       const manager = await userRepository.create({
         email: "manager@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Manager User",
         role: USER_ROLES.MANAGER,
         companyId: company.id,
@@ -228,7 +233,7 @@ describe("DeactivateUserUseCase", () => {
     test("deve desativar insurance analyst com sucesso", async () => {
       const analyst = await userRepository.create({
         email: "analyst@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Analyst User",
         role: USER_ROLES.INSURANCE_ANALYST,
         companyId: company.id,
@@ -249,7 +254,7 @@ describe("DeactivateUserUseCase", () => {
     test("deve manter todos os dados do usuário (soft delete)", async () => {
       const broker = await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -279,7 +284,7 @@ describe("DeactivateUserUseCase", () => {
     test("usuário desativado ainda pode ser encontrado por findById", async () => {
       const broker = await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         companyId: company.id,
@@ -300,7 +305,7 @@ describe("DeactivateUserUseCase", () => {
     test("usuário desativado ainda aparece em findByCompanyId", async () => {
       const broker = await userRepository.create({
         email: "broker@test.com",
-        password: await CryptoUtils.hashPassword("Test@123"),
+        password: await PasswordUtils.hash("Test@123"),
         name: "Broker User",
         role: USER_ROLES.BROKER,
         companyId: company.id,

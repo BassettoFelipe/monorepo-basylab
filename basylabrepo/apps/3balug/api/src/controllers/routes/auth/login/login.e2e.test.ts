@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "bun:test";
+import { PasswordUtils } from "@basylab/core/crypto";
 import { clearTestData, createTestApp } from "@/test/setup";
 import { addDays, generateTestEmail } from "@/test/test-helpers";
-import { CryptoUtils } from "@/utils/crypto.utils";
 
 describe("POST /auth/login", () => {
   const { client, userRepository, planRepository, subscriptionRepository } = createTestApp();
@@ -14,7 +14,7 @@ describe("POST /auth/login", () => {
     it("should login successfully with valid credentials", async () => {
       const email = generateTestEmail("login");
       const password = "TestPassword123!";
-      const hashedPassword = await CryptoUtils.hashPassword(password);
+      const hashedPassword = await PasswordUtils.hash(password);
 
       // Setup: Create verified user with active subscription
       const plans = await planRepository.findAll();
@@ -55,7 +55,7 @@ describe("POST /auth/login", () => {
     it("should return checkout token for pending subscription", async () => {
       const email = generateTestEmail("pending-sub");
       const password = "TestPassword123!";
-      const hashedPassword = await CryptoUtils.hashPassword(password);
+      const hashedPassword = await PasswordUtils.hash(password);
 
       // Setup: Create user with pending subscription
       const plans = await planRepository.findAll();
@@ -91,7 +91,7 @@ describe("POST /auth/login", () => {
     it("should handle expired subscription gracefully", async () => {
       const email = generateTestEmail("expired-sub");
       const password = "TestPassword123!";
-      const hashedPassword = await CryptoUtils.hashPassword(password);
+      const hashedPassword = await PasswordUtils.hash(password);
 
       // Setup: Create user with expired subscription
       const plans = await planRepository.findAll();
@@ -138,7 +138,7 @@ describe("POST /auth/login", () => {
 
     it("should reject login with invalid password", async () => {
       const email = generateTestEmail("wrong-pass");
-      const hashedPassword = await CryptoUtils.hashPassword("CorrectPassword123!");
+      const hashedPassword = await PasswordUtils.hash("CorrectPassword123!");
 
       // Setup: Create verified user
       await userRepository.create({
@@ -161,7 +161,7 @@ describe("POST /auth/login", () => {
     it("should reject login with unverified email", async () => {
       const email = generateTestEmail("unverified");
       const password = "TestPassword123!";
-      const hashedPassword = await CryptoUtils.hashPassword(password);
+      const hashedPassword = await PasswordUtils.hash(password);
 
       // Setup: Create unverified user
       await userRepository.create({
@@ -213,7 +213,7 @@ describe("POST /auth/login", () => {
     it("should not expose sensitive data in response", async () => {
       const email = generateTestEmail("security");
       const password = "TestPassword123!";
-      const hashedPassword = await CryptoUtils.hashPassword(password);
+      const hashedPassword = await PasswordUtils.hash(password);
 
       // Setup: Create user with active subscription
       const plans = await planRepository.findAll();

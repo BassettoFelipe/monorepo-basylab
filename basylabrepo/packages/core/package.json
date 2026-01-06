@@ -37,7 +37,6 @@
   },
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "lint": "biome check src/",
     "test": "bun test || exit 0",

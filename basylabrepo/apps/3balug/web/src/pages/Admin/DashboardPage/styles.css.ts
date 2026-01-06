@@ -61,35 +61,36 @@ export const bannerWrapper = style({
 	marginTop: `calc(-1 * ${vars.spacing['2xl']})`,
 	// Margem negativa para os cards subirem sobre o banner
 	marginBottom: '-80px',
-	// Desktop: imagem atual 1600x938 (1.7:1)
-	aspectRatio: '1600 / 938',
-	maxHeight: '500px',
+	/**
+	 * Safari fix: Use height instead of aspectRatio + maxHeight
+	 * Safari has issues with aspectRatio when combined with maxHeight
+	 * and absolute positioned children
+	 */
+	height: 'clamp(320px, 40vw, 500px)',
+	// Clip overflow to prevent image from leaking
+	overflow: 'hidden',
 
 	'@media': {
 		'(max-width: 1024px)': {
 			marginBottom: '-70px',
-			// Tablet: imagem atual 1600x583 (2.74:1)
-			aspectRatio: '1600 / 583',
-			maxHeight: '400px',
+			height: 'clamp(280px, 35vw, 400px)',
 		},
 		'(max-width: 768px)': {
 			// contentWrapper tem padding lg
 			marginTop: `calc(-1 * ${vars.spacing.lg})`,
 			marginBottom: '-60px',
-			// Mobile: imagem atual 1600x1459 (1.1:1)
-			aspectRatio: '1600 / 1459',
-			maxHeight: '450px',
+			height: 'clamp(300px, 50vw, 450px)',
 		},
 		'(max-width: 640px)': {
 			// contentWrapper tem padding md
 			marginTop: `calc(-1 * ${vars.spacing.md})`,
 			marginBottom: '-50px',
-			maxHeight: '380px',
+			height: 'clamp(280px, 60vw, 380px)',
 		},
 		'(max-width: 400px)': {
 			// contentWrapper tem padding sm
 			marginTop: `calc(-1 * ${vars.spacing.sm})`,
-			maxHeight: '320px',
+			height: 'clamp(250px, 70vw, 320px)',
 		},
 	},
 })
@@ -130,6 +131,8 @@ export const swiperSlide = style({
 	position: 'relative',
 	width: '100%',
 	height: '100%',
+	// Safari fix: ensure slide respects parent height
+	overflow: 'hidden',
 })
 
 // Navigation Buttons - Ocultos em mobile, swipe é mais natural
@@ -242,6 +245,12 @@ export const bannerImage = style({
 	objectPosition: 'top center',
 	// Melhora performance de renderização
 	willChange: 'transform',
+	/**
+	 * Safari fix: Ensure image doesn't overflow container
+	 * and force GPU layer for proper clipping
+	 */
+	transform: 'translateZ(0)',
+	WebkitTransform: 'translateZ(0)',
 })
 
 // Degradê branco na parte inferior - fixo no bannerWrapper (não se move com o Swiper)

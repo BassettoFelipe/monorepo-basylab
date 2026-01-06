@@ -1,3 +1,3 @@
-import type { Subscription as DbSubscription } from "@/db/schema/subscriptions";
+import type { Subscription as DbSubscription } from '@/db/schema/subscriptions'
 
-export type Subscription = DbSubscription;
+export type Subscription = DbSubscription

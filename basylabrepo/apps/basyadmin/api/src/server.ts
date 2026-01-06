@@ -22,7 +22,7 @@ const logger = createLogger({
 	level: env.isDev ? 'debug' : 'info',
 })
 
-const app = new Elysia()
+export const app = new Elysia()
 	.use(
 		cors({
 			origin: env.CORS_ORIGIN,
@@ -99,14 +99,18 @@ const app = new Elysia()
 	.use(ticketApiRoutes)
 	.use(eventApiRoutes)
 	.use(billingApiRoutes)
-	.listen(env.PORT)
-
-logger.info(
-	{
-		port: env.PORT,
-		environment: env.NODE_ENV,
-	},
-	`Basyadmin API running on http://localhost:${env.PORT}`,
-)
 
 export type App = typeof app
+
+// Only start the server if this file is run directly (not imported)
+if (import.meta.main) {
+	app.listen(env.PORT)
+
+	logger.info(
+		{
+			port: env.PORT,
+			environment: env.NODE_ENV,
+		},
+		`Basyadmin API running on http://localhost:${env.PORT}`,
+	)
+}

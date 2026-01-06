@@ -1,45 +1,45 @@
 {
-	"compilerOptions": {
-		"lib": ["ESNext"],
-		"target": "ESNext",
-		"module": "ESNext",
-		"moduleDetection": "force",
-		"jsx": "react-jsx",
-		"allowJs": true,
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "allowJs": true,
 
-		"moduleResolution": "bundler",
-		"allowImportingTsExtensions": true,
-		"verbatimModuleSyntax": true,
-		"noEmit": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
 
-		"skipLibCheck": true,
-		"strict": true,
-		"noFallthroughCasesInSwitch": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "forceConsistentCasingInFileNames": true,
 
-		"baseUrl": ".",
-		"paths": {
-			"@/*": ["./src/*"],
-			"@config/*": ["./src/config/*"],
-			"@db/*": ["./src/db/*"],
-			"@routes/*": ["./src/routes/*"],
-			"@middlewares/*": ["./src/controllers/middlewares/*"],
-			"@plugins/*": ["./src/plugins/*"],
-			"@providers/*": ["./src/providers/*"],
-			"@repositories/*": ["./src/repositories/*"],
-			"@use-cases/*": ["./src/use-cases/*"],
-			"@utils/*": ["./src/utils/*"],
-			"@container": ["./src/container"],
-			"@errors/*": ["./src/errors/*"],
-			"@services/*": ["./src/services/*"],
-			"@jobs/*": ["./src/jobs/*"],
-			"@lib/*": ["./src/lib/*"]
-		},
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@config/*": ["./src/config/*"],
+      "@db/*": ["./src/db/*"],
+      "@routes/*": ["./src/routes/*"],
+      "@middlewares/*": ["./src/controllers/middlewares/*"],
+      "@plugins/*": ["./src/plugins/*"],
+      "@providers/*": ["./src/providers/*"],
+      "@repositories/*": ["./src/repositories/*"],
+      "@use-cases/*": ["./src/use-cases/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@container": ["./src/container"],
+      "@errors/*": ["./src/errors/*"],
+      "@services/*": ["./src/services/*"],
+      "@jobs/*": ["./src/jobs/*"],
+      "@lib/*": ["./src/lib/*"]
+    },
 
-		"types": ["bun-types"]
-	},
-	"include": ["src/**/*"],
-	"exclude": ["node_modules", "dist"]
+    "types": ["bun-types"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

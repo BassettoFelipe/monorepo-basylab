@@ -1,17 +1,17 @@
-import { emailLayout } from "./email-layout.template";
+import { emailLayout } from './email-layout.template'
 
 interface PasswordResetTemplateProps {
-  name: string;
-  code: string;
-  expirationMinutes: number;
+	name: string
+	code: string
+	expirationMinutes: number
 }
 
 export function passwordResetTemplate({
-  name,
-  code,
-  expirationMinutes,
+	name,
+	code,
+	expirationMinutes,
 }: PasswordResetTemplateProps): string {
-  const content = `
+	const content = `
     <p style="margin: 0 0 24px; color: #434D00; font-size: 16px; line-height: 1.6;">
       Olá, <strong>${name}</strong>
     </p>
@@ -37,10 +37,10 @@ export function passwordResetTemplate({
     <p style="margin: 0; color: #434D00; font-size: 14px;">
       Equipe 3Balug
     </p>
-  `;
+  `
 
-  return emailLayout({
-    content,
-    previewText: `Código de redefinição de senha: ${code}`,
-  });
+	return emailLayout({
+		content,
+		previewText: `Código de redefinição de senha: ${code}`,
+	})
 }

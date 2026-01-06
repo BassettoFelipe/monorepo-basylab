@@ -1,10 +1,10 @@
-import { t } from "elysia";
+import { t } from 'elysia'
 
 export const deletePropertyParamsSchema = t.Object({
-  id: t.String({ format: "uuid" }),
-});
+	id: t.String({ format: 'uuid' }),
+})
 
 export const deletePropertyResponseSchema = t.Object({
-  success: t.Boolean(),
-  message: t.String(),
-});
+	success: t.Boolean(),
+	message: t.String(),
+})

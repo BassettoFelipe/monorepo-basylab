@@ -1,31 +1,30 @@
-import postgres from "postgres";
-import { readFileSync } from "fs";
-import { join } from "path";
+import { readFileSync } from 'fs'
+import { join } from 'path'
+import postgres from 'postgres'
 
-const TEST_DATABASE_URL =
-  "postgresql://crm_imobil:crm_imobil123@localhost:5435/crm_imobil_test";
+const TEST_DATABASE_URL = 'postgresql://crm_imobil:crm_imobil123@localhost:5435/crm_imobil_test'
 
-const sql = postgres(TEST_DATABASE_URL);
+const sql = postgres(TEST_DATABASE_URL)
 
 async function setupTestDB() {
-  console.log("🚀 Configurando banco de teste...\n");
+	console.log('🚀 Configurando banco de teste...\n')
 
-  try {
-    // Drop all tables first to ensure clean slate
-    console.log("🗑️  Dropando tabelas existentes...");
-    await sql.unsafe(`
+	try {
+		// Drop all tables first to ensure clean slate
+		console.log('🗑️  Dropando tabelas existentes...')
+		await sql.unsafe(`
       DROP TABLE IF EXISTS pending_payments CASCADE;
       DROP TABLE IF EXISTS subscriptions CASCADE;
       DROP TABLE IF EXISTS companies CASCADE;
       DROP TABLE IF EXISTS users CASCADE;
       DROP TABLE IF EXISTS plans CASCADE;
-    `);
-    console.log("✅ Tabelas antigas removidas!\n");
+    `)
+		console.log('✅ Tabelas antigas removidas!\n')
 
-    console.log("📦 Criando schema atualizado...");
+		console.log('📦 Criando schema atualizado...')
 
-    // Create all tables from schema files
-    const createTables = `
+		// Create all tables from schema files
+		const createTables = `
 			-- Plans table
 			CREATE TABLE IF NOT EXISTS "plans" (
 				"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
@@ -146,30 +145,30 @@ async function setupTestDB() {
 			CREATE INDEX IF NOT EXISTS "idx_users_is_active" ON "users"("is_active");
 			CREATE INDEX IF NOT EXISTS "idx_companies_owner_id" ON "companies"("owner_id");
 			CREATE INDEX IF NOT EXISTS "idx_companies_cnpj" ON "companies"("cnpj");
-		`;
+		`
 
-    await sql.unsafe(createTables);
-    console.log("✅ Schema criado com sucesso!\n");
+		await sql.unsafe(createTables)
+		console.log('✅ Schema criado com sucesso!\n')
 
-    // Insert test plans
-    console.log("📊 Inserindo planos de teste...");
-    await sql`
+		// Insert test plans
+		console.log('📊 Inserindo planos de teste...')
+		await sql`
 			INSERT INTO plans (name, slug, description, price, duration_days, max_users, max_managers, max_serasa_queries, allows_late_charges, features)
 			VALUES
 				('Plano Básico', 'basico', 'Plano básico para corretores individuais', 9990, 30, 1, 0, 10, 0, '["Imóveis ilimitados", "Clientes ilimitados", "10 consultas Serasa/mês", "Boletos automáticos", "Contratos em PDF"]'::jsonb),
 				('Plano Imobiliária', 'imobiliaria', 'Plano para pequenas e médias imobiliárias', 29990, 30, 10, 0, 10, 1, '["10 corretores", "Imóveis ilimitados", "10 consultas Serasa/mês", "Boletos + Juros", "Contratos em PDF"]'::jsonb),
 				('Plano House', 'house', 'Plano para grandes redes imobiliárias', 99990, 30, NULL, 2, 30, 1, '["Corretores ilimitados", "2 gerentes", "30 consultas Serasa/mês", "Boletos + Juros", "Contratos em PDF"]'::jsonb)
 			ON CONFLICT (slug) DO NOTHING
-		`;
-    console.log("✅ Planos inseridos!\n");
+		`
+		console.log('✅ Planos inseridos!\n')
 
-    console.log("🎉 Banco de teste configurado com sucesso!");
-  } catch (error) {
-    console.error("❌ Erro:", error);
-    process.exit(1);
-  } finally {
-    await sql.end();
-  }
+		console.log('🎉 Banco de teste configurado com sucesso!')
+	} catch (error) {
+		console.error('❌ Erro:', error)
+		process.exit(1)
+	} finally {
+		await sql.end()
+	}
 }
 
-setupTestDB();
+setupTestDB()

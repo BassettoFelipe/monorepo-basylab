@@ -1,21 +1,21 @@
-import { api } from "@/lib/api";
+import { api } from '@/lib/api'
 
 export interface SetPrimaryPhotoResponse {
-  success: boolean;
-  message: string;
+	success: boolean
+	message: string
 }
 
 export interface SetPrimaryPhotoInput {
-  propertyId: string;
-  photoId: string;
+	propertyId: string
+	photoId: string
 }
 
 export const setPrimaryPhoto = async (
-  input: SetPrimaryPhotoInput,
+	input: SetPrimaryPhotoInput,
 ): Promise<SetPrimaryPhotoResponse> => {
-  const { data } = await api.patch<SetPrimaryPhotoResponse>(
-    `/api/properties/${input.propertyId}/photos/${input.photoId}/primary`,
-  );
+	const { data } = await api.patch<SetPrimaryPhotoResponse>(
+		`/api/properties/${input.propertyId}/photos/${input.photoId}/primary`,
+	)
 
-  return data;
-};
+	return data
+}

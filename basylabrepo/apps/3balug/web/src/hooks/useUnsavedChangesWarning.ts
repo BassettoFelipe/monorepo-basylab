@@ -1,14 +1,14 @@
-import { useEffect } from "react";
+import { useEffect } from 'react'
 
 export function useUnsavedChangesWarning(hasUnsavedChanges: boolean) {
-  useEffect(() => {
-    if (!hasUnsavedChanges) return;
+	useEffect(() => {
+		if (!hasUnsavedChanges) return
 
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-    };
+		const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+			e.preventDefault()
+		}
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [hasUnsavedChanges]);
+		window.addEventListener('beforeunload', handleBeforeUnload)
+		return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+	}, [hasUnsavedChanges])
 }

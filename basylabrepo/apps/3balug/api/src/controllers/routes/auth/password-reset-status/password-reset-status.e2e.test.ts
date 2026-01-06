@@ -1,264 +1,267 @@
-import { afterAll, beforeEach, describe, expect, it, mock } from "bun:test";
-import { PasswordUtils } from "@basylab/core/crypto";
-import { clearTestData, createTestApp } from "@/test/setup";
-import { addMinutes, generateTestEmail } from "@/test/test-helpers";
-import { TotpUtils } from "@/utils/totp.utils";
+import { afterAll, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import { PasswordUtils } from '@basylab/core/crypto'
+import * as emailServiceModule from '@/services/email'
+import { clearTestData, createTestApp } from '@/test/setup'
+import { addMinutes, generateTestEmail } from '@/test/test-helpers'
+import { TotpUtils } from '@/utils/totp.utils'
 
 // Mock do email service
-const mockSendPasswordResetCode = mock(() => Promise.resolve());
+const mockSendPasswordResetCode = mock(() => Promise.resolve())
 
-mock.module("@/services/email/email.service", () => ({
-  emailService: {
-    sendPasswordResetCode: mockSendPasswordResetCode,
-    verifyConnection: mock(() => Promise.resolve(true)),
-  },
-  EmailServiceError: class EmailServiceError extends Error {},
-}));
+const mockEmailService = {
+	sendPasswordResetCode: mockSendPasswordResetCode,
+	verifyConnection: mock(() => Promise.resolve(true)),
+}
 
-describe("GET /auth/password-reset-status", () => {
-  const { client, userRepository } = createTestApp();
+const mockGetEmailServiceInstance = spyOn(
+	emailServiceModule,
+	'getEmailServiceInstance',
+).mockReturnValue(mockEmailService as any)
 
-  beforeEach(() => {
-    clearTestData();
-    mockSendPasswordResetCode.mockClear();
-  });
+describe('GET /auth/password-reset-status', () => {
+	const { client, userRepository } = createTestApp()
 
-  afterAll(() => {
-    mock.restore();
-  });
+	beforeEach(() => {
+		clearTestData()
+		mockSendPasswordResetCode.mockClear()
+	})
 
-  it("should send first email and return initial status when no active code exists", async () => {
-    const email = generateTestEmail("first-reset");
+	afterAll(() => {
+		mockGetEmailServiceInstance.mockRestore()
+	})
 
-    await userRepository.create({
-      email,
-      password: await PasswordUtils.hash("TestPassword123!"),
-      name: "Test User",
-      isEmailVerified: true,
-    });
+	it('should send first email and return initial status when no active code exists', async () => {
+		const email = generateTestEmail('first-reset')
 
-    const { data, status, error } = await client.auth["password-reset-status"].get({
-      query: { email },
-    });
+		await userRepository.create({
+			email,
+			password: await PasswordUtils.hash('TestPassword123!'),
+			name: 'Test User',
+			isEmailVerified: true,
+		})
 
-    expect(status).toBe(200);
-    expect(error).toBeFalsy();
-    expect(data).toBeDefined();
-    expect(data?.canResend).toBe(true);
-    expect(data?.remainingResendAttempts).toBe(5);
-    expect(data?.canResendAt).toBeNull();
-    expect(data?.remainingCodeAttempts).toBe(5);
-    expect(data?.canTryCodeAt).toBeNull();
-    expect(data?.isResendBlocked).toBe(false);
-    expect(data?.resendBlockedUntil).toBeNull();
-    expect(data?.codeExpiresAt).toBeDefined();
-  });
+		const { data, status, error } = await client.auth['password-reset-status'].get({
+			query: { email },
+		})
 
-  it("should return status when active code exists without sending new email", async () => {
-    const email = generateTestEmail("active-code");
-    const secret = TotpUtils.generateSecret();
+		expect(status).toBe(200)
+		expect(error).toBeFalsy()
+		expect(data).toBeDefined()
+		expect(data?.canResend).toBe(true)
+		expect(data?.remainingResendAttempts).toBe(5)
+		expect(data?.canResendAt).toBeNull()
+		expect(data?.remainingCodeAttempts).toBe(5)
+		expect(data?.canTryCodeAt).toBeNull()
+		expect(data?.isResendBlocked).toBe(false)
+		expect(data?.resendBlockedUntil).toBeNull()
+		expect(data?.codeExpiresAt).toBeDefined()
+	})
 
-    await userRepository.create({
-      email,
-      password: await PasswordUtils.hash("TestPassword123!"),
-      name: "Test User",
-      isEmailVerified: true,
-      passwordResetSecret: secret,
-      passwordResetExpiresAt: addMinutes(new Date(), 5),
-      passwordResetResendCount: 1,
-    });
+	it('should return status when active code exists without sending new email', async () => {
+		const email = generateTestEmail('active-code')
+		const secret = TotpUtils.generateSecret()
 
-    const { data, status } = await client.auth["password-reset-status"].get({
-      query: { email },
-    });
+		await userRepository.create({
+			email,
+			password: await PasswordUtils.hash('TestPassword123!'),
+			name: 'Test User',
+			isEmailVerified: true,
+			passwordResetSecret: secret,
+			passwordResetExpiresAt: addMinutes(new Date(), 5),
+			passwordResetResendCount: 1,
+		})
 
-    expect(status).toBe(200);
-    expect(data?.remainingResendAttempts).toBe(4);
-    expect(data?.remainingCodeAttempts).toBe(5);
-  });
+		const { data, status } = await client.auth['password-reset-status'].get({
+			query: { email },
+		})
 
-  it("should indicate cooldown when recently resent", async () => {
-    const email = generateTestEmail("cooldown");
-    const cooldownEndsAt = addMinutes(new Date(), 1);
+		expect(status).toBe(200)
+		expect(data?.remainingResendAttempts).toBe(4)
+		expect(data?.remainingCodeAttempts).toBe(5)
+	})
 
-    await userRepository.create({
-      email,
-      password: await PasswordUtils.hash("TestPassword123!"),
-      name: "Cooldown User",
-      isEmailVerified: true,
-      passwordResetSecret: TotpUtils.generateSecret(),
-      passwordResetExpiresAt: addMinutes(new Date(), 5),
-      passwordResetResendCount: 1,
-      passwordResetCooldownEndsAt: cooldownEndsAt,
-    });
+	it('should indicate cooldown when recently resent', async () => {
+		const email = generateTestEmail('cooldown')
+		const cooldownEndsAt = addMinutes(new Date(), 1)
 
-    const { data, status } = await client.auth["password-reset-status"].get({
-      query: { email },
-    });
+		await userRepository.create({
+			email,
+			password: await PasswordUtils.hash('TestPassword123!'),
+			name: 'Cooldown User',
+			isEmailVerified: true,
+			passwordResetSecret: TotpUtils.generateSecret(),
+			passwordResetExpiresAt: addMinutes(new Date(), 5),
+			passwordResetResendCount: 1,
+			passwordResetCooldownEndsAt: cooldownEndsAt,
+		})
 
-    expect(status).toBe(200);
-    expect(data?.canResend).toBe(false);
-    expect(data?.canResendAt).toBeTruthy();
-    if (data?.canResendAt) {
-      expect(new Date(data.canResendAt).getTime()).toBeGreaterThan(Date.now());
-    }
-  });
+		const { data, status } = await client.auth['password-reset-status'].get({
+			query: { email },
+		})
 
-  it("should indicate when resend is blocked", async () => {
-    const email = generateTestEmail("blocked");
-    const blockedUntil = addMinutes(new Date(), 30);
+		expect(status).toBe(200)
+		expect(data?.canResend).toBe(false)
+		expect(data?.canResendAt).toBeTruthy()
+		if (data?.canResendAt) {
+			expect(new Date(data.canResendAt).getTime()).toBeGreaterThan(Date.now())
+		}
+	})
 
-    await userRepository.create({
-      email,
-      password: await PasswordUtils.hash("TestPassword123!"),
-      name: "Blocked User",
-      isEmailVerified: true,
-      passwordResetSecret: TotpUtils.generateSecret(),
-      passwordResetExpiresAt: addMinutes(new Date(), 5),
-      passwordResetResendBlocked: true,
-      passwordResetResendBlockedUntil: blockedUntil,
-    });
+	it('should indicate when resend is blocked', async () => {
+		const email = generateTestEmail('blocked')
+		const blockedUntil = addMinutes(new Date(), 30)
 
-    const { data, status } = await client.auth["password-reset-status"].get({
-      query: { email },
-    });
+		await userRepository.create({
+			email,
+			password: await PasswordUtils.hash('TestPassword123!'),
+			name: 'Blocked User',
+			isEmailVerified: true,
+			passwordResetSecret: TotpUtils.generateSecret(),
+			passwordResetExpiresAt: addMinutes(new Date(), 5),
+			passwordResetResendBlocked: true,
+			passwordResetResendBlockedUntil: blockedUntil,
+		})
 
-    expect(status).toBe(200);
-    expect(data?.isResendBlocked).toBe(true);
-    expect(data?.canResend).toBe(false);
-    expect(data?.remainingResendAttempts).toBe(0);
-    expect(data?.resendBlockedUntil).toBeDefined();
-  });
+		const { data, status } = await client.auth['password-reset-status'].get({
+			query: { email },
+		})
 
-  it("should show throttle delay after failed code attempts", async () => {
-    const email = generateTestEmail("throttled");
-    const lastAttemptAt = new Date();
+		expect(status).toBe(200)
+		expect(data?.isResendBlocked).toBe(true)
+		expect(data?.canResend).toBe(false)
+		expect(data?.remainingResendAttempts).toBe(0)
+		expect(data?.resendBlockedUntil).toBeDefined()
+	})
 
-    await userRepository.create({
-      email,
-      password: await PasswordUtils.hash("TestPassword123!"),
-      name: "Throttled User",
-      isEmailVerified: true,
-      passwordResetSecret: TotpUtils.generateSecret(),
-      passwordResetExpiresAt: addMinutes(new Date(), 5),
-      passwordResetAttempts: 3,
-      passwordResetLastAttemptAt: lastAttemptAt,
-    });
+	it('should show throttle delay after failed code attempts', async () => {
+		const email = generateTestEmail('throttled')
+		const lastAttemptAt = new Date()
 
-    const { data, status } = await client.auth["password-reset-status"].get({
-      query: { email },
-    });
+		await userRepository.create({
+			email,
+			password: await PasswordUtils.hash('TestPassword123!'),
+			name: 'Throttled User',
+			isEmailVerified: true,
+			passwordResetSecret: TotpUtils.generateSecret(),
+			passwordResetExpiresAt: addMinutes(new Date(), 5),
+			passwordResetAttempts: 3,
+			passwordResetLastAttemptAt: lastAttemptAt,
+		})
 
-    expect(status).toBe(200);
-    expect(data?.remainingCodeAttempts).toBe(2);
-    if (data?.canTryCodeAt) {
-      expect(new Date(data.canTryCodeAt).getTime()).toBeGreaterThanOrEqual(Date.now());
-    }
-  });
+		const { data, status } = await client.auth['password-reset-status'].get({
+			query: { email },
+		})
 
-  it("should reject request for non-existent user", async () => {
-    const { status, error } = await client.auth["password-reset-status"].get({
-      query: { email: "nonexistent@example.com" },
-    });
+		expect(status).toBe(200)
+		expect(data?.remainingCodeAttempts).toBe(2)
+		if (data?.canTryCodeAt) {
+			expect(new Date(data.canTryCodeAt).getTime()).toBeGreaterThanOrEqual(Date.now())
+		}
+	})
 
-    expect(status).toBe(404);
-    expect((error?.value as { type: string }).type).toBe("USER_NOT_FOUND");
-  });
+	it('should reject request for non-existent user', async () => {
+		const { status, error } = await client.auth['password-reset-status'].get({
+			query: { email: 'nonexistent@example.com' },
+		})
 
-  it("should reject request for user with unverified email", async () => {
-    const email = generateTestEmail("unverified");
+		expect(status).toBe(404)
+		expect((error?.value as { type: string }).type).toBe('USER_NOT_FOUND')
+	})
 
-    await userRepository.create({
-      email,
-      password: await PasswordUtils.hash("TestPassword123!"),
-      name: "Unverified User",
-      isEmailVerified: false,
-      verificationSecret: TotpUtils.generateSecret(),
-      verificationExpiresAt: addMinutes(new Date(), 5),
-    });
+	it('should reject request for user with unverified email', async () => {
+		const email = generateTestEmail('unverified')
 
-    const { status, error } = await client.auth["password-reset-status"].get({
-      query: { email },
-    });
+		await userRepository.create({
+			email,
+			password: await PasswordUtils.hash('TestPassword123!'),
+			name: 'Unverified User',
+			isEmailVerified: false,
+			verificationSecret: TotpUtils.generateSecret(),
+			verificationExpiresAt: addMinutes(new Date(), 5),
+		})
 
-    expect(status).toBe(400);
-    expect((error?.value as { type: string }).type).toBe("EMAIL_NOT_VERIFIED");
-  });
+		const { status, error } = await client.auth['password-reset-status'].get({
+			query: { email },
+		})
 
-  it("should allow admin-created users without password to reset", async () => {
-    const email = generateTestEmail("admin-created");
+		expect(status).toBe(400)
+		expect((error?.value as { type: string }).type).toBe('EMAIL_NOT_VERIFIED')
+	})
 
-    await userRepository.create({
-      email,
-      password: null,
-      name: "Admin Created User",
-      isEmailVerified: true,
-    });
+	it('should allow admin-created users without password to reset', async () => {
+		const email = generateTestEmail('admin-created')
 
-    const { data, status } = await client.auth["password-reset-status"].get({
-      query: { email },
-    });
+		await userRepository.create({
+			email,
+			password: null,
+			name: 'Admin Created User',
+			isEmailVerified: true,
+		})
 
-    expect(status).toBe(200);
-    expect(data?.canResend).toBe(true);
-  });
+		const { data, status } = await client.auth['password-reset-status'].get({
+			query: { email },
+		})
 
-  it("should validate email format", async () => {
-    const invalidEmails = ["invalid-email", "test@", "@example.com"];
+		expect(status).toBe(200)
+		expect(data?.canResend).toBe(true)
+	})
 
-    for (const email of invalidEmails) {
-      const { status, error } = await client.auth["password-reset-status"].get({
-        query: { email },
-      });
+	it('should validate email format', async () => {
+		const invalidEmails = ['invalid-email', 'test@', '@example.com']
 
-      expect(status).toBe(422);
-      expect(error).toBeDefined();
-    }
-  });
+		for (const email of invalidEmails) {
+			const { status, error } = await client.auth['password-reset-status'].get({
+				query: { email },
+			})
 
-  it("should not expose sensitive data in response", async () => {
-    const email = generateTestEmail("security");
+			expect(status).toBe(422)
+			expect(error).toBeDefined()
+		}
+	})
 
-    await userRepository.create({
-      email,
-      password: await PasswordUtils.hash("TestPassword123!"),
-      name: "Security Test",
-      isEmailVerified: true,
-    });
+	it('should not expose sensitive data in response', async () => {
+		const email = generateTestEmail('security')
 
-    const { data } = await client.auth["password-reset-status"].get({
-      query: { email },
-    });
+		await userRepository.create({
+			email,
+			password: await PasswordUtils.hash('TestPassword123!'),
+			name: 'Security Test',
+			isEmailVerified: true,
+		})
 
-    const responseString = JSON.stringify(data);
-    expect(responseString).not.toContain("password");
-    expect(responseString).not.toContain("passwordResetSecret");
-    expect(responseString).not.toContain("Secret");
-  });
+		const { data } = await client.auth['password-reset-status'].get({
+			query: { email },
+		})
 
-  it("should return consistent response format", async () => {
-    const email = generateTestEmail("format");
+		const responseString = JSON.stringify(data)
+		expect(responseString).not.toContain('password')
+		expect(responseString).not.toContain('passwordResetSecret')
+		expect(responseString).not.toContain('Secret')
+	})
 
-    await userRepository.create({
-      email,
-      password: await PasswordUtils.hash("TestPassword123!"),
-      name: "Format Test",
-      isEmailVerified: true,
-    });
+	it('should return consistent response format', async () => {
+		const email = generateTestEmail('format')
 
-    const { data } = await client.auth["password-reset-status"].get({
-      query: { email },
-    });
+		await userRepository.create({
+			email,
+			password: await PasswordUtils.hash('TestPassword123!'),
+			name: 'Format Test',
+			isEmailVerified: true,
+		})
 
-    expect(data).toHaveProperty("canResend");
-    expect(data).toHaveProperty("remainingResendAttempts");
-    expect(data).toHaveProperty("canResendAt");
-    expect(data).toHaveProperty("remainingCodeAttempts");
-    expect(data).toHaveProperty("canTryCodeAt");
-    expect(data).toHaveProperty("isResendBlocked");
-    expect(data).toHaveProperty("resendBlockedUntil");
-    expect(data).toHaveProperty("codeExpiresAt");
-    expect(typeof data?.canResend).toBe("boolean");
-    expect(typeof data?.remainingResendAttempts).toBe("number");
-  });
-});
+		const { data } = await client.auth['password-reset-status'].get({
+			query: { email },
+		})
+
+		expect(data).toHaveProperty('canResend')
+		expect(data).toHaveProperty('remainingResendAttempts')
+		expect(data).toHaveProperty('canResendAt')
+		expect(data).toHaveProperty('remainingCodeAttempts')
+		expect(data).toHaveProperty('canTryCodeAt')
+		expect(data).toHaveProperty('isResendBlocked')
+		expect(data).toHaveProperty('resendBlockedUntil')
+		expect(data).toHaveProperty('codeExpiresAt')
+		expect(typeof data?.canResend).toBe('boolean')
+		expect(typeof data?.remainingResendAttempts).toBe('number')
+	})
+})

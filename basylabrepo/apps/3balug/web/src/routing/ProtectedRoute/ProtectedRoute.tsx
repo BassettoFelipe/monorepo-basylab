@@ -1,11 +1,11 @@
-import { Navigate } from "react-router-dom";
-import type { UserRole } from "@/types/user.types";
-import { storage } from "@/utils/storage";
+import { Navigate } from 'react-router-dom'
+import type { UserRole } from '@/types/user.types'
+import { storage } from '@/utils/storage'
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
-  requiredRoles: UserRole[];
-  redirectTo?: string;
+	children: React.ReactNode
+	requiredRoles: UserRole[]
+	redirectTo?: string
 }
 
 /**
@@ -17,18 +17,18 @@ interface ProtectedRouteProps {
  * 3. Se token inválido, interceptor do axios faz logout
  */
 export function ProtectedRoute({
-  children,
-  requiredRoles,
-  redirectTo = "/dashboard",
+	children,
+	requiredRoles,
+	redirectTo = '/dashboard',
 }: ProtectedRouteProps) {
-  const cachedRole = storage.getUserRole() as UserRole | null;
+	const cachedRole = storage.getUserRole() as UserRole | null
 
-  // Se tem role no cache e não tem permissão, redireciona
-  if (cachedRole && !requiredRoles.includes(cachedRole)) {
-    return <Navigate to={redirectTo} replace />;
-  }
+	// Se tem role no cache e não tem permissão, redireciona
+	if (cachedRole && !requiredRoles.includes(cachedRole)) {
+		return <Navigate to={redirectTo} replace />
+	}
 
-  // Se não tem cache ou tem permissão, renderiza
-  // A validação real acontece via useUser() no componente filho
-  return <>{children}</>;
+	// Se não tem cache ou tem permissão, renderiza
+	// A validação real acontece via useUser() no componente filho
+	return <>{children}</>
 }

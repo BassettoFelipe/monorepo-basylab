@@ -1,46 +1,46 @@
-import { BadRequestError, ForbiddenError, NotFoundError } from "@basylab/core/errors";
-import type { User } from "@/db/schema/users";
-import type { ICustomFieldCacheService } from "@/services/cache";
-import type { ICustomFieldRepository } from "@/repositories/contracts/custom-field.repository";
-import { USER_ROLES } from "@/types/roles";
+import { BadRequestError, ForbiddenError, NotFoundError } from '@basylab/core/errors'
+import type { User } from '@/db/schema/users'
+import type { ICustomFieldRepository } from '@/repositories/contracts/custom-field.repository'
+import type { ICustomFieldCacheService } from '@/services/cache'
+import { USER_ROLES } from '@/types/roles'
 
 type DeleteCustomFieldInput = {
-  user: User;
-  fieldId: string;
-};
+	user: User
+	fieldId: string
+}
 
 type DeleteCustomFieldOutput = {
-  success: boolean;
-};
+	success: boolean
+}
 
 export class DeleteCustomFieldUseCase {
-  constructor(
-    private readonly customFieldRepository: ICustomFieldRepository,
-    private readonly cache?: ICustomFieldCacheService,
-  ) {}
+	constructor(
+		private readonly customFieldRepository: ICustomFieldRepository,
+		private readonly cache?: ICustomFieldCacheService,
+	) {}
 
-  async execute(input: DeleteCustomFieldInput): Promise<DeleteCustomFieldOutput> {
-    if (input.user.role !== USER_ROLES.OWNER) {
-      throw new ForbiddenError("Apenas o proprietário pode excluir campos personalizados.");
-    }
+	async execute(input: DeleteCustomFieldInput): Promise<DeleteCustomFieldOutput> {
+		if (input.user.role !== USER_ROLES.OWNER) {
+			throw new ForbiddenError('Apenas o proprietário pode excluir campos personalizados.')
+		}
 
-    if (!input.user.companyId) {
-      throw new BadRequestError("Usuário sem empresa vinculada.");
-    }
+		if (!input.user.companyId) {
+			throw new BadRequestError('Usuário sem empresa vinculada.')
+		}
 
-    const existingField = await this.customFieldRepository.findById(input.fieldId);
-    if (!existingField) {
-      throw new NotFoundError("Campo não encontrado.");
-    }
+		const existingField = await this.customFieldRepository.findById(input.fieldId)
+		if (!existingField) {
+			throw new NotFoundError('Campo não encontrado.')
+		}
 
-    if (existingField.companyId !== input.user.companyId) {
-      throw new ForbiddenError("Você não tem permissão para excluir este campo.");
-    }
+		if (existingField.companyId !== input.user.companyId) {
+			throw new ForbiddenError('Você não tem permissão para excluir este campo.')
+		}
 
-    const deleted = await this.customFieldRepository.delete(input.fieldId);
+		const deleted = await this.customFieldRepository.delete(input.fieldId)
 
-    await this.cache?.invalidate(input.user.companyId);
+		await this.cache?.invalidate(input.user.companyId)
 
-    return { success: deleted };
-  }
+		return { success: deleted }
+	}
 }

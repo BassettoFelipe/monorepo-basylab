@@ -1,65 +1,65 @@
-import { randomUUID } from "node:crypto";
-import { FileUtils, FileValidation } from "@basylab/core";
-import type { IStorageService } from "@/services/storage";
+import { randomUUID } from 'node:crypto'
+import { FileUtils, FileValidation } from '@basylab/core'
+import type { IStorageService } from '@/services/storage'
 
 interface UploadFileInput {
-  file: Buffer;
-  fileName: string;
-  contentType: string;
-  userId: string;
-  fieldId?: string; // ID do campo customizado (opcional)
-  maxFileSize?: number; // Tamanho máximo em MB
-  allowedTypes?: string[]; // Tipos MIME permitidos
+	file: Buffer
+	fileName: string
+	contentType: string
+	userId: string
+	fieldId?: string // ID do campo customizado (opcional)
+	maxFileSize?: number // Tamanho máximo em MB
+	allowedTypes?: string[] // Tipos MIME permitidos
 }
 
 interface UploadFileOutput {
-  url: string;
-  key: string;
-  size: number;
-  contentType: string;
-  fileName: string;
+	url: string
+	key: string
+	size: number
+	contentType: string
+	fileName: string
 }
 
 export class UploadFileUseCase {
-  constructor(private storageService: IStorageService) {}
+	constructor(private storageService: IStorageService) {}
 
-  async execute(input: UploadFileInput): Promise<UploadFileOutput> {
-    const { file, fileName, contentType, userId, fieldId, maxFileSize = 5, allowedTypes } = input;
+	async execute(input: UploadFileInput): Promise<UploadFileOutput> {
+		const { file, fileName, contentType, userId, fieldId, maxFileSize = 5, allowedTypes } = input
 
-    const fileSizeInMB = file.length / (1024 * 1024);
-    if (fileSizeInMB > maxFileSize) {
-      throw new Error(`O arquivo excede o tamanho máximo permitido de ${maxFileSize}MB`);
-    }
+		const fileSizeInMB = file.length / (1024 * 1024)
+		if (fileSizeInMB > maxFileSize) {
+			throw new Error(`O arquivo excede o tamanho máximo permitido de ${maxFileSize}MB`)
+		}
 
-    if (allowedTypes && allowedTypes.length > 0) {
-      const allowed = FileValidation.isTypeAllowed(contentType, allowedTypes);
-      if (!allowed) {
-        throw new Error(`Tipo de arquivo não permitido. Tipos aceitos: ${allowedTypes.join(", ")}`);
-      }
-    }
+		if (allowedTypes && allowedTypes.length > 0) {
+			const allowed = FileValidation.isTypeAllowed(contentType, allowedTypes)
+			if (!allowed) {
+				throw new Error(`Tipo de arquivo não permitido. Tipos aceitos: ${allowedTypes.join(', ')}`)
+			}
+		}
 
-    const fileExtension = FileUtils.getExtension(fileName, contentType);
-    const uniqueId = randomUUID();
-    const sanitized = FileUtils.sanitizeFileName(fileName);
+		const fileExtension = FileUtils.getExtension(fileName, contentType)
+		const uniqueId = randomUUID()
+		const sanitized = FileUtils.sanitizeFileName(fileName)
 
-    // Organizar em pastas: files/userId/fieldId/uniqueId_fileName
-    const keyParts = ["files", userId];
-    if (fieldId) {
-      keyParts.push(fieldId);
-    }
-    keyParts.push(`${uniqueId}_${sanitized}${fileExtension}`);
+		// Organizar em pastas: files/userId/fieldId/uniqueId_fileName
+		const keyParts = ['files', userId]
+		if (fieldId) {
+			keyParts.push(fieldId)
+		}
+		keyParts.push(`${uniqueId}_${sanitized}${fileExtension}`)
 
-    const key = keyParts.join("/");
+		const key = keyParts.join('/')
 
-    // Fazer upload
-    const result = await this.storageService.upload(file, key, contentType);
+		// Fazer upload
+		const result = await this.storageService.upload(file, key, contentType)
 
-    return {
-      url: result.url,
-      key: result.key,
-      size: result.size,
-      contentType: result.contentType,
-      fileName: sanitized + fileExtension,
-    };
-  }
+		return {
+			url: result.url,
+			key: result.key,
+			size: result.size,
+			contentType: result.contentType,
+			fileName: sanitized + fileExtension,
+		}
+	}
 }

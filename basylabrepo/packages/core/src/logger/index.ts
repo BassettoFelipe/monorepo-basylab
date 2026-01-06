@@ -1,1 +1,1 @@
-export { createLogger, createChildLogger, type CreateLoggerOptions, type Logger } from './pino'
+export { type CreateLoggerOptions, createChildLogger, createLogger, type Logger } from './pino'

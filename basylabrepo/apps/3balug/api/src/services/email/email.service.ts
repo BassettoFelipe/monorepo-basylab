@@ -5,5 +5,5 @@
  * The email service has been refactored into a provider-based architecture.
  */
 
-export type { IEmailService } from "./contracts/email-service.interface";
-export { EmailServiceError, emailService } from "./index";
+export type { IEmailService } from './contracts/email-service.interface'
+export { EmailServiceError, emailService } from './index'

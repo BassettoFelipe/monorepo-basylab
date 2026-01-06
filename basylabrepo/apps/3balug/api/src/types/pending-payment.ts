@@ -1,3 +1,3 @@
-import type { PendingPayment as DbPendingPayment } from "@/db/schema/pending-payments";
+import type { PendingPayment as DbPendingPayment } from '@/db/schema/pending-payments'
 
-export type PendingPayment = DbPendingPayment;
+export type PendingPayment = DbPendingPayment

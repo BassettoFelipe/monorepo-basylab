@@ -1,3 +1,3 @@
-import type { Plan as DbPlan } from "@/db/schema/plans";
+import type { Plan as DbPlan } from '@/db/schema/plans'
 
-export type Plan = DbPlan;
+export type Plan = DbPlan

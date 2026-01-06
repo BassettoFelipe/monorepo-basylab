@@ -1,33 +1,33 @@
-import { emailLayout } from "./email-layout.template";
+import { emailLayout } from './email-layout.template'
 
 interface UserInvitationTemplateProps {
-  name: string;
-  email: string;
-  companyName: string;
-  role: string;
-  invitedBy: string;
-  resetPasswordUrl: string;
+	name: string
+	email: string
+	companyName: string
+	role: string
+	invitedBy: string
+	resetPasswordUrl: string
 }
 
 const roleNames: Record<string, string> = {
-  broker: "Corretor",
-  manager: "Gerente",
-  insurance_analyst: "Analista de Seguros",
-  owner: "Proprietário",
-  admin: "Administrador",
-};
+	broker: 'Corretor',
+	manager: 'Gerente',
+	insurance_analyst: 'Analista de Seguros',
+	owner: 'Proprietário',
+	admin: 'Administrador',
+}
 
 export function userInvitationTemplate({
-  name,
-  email,
-  companyName,
-  role,
-  invitedBy,
-  resetPasswordUrl,
+	name,
+	email,
+	companyName,
+	role,
+	invitedBy,
+	resetPasswordUrl,
 }: UserInvitationTemplateProps): string {
-  const roleName = roleNames[role] || role;
+	const roleName = roleNames[role] || role
 
-  const content = `
+	const content = `
     <p style="margin: 0 0 16px; color: #434D00; font-size: 16px; line-height: 1.5;">
       Olá, <strong>${name}</strong>
     </p>
@@ -88,10 +88,10 @@ export function userInvitationTemplate({
       Bem-vindo à equipe!<br>
       <span style="color: #6b6f4a;">Equipe 3Balug</span>
     </p>
-  `;
+  `
 
-  return emailLayout({
-    content,
-    previewText: `Você foi convidado para ${companyName} - Defina sua senha`,
-  });
+	return emailLayout({
+		content,
+		previewText: `Você foi convidado para ${companyName} - Defina sua senha`,
+	})
 }

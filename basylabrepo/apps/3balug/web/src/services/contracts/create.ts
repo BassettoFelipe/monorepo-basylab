@@ -1,14 +1,14 @@
-import { api } from "@/lib/api";
-import type { Contract, CreateContractInput } from "@/types/contract.types";
+import { api } from '@/lib/api'
+import type { Contract, CreateContractInput } from '@/types/contract.types'
 
 interface CreateContractResponse {
-  data: Contract;
-  message: string;
+	data: Contract
+	message: string
 }
 
 export const createContract = async (
-  input: CreateContractInput,
+	input: CreateContractInput,
 ): Promise<CreateContractResponse> => {
-  const { data } = await api.post<CreateContractResponse>("/api/contracts", input);
-  return data;
-};
+	const { data } = await api.post<CreateContractResponse>('/api/contracts', input)
+	return data
+}

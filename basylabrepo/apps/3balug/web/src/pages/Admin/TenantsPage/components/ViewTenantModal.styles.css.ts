@@ -1,240 +1,240 @@
-import { style } from "@vanilla-extract/css";
-import { vars } from "@/design-system/theme.css";
+import { style } from '@vanilla-extract/css'
+import { vars } from '@/design-system/theme.css'
 
 export const container = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: vars.spacing.xl,
-});
+	display: 'flex',
+	flexDirection: 'column',
+	gap: vars.spacing.xl,
+})
 
 export const header = style({
-  display: "flex",
-  alignItems: "center",
-  gap: vars.spacing.lg,
-  paddingBottom: vars.spacing.lg,
-  borderBottom: `1px solid ${vars.color.border.primary}`,
-});
+	display: 'flex',
+	alignItems: 'center',
+	gap: vars.spacing.lg,
+	paddingBottom: vars.spacing.lg,
+	borderBottom: `1px solid ${vars.color.border.primary}`,
+})
 
 export const avatar = style({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "64px",
-  height: "64px",
-  borderRadius: vars.borderRadius.full,
-  backgroundColor: "#fafff0",
-  color: vars.color.primary.dark,
-  flexShrink: 0,
-});
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	width: '64px',
+	height: '64px',
+	borderRadius: vars.borderRadius.full,
+	backgroundColor: '#fafff0',
+	color: vars.color.primary.dark,
+	flexShrink: 0,
+})
 
 export const headerInfo = style({
-  flex: 1,
-  minWidth: 0,
-});
+	flex: 1,
+	minWidth: 0,
+})
 
 export const name = style({
-  fontSize: vars.fontSize.xl,
-  fontWeight: vars.fontWeight.bold,
-  color: vars.color.text.primary,
-  margin: 0,
-  marginBottom: vars.spacing.xs,
-});
+	fontSize: vars.fontSize.xl,
+	fontWeight: vars.fontWeight.bold,
+	color: vars.color.text.primary,
+	margin: 0,
+	marginBottom: vars.spacing.xs,
+})
 
 export const badges = style({
-  display: "flex",
-  alignItems: "center",
-  gap: vars.spacing.sm,
-  flexWrap: "wrap",
-});
+	display: 'flex',
+	alignItems: 'center',
+	gap: vars.spacing.sm,
+	flexWrap: 'wrap',
+})
 
 export const badge = style({
-  display: "inline-flex",
-  alignItems: "center",
-  padding: `2px ${vars.spacing.sm}`,
-  fontSize: vars.fontSize.xs,
-  fontWeight: vars.fontWeight.bold,
-  borderRadius: vars.borderRadius.full,
-});
+	display: 'inline-flex',
+	alignItems: 'center',
+	padding: `2px ${vars.spacing.sm}`,
+	fontSize: vars.fontSize.xs,
+	fontWeight: vars.fontWeight.bold,
+	borderRadius: vars.borderRadius.full,
+})
 
 export const badgeCpf = style({
-  backgroundColor: "#dbeafe",
-  color: "#1e40af",
-});
+	backgroundColor: '#dbeafe',
+	color: '#1e40af',
+})
 
 export const badgeCnpj = style({
-  backgroundColor: "#fef3c7",
-  color: "#92400e",
-});
+	backgroundColor: '#fef3c7',
+	color: '#92400e',
+})
 
 export const document = style({
-  fontSize: vars.fontSize.sm,
-  color: vars.color.text.secondary,
-  fontFamily: "monospace",
-});
+	fontSize: vars.fontSize.sm,
+	color: vars.color.text.secondary,
+	fontFamily: 'monospace',
+})
 
 export const section = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: vars.spacing.md,
-});
+	display: 'flex',
+	flexDirection: 'column',
+	gap: vars.spacing.md,
+})
 
 export const sectionTitle = style({
-  fontSize: vars.fontSize.sm,
-  fontWeight: vars.fontWeight.bold,
-  color: vars.color.text.secondary,
-  textTransform: "uppercase",
-  letterSpacing: "0.05em",
-  margin: 0,
-});
+	fontSize: vars.fontSize.sm,
+	fontWeight: vars.fontWeight.bold,
+	color: vars.color.text.secondary,
+	textTransform: 'uppercase',
+	letterSpacing: '0.05em',
+	margin: 0,
+})
 
 export const infoGrid = style({
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-  gap: vars.spacing.md,
-});
+	display: 'grid',
+	gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+	gap: vars.spacing.md,
+})
 
 export const infoItem = style({
-  display: "flex",
-  alignItems: "flex-start",
-  gap: vars.spacing.sm,
-});
+	display: 'flex',
+	alignItems: 'flex-start',
+	gap: vars.spacing.sm,
+})
 
 export const infoIcon = style({
-  color: vars.color.text.secondary,
-  flexShrink: 0,
-  marginTop: "2px",
-});
+	color: vars.color.text.secondary,
+	flexShrink: 0,
+	marginTop: '2px',
+})
 
 export const infoLabel = style({
-  display: "block",
-  fontSize: vars.fontSize.xs,
-  color: vars.color.text.secondary,
-  marginBottom: "2px",
-});
+	display: 'block',
+	fontSize: vars.fontSize.xs,
+	color: vars.color.text.secondary,
+	marginBottom: '2px',
+})
 
 export const infoValue = style({
-  display: "block",
-  fontSize: vars.fontSize.sm,
-  color: vars.color.text.primary,
-  lineHeight: 1.5,
-});
+	display: 'block',
+	fontSize: vars.fontSize.sm,
+	color: vars.color.text.primary,
+	lineHeight: 1.5,
+})
 
 export const documentsGrid = style({
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-  gap: vars.spacing.md,
-});
+	display: 'grid',
+	gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+	gap: vars.spacing.md,
+})
 
 export const documentCard = style({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: vars.spacing.sm,
-  padding: vars.spacing.md,
-  border: `1px solid ${vars.color.border.primary}`,
-  borderRadius: vars.borderRadius.md,
-  backgroundColor: vars.color.bg.primary,
-  position: "relative",
-  transition: `all ${vars.transitionDuration.base}`,
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'center',
+	gap: vars.spacing.sm,
+	padding: vars.spacing.md,
+	border: `1px solid ${vars.color.border.primary}`,
+	borderRadius: vars.borderRadius.md,
+	backgroundColor: vars.color.bg.primary,
+	position: 'relative',
+	transition: `all ${vars.transitionDuration.base}`,
 
-  ":hover": {
-    borderColor: vars.color.primary.main,
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
-  },
-});
+	':hover': {
+		borderColor: vars.color.primary.main,
+		boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+	},
+})
 
 export const documentPreview = style({
-  width: "100%",
-  height: "100px",
-  borderRadius: vars.borderRadius.sm,
-  overflow: "hidden",
-  backgroundColor: vars.color.bg.secondary,
-});
+	width: '100%',
+	height: '100px',
+	borderRadius: vars.borderRadius.sm,
+	overflow: 'hidden',
+	backgroundColor: vars.color.bg.secondary,
+})
 
 export const documentImage = style({
-  width: "100%",
-  height: "100%",
-  objectFit: "cover",
-});
+	width: '100%',
+	height: '100%',
+	objectFit: 'cover',
+})
 
 export const documentIconWrapper = style({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "100%",
-  height: "100px",
-  borderRadius: vars.borderRadius.sm,
-  backgroundColor: "#fee2e2",
-  color: "#dc2626",
-});
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	width: '100%',
+	height: '100px',
+	borderRadius: vars.borderRadius.sm,
+	backgroundColor: '#fee2e2',
+	color: '#dc2626',
+})
 
 export const documentInfo = style({
-  width: "100%",
-  textAlign: "center",
-});
+	width: '100%',
+	textAlign: 'center',
+})
 
 export const documentName = style({
-  display: "block",
-  fontSize: vars.fontSize.xs,
-  fontWeight: vars.fontWeight.medium,
-  color: vars.color.text.primary,
-  whiteSpace: "nowrap",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  marginBottom: "2px",
-});
+	display: 'block',
+	fontSize: vars.fontSize.xs,
+	fontWeight: vars.fontWeight.medium,
+	color: vars.color.text.primary,
+	whiteSpace: 'nowrap',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	marginBottom: '2px',
+})
 
 export const documentType = style({
-  display: "block",
-  fontSize: vars.fontSize.xs,
-  color: vars.color.text.secondary,
-});
+	display: 'block',
+	fontSize: vars.fontSize.xs,
+	color: vars.color.text.secondary,
+})
 
 export const documentLink = style({
-  position: "absolute",
-  top: vars.spacing.sm,
-  right: vars.spacing.sm,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "28px",
-  height: "28px",
-  borderRadius: vars.borderRadius.full,
-  backgroundColor: vars.color.bg.primary,
-  color: vars.color.text.secondary,
-  border: `1px solid ${vars.color.border.primary}`,
-  transition: `all ${vars.transitionDuration.base}`,
-  textDecoration: "none",
+	position: 'absolute',
+	top: vars.spacing.sm,
+	right: vars.spacing.sm,
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	width: '28px',
+	height: '28px',
+	borderRadius: vars.borderRadius.full,
+	backgroundColor: vars.color.bg.primary,
+	color: vars.color.text.secondary,
+	border: `1px solid ${vars.color.border.primary}`,
+	transition: `all ${vars.transitionDuration.base}`,
+	textDecoration: 'none',
 
-  ":hover": {
-    backgroundColor: "#fafff0",
-    color: vars.color.primary.dark,
-    borderColor: vars.color.primary.main,
-  },
-});
+	':hover': {
+		backgroundColor: '#fafff0',
+		color: vars.color.primary.dark,
+		borderColor: vars.color.primary.main,
+	},
+})
 
 export const emptyText = style({
-  fontSize: vars.fontSize.sm,
-  color: vars.color.text.secondary,
-  fontStyle: "italic",
-});
+	fontSize: vars.fontSize.sm,
+	color: vars.color.text.secondary,
+	fontStyle: 'italic',
+})
 
 export const notes = style({
-  fontSize: vars.fontSize.sm,
-  color: vars.color.text.primary,
-  lineHeight: 1.6,
-  whiteSpace: "pre-wrap",
-  padding: vars.spacing.md,
-  backgroundColor: vars.color.bg.secondary,
-  borderRadius: vars.borderRadius.md,
-  margin: 0,
-});
+	fontSize: vars.fontSize.sm,
+	color: vars.color.text.primary,
+	lineHeight: 1.6,
+	whiteSpace: 'pre-wrap',
+	padding: vars.spacing.md,
+	backgroundColor: vars.color.bg.secondary,
+	borderRadius: vars.borderRadius.md,
+	margin: 0,
+})
 
 export const metadata = style({
-  display: "flex",
-  gap: vars.spacing.lg,
-  paddingTop: vars.spacing.lg,
-  borderTop: `1px solid ${vars.color.border.primary}`,
-  fontSize: vars.fontSize.xs,
-  color: vars.color.text.secondary,
-});
+	display: 'flex',
+	gap: vars.spacing.lg,
+	paddingTop: vars.spacing.lg,
+	borderTop: `1px solid ${vars.color.border.primary}`,
+	fontSize: vars.fontSize.xs,
+	color: vars.color.text.secondary,
+})

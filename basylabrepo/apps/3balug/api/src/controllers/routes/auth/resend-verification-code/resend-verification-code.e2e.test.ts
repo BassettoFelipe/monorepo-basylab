@@ -1,192 +1,195 @@
-import { afterAll, beforeEach, describe, expect, it, mock } from "bun:test";
-import { PasswordUtils } from "@basylab/core/crypto";
-import { clearTestData, createTestApp } from "@/test/setup";
-import { addMinutes, generateTestEmail } from "@/test/test-helpers";
-import { TotpUtils } from "@/utils/totp.utils";
+import { afterAll, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import { PasswordUtils } from '@basylab/core/crypto'
+import * as emailServiceModule from '@/services/email'
+import { clearTestData, createTestApp } from '@/test/setup'
+import { addMinutes, generateTestEmail } from '@/test/test-helpers'
+import { TotpUtils } from '@/utils/totp.utils'
 
 // Mock do email service
-const mockSendVerificationCode = mock(() => Promise.resolve());
+const mockSendVerificationCode = mock(() => Promise.resolve())
 
-mock.module("@/services/email/email.service", () => ({
-  emailService: {
-    sendVerificationCode: mockSendVerificationCode,
-    verifyConnection: mock(() => Promise.resolve(true)),
-  },
-  EmailServiceError: class EmailServiceError extends Error {},
-}));
+const mockEmailService = {
+	sendVerificationCode: mockSendVerificationCode,
+	verifyConnection: mock(() => Promise.resolve(true)),
+}
 
-describe("POST /auth/resend-verification-code", () => {
-  const { client, userRepository } = createTestApp();
+const mockGetEmailServiceInstance = spyOn(
+	emailServiceModule,
+	'getEmailServiceInstance',
+).mockReturnValue(mockEmailService as any)
 
-  beforeEach(() => {
-    clearTestData();
-    mockSendVerificationCode.mockClear();
-  });
+describe('POST /auth/resend-verification-code', () => {
+	const { client, userRepository } = createTestApp()
 
-  afterAll(() => {
-    mock.restore();
-  });
+	beforeEach(() => {
+		clearTestData()
+		mockSendVerificationCode.mockClear()
+	})
 
-  it("should successfully resend verification code", async () => {
-    const email = generateTestEmail("resend");
-    const verificationSecret = TotpUtils.generateSecret();
+	afterAll(() => {
+		mockGetEmailServiceInstance.mockRestore()
+	})
 
-    await userRepository.create({
-      email,
-      password: await PasswordUtils.hash("Test@1234"),
-      name: "Test User",
-      isEmailVerified: false,
-      verificationSecret,
-      verificationExpiresAt: addMinutes(new Date(), 5),
-      verificationResendCount: 0,
-      verificationLastResendAt: null,
-    });
-    mockSendVerificationCode.mockResolvedValue(undefined);
+	it('should successfully resend verification code', async () => {
+		const email = generateTestEmail('resend')
+		const verificationSecret = TotpUtils.generateSecret()
 
-    const { data, status, error } = await client.auth["resend-verification-code"].post({
-      email,
-    });
+		await userRepository.create({
+			email,
+			password: await PasswordUtils.hash('Test@1234'),
+			name: 'Test User',
+			isEmailVerified: false,
+			verificationSecret,
+			verificationExpiresAt: addMinutes(new Date(), 5),
+			verificationResendCount: 0,
+			verificationLastResendAt: null,
+		})
+		mockSendVerificationCode.mockResolvedValue(undefined)
 
-    expect(status).toBe(200);
-    expect(error).toBeFalsy();
-    expect(data).toBeDefined();
-    expect(data?.success).toBe(true);
-    expect(data?.remainingAttempts).toBe(4);
-    expect(mockSendVerificationCode).toHaveBeenCalledTimes(1);
-  });
+		const { data, status, error } = await client.auth['resend-verification-code'].post({
+			email,
+		})
 
-  it("should return 404 for non-existent user", async () => {
-    const { status, error } = await client.auth["resend-verification-code"].post({
-      email: "nonexistent@example.com",
-    });
+		expect(status).toBe(200)
+		expect(error).toBeFalsy()
+		expect(data).toBeDefined()
+		expect(data?.success).toBe(true)
+		expect(data?.remainingAttempts).toBe(4)
+		expect(mockSendVerificationCode).toHaveBeenCalledTimes(1)
+	})
 
-    expect(status).toBe(404);
-    expect(error?.value.type as any).toBe("USER_NOT_FOUND");
-  });
+	it('should return 404 for non-existent user', async () => {
+		const { status, error } = await client.auth['resend-verification-code'].post({
+			email: 'nonexistent@example.com',
+		})
 
-  it("should return 400 for already verified email", async () => {
-    const email = generateTestEmail("verified");
+		expect(status).toBe(404)
+		expect(error?.value.type as any).toBe('USER_NOT_FOUND')
+	})
 
-    await userRepository.create({
-      email,
-      password: await PasswordUtils.hash("Test@1234"),
-      name: "Verified User",
-      isEmailVerified: true,
-    });
+	it('should return 400 for already verified email', async () => {
+		const email = generateTestEmail('verified')
 
-    const { status, error } = await client.auth["resend-verification-code"].post({
-      email,
-    });
+		await userRepository.create({
+			email,
+			password: await PasswordUtils.hash('Test@1234'),
+			name: 'Verified User',
+			isEmailVerified: true,
+		})
 
-    expect(status).toBe(400);
-    expect(error?.value.type as any).toBe("ACCOUNT_ALREADY_VERIFIED");
-  });
+		const { status, error } = await client.auth['resend-verification-code'].post({
+			email,
+		})
 
-  it("should enforce cooldown period", async () => {
-    const email = generateTestEmail("cooldown");
-    mockSendVerificationCode.mockResolvedValue(undefined);
+		expect(status).toBe(400)
+		expect(error?.value.type as any).toBe('ACCOUNT_ALREADY_VERIFIED')
+	})
 
-    await userRepository.create({
-      email,
-      password: await PasswordUtils.hash("Test@1234"),
-      name: "Cooldown Test",
-      isEmailVerified: false,
-      verificationSecret: TotpUtils.generateSecret(),
-      verificationExpiresAt: addMinutes(new Date(), 5),
-      verificationResendCount: 0,
-      verificationLastResendAt: null,
-    });
+	it('should enforce cooldown period', async () => {
+		const email = generateTestEmail('cooldown')
+		mockSendVerificationCode.mockResolvedValue(undefined)
 
-    const firstResponse = await client.auth["resend-verification-code"].post({
-      email,
-    });
-    expect(firstResponse.status).toBe(200);
+		await userRepository.create({
+			email,
+			password: await PasswordUtils.hash('Test@1234'),
+			name: 'Cooldown Test',
+			isEmailVerified: false,
+			verificationSecret: TotpUtils.generateSecret(),
+			verificationExpiresAt: addMinutes(new Date(), 5),
+			verificationResendCount: 0,
+			verificationLastResendAt: null,
+		})
 
-    const secondResponse = await client.auth["resend-verification-code"].post({
-      email,
-    });
+		const firstResponse = await client.auth['resend-verification-code'].post({
+			email,
+		})
+		expect(firstResponse.status).toBe(200)
 
-    expect(secondResponse.status).toBe(429);
-    expect(secondResponse.error?.value.type as any).toBe("RESEND_LIMIT_EXCEEDED");
-  });
+		const secondResponse = await client.auth['resend-verification-code'].post({
+			email,
+		})
 
-  it("should enforce max resend attempts", async () => {
-    const email = generateTestEmail("max-attempts");
+		expect(secondResponse.status).toBe(429)
+		expect(secondResponse.error?.value.type as any).toBe('RESEND_LIMIT_EXCEEDED')
+	})
 
-    await userRepository.create({
-      email,
-      password: await PasswordUtils.hash("Test@1234"),
-      name: "Max Attempts User",
-      isEmailVerified: false,
-      verificationSecret: TotpUtils.generateSecret(),
-      verificationExpiresAt: addMinutes(new Date(), 5),
-      verificationResendCount: 5,
-      verificationLastResendAt: addMinutes(new Date(), -2),
-    });
+	it('should enforce max resend attempts', async () => {
+		const email = generateTestEmail('max-attempts')
 
-    const { status, error } = await client.auth["resend-verification-code"].post({
-      email,
-    });
+		await userRepository.create({
+			email,
+			password: await PasswordUtils.hash('Test@1234'),
+			name: 'Max Attempts User',
+			isEmailVerified: false,
+			verificationSecret: TotpUtils.generateSecret(),
+			verificationExpiresAt: addMinutes(new Date(), 5),
+			verificationResendCount: 5,
+			verificationLastResendAt: addMinutes(new Date(), -2),
+		})
 
-    expect(status).toBe(429);
-    expect(error?.value.type as any).toBe("RESEND_LIMIT_EXCEEDED");
-  });
+		const { status, error } = await client.auth['resend-verification-code'].post({
+			email,
+		})
 
-  it("should handle brute force protection", async () => {
-    const email = generateTestEmail("brute");
+		expect(status).toBe(429)
+		expect(error?.value.type as any).toBe('RESEND_LIMIT_EXCEEDED')
+	})
 
-    await userRepository.create({
-      email,
-      password: await PasswordUtils.hash("Test@1234"),
-      name: "Brute Test",
-      isEmailVerified: false,
-      verificationSecret: TotpUtils.generateSecret(),
-      verificationExpiresAt: addMinutes(new Date(), 5),
-    });
+	it('should handle brute force protection', async () => {
+		const email = generateTestEmail('brute')
 
-    const requests = Array.from({ length: 6 }, () =>
-      client.auth["resend-verification-code"].post({ email }),
-    );
+		await userRepository.create({
+			email,
+			password: await PasswordUtils.hash('Test@1234'),
+			name: 'Brute Test',
+			isEmailVerified: false,
+			verificationSecret: TotpUtils.generateSecret(),
+			verificationExpiresAt: addMinutes(new Date(), 5),
+		})
 
-    await Promise.all(requests);
+		const requests = Array.from({ length: 6 }, () =>
+			client.auth['resend-verification-code'].post({ email }),
+		)
 
-    const { status } = await client.auth["resend-verification-code"].post({
-      email,
-    });
+		await Promise.all(requests)
 
-    expect([429]).toContain(status);
-  });
+		const { status } = await client.auth['resend-verification-code'].post({
+			email,
+		})
 
-  it("should validate request body schema", async () => {
-    const { status } = await client.auth["resend-verification-code"].post({
-      email: "invalid-email",
-    });
+		expect([429]).toContain(status)
+	})
 
-    expect(status).toBe(422);
-  });
+	it('should validate request body schema', async () => {
+		const { status } = await client.auth['resend-verification-code'].post({
+			email: 'invalid-email',
+		})
 
-  it("should handle email service failures gracefully", async () => {
-    mockSendVerificationCode.mockRejectedValue(new Error("SMTP Error"));
+		expect(status).toBe(422)
+	})
 
-    const email = generateTestEmail("fail");
+	it('should handle email service failures gracefully', async () => {
+		mockSendVerificationCode.mockRejectedValue(new Error('SMTP Error'))
 
-    await userRepository.create({
-      email,
-      password: await PasswordUtils.hash("Test@1234"),
-      name: "Fail Test",
-      isEmailVerified: false,
-      verificationSecret: TotpUtils.generateSecret(),
-      verificationExpiresAt: addMinutes(new Date(), 5),
-      verificationResendCount: 0,
-    });
+		const email = generateTestEmail('fail')
 
-    const { status, error } = await client.auth["resend-verification-code"].post({
-      email,
-    });
+		await userRepository.create({
+			email,
+			password: await PasswordUtils.hash('Test@1234'),
+			name: 'Fail Test',
+			isEmailVerified: false,
+			verificationSecret: TotpUtils.generateSecret(),
+			verificationExpiresAt: addMinutes(new Date(), 5),
+			verificationResendCount: 0,
+		})
 
-    expect(status).toBe(502);
-    expect(error?.value.type as any).toBe("EMAIL_SEND_FAILED");
+		const { status, error } = await client.auth['resend-verification-code'].post({
+			email,
+		})
 
-    mockSendVerificationCode.mockResolvedValue(undefined);
-  });
-});
+		expect(status).toBe(502)
+		expect(error?.value.type as any).toBe('EMAIL_SEND_FAILED')
+
+		mockSendVerificationCode.mockResolvedValue(undefined)
+	})
+})

@@ -256,7 +256,7 @@ export const FileUtils = {
 
 		return nameWithoutExt
 			.normalize('NFD')
-			.replace(/[\u0300-\u036f]/g, '')
+			.replace(/\p{Mn}/gu, '')
 			.replace(/[^a-zA-Z0-9_-]/g, '_')
 			.replace(/_+/g, '_')
 			.slice(0, maxLength)

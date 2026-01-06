@@ -1,8 +1,8 @@
-import { t } from "elysia";
+import { t } from 'elysia'
 
 export const refreshResponseSchema = {
-  200: t.Object({
-    accessToken: t.String(),
-    // refreshToken now in httpOnly cookie (not in response body)
-  }),
-};
+	200: t.Object({
+		accessToken: t.String(),
+		// refreshToken now in httpOnly cookie (not in response body)
+	}),
+}

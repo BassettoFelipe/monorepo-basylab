@@ -1,15 +1,15 @@
-import { api } from "@/lib/api";
+import { api } from '@/lib/api'
 
 export interface ValidateEmailForResetResponse {
-  email: string;
+	email: string
 }
 
 export const validateEmailForReset = async (
-  email: string,
+	email: string,
 ): Promise<ValidateEmailForResetResponse> => {
-  const { data } = await api.post<ValidateEmailForResetResponse>("/auth/validate-email-for-reset", {
-    email,
-  });
+	const { data } = await api.post<ValidateEmailForResetResponse>('/auth/validate-email-for-reset', {
+		email,
+	})
 
-  return data;
-};
+	return data
+}

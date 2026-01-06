@@ -1,12 +1,12 @@
-import { t } from "elysia";
+import { t } from 'elysia'
 
 export const reorderBodySchema = t.Object({
-  fieldIds: t.Array(t.String()),
-});
+	fieldIds: t.Array(t.String()),
+})
 
 export const reorderResponseSchema = {
-  200: t.Object({
-    success: t.Literal(true),
-    message: t.String(),
-  }),
-};
+	200: t.Object({
+		success: t.Literal(true),
+		message: t.String(),
+	}),
+}

@@ -1,10 +1,10 @@
 interface EmailLayoutProps {
-  content: string;
-  previewText?: string;
+	content: string
+	previewText?: string
 }
 
 export function emailLayout({ content, previewText }: EmailLayoutProps): string {
-  return `
+	return `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -20,7 +20,7 @@ export function emailLayout({ content, previewText }: EmailLayoutProps): string 
   </style>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f5f5f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
-  ${previewText ? `<div style="display: none; max-height: 0; overflow: hidden; font-size: 1px; line-height: 1px; color: #f5f5f0;">${previewText}</div>` : ""}
+  ${previewText ? `<div style="display: none; max-height: 0; overflow: hidden; font-size: 1px; line-height: 1px; color: #f5f5f0;">${previewText}</div>` : ''}
 
   <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f5f5f0;">
     <tr>
@@ -55,5 +55,5 @@ export function emailLayout({ content, previewText }: EmailLayoutProps): string 
   </table>
 </body>
 </html>
-  `.trim();
+  `.trim()
 }

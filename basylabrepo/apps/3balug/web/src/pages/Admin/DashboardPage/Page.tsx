@@ -18,8 +18,10 @@ import { AdminLayout } from '@/layouts/AdminLayout/AdminLayout'
 import { useDashboardStatsQuery } from '@/queries/dashboard/useDashboardStatsQuery'
 import * as styles from './styles.css'
 
-function formatCurrency(value: number): string {
-	return value.toLocaleString('pt-BR', {
+function formatCurrency(valueInCents: number): string {
+	// Converte de centavos para reais
+	const valueInReais = valueInCents / 100
+	return valueInReais.toLocaleString('pt-BR', {
 		style: 'currency',
 		currency: 'BRL',
 	})

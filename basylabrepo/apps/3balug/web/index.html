@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <!-- Security Headers -->
+        <!-- CSP Development: permite localhost para API local -->
+        <!-- Em produção, vite-plugin-csp.ts substitui automaticamente por CSP mais restritivo -->
+        <!-- Nota: frame-ancestors e X-Frame-Options devem ser configurados no servidor via headers HTTP -->
+        <meta
+            http-equiv="Content-Security-Policy"
+            content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' http://localhost:* https:;"
+        />
+        <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+        <meta
+            http-equiv="Referrer-Policy"
+            content="strict-origin-when-cross-origin"
+        />
+
+        <!-- Cache Control -->
+        <meta
+            http-equiv="Cache-Control"
+            content="no-cache, no-store, must-revalidate"
+        />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicons/favicon-16x16.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicons/favicon-32x32.png"
+        />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/favicons/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="192x192"
+            href="/favicons/android-chrome-192x192.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="512x512"
+            href="/favicons/android-chrome-512x512.png"
+        />
+
+        <!-- PWA Manifest -->
+        <link rel="manifest" href="/manifest.json" />
+
+        <!-- Meta Tags -->
+        <meta
+            name="description"
+            content="3Balug - Plataforma completa para gestão imobiliária com autenticação, gerenciamento de leads, propriedades e clientes."
+        />
+        <meta name="theme-color" content="#E6FF4B" />
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="3Balug" />
+        <meta
+            property="og:description"
+            content="Gestão imobiliária inteligente e moderna"
+        />
+        <meta
+            property="og:image"
+            content="/assets/images/logos/logo-variant-3.png"
+        />
+
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="3Balug" />
+        <meta
+            name="twitter:description"
+            content="Gestão imobiliária inteligente e moderna"
+        />
+        <meta
+            name="twitter:image"
+            content="/assets/images/logos/logo-variant-3.png"
+        />
+
+        <title>3Balug - Gestão Imobiliária Inteligente</title>
+
+        <!-- Preconnect para performance -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+        <!-- Google Fonts: League Spartan com font-display swap -->
+        <link
+            href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;500;700&display=swap"
+            rel="stylesheet"
+        />
+
+        <!-- Preload do script principal -->
+        <link rel="modulepreload" href="/src/index.tsx" />
+    </head>
+    <body>
+        <div id="root"></div>
+        <script type="module" src="/src/index.tsx"></script>
+
+        <!-- No-JS fallback -->
+        <noscript>
+            <div
+                style="
+                    padding: 2rem;
+                    text-align: center;
+                    font-family: sans-serif;
+                "
+            >
+                <h1>JavaScript necessário</h1>
+                <p>
+                    Esta aplicação requer JavaScript para funcionar. Por favor,
+                    habilite JavaScript no seu navegador.
+                </p>
+            </div>
+        </noscript>
+    </body>
+</html>

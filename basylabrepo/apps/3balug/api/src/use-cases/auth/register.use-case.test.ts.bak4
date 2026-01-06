@@ -1,0 +1,511 @@
+import { beforeEach, describe, expect, mock, test } from "bun:test";
+import {
+  EmailAlreadyExistsError,
+  EmailNotVerifiedError,
+  EmailSendFailedError,
+  InternalServerError,
+  PlanNotFoundError,
+  WeakPasswordError,
+} from "@/errors";
+import type { ICompanyRepository } from "@/repositories/contracts/company.repository";
+import type { IPlanRepository } from "@/repositories/contracts/plan.repository";
+import type { ISubscriptionRepository } from "@/repositories/contracts/subscription.repository";
+import type { IUserRepository } from "@/repositories/contracts/user.repository";
+import { EmailServiceError } from "@/services/email/email.service";
+import {
+  createBasicPlan,
+  createMockCompany,
+  createMockSubscription,
+  createMockUser,
+} from "@/test/test-data";
+import {
+  createMockCompanyRepository,
+  createMockPlanRepository,
+  createMockSubscriptionRepository,
+  createMockUserRepository,
+} from "@/test/test-helpers";
+import { RegisterUseCase } from "./register.use-case";
+
+const mockSendVerificationCode = mock(() => Promise.resolve());
+
+mock.module("@/services/email/email.service", () => ({
+  emailService: {
+    sendVerificationCode: mockSendVerificationCode,
+  },
+  EmailServiceError: EmailServiceError,
+}));
+
+describe("RegisterUseCase", () => {
+  let useCase: RegisterUseCase;
+  let mockUserRepository: IUserRepository;
+  let mockCompanyRepository: ICompanyRepository;
+  let mockPlanRepository: IPlanRepository;
+  let mockSubscriptionRepository: ISubscriptionRepository;
+
+  const validInput = {
+    email: "test@example.com",
+    password: "SecureP@ss123",
+    name: "Test User",
+    planId: "plan-123",
+  };
+
+  // Helper function to setup successful registration mocks
+  function setupSuccessfulRegistrationMocks() {
+    const mockUser = createMockUser();
+    const mockCompany = createMockCompany({ ownerId: mockUser.id });
+    const mockPlan = createBasicPlan();
+    const mockSubscription = createMockSubscription();
+
+    mockUserRepository.findByEmail = mock(() => Promise.resolve(null));
+    mockPlanRepository.findById = mock(() => Promise.resolve(mockPlan));
+    mockUserRepository.create = mock(() => Promise.resolve(mockUser));
+    mockCompanyRepository.create = mock(() => Promise.resolve(mockCompany));
+    mockUserRepository.update = mock(() =>
+      Promise.resolve({ ...mockUser, companyId: mockCompany.id }),
+    );
+    mockSubscriptionRepository.create = mock(() =>
+      Promise.resolve(mockSubscription),
+    );
+
+    return { mockUser, mockCompany, mockPlan, mockSubscription };
+  }
+
+  beforeEach(() => {
+    mockSendVerificationCode.mockClear();
+    mockSendVerificationCode.mockResolvedValue(undefined);
+
+    mockUserRepository = createMockUserRepository();
+    mockCompanyRepository = createMockCompanyRepository();
+    mockPlanRepository = createMockPlanRepository();
+    mockSubscriptionRepository = createMockSubscriptionRepository();
+
+    useCase = new RegisterUseCase(
+      mockUserRepository,
+      mockCompanyRepository,
+      mockPlanRepository,
+      mockSubscriptionRepository,
+    );
+  });
+
+  describe("Password Validation", () => {
+    test("should reject password with less than 8 characters", async () => {
+      mockPlanRepository.findById = mock(() =>
+        Promise.resolve(createBasicPlan()),
+      );
+
+      await expect(
+        useCase.execute({ ...validInput, password: "Short1!" }),
+      ).rejects.toThrow(WeakPasswordError);
+    });
+
+    test("should reject password without uppercase letter", async () => {
+      await expect(
+        useCase.execute({ ...validInput, password: "lowercase123!" }),
+      ).rejects.toThrow(WeakPasswordError);
+    });
+
+    test("should reject password without lowercase letter", async () => {
+      await expect(
+        useCase.execute({ ...validInput, password: "UPPERCASE123!" }),
+      ).rejects.toThrow(WeakPasswordError);
+    });
+
+    test("should reject password without number", async () => {
+      await expect(
+        useCase.execute({ ...validInput, password: "NoNumbers!" }),
+      ).rejects.toThrow(WeakPasswordError);
+    });
+
+    test("should reject password without special character", async () => {
+      await expect(
+        useCase.execute({ ...validInput, password: "NoSpecial123" }),
+      ).rejects.toThrow(WeakPasswordError);
+    });
+
+    test("should accept password with all required criteria", async () => {
+      setupSuccessfulRegistrationMocks();
+
+      await expect(
+        useCase.execute({ ...validInput, password: "ValidP@ss123" }),
+      ).resolves.toBeDefined();
+    });
+
+    test("should accept password with various special characters", async () => {
+      setupSuccessfulRegistrationMocks();
+
+      );
+
+      const specialChars = ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")"];
+
+      for (const char of specialChars) {
+        mockSendVerificationCode.mockClear();
+        await expect(
+          useCase.execute({ ...validInput, password: `Test123${char}` }),
+        ).resolves.toBeDefined();
+      }
+    });
+  });
+
+  describe("User Existence Validation", () => {
+    test("should reject if email already exists and is verified", async () => {
+      const verifiedUser = createMockUser({
+        email: validInput.email,
+        isEmailVerified: true,
+      });
+      mockUserRepository.findByEmail = mock(() =>
+        Promise.resolve(verifiedUser),
+      );
+
+      await expect(useCase.execute(validInput)).rejects.toThrow(
+        EmailAlreadyExistsError,
+      );
+    });
+
+    test("should send new code if user exists but is not verified", async () => {
+      const unverifiedUser = createMockUser({
+        email: validInput.email,
+        isEmailVerified: false,
+        verificationSecret: "old-secret",
+        verificationExpiresAt: new Date(),
+      });
+      mockUserRepository.findByEmail = mock(() =>
+        Promise.resolve(unverifiedUser),
+      );
+      mockUserRepository.update = mock(() => Promise.resolve(unverifiedUser));
+
+      await expect(useCase.execute(validInput)).rejects.toThrow(
+        EmailNotVerifiedError,
+      );
+
+      expect(mockUserRepository.update).toHaveBeenCalled();
+      const updateCall = (mockUserRepository.update as ReturnType<typeof mock>)
+        .mock.calls[0];
+      expect(updateCall[0]).toBe(unverifiedUser.id);
+      expect(updateCall[1]).toHaveProperty("verificationSecret");
+      expect(updateCall[1]).toHaveProperty("verificationExpiresAt");
+
+      expect(mockSendVerificationCode).toHaveBeenCalledTimes(1);
+    });
+
+    test("should rollback verification update if email fails for existing user", async () => {
+      const unverifiedUser = createMockUser({
+        email: validInput.email,
+        isEmailVerified: false,
+        verificationSecret: "original-secret",
+        verificationExpiresAt: new Date(Date.now() + 300000),
+      });
+
+      mockUserRepository.findByEmail = mock(() =>
+        Promise.resolve(unverifiedUser),
+      );
+      mockUserRepository.update = mock(() => Promise.resolve(unverifiedUser));
+      mockSendVerificationCode.mockRejectedValue(
+        new EmailServiceError("SMTP Error"),
+      );
+
+      await expect(useCase.execute(validInput)).rejects.toThrow(
+        EmailSendFailedError,
+      );
+
+      expect(mockUserRepository.update).toHaveBeenCalledTimes(2);
+
+      const rollbackCall = (
+        mockUserRepository.update as ReturnType<typeof mock>
+      ).mock.calls[1];
+      expect(rollbackCall[1].verificationSecret).toBe("original-secret");
+      expect(rollbackCall[1].verificationExpiresAt).toEqual(
+        unverifiedUser.verificationExpiresAt,
+      );
+    });
+  });
+
+  describe("Plan Validation", () => {
+    test("should reject if plan does not exist", async () => {
+      mockUserRepository.findByEmail = mock(() => Promise.resolve(null));
+      mockPlanRepository.findById = mock(() => Promise.resolve(null));
+
+      await expect(useCase.execute(validInput)).rejects.toThrow(
+        PlanNotFoundError,
+      );
+    });
+
+    test("should accept valid plan", async () => {
+      setupSuccessfulRegistrationMocks();
+
+      );
+
+      await expect(useCase.execute(validInput)).resolves.toBeDefined();
+    });
+
+    test("should query plan by correct ID", async () => {
+      setupSuccessfulRegistrationMocks();
+
+      );
+
+      await useCase.execute(validInput);
+
+      expect(mockPlanRepository.findById).toHaveBeenCalledWith(
+        validInput.planId,
+      );
+    });
+  });
+
+  describe("User Creation", () => {
+    test("should create user with hashed password", async () => {
+      setupSuccessfulRegistrationMocks();
+
+      );
+
+      await useCase.execute(validInput);
+
+      expect(mockUserRepository.create).toHaveBeenCalled();
+      const createCall = (mockUserRepository.create as ReturnType<typeof mock>)
+        .mock.calls[0][0];
+
+      expect(createCall.email).toBe(validInput.email);
+      expect(createCall.name).toBe(validInput.name);
+      expect(createCall.password).not.toBe(validInput.password); // Should be hashed
+      expect(createCall.isEmailVerified).toBe(false);
+      expect(createCall.verificationSecret).toBeDefined();
+      expect(createCall.verificationExpiresAt).toBeDefined();
+    });
+
+    test("should set verification expiration time correctly", async () => {
+      setupSuccessfulRegistrationMocks();
+
+      );
+
+      const beforeTime = Date.now();
+      await useCase.execute(validInput);
+      const afterTime = Date.now();
+
+      const createCall = (mockUserRepository.create as ReturnType<typeof mock>)
+        .mock.calls[0][0];
+      const expiresAt = createCall.verificationExpiresAt.getTime();
+
+      expect(expiresAt).toBeGreaterThan(beforeTime);
+      expect(expiresAt).toBeLessThan(afterTime + 600000); // Within 10 minutes
+    });
+  });
+
+  describe("Subscription Creation", () => {
+    test("should create pending subscription for new user", async () => {
+      const createdUser = createMockUser({ id: "new-user-id" });
+
+      setupSuccessfulRegistrationMocks();
+
+      ).mock.calls[0][0];
+
+      expect(createCall.userId).toBe(createdUser.id);
+      expect(createCall.planId).toBe(validInput.planId);
+      expect(createCall.status).toBe("pending");
+    });
+  });
+
+  describe("Email Sending", () => {
+    test("should send verification email with correct parameters", async () => {
+      mockUserRepository.findByEmail = mock(() => Promise.resolve(null));
+      mockPlanRepository.findById = mock(() =>
+        Promise.resolve(createBasicPlan()),
+      );
+      mockUserRepository.create = mock(() => Promise.resolve(createMockUser()));
+      mockSubscriptionRepository.create = mock(() =>
+      );
+
+      await useCase.execute(validInput);
+
+      expect(mockSendVerificationCode).toHaveBeenCalledTimes(1);
+
+      const [email, name, code] = mockSendVerificationCode.mock
+        .calls[0] as unknown as [string, string, string];
+      expect(email).toBe(validInput.email);
+      expect(name).toBe(validInput.name);
+      expect(code).toMatch(/^\d{6}$/); // 6-digit code
+    });
+
+    test("should rollback user and subscription if email fails", async () => {
+      const createdUser = createMockUser({ id: "user-to-delete" });
+      const createdSubscription = createMockSubscription({
+        id: "sub-to-delete",
+      });
+
+      mockUserRepository.findByEmail = mock(() => Promise.resolve(null));
+      mockPlanRepository.findById = mock(() =>
+        Promise.resolve(createBasicPlan()),
+      );
+      mockUserRepository.create = mock(() => Promise.resolve(createdUser));
+      mockSubscriptionRepository.create = mock(() =>
+        Promise.resolve(createdSubscription),
+      );
+      mockSendVerificationCode.mockRejectedValue(
+        new EmailServiceError("SMTP connection failed"),
+      );
+
+      await expect(useCase.execute(validInput)).rejects.toThrow(
+        EmailSendFailedError,
+      );
+
+      expect(mockSubscriptionRepository.delete).toHaveBeenCalledWith(
+        createdSubscription.id,
+      );
+      expect(mockUserRepository.delete).toHaveBeenCalledWith(createdUser.id);
+    });
+
+    test("should throw EMAIL_SEND_FAILED for EmailServiceError", async () => {
+      mockUserRepository.findByEmail = mock(() => Promise.resolve(null));
+      mockPlanRepository.findById = mock(() =>
+        Promise.resolve(createBasicPlan()),
+      );
+      mockUserRepository.create = mock(() => Promise.resolve(createMockUser()));
+      mockSubscriptionRepository.create = mock(() =>
+      );
+      mockSendVerificationCode.mockRejectedValue(
+        new EmailServiceError("Email service down"),
+      );
+
+      try {
+        await useCase.execute(validInput);
+        expect(true).toBe(false); // Should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(EmailSendFailedError);
+      }
+    });
+
+    test("should throw InternalServerError for generic errors", async () => {
+      mockUserRepository.findByEmail = mock(() => Promise.resolve(null));
+      mockPlanRepository.findById = mock(() =>
+        Promise.resolve(createBasicPlan()),
+      );
+      mockUserRepository.create = mock(() => Promise.resolve(createMockUser()));
+      mockSubscriptionRepository.create = mock(() =>
+      );
+      mockSendVerificationCode.mockRejectedValue(new Error("Unknown error"));
+
+      await expect(useCase.execute(validInput)).rejects.toThrow(
+        InternalServerError,
+      );
+    });
+  });
+
+  describe("Return Values", () => {
+    test("should return correct structure on success", async () => {
+      const createdUser = createMockUser({
+        id: "new-user-id",
+        email: validInput.email,
+        name: validInput.name,
+      });
+
+      mockUserRepository.findByEmail = mock(() => Promise.resolve(null));
+      mockPlanRepository.findById = mock(() =>
+        Promise.resolve(createBasicPlan()),
+      );
+      mockUserRepository.create = mock(() => Promise.resolve(createdUser));
+      mockSubscriptionRepository.create = mock(() =>
+      );
+
+      const result = await useCase.execute(validInput);
+
+      expect(result).toHaveProperty("userId", createdUser.id);
+      expect(result).toHaveProperty("email", validInput.email);
+      expect(result).toHaveProperty("name", validInput.name);
+      expect(result).toHaveProperty("message");
+      expect(typeof result.message).toBe("string");
+    });
+  });
+
+  describe("Complete Flow", () => {
+    test("should complete full registration successfully", async () => {
+      const createdUser = createMockUser({
+        email: validInput.email,
+        name: validInput.name,
+      });
+
+      mockUserRepository.findByEmail = mock(() => Promise.resolve(null));
+      mockPlanRepository.findById = mock(() =>
+        Promise.resolve(createBasicPlan()),
+      );
+      mockUserRepository.create = mock(() => Promise.resolve(createdUser));
+      mockSubscriptionRepository.create = mock(() =>
+      );
+
+      const result = await useCase.execute(validInput);
+
+      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(
+        validInput.email,
+      );
+
+      expect(mockPlanRepository.findById).toHaveBeenCalledWith(
+        validInput.planId,
+      );
+
+      expect(mockUserRepository.create).toHaveBeenCalled();
+
+      expect(mockSubscriptionRepository.create).toHaveBeenCalled();
+
+      expect(mockSendVerificationCode).toHaveBeenCalled();
+
+      expect(result.userId).toBeDefined();
+      expect(result.email).toBe(validInput.email);
+    });
+  });
+
+  describe("Edge Cases", () => {
+    test("should handle very long names", async () => {
+      mockUserRepository.findByEmail = mock(() => Promise.resolve(null));
+      mockPlanRepository.findById = mock(() =>
+        Promise.resolve(createBasicPlan()),
+      );
+      mockUserRepository.create = mock(() => Promise.resolve(createMockUser()));
+      mockSubscriptionRepository.create = mock(() =>
+      );
+
+      const longName = "A".repeat(200);
+      await expect(
+        useCase.execute({ ...validInput, name: longName }),
+      ).resolves.toBeDefined();
+    });
+
+    test("should handle special characters in name", async () => {
+      mockUserRepository.findByEmail = mock(() => Promise.resolve(null));
+      mockPlanRepository.findById = mock(() =>
+        Promise.resolve(createBasicPlan()),
+      );
+      mockUserRepository.create = mock(() => Promise.resolve(createMockUser()));
+      mockSubscriptionRepository.create = mock(() =>
+      );
+
+      await expect(
+        useCase.execute({ ...validInput, name: "José María O'Brien" }),
+      ).resolves.toBeDefined();
+    });
+
+    test("should handle email with plus addressing", async () => {
+      mockUserRepository.findByEmail = mock(() => Promise.resolve(null));
+      mockPlanRepository.findById = mock(() =>
+        Promise.resolve(createBasicPlan()),
+      );
+      mockUserRepository.create = mock(() => Promise.resolve(createMockUser()));
+      mockSubscriptionRepository.create = mock(() =>
+      );
+
+      await expect(
+        useCase.execute({ ...validInput, email: "user+tag@example.com" }),
+      ).resolves.toBeDefined();
+    });
+
+    test("should handle maximum length password", async () => {
+      mockUserRepository.findByEmail = mock(() => Promise.resolve(null));
+      mockPlanRepository.findById = mock(() =>
+        Promise.resolve(createBasicPlan()),
+      );
+      mockUserRepository.create = mock(() => Promise.resolve(createMockUser()));
+      mockSubscriptionRepository.create = mock(() =>
+      );
+
+      const longPassword = `${"A".repeat(95)}a1!`; // 98 chars
+      await expect(
+        useCase.execute({ ...validInput, password: longPassword }),
+      ).resolves.toBeDefined();
+    });
+  });
+});

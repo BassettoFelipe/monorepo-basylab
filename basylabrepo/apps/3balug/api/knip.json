@@ -1,0 +1,27 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "src/server.ts",
+    "src/controllers/middlewares/*.ts",
+    "src/controllers/routes/**/*.ts",
+    "src/errors/*.ts",
+    "src/use-cases/**/*.ts",
+    "src/services/**/*.ts",
+    "src/jobs/**/*.ts",
+    "src/utils/*.ts",
+    "src/config/*.ts",
+    "src/plugins/*.ts",
+    "src/container/index.ts",
+    "src/repositories/providers/**/*.ts",
+    "src/db/seeds/*.ts",
+    "src/scripts/*.ts",
+    "src/**/*.e2e.test.ts",
+    "src/**/*.test.ts",
+    "src/test/*.ts"
+  ],
+  "project": ["src/**/*.ts"],
+  "ignore": ["**/*.d.ts", "dist/**"],
+  "ignoreBinaries": ["dist/server.js"],
+  "ignoreExportsUsedInFile": true,
+  "includeEntryExports": false
+}

@@ -1,0 +1,75 @@
+import type { User } from "@/db/schema/users";
+import { ForbiddenError, InternalServerError, NotFoundError } from "@/errors";
+import type { IPropertyOwnerRepository } from "@/repositories/contracts/property-owner.repository";
+import type { UserRole } from "@/types/roles";
+import { USER_ROLES } from "@/types/roles";
+
+type GetPropertyOwnerInput = {
+  id: string;
+  requestedBy: User;
+};
+
+type GetPropertyOwnerOutput = {
+  id: string;
+  name: string;
+  document: string;
+  companyId: string;
+  documentType: string;
+  email: string | null;
+  phone: string | null;
+  birthDate: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zipCode: string | null;
+  notes: string | null;
+};
+
+const ALLOWED_ROLES: UserRole[] = [
+  USER_ROLES.OWNER,
+  USER_ROLES.MANAGER,
+  USER_ROLES.BROKER,
+  USER_ROLES.INSURANCE_ANALYST,
+];
+
+export class GetPropertyOwnerUseCase {
+  constructor(private readonly propertyOwnerRepository: IPropertyOwnerRepository) {}
+
+  async execute(input: GetPropertyOwnerInput): Promise<GetPropertyOwnerOutput> {
+    const currentUser = input.requestedBy;
+
+    if (!ALLOWED_ROLES.includes(currentUser.role as UserRole)) {
+      throw new ForbiddenError("Você não tem permissão para visualizar proprietários.");
+    }
+
+    if (!currentUser.companyId) {
+      throw new InternalServerError("Usuário sem empresa vinculada.");
+    }
+
+    const propertyOwner = await this.propertyOwnerRepository.findById(input.id);
+
+    if (!propertyOwner || propertyOwner.companyId !== currentUser.companyId) {
+      throw new NotFoundError("Proprietário não encontrado.");
+    }
+
+    if (currentUser.role === USER_ROLES.BROKER && propertyOwner.createdBy !== currentUser.id) {
+      throw new ForbiddenError("Você só pode visualizar proprietários que você cadastrou.");
+    }
+
+    return {
+      id: propertyOwner.id,
+      name: propertyOwner.name,
+      document: propertyOwner.document,
+      companyId: propertyOwner.companyId,
+      documentType: propertyOwner.documentType,
+      email: propertyOwner.email,
+      phone: propertyOwner.phone,
+      birthDate: propertyOwner.birthDate,
+      address: propertyOwner.address,
+      city: propertyOwner.city,
+      state: propertyOwner.state,
+      zipCode: propertyOwner.zipCode,
+      notes: propertyOwner.notes,
+    };
+  }
+}

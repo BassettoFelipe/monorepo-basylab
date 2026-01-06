@@ -1,0 +1,25 @@
+# robots.txt para 3Balug CRM Imobiliário
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://3balug.basylab.com.br/sitemap.xml
+
+# Páginas públicas permitidas
+Allow: /
+Allow: /login
+Allow: /register
+
+# Bloquear área administrativa
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /api
+
+# Bloquear arquivos de configuração
+Disallow: /*.json$
+Disallow: /*.xml$
+Disallow: /*.config.js$
+
+# Performance
+Crawl-delay: 1

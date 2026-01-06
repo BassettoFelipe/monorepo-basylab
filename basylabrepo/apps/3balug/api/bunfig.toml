@@ -1,0 +1,25 @@
+# Bun Configuration for Maximum Performance
+# Docs: https://bun.sh/docs/runtime/bunfig
+
+[test]
+# Run all tests concurrently by default
+# This uses all available CPU cores
+coverage = true
+coverageReporter = ["text", "lcov"]
+
+# Preload test setup file
+preload = ["./src/test/setup.ts"]
+
+# Increase timeout for complex E2E tests (ms)
+timeout = 30000
+
+# Maximum concurrent tests - set high to use all 12 cores
+# Default is 20, but we can push higher for better parallelism
+
+[install]
+# Use hardlinks for faster installs
+saveTextLockfile = true
+
+[run]
+# Silent mode for cleaner output (optional)
+# silent = true

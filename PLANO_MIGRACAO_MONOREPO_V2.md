@@ -146,18 +146,18 @@ cd 3balug/backend && bun test
 
 ---
 
-### FASE 2: Copiar 3Balug para o Monorepo
+### FASE 2: Copiar 3Balug para o Monorepo ✅
 
 **IMPORTANTE: Não mexer na pasta original `3balug/`**
 
-- [ ] Criar pasta `basylabrepo/apps/3balug/`
-- [ ] Copiar `3balug/backend/` para `basylabrepo/apps/3balug/api/`
-- [ ] Copiar `3balug/client/` para `basylabrepo/apps/3balug/web/`
-- [ ] Atualizar `package.json` do api com nome `@3balug/api`
-- [ ] Atualizar `package.json` do web com nome `@3balug/web`
-- [ ] Atualizar imports relativos se necessário
-- [ ] Copiar arquivos de documentação relevantes
-- [ ] Copiar docker-compose.yml e ajustar paths
+- [x] Criar pasta `basylabrepo/apps/3balug/`
+- [x] Copiar `3balug/backend/` para `basylabrepo/apps/3balug/api/`
+- [x] Copiar `3balug/client/` para `basylabrepo/apps/3balug/web/`
+- [x] Atualizar `package.json` do api com nome `@3balug/api`
+- [x] Atualizar `package.json` do web com nome `@3balug/web`
+- [x] Atualizar imports relativos se necessário
+- [x] Copiar arquivos de documentação relevantes
+- [x] Copiar docker-compose.yml e ajustar paths
 
 **Comandos:**
 ```bash
@@ -253,7 +253,7 @@ bun run lint
 1. [x] Revisar e aprovar este plano
 2. [ ] Executar Fase 0 (backup e preparação)
 3. [x] Executar Fase 1 (criar estrutura monorepo)
-4. [ ] Executar Fase 2 (copiar 3balug)
+4. [x] Executar Fase 2 (copiar 3balug)
 5. [ ] Executar Fase 3 (configurar e testar)
 6. [ ] Validar tudo funcionando
 7. [ ] Migrar outros projetos quando apropriado

@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Testing
+coverage/
+
+# Turbo
+.turbo/
+
+# Caches
+*.tsbuildinfo
+
+# Logs
+*.log
+
+# OS
+.DS_Store

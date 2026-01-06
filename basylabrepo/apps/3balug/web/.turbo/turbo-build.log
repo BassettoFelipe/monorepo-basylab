@@ -1,0 +1,13 @@
+
+[0m[2m[35m$[0m [2m[1mvite build[0m
+[36mvite v7.3.0 [32mbuilding client environment for production...[36m[39m
+[2K[1Gtransforming (1) [2msrc/index.tsx[22m[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1Gtransforming (72) [2m../../../node_modul[2K[1G[2K[1Gtransforming (120) [2m../../../node_modu[2K[1Gtransforming (148) [2msrc/queries/compan[2K[1Gtransforming (1023) [2msrc/pages/Admin/T[2K[1Gtransforming (1248) [2m../../../node_mod[2K[1Gtransforming (1962) [2msrc/services/paym[2K[1Gtransforming (2145) [2msrc/styles/global[2K[1Gtransforming (2192) [2msrc/components/Em[2K[1Gtransforming (2286) [2msrc/components/Si[2K[1G[2K[1G[32m✓[39m 2305 modules transformed.
+[2K[1Grendering chunks (1)...[2K[1Grendering chunks (2)...[2K[1Grendering chunks (3)...[2K[1Grendering chunks (4)...[2K[1Grendering chunks (5)...[2K[1G[2K[1Gcomputing gzip size (0)...[2K[1Gcomputing gzip size (1)...[2K[1Gcomputing gzip size (2)...[2K[1Gcomputing gzip size (3)...[2K[1Gcomputing gzip size (4)...[2K[1Gcomputing gzip size (5)...[2K[1Gcomputing gzip size (6)...[2K[1Gcomputing gzip size (7)...[2K[1G[2mdist/[22m[32mindex.html                       [39m[1m[2m  5.40 kB[22m[1m[22m[2m │ gzip:   1.84 kB[22m
+[2mdist/[22m[2massets/[22m[35mindex-9GBDFXJ-.css        [39m[1m[2m326.57 kB[22m[1m[22m[2m │ gzip:  66.89 kB[22m
+[2mdist/[22m[2massets/[22m[36mvendor-query--eORyvVn.js  [39m[1m[2m 35.74 kB[22m[1m[22m[2m │ gzip:  10.63 kB[22m
+[2mdist/[22m[2massets/[22m[36mvendor-react-BNfRURow.js  [39m[1m[2m 47.48 kB[22m[1m[22m[2m │ gzip:  16.91 kB[22m
+[2mdist/[22m[2massets/[22m[36mvendor-ui-Ln7jMkes.js     [39m[1m[2m 48.86 kB[22m[1m[22m[2m │ gzip:  15.56 kB[22m
+[2mdist/[22m[2massets/[22m[36mvendor-forms-BFgwNJ5_.js  [39m[1m[2m 93.83 kB[22m[1m[22m[2m │ gzip:  27.96 kB[22m
+[2mdist/[22m[2massets/[22m[36mindex-DEcTXCtn.js         [39m[1m[2m716.54 kB[22m[1m[22m[2m │ gzip: 202.70 kB[22m
+[32m✓ built in 1.68s[39m
+✅ CSP de produção injetado com sucesso!

@@ -144,15 +144,30 @@ function applyCurrencyMask(value: string): string {
 	})
 }
 
+/**
+ * Extrai o valor em CENTAVOS de uma string formatada como moeda.
+ * Ex: "1.234,56" -> 123456 (centavos)
+ * @param value String formatada como moeda (ex: "1.234,56")
+ * @returns Valor em centavos (integer)
+ */
 export function getCurrencyRawValue(value: string): number {
 	const digits = value.replace(/\D/g, '')
 	if (!digits) return 0
-	return Number.parseInt(digits, 10) / 100
+	// Retorna o valor em centavos (não divide por 100)
+	return Number.parseInt(digits, 10)
 }
 
-export function formatCurrencyToInput(value: number): string {
-	if (!value) return ''
-	return value.toLocaleString('pt-BR', {
+/**
+ * Formata um valor em CENTAVOS para exibição em input.
+ * Ex: 123456 (centavos) -> "1.234,56"
+ * @param valueInCents Valor em centavos
+ * @returns String formatada para exibição
+ */
+export function formatCurrencyToInput(valueInCents: number): string {
+	if (!valueInCents) return ''
+	// Converte de centavos para reais antes de formatar
+	const valueInReais = valueInCents / 100
+	return valueInReais.toLocaleString('pt-BR', {
 		minimumFractionDigits: 2,
 		maximumFractionDigits: 2,
 	})

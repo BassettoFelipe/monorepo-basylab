@@ -1,0 +1,848 @@
+CONTRATO DE PRESTAÇÃO DE SERVIÇOS DE DESENVOLVIMENTO DE SOFTWARE
+De um lado, FELIPE SILVEIRA BASSETTO, pessoa jurídica de direito privado, inscrita no
+CNPJ nº 63.385.020/0001-48, com sede na Rua Braz de Assis, 1444, Vila Casa Branca,
+Botucatu/SP, CEP 18608-333, neste ato representada por seu titular FELIPE SILVEIRA
+BASSETTO, doravante denominada CONTRATADA; e de outro lado DANIEL BORGES DA
+SILVA, brasileiro, casado, correspondente bancário, portador da Cédula de Identidade RG
+nº 38.238.787-9 SSP, inscrito no CPF nº 445.566.358-45, residente e domiciliado em Rua
+Flor de Inverno, nº 525, Jardim das Camélias, São Paulo/SP, CEP 08050-310, doravante
+denominado CONTRATANTE; juntamente denominadas como Partes,
+CONSIDERANDO que:
+I – A CONTRATADA possui qualificação técnica especializada em desenvolvimento de
+software, especificamente em plataformas web e aplicativos mobile;
+II – A CONTRATANTE possui interesse na contratação de serviços de desenvolvimento de
+uma solução completa de software para gestão imobiliária;
+III – As Partes possuem interesse recíproco de firmar contrato de prestação de serviços de
+tecnologia da informação, sendo que a CONTRATADA desenvolverá e entregará solução de
+software conforme especificações técnicas detalhadas;
+IV – O presente Contrato, eventuais anexos e aditivos a ele vinculados constituem os
+únicos documentos firmados entre as Partes, com relação ao seu objeto, ficando
+expressamente revogado todo e qualquer entendimento porventura ajustado
+anteriormente entre as Partes.
+RESOLVEM as Partes celebrar o presente Contrato de Prestação de Serviços de
+Desenvolvimento de Software, doravante "Contrato", de acordo com as cláusulas e
+disposições que se sucedem:
+1 DO OBJETO
+1.1 O objeto da relação das Partes é a prestação de serviços de desenvolvimento de
+software pela CONTRATADA, consistindo em desenvolver e entregar à CONTRATANTE uma
+solução completa de software para gestão imobiliária, nos termos descritos neste
+Contrato e em seu Anexo I - Escopo Técnico Detalhado.
+1.2 O objeto divide-se em duas fases independentes e sequenciais:
+1.2.1 FASE 1: Plataforma Web Completa - desenvolvimento de sistema web responsivo
+com todas as funcionalidades especificadas;
+1.2.2 FASE 2: Aplicativo Mobile - desenvolvimento de aplicativo para Android e iOS com
+funcionalidades de consulta e acompanhamento.
+1.3 A execução da FASE 2 está condicionada ao cumprimento integral das obrigações da
+FASE 1 por ambas as Partes.
+1.4 O CONTRATANTE declara ter lido, compreendido e aprovado integralmente o conteúdo
+do Anexo I – Escopo Técnico Detalhado, reconhecendo que o escopo do projeto é fechado,
+servindo este documento como referência única para avaliação das entregas.
+2 DO ESCOPO DETALHADO E SEUS LIMITES
+2.1 FASE 1 - PLATAFORMA WEB
+A FASE 1 compreende o desenvolvimento completo da plataforma web com as seguintes
+funcionalidades:
+2.1.1 Dashboard Inicial: Visão geral do negócio com indicadores de pipeline, contratos
+ativos e usuários cadastrados, incluindo gráficos de performance.
+2.1.2 Sistema de Gestão de Imóveis: CRUD completo com upload de múltiplas fotos,
+campos detalhados (descrição, endereço, metragem, características), controle de status e
+vínculo com proprietário, filtros de busca e listagem.
+2.1.3 Cadastro de Proprietários e Locatários: CRUD completo com dados pessoais, upload
+de documentos digitalizados, informações bancárias para repasse e histórico completo de
+contratos e pagamentos.
+2.1.4 Gestão de Contratos de Locação: CRUD completo com vínculo triplo (imóvel +
+proprietário + locatário), controle de vigência e status, cálculo automático de reajustes por
+índice, geração de PDF do contrato para impressão e funcionalidade de assinatura digital
+integrada.
+2.1.5 Sistema de Cobrança Automática com Split: Geração mensal automática de
+cobranças, sistema de split configurável com split fixo de 3% para a plataforma e divisão
+configurável entre corretor e proprietário, controle detalhado de status de pagamentos
+(pendente, pago, atrasado), cálculo automático de multa (2%) e juros (1% ao mês) em
+caso de atraso, e relatório de repasses por beneficiário (plataforma, corretor, proprietário).
+2.1.6 Painel Financeiro: Indicadores de faturamento previsto, recebido, atrasos e VGV
+(Valor Geral de Vendas), gráficos por período (mensal, trimestral, anual) e filtros
+avançados por data, status e tipo.
+2.1.7 Painel Administrativo com ACL (Controle de Acesso): Gestão completa de usuários,
+perfis de acesso diferenciados (Administrador, Corretor, Analista de Seguros), CRUD de
+contratos e imóveis, sistema de permissões por perfil e logs de auditoria de ações dos
+usuários.
+2.1.8 Área do Analista de Seguros: Acesso completo aos dados do inquilino interessado e
+do imóvel vinculado, operação completa do processo de seguro fiança, upload e
+armazenamento de documentos em PDF (apólices, propostas e documentação
+relacionada), integração com APIs de seguradoras para consultas e cotações automáticas,
+registro de parecer técnico do analista, exibição condicional apenas para contratos com
+seguro e histórico completo de pareceres emitidos por contrato.
+2.1.9 Painel do Corretor: Acesso restrito exclusivamente aos dados vinculados ao corretor
+autenticado, dashboard personalizado com métricas próprias do corretor, gestão de
+imóveis e contratos vinculados e extrato detalhado de comissões (a receber e recebidas).
+2.1.10 Integração com API Desk Data: Consulta automatizada de restrições financeiras por
+CPF/CNPJ, consulta de pendências judiciais e protestos, consulta de score de crédito e
+histórico financeiro, exibição dos resultados em interface amigável e registro completo do
+histórico de todas as consultas realizadas.
+2.1.11 BI (Business Intelligence): Tela analítica integrada ao painel administrativo,
+visualização de origem de assinantes, locações, leads e conversões, gráficos
+comparativos por período e região, indicadores financeiros consolidados e métricas
+operacionais do negócio.
+2.1.12 Banner Interno: Cadastro administrativo de banners e comunicados institucionais,
+controle de status (ativo/inativo), exibição dinâmica no Dashboard principal e
+gerenciamento de prioridade e período de exibição.
+2.1.13 Sistema de Afiliados: Cadastro completo de afiliados, geração automática de link
+ou código único de indicação, rastreamento de cadastros indicados, aplicação de
+comissão exclusivamente no primeiro pagamento do indicado, relatórios detalhados de
+comissões por afiliado e dashboard de performance.
+2.1.14 Marketplace Imobiliário: Vitrine interna compartilhada de imóveis entre corretores,
+sistema avançado de filtros (cidade, tipo, valor, características), exibição segura de dados
+públicos dos imóveis, fluxo "tenho cliente interessado" com registro de leads, notificações
+internas entre corretores, controle de status de anúncios (aprovação, ativo, pausado,
+expirado), painel administrativo de moderação e relatórios consolidados do marketplace.
+2.2 FASE 2 - APLICATIVO MOBILE
+A FASE 2 compreende o desenvolvimento de aplicativo mobile em React Native com
+publicação completa nas lojas Google Play Store e Apple App Store, contemplando as
+seguintes funcionalidades por perfil:
+2.2.1 Perfil Corretor: Login seguro e autenticação com JWT, dashboard resumido com
+contratos ativos e comissões do período, listagem completa de imóveis vinculados ao
+corretor, visualização detalhada de cada imóvel com galeria de fotos completa, listagem
+de todos os contratos vinculados ao corretor, detalhes completos de cada contrato
+(locatário, proprietário, vigência, valores) e extrato de comissões com filtro por período
+(valores recebidos e a receber).
+2.2.2 Perfil Proprietário: Login seguro e autenticação com JWT, dashboard resumido com
+contratos ativos e receitas do período, listagem completa de todos os imóveis
+cadastrados, visualização detalhada de cada imóvel com todas as informações, contratos
+ativos vinculados aos imóveis do proprietário, extrato financeiro completo e detalhado
+(repasses recebidos e pendentes) e consulta de inadimplências discriminadas por
+locatário.
+2.2.3 Perfil Locatário: Login seguro e autenticação com JWT, visualização completa do
+contrato ativo de locação, dados completos do imóvel alugado (galeria de fotos, endereço,
+características), consulta detalhada de cobranças (valor, data de vencimento, status de
+pagamento), histórico completo de todos os pagamentos realizados e visualização de
+saldo devedor quando aplicável.
+2.2.4 Recursos Gerais do Aplicativo: Sistema robusto de autenticação JWT com renovação
+automática de tokens, funcionalidade completa de recuperação de senha via e-mail,
+galeria de fotos otimizada com carregamento progressivo, sistema de cache de dados para
+melhor performance oxline, interface limpa, moderna e profissional e funcionalidade de
+compartilhamento de informações via WhatsApp.
+2.2.5 Entregáveis: Código-fonte completo e documentado do aplicativo React Native,
+aplicativo publicado e disponível na Google Play Store, aplicativo publicado e disponível na
+Apple App Store, arquivos de build (APK para Android e IPA para iOS), todos os assets e
+recursos gráficos utilizados no desenvolvimento e documentação básica de instalação,
+configuração e manutenção.
+2.3 O aplicativo mobile inclui acesso ao Marketplace Imobiliário com funcionalidades de
+consulta, filtros e registro de interesse em imóveis. O aplicativo não possui
+funcionalidades de cadastro de novos registros (imóveis, proprietários, locatários), criação
+ou edição de contratos, configurações administrativas, análise de seguros ou integração
+com API Desk Data. O foco principal do aplicativo é consulta e acompanhamento de
+informações já cadastradas na plataforma web, com exceção do Marketplace que permite
+interação de leads.
+2.4 LIMITES EXPLÍCITOS DO ESCOPO
+NÃO estão inclusos neste Contrato:
+2.4.1 Funcionalidades excluídas do aplicativo mobile (presentes apenas na plataforma
+web): Cadastro de novos imóveis, proprietários ou locatários; criação ou edição de
+contratos de locação; painel administrativo completo; integração com API Desk Data para
+consultas; funcionalidades de configuração administrativa. O aplicativo mobile possui
+acesso ao Marketplace Imobiliário com funcionalidades de consulta e registro de
+interesse.
+2.4.2 Infraestrutura e hospedagem: Contratação de servidores cloud (AWS, Google Cloud,
+Azure, DigitalOcean, etc.); registro e renovação de domínio; certificado SSL/TLS; serviços
+de CDN (Content Delivery Network); banco de dados em produção; serviços de backup e
+recuperação de dados.
+2.4.3 Contas e licenças: Apple Developer Program (custo anual de US$ 99); Google Play
+Developer (custo único de US$ 25); licenças de software de terceiros; renovações anuais
+de contas.
+2.4.4 APIs e serviços de terceiros: API Desk Data (licenciamento e consultas); APIs de
+seguradoras (licenciamento e integrações específicas); gateway de pagamento (taxas e
+mensalidades); serviço de armazenamento de arquivos (AWS S3, Google Cloud Storage);
+serviço de envio de e-mails transacionais (SendGrid, AWS SES); serviço de envio de SMS;
+ferramentas de monitoramento e analytics (Google Analytics, Sentry).
+2.4.5 Serviços adicionais: Manutenção corretiva ou evolutiva após período de garantia;
+suporte técnico contínuo após entrega; treinamento de usuários finais; elaboração de
+manuais e documentação para usuários; migração de dados de sistemas anteriores;
+customizações futuras não previstas neste escopo; redesign completo de interface após
+aprovação; integrações com outros sistemas não especificados; adequação a novas
+legislações após a entrega.
+2.5 ISENÇÃO TOTAL DE RESPONSABILIDADE PELO USO
+A CONTRATADA desenvolve exclusivamente a ferramenta tecnológica. O CONTRATANTE é
+único e exclusivamente responsável por todo uso da plataforma, decisões de negócio,
+relação com usuários finais, conformidade legal/tributária/regulatória, conteúdo inserido e
+todas as consequências diretas ou indiretas do uso do sistema.
+3 DO PREÇO E DA FORMA DE PAGAMENTO
+O preço a ser pago pela CONTRATANTE à CONTRATADA pela prestação dos Serviços é de
+R$ 3.200,00 (três mil e duzentos reais), sendo:
+3.1 FASE 1 - PLATAFORMA WEB: R$ 2.400,00 (dois mil e quatrocentos reais)
+3.1.1 Primeira parcela – R$ 525,00 (quinhentos e vinte e cinco reais): Evento gerador:
+assinatura do presente Contrato. Vencimento: 02 de dezembro de 2025
+3.1.2 Segunda parcela – R$ 960,00 (novecentos e sessenta reais): Evento gerador:
+conclusão da etapa intermediária da FASE 1, caracterizada pela entrega funcional e
+disponível em ambiente de homologação dos seguintes módulos mínimos: sistema de
+autenticação e acesso (login e perfis básicos); cadastros principais de imóveis,
+proprietários e locatários; gestão básica de contratos com vínculos operacionais;
+dashboard inicial com visualização de dados básicos. Vencimento: 5 (cinco) dias corridos
+após emissão da nota fiscal
+3.1.3 Terceira parcela – R$ 915,00 (novecentos e quinze reais): Evento gerador: entrega
+final completa da FASE 1, incluindo todos os módulos especificados na cláusula 2.1, a
+saber: cadastros completos (imóveis, proprietários, locatários), gestão de contratos,
+sistema de cobrança com split, dashboard completo, painel financeiro, painel
+administrativo, área do analista de seguros, painel do corretor e integração Desk Data.
+Vencimento: 5 (cinco) dias corridos após emissão da nota fiscal
+3.2 FASE 2 - APLICATIVO MOBILE: R$ 800,00 (oitocentos reais)
+3.2.1 Quarta parcela – (R$ 240,00 - duzentos e quarenta reais): Evento gerador: início da
+FASE 2 após aprovação formal e por escrito da FASE 1 pelo CONTRATANTE. Vencimento: 5
+(cinco) dias corridos após emissão da nota fiscal
+3.2.2 Quinta parcela – (R$ 320,00 - trezentos e vinte reais): Evento gerador: conclusão da
+etapa intermediária da FASE 2, caracterizada pela entrega de versão funcional do
+aplicativo em ambiente de testes contemplando, no mínimo: sistema de login e
+autenticação operacional; navegação principal habilitada; listagem de imóveis e contratos
+ativos; acesso às telas básicas de consulta. Vencimento: 5 (cinco) dias corridos após
+emissão da nota fiscal
+3.2.3 Sexta parcela – (R$ 240,00 - duzentos e quarenta reais): Evento gerador: publicação
+do aplicativo nas lojas oficiais Google Play Store e Apple App Store. Vencimento: 5 (cinco)
+dias corridos após emissão da nota fiscal
+3.3 CONDIÇÕES DE PAGAMENTO
+3.3.1 A forma de pagamento será por PIX (preferencial), TED/DOC ou Boleto Bancário,
+conforme indicação da CONTRATADA.
+3.3.2 O prazo de pagamento é de até 5 (cinco) dias corridos após a emissão da nota fiscal.
+3.3.3 O atraso no pagamento de qualquer parcela ensejará a incidência de multa de 2%
+(dois por cento) sobre o valor devido, acrescida de juros de mora de 1% (um por cento) ao
+mês, calculados pro rata die.
+3.3.4 Em caso de inadimplência por período de 10 (dez) a 30 (trinta) dias corridos, a
+CONTRATADA suspenderá imediatamente a execução dos trabalhos até a regularização do
+pagamento.
+3.3.5 A inadimplência superior a 30 (trinta) dias corridos ensejará a rescisão automática do
+Contrato, nos termos da cláusula 14.1, com retenção integral dos valores já pagos pela
+CONTRATANTE e cobrança judicial dos valores em aberto.
+3.3.6 Em caso de inadimplência, o código-fonte desenvolvido não será entregue ao
+CONTRATANTE até a quitação completa de todos os valores devidos.
+4 DOS PRAZOS DE EXECUÇÃO
+4.1 FASE 1 - PLATAFORMA WEB: 4 (quatro) meses. Período: 02 de dezembro de 2025 a 31
+de março de 2026
+4.2 FASE 2 - APLICATIVO MOBILE: 1 (um) mês após conclusão e pagamento integral da
+FASE 1. Previsão: até 30 de abril de 2026
+4.3 PRAZO TOTAL ESTIMADO: 5 (cinco) meses. Período completo: 02 de dezembro de 2025
+a 30 de abril de 2026
+4.4 PRORROGAÇÃO DE PRAZOS
+Os prazos previstos nas cláusulas 4.1, 4.2 e 4.3 poderão ser prorrogados, sem qualquer
+ônus adicional para a CONTRATADA, nas seguintes hipóteses:
+4.4.1 Atraso do CONTRATANTE no processo de homologação superior a 7 (sete) dias úteis;
+4.4.2 Atraso do CONTRATANTE no fornecimento de informações, materiais, credenciais ou
+aprovações necessárias para a continuidade dos trabalhos;
+4.4.3 Atraso nos pagamentos das parcelas devidas;
+4.4.4 Mudanças de escopo solicitadas pelo CONTRATANTE durante a execução;
+4.4.5 Indisponibilidade ou instabilidade de APIs e serviços de terceiros necessários para a
+integração;
+4.4.6 Problemas na obtenção ou configuração de contas Apple Developer ou Google Play;
+4.4.7 Caso fortuito ou força maior, conforme definido pela legislação brasileira.
+4.5 AMBIENTE DE HOMOLOGAÇÃO
+A CONTRATADA disponibilizará ambiente de homologação durante todo o período de
+desenvolvimento para acompanhamento e testes pelo CONTRATANTE.
+5 DAS RESPONSABILIDADES DA CONTRATADA
+5.1 Desenvolver a solução de software em conformidade com as especificações técnicas
+detalhadas no Anexo I - Escopo Técnico Detalhado.
+5.2 Manter comunicação semanal de progresso com o CONTRATANTE, informando o
+andamento das atividades.
+5.3 Manter o ambiente de homologação funcional e acessível durante todo o período de
+desenvolvimento.
+5.4 Realizar testes de qualidade antes de cada entrega formal, assegurando o
+funcionamento adequado das funcionalidades.
+5.5 Entregar o código-fonte completo, devidamente documentado e organizado, após o
+pagamento integral de todas as parcelas.
+5.6 Fornecer acesso a repositórios Git ou arquivos compactados contendo todo o código-
+fonte desenvolvido.
+5.7 Corrigir bugs críticos identificados durante o período de garantia, conforme definido na
+cláusula 7.
+5.8 Publicar os aplicativos mobile nas lojas Google Play Store e Apple App Store (FASE 2),
+após o CONTRATANTE fornecer as contas de desenvolvedor necessárias.
+5.9 Utilizar boas práticas de desenvolvimento de software, incluindo código limpo,
+modular e seguindo padrões de mercado.
+5.10 Fornecer suporte técnico ao CONTRATANTE durante o período de desenvolvimento e
+durante o período de garantia.
+5.11 Manter confidencialidade sobre todas as informações confidenciais do
+CONTRATANTE, conforme cláusula 11.
+6 DAS RESPONSABILIDADES DA CONTRATANTE
+6.1 Efetuar os pagamentos das parcelas pontualmente, conforme estabelecido na
+cláusula 3.
+6.2 Fornecer todas as informações, materiais, credenciais e acessos necessários para a
+execução do projeto em até 48 (quarenta e oito) horas após solicitação da CONTRATADA.
+6.3 Realizar o processo de homologação das entregas em até 7 (sete) dias úteis após cada
+disponibilização em ambiente de testes.
+6.4 Providenciar e custear as contas Apple Developer (US$ 99/ano) e Google Play
+Developer (US$ 25 taxa única) necessárias para publicação dos aplicativos mobile.
+6.5 Custear todos os serviços de terceiros necessários para o funcionamento do sistema,
+incluindo mas não se limitando a: API Desk Data, hospedagem, domínio, certificado SSL,
+armazenamento de arquivos, envio de e-mails transacionais e SMS.
+6.6 Aprovar formalmente layouts, fluxos de navegação, regras de negócio e definição de
+prioridades quando solicitado pela CONTRATADA.
+6.7 Manter ambiente de produção adequado com recursos técnicos suficientes para o
+funcionamento do sistema.
+6.8 Responder às dúvidas e solicitações da CONTRATADA em até 48 (quarenta e oito)
+horas úteis.
+6.9 Designar um representante com poder de decisão para comunicação direta com a
+CONTRATADA.
+6.10 Assumir integral responsabilidade pelo uso do sistema, decisões de negócio, relação
+com usuários finais e conformidade legal, conforme cláusula 13.
+7 DA GARANTIA E SUPORTE
+7.1 PERÍODO DE GARANTIA
+A CONTRATADA oferece garantia de 15 (quinze) dias corridos após cada entrega final (FASE
+1 e FASE 2) para correção de bugs e problemas técnicos relacionados às funcionalidades
+entregues.
+7.2 COBERTURA DA GARANTIA
+7.2.1 A garantia cobre exclusivamente: a) Bugs críticos que impeçam o uso do sistema
+(travamentos, falhas de login, perda de dados, erros de cálculo); b) Bugs não-críticos que
+afetem funcionalidades entregues (validações incorretas, problemas de layout, links
+quebrados); c) Incompatibilidades com navegadores e sistemas operacionais
+especificados no Anexo I.
+7.2.2 NÃO são considerados bugs e estão EXCLUÍDOS da garantia: a) Novas
+funcionalidades não previstas no escopo original; b) Problemas decorrentes de
+modificações realizadas por terceiros no código-fonte; c) Uso inadequado do sistema ou
+configurações incorretas; d) Incompatibilidades causadas por atualizações de sistemas
+operacionais, navegadores ou APIs externas realizadas após a entrega; e) Falhas de
+infraestrutura, hospedagem ou serviços de terceiros; f) Problemas de segurança
+decorrentes de má gestão de credenciais ou acessos pelo CONTRATANTE; g) Perda de
+dados por ausência de backups adequados; h) Alterações estéticas ou de layout
+solicitadas após homologação; i) Alterações em regras de negócio, cálculos financeiros ou
+critérios de cobrança; j) Criação de novos campos, relatórios ou filtros; k) Mudanças de
+fluxo de telas ou navegação; l) Qualquer solicitação que represente modificação do
+escopo originalmente aprovado.
+7.3 TEMPO DE ATENDIMENTO
+7.3.1 Bugs críticos: início do atendimento em até 24 (vinte e quatro) horas, com resolução
+prevista em até 5 (cinco) dias úteis.
+7.3.2 Bugs não-críticos: início do atendimento em até 3 (três) dias úteis, com resolução
+prevista em até 10 (dez) dias úteis.
+7.4 ACIONAMENTO DA GARANTIA
+O acionamento da garantia deverá ser feito exclusivamente por e-mail para
+bassetto.software@gmail.com, contendo descrição detalhada do problema, prints de tela
+ou vídeos demonstrativos e passos para reproduzir o erro.
+7.5 PÓS-GARANTIA
+Após o término do período de garantia de 15 (quinze) dias, qualquer serviço de
+manutenção, correção ou suporte técnico será objeto de novo contrato ou negociação
+específica.
+8 DO DIREITO DE USO EM PORTFÓLIO
+8.1 PROPRIEDADE INTELECTUAL
+O código-fonte desenvolvido especificamente para este projeto é 100% (cem por cento) de
+propriedade do CONTRATANTE após o pagamento integral de todas as parcelas.
+Permanecem de propriedade exclusiva da CONTRATADA quaisquer bibliotecas,
+frameworks, templates, códigos-base, utilitários e componentes reutilizáveis utilizados no
+desenvolvimento do sistema, sendo transferidos ao CONTRATANTE apenas os módulos
+customizados especificamente desenvolvidos sob encomenda para este projeto.
+8.2 DIREITO DE PORTFÓLIO
+A CONTRATADA poderá incluir o projeto em seu portfólio profissional, utilizar prints de tela
+e descrições gerais do sistema, mencionar o projeto em materiais comerciais e de
+marketing e divulgar o nome do CONTRATANTE como referência, salvo se houver
+solicitação contrária formal e por escrito.
+8.3 RESTRIÇÕES
+A CONTRATADA se compromete a não divulgar dados sensíveis, segredos de negócio,
+informações estratégicas ou dados pessoais de usuários do sistema, devendo utilizar
+dados anonimizados ou fictícios em demonstrações públicas.
+8.4 FORMA DE ENTREGA DO CÓDIGO-FONTE
+A entrega do código-fonte será realizada via repositório GitHub (com transferência
+completa de ownership para conta do CONTRATANTE) ou arquivo compactado (.zip)
+contendo todo o código-fonte, dependências e documentação técnica.
+9 DA GESTÃO DE MUDANÇAS DE ESCOPO
+9.1 ESCOPO FECHADO
+O escopo do projeto é considerado FECHADO, conforme definido na cláusula 2 e no Anexo
+I - Escopo Técnico Detalhado. Qualquer item não listado expressamente é considerado
+FORA DO ESCOPO contratado.
+9.2 PROCESSO DE SOLICITAÇÃO DE MUDANÇA
+Toda e qualquer mudança de escopo deverá seguir obrigatoriamente o seguinte processo:
+9.2.1 Solicitação formal pelo CONTRATANTE por e-mail, contendo descrição detalhada da
+mudança desejada e justificativa de negócio.
+9.2.2 Análise pela CONTRATADA em até 3 (três) dias úteis, incluindo avaliação de
+viabilidade técnica, impacto no prazo e custo adicional.
+9.2.3 Negociação e alinhamento entre as Partes sobre as condições da mudança.
+9.2.4 Aprovação formal por ambas as Partes e assinatura de aditivo contratual ANTES do
+início da implementação.
+9.3 ADITIVO CONTRATUAL OBRIGATÓRIO
+Mudanças de escopo que gerem impacto em prazo ou custo exigem obrigatoriamente a
+celebração de aditivo contratual, especificando: descrição técnica detalhada da
+mudança, valor adicional a ser pago, quantidade de dias adicionais ao prazo, novas datas
+de entrega e condições de pagamento das parcelas adicionais.
+9.4 REFINAMENTOS MENORES
+Não serão consideradas mudanças de escopo, e portanto não exigirão aditivo contratual,
+as seguintes situações: 9.4.1 Ajustes estéticos pequenos em elementos visuais já
+entregues; 9.4.2 Correções de textos, alinhamentos ou espaçamentos; 9.4.3
+Refinamentos de experiência do usuário (UX) simples que não adicionem funcionalidades;
+9.4.4 Correção de bugs identificados antes da entrega final. 9.4.5 Critério geral:
+refinamentos que demandem menos de 2 (duas) horas de trabalho e que não impliquem
+em adição de novas funcionalidades.
+9.5 LIMITAÇÃO DE REVISÕES DE UX E LAYOUT
+As revisões de interface do usuário (UX) e layout visual ficam limitadas a até 2 (duas)
+rodadas de ajustes por tela ou funcionalidade entregue, desde que não impliquem em
+inclusão de novas funcionalidades, alterações estruturais de navegação ou retrabalho de
+lógica de programação. Solicitações de revisões adicionais serão consideradas mudança
+de escopo e estarão sujeitas a novo orçamento mediante aditivo contratual.
+10 DA HOMOLOGAÇÃO E ACEITE
+10.1 PROCESSO DE HOMOLOGAÇÃO
+O processo de homologação seguirá as seguintes etapas: 10.1.1 A CONTRATADA
+disponibiliza a entrega em ambiente de homologação e notifica formalmente o
+CONTRATANTE. 10.1.2 O CONTRATANTE realiza testes funcionais em até 7 (sete) dias úteis
+e reporta eventuais problemas encontrados. 10.1.3 A CONTRATADA corrige os problemas
+reportados em até 5 (cinco) dias úteis para bugs críticos ou até 10 (dez) dias úteis para
+bugs não-críticos. 10.1.4 O CONTRATANTE retesta as correções em até 3 (três) dias úteis.
+10.1.5 O CONTRATANTE emite aprovação formal por e-mail, caracterizando o aceite da
+entrega.
+10.2 RODADAS DE CORREÇÃO
+Serão permitidas até 2 (duas) rodadas de correção por entrega, seguindo os prazos
+estabelecidos na cláusula 10.1.
+10.3 ACEITE TÁCITO
+Na ausência de manifestação formal do CONTRATANTE dentro do prazo de 7 (sete) dias
+úteis após disponibilização da entrega, será considerado aceite tácito (aprovação
+automática), tornando exigível a parcela correspondente.
+10.4 CRITÉRIOS DE ACEITE
+A aprovação da entrega estará condicionada ao atendimento dos seguintes critérios:
+10.4.1 Todas as funcionalidades especificadas para a fase foram implementadas; 10.4.2 O
+sistema está funcional e operacional no ambiente de homologação; 10.4.3 Não há bugs
+críticos que impeçam o uso das funcionalidades essenciais; 10.4.4 A performance do
+sistema está adequada para uso normal.
+11 DA CONFIDENCIALIDADE
+11.1 INFORMAÇÕES CONFIDENCIAIS
+São consideradas informações confidenciais para fins deste Contrato: 11.1.1 Código-fonte
+desenvolvido (antes da entrega final ao CONTRATANTE); 11.1.2 Arquitetura de software e
+decisões técnicas; 11.1.3 Credenciais de acesso, senhas e chaves de API; 11.1.4
+Estratégias comerciais e modelos de negócio; 11.1.5 Dados financeiros e informações
+econômicas; 11.1.6 Informações sobre clientes, usuários e parceiros; 11.1.7 Dados
+pessoais de usuários do sistema, conforme LGPD.
+11.2 OBRIGAÇÕES DE CONFIDENCIALIDADE
+As Partes se comprometem a: 11.2.1 Manter sigilo absoluto sobre todas as informações
+confidenciais; 11.2.2 Não divulgar ou utilizar informações confidenciais para outros fins
+que não a execução deste Contrato; 11.2.3 Limitar o acesso às informações confidenciais
+apenas a pessoas que necessitem conhecê-las; 11.2.4 Adotar medidas de segurança
+adequadas para proteção das informações; 11.2.5 Notificar imediatamente a outra Parte
+em caso de vazamento ou acesso não autorizado.
+11.3 PRAZO DE CONFIDENCIALIDADE
+A obrigação de confidencialidade permanecerá em vigor por 2 (dois) anos após o término
+deste Contrato, independentemente do motivo de sua extinção.
+11.4 EXCEÇÕES
+Não são consideradas confidenciais as informações que: 11.4.1 Sejam ou se tornem
+publicamente conhecidas sem violação deste Contrato; 11.4.2 Sejam obtidas
+legitimamente de terceiros sem obrigação de confidencialidade; 11.4.3 Sejam exigidas por
+ordem judicial ou determinação legal, mediante notificação prévia à outra Parte; 11.4.4
+Sejam expressamente autorizadas por escrito pela Parte detentora; 11.4.5 Sejam
+utilizadas pela CONTRATADA em seu portfólio, desde que não contenham dados sensíveis,
+conforme cláusula 8.
+12 DAS RESPONSABILIDADES E LIMITAÇÕES
+12.1 LIMITAÇÃO DE RESPONSABILIDADE
+A responsabilidade máxima da CONTRATADA, em qualquer hipótese, fica limitada ao valor
+total efetivamente pago pelo CONTRATANTE, com teto máximo de R$ 3.200,00 (três mil e
+duzentos reais).
+12.2 RESPONSABILIDADES DA CONTRATADA
+A CONTRATADA é responsável por: 12.2.1 Desenvolver o software em conformidade com o
+escopo aprovado; 12.2.2 Utilizar boas práticas de programação e segurança; 12.2.3
+Entregar código funcional e adequadamente testado; 12.2.4 Corrigir bugs durante o
+período de garantia, conforme cláusula 7; 12.2.5 Manter a confidencialidade das
+informações, conforme cláusula 11.
+12.3 EXCLUSÕES DE RESPONSABILIDADE DA CONTRATADA
+A CONTRATADA não se responsabiliza por:
+12.3.1 INFRAESTRUTURA: a) Falhas de hospedagem, servidores ou provedores de cloud; b)
+Indisponibilidade ou instabilidade de APIs externas e serviços de terceiros; c) Problemas
+de conexão à internet ou infraestrutura de rede; d) Recursos computacionais insuficientes
+(memória, processamento, armazenamento); e) Ataques DDoS, invasões ou problemas de
+segurança em nível de infraestrutura.
+12.3.2 DADOS: a) Perda de dados por ausência ou falha de backups adequados; b)
+Corrupção de dados por falhas de hardware ou software de terceiros; c) Conteúdo inserido
+por usuários do sistema; d) Uso malicioso ou fraudulento do sistema por terceiros.
+12.3.3 COMPATIBILIDADE FUTURA: a) Incompatibilidades causadas por atualizações de
+sistemas operacionais, navegadores ou APIs externas após a entrega; b) Mudanças em
+políticas e diretrizes das lojas de aplicativos (Apple App Store e Google Play Store); c)
+Descontinuação de serviços de terceiros integrados.
+12.3.4 USO E OPERAÇÃO: a) Uso inadequado ou incorreto do sistema por usuários; b)
+Decisões de negócio tomadas pelo CONTRATANTE; c) Erros humanos na operação ou
+configuração; d) Configurações incorretas de ambiente, permissões ou recursos.
+12.3.5 TERCEIROS: a) Modificações realizadas no código-fonte após a entrega final; b)
+Customizações ou integrações realizadas por terceiros não autorizados pela
+CONTRATADA; c) Problemas causados por ferramentas, bibliotecas ou serviços de
+terceiros.
+12.3.6 SEGURANÇA: a) Vazamento de credenciais de acesso por negligência do
+CONTRATANTE; b) Má gestão de acessos e permissões de usuários; c) Ataques de
+engenharia social; d) Vulnerabilidades descobertas após o período de garantia.
+12.3.7 LEGAL E REGULATÓRIO: a) Adequação a novas legislações publicadas após a
+entrega do sistema; b) Violações de direitos autorais em conteúdo inserido pelo
+CONTRATANTE; c) Questões trabalhistas, tributárias ou fiscais decorrentes do uso do
+sistema; d) Conformidade legal com LGPD (a responsabilidade legal é exclusiva do
+CONTRATANTE, conforme cláusula 13); e) Licenças profissionais exigidas para operação
+do negócio (CRECI, etc.).
+12.3.8 LOJAS DE APLICATIVOS: a) Reprovação dos aplicativos por violação de políticas da
+Apple ou Google; b) Custos adicionais ou taxas cobradas pelas lojas; c) Atrasos no
+processo de aprovação das lojas.
+12.3.9 DANOS INDIRETOS: a) Lucros cessantes ou perda de receita; b) Danos morais ou à
+imagem; c) Perdas financeiras indiretas de qualquer natureza.
+12.3.10 INSTABILIDADE DE TERCEIROS: A CONTRATADA não se responsabiliza por
+instabilidades, indisponibilidades, alterações de políticas, limitação de serviços,
+encerramento de plataformas ou mudanças técnicas provenientes de terceiros, incluindo
+mas não se limitando a: APIs externas, gateways de pagamento, serviços de hospedagem,
+provedores de e-mail/SMS, Apple App Store, Google Play Store e ferramentas de
+integração.
+12.4 SEGURANÇA DA INFORMAÇÃO
+12.4.1 RESPONSABILIDADES DA CONTRATADA: a) Implementar autenticação segura de
+usuários; b) Utilizar criptografia para dados sensíveis; c) Validar inputs para prevenir
+injeção de código; d) Utilizar conexões HTTPS; e) Seguir as diretrizes básicas do OWASP
+Top 10.
+12.4.2 RESPONSABILIDADES DO CONTRATANTE: a) Manter ambiente de produção seguro
+e atualizado; b) Realizar backups regulares dos dados; c) Implementar certificado SSL/TLS
+válido; d) Gerenciar adequadamente credenciais e acessos de usuários; e) Monitorar logs
+de segurança; f) Aplicar atualizações de segurança recomendadas; g) Implementar
+proteção contra ataques DDoS em nível de infraestrutura.
+13 DA ISENÇÃO DE RESPONSABILIDADE PELO USO
+13.1 NATUREZA DO SERVIÇO
+A CONTRATADA presta exclusivamente serviço de desenvolvimento técnico de software.
+Não se trata de consultoria jurídica, contábil, fiscal ou de qualquer outra natureza
+profissional regulamentada.
+13.2 RESPONSABILIDADE EXCLUSIVA DO CONTRATANTE
+O CONTRATANTE é única e exclusivamente responsável por:
+13.2.1 OPERAÇÃO E GESTÃO: a) Todas as decisões relacionadas à operação do negócio; b)
+Definição de regras de split e percentuais de comissão; c) Gestão de usuários, clientes e
+parceiros; d) Política de cobranças e relacionamento com inadimplentes.
+13.2.2 CONTEÚDO E DADOS: a) Veracidade e legitimidade de informações inseridas no
+sistema; b) Documentos, fotos e arquivos enviados; c) Conformidade legal de contratos e
+termos utilizados.
+13.2.3 USUÁRIOS FINAIS: a) Relação contratual com corretores, proprietários e locatários;
+b) Atendimento ao cliente e suporte aos usuários; c) Resolução de disputas e conflitos.
+13.2.4 CONFORMIDADE LEGAL: a) Cumprimento de leis e regulamentos do setor
+imobiliário; b) Conformidade com a LGPD (Lei Geral de Proteção de Dados); c) Adequação
+tributária e fiscal; d) Obtenção de licenças profissionais (CRECI, etc.).
+13.2.5 TRABALHISTA: a) Relação trabalhista com corretores e colaboradores; b)
+Pagamento de impostos e contribuições previdenciárias; c) Cumprimento de obrigações
+trabalhistas.
+13.2.6 FINANCEIRO: a) Legalidade dos modelos de split e repasses financeiros; b)
+Processamento de pagamentos e transferências; c) Emissão de notas fiscais; d) Cobrança
+judicial de inadimplentes.
+13.3 EXCLUSÕES ABSOLUTAS
+A CONTRATADA fica isenta de qualquer responsabilidade por: 13.3.1 Uso inadequado,
+ilegal ou fraudulento do sistema; 13.3.2 Cobranças indevidas ou ilegais realizadas através
+do sistema; 13.3.3 Prejuízos financeiros de usuários do sistema; 13.3.4 Violações de
+direitos autorais ou de propriedade intelectual no conteúdo; 13.3.5 Violações à LGPD
+decorrentes de má gestão de dados pessoais; 13.3.6 Problemas jurídicos, trabalhistas,
+tributários ou fiscais; 13.3.7 Litígios com clientes, corretores ou parceiros comerciais;
+13.3.8 Uso criminoso ou fraudulento por terceiros; 13.3.9 Danos de qualquer natureza
+causados a terceiros pelo uso do sistema.
+13.4 LGPD - LEI GERAL DE PROTEÇÃO DE DADOS
+13.4.1 A CONTRATADA implementará recursos técnicos básicos de proteção de dados,
+incluindo: a) Campos de registro de consentimento de usuários; b) Criptografia de dados
+sensíveis; c) Controle de acesso baseado em perfis; d) Logs de auditoria de ações dos
+usuários.
+13.4.2 A responsabilidade legal pela conformidade com a LGPD é EXCLUSIVA do
+CONTRATANTE, incluindo: a) Obtenção de consentimentos válidos dos titulares de dados;
+b) Elaboração de Política de Privacidade e Termos de Uso; c) Designação de Encarregado
+de Dados (DPO), se aplicável; d) Atendimento a requisições de titulares (acesso, correção,
+exclusão); e) Notificações à ANPD (Autoridade Nacional de Proteção de Dados); f)
+Manutenção de registro de operações de tratamento de dados.
+13.5 ISENÇÃO TOTAL EM LITÍGIOS
+Em caso de investigações, processos judiciais, reclamações ou demandas de terceiros
+relacionadas ao uso do sistema, à operação do negócio ou às atividades do
+CONTRATANTE, a CONTRATADA será mantida completamente isenta, devendo o
+CONTRATANTE assumir integralmente todos os custos, indenizações, honorários
+advocatícios e penalidades decorrentes.
+14 DA RESCISÃO CONTRATUAL
+14.1 RESCISÃO POR INADIMPLÊNCIA
+Em caso de inadimplência do CONTRATANTE superior a 30 (trinta) dias corridos: 14.1.1 O
+Contrato será rescindido automaticamente, independentemente de notificação judicial ou
+extrajudicial; 14.1.2 A CONTRATADA reterá integralmente todos os valores já pagos pelo
+CONTRATANTE, a título de perdas e danos; 14.1.3 O código-fonte desenvolvido não será
+entregue ao CONTRATANTE até a quitação integral de todos os valores devidos; 14.1.4 A
+CONTRATADA poderá promover a cobrança judicial dos valores em aberto, acrescidos de
+correção monetária, juros, multa e honorários advocatícios; 14.1.5 O CONTRATANTE
+perderá todos os direitos sobre o trabalho desenvolvido.
+14.2 RESCISÃO POR ACORDO MÚTUO
+As Partes poderão rescindir o Contrato por mútuo acordo, mediante as seguintes
+condições: 14.2.1 Medição do trabalho efetivamente realizado até a data da rescisão;
+14.2.2 Pagamento proporcional ao CONTRATANTE em até 5 (cinco) dias úteis após acordo;
+14.2.3 Entrega parcial do código desenvolvido até a data da rescisão; 14.2.4 Quitação
+mútua de todas as obrigações pendentes.
+14.3 RESCISÃO IMOTIVADA PELO CONTRATANTE
+O CONTRATANTE poderá rescindir o Contrato imotivadamente, observando: 14.3.1 Se a
+rescisão ocorrer durante a FASE 1: a) Pagamento da proporção efetivamente executada da
+fase atual; b) Pagamento de multa compensatória equivalente a 30% (trinta por cento) do
+valor total da FASE 2 (R$ 240,00); 14.3.2 Se a rescisão ocorrer durante a FASE 2: a)
+Pagamento da proporção efetivamente executada da fase atual; b) Sem incidência de
+multa rescisória. 14.3.3 O CONTRATANTE receberá o código-fonte desenvolvido até a data
+da rescisão somente após a quitação integral dos valores devidos. 14.3.4 O CONTRATANTE
+perderá o direito à garantia e suporte técnico.
+14.4 RESCISÃO IMOTIVADA PELA CONTRATADA
+A CONTRATADA poderá rescindir o Contrato imotivadamente, observando: 14.4.1 Aviso
+prévio de 15 (quinze) dias corridos ao CONTRATANTE; 14.4.2 Devolução integral dos
+valores já pagos pelo CONTRATANTE; 14.4.3 Entrega de todo o trabalho desenvolvido até a
+data da rescisão; 14.4.4 Sem qualquer custo adicional ao CONTRATANTE.
+14.5 RESCISÃO POR JUSTA CAUSA
+14.5.1 O CONTRATANTE poderá rescindir o Contrato por justa causa se a CONTRATADA: a)
+Atrasar a entrega por período superior a 60 (sessenta) dias corridos sem justificativa; b)
+Descumprir reiteradamente obrigações contratuais após 2 (duas) notificações formais; c)
+Terceirizar os serviços sem autorização prévia e por escrito; d) Violar a cláusula de
+confidencialidade.
+14.5.2 A CONTRATADA poderá rescindir o Contrato por justa causa se o CONTRATANTE: a)
+Atrasar pagamentos por período superior a 30 (trinta) dias corridos; b) Não fornecer
+informações essenciais após 3 (três) solicitações formais; c) Não realizar homologação
+por período superior a 20 (vinte) dias corridos sem justificativa; d) Solicitar funcionalidades
+ilegais ou que violem direitos de terceiros; e) Tratar a CONTRATADA ou seus colaboradores
+com desrespeito, assédio ou discriminação.
+14.5.3 Consequências da rescisão por justa causa: a) A Parte culpada pagará multa de
+30% (trinta por cento) do valor total do Contrato (R$ 960,00);
+14.6 EFEITOS DA RESCISÃO
+Independentemente da forma de rescisão: 14.6.1 Cessam imediatamente todas as
+obrigações de execução de ambas as Partes; 14.6.2 Desativam-se todos os acessos a
+ambientes, repositórios e sistemas; 14.6.3 A cláusula de confidencialidade permanece
+válida por 2 (dois) anos.
+15 DAS DISPOSIÇÕES GERAIS
+15.1 COMUNICAÇÕES
+Todas as comunicações oficiais entre as Partes deverão ser realizadas por e-mail para os
+endereços: CONTRATADA: bassetto.software@gmail.com e CONTRATANTE:
+Borgedaniel998@gmail.com. Decisões importantes e formalizações devem ser sempre
+confirmadas por escrito.
+15.2 ALTERAÇÕES CONTRATUAIS
+Qualquer alteração ou aditamento a este Contrato somente terá validade se feita por
+escrito mediante aditivo contratual assinado por ambas as Partes. Acordos verbais não
+alteram ou substituem as disposições deste Contrato.
+15.3 CESSÃO
+É proibida a cessão ou transferência dos direitos e obrigações decorrentes deste Contrato
+sem autorização prévia e expressa da outra Parte. A CONTRATADA poderá utilizar
+freelancers ou colaboradores para execução dos trabalhos, mantendo integral
+responsabilidade pelos serviços.
+15.4 INDEPENDÊNCIA DAS CLÁUSULAS
+A invalidade, nulidade ou ineficácia de qualquer cláusula ou disposição deste Contrato
+não afetará a validade e eficácia das demais cláusulas, que permanecerão em pleno vigor.
+15.5 RENÚNCIA
+A tolerância ou não exercício, por qualquer das Partes, de direitos a ela assegurados neste
+Contrato ou na lei em geral, não importará em novação ou renúncia a qualquer desses
+direitos, podendo a Parte interessada exercê-los a qualquer tempo.
+15.6 INTEGRALIDADE
+Este Contrato e seus anexos representam a totalidade do acordo entre as Partes
+relativamente ao objeto contratado, substituindo todos os entendimentos, propostas,
+negociações e acordos anteriores, sejam verbais ou escritos.
+15.7 LEGISLAÇÃO APLICÁVEL
+Este Contrato é regido pelas leis brasileiras, especialmente o Código Civil Brasileiro (Lei nº
+10.406/2002), a Lei Geral de Proteção de Dados (Lei nº 13.709/2018) e o Marco Civil da
+Internet (Lei nº 12.965/2014).
+15.8 FORO
+Fica eleito o foro da Comarca de Botucatu, Estado de São Paulo, para dirimir quaisquer
+dúvidas ou controvérsias oriundas deste Contrato, com renúncia expressa a qualquer
+outro, por mais privilegiado que seja.
+16 DO ACEITE E VIGÊNCIA
+16.1 VIGÊNCIA
+Este Contrato entra em vigor na data de sua assinatura e permanece vigente até a entrega
+completa de todas as fases do projeto e o pagamento integral de todas as parcelas, ou até
+sua rescisão nos termos da cláusula 14.
+16.2 SOBREVIVÊNCIA PÓS-TÉRMINO
+Após o término deste Contrato, permanecem em vigor as cláusulas referentes a:
+confidencialidade (por 2 anos - cláusula 11), garantia (por 15 dias após cada entrega -
+cláusula 7), direito de portfólio (cláusula 8) e propriedade intelectual (cláusula 8).
+16.3 DECLARAÇÕES DAS PARTES
+As Partes declaram que leram, compreendem e concordam integralmente com todos os
+termos e condições deste Contrato, e que possuem plenos poderes para celebrá-lo.
+16.4 ASSINATURA ELETRÔNICA
+As Partes reconhecem a validade jurídica da assinatura eletrônica ou digital deste
+Contrato por meio de plataformas oficiais ou privadas, incluindo mas não se limitando a
+Gov.br, DocuSign, D4Sign, Clicksign ou similares, dispensando reconhecimento de firma
+em cartório.
+E, por estarem assim justas e contratadas, assinam as Partes o presente instrumento em
+02 (duas) vias de igual teor e forma, para que produza seus jurídicos e legais efeitos.
+Botucatu/SP, 02 de dezembro de 2025
+_____________________________________
+FELIPE SILVEIRA BASSETTO
+CONTRATADA
+CNPJ: 63.385.020/0001-48
+_____________________________________
+DANIEL BORGES DA SILVA
+CONTRATANTE
+CPF: 445.566.358-45
+ANEXO I - ESCOPO TÉCNICO DETALHADO
+ESPECIFICAÇÕES TÉCNICAS GERAIS
+PLATAFORMA WEB:
+• Frontend: React.js com TypeScript
+• Backend: Node.js com TypeScript
+• Banco de Dados: PostgreSQL ou MySQL
+• Autenticação: JWT (JSON Web Tokens)
+• Interface responsiva para desktop, tablet e mobile
+• Navegadores suportados: Chrome, Firefox, Safari, Edge (últimas 2 versões)
+APLICATIVO MOBILE:
+• Framework: React Native com TypeScript
+• Plataformas: Android 8.0+ e iOS 13.0+
+• Publicação completa nas lojas Google Play Store e Apple App Store
+FUNCIONALIDADES DETALHADAS - PLATAFORMA WEB
+1. DASHBOARD INICIAL
+• Indicadores principais: contratos ativos, pipeline de negócios e usuários cadastrados
+• Gráficos de performance por período (mensal, trimestral, anual)
+• Visão consolidada das principais métricas do negócio
+2. GESTÃO DE IMÓVEIS
+• CRUD completo de imóveis (Criar, Ler, Atualizar, Deletar)
+• Upload de múltiplas fotos com galeria
+• Campos detalhados: endereço completo, características físicas, valores, status
+• Vínculo direto com proprietário
+• Sistema de filtros de busca avançados
+• Listagem com paginação e ordenação
+3. CADASTRO DE PROPRIETÁRIOS E LOCATÁRIOS
+• CRUD completo com dados pessoais (nome, CPF/CNPJ, contatos, endereço)
+• Upload de documentos digitalizados (RG, CPF, Comprovante de renda)
+• Informações bancárias para repasse financeiro
+• Histórico completo de contratos vinculados
+• Histórico de pagamentos realizados e recebidos
+4. GESTÃO DE CONTRATOS DE LOCAÇÃO
+• CRUD completo de contratos
+• Vínculo imóvel, proprietário e locatário
+• Controle de vigência e status
+• Reajuste automático
+• Geração de contratos em PDF
+• Sistema de assinatura digital integrado
+5. SISTEMA DE COBRANÇA AUTOMÁTICA COM SPLIT
+• Geração mensal automática de cobranças baseada em contratos ativos
+• Sistema de split financeiro configurável
+• Split fixo obrigatório de 3% para a plataforma
+• Divisão configurável de percentuais entre corretor e proprietário
+• Controle detalhado de status: pendente, pago, atrasado
+• Registro completo de pagamentos com data e valor
+• Cálculo automático de multa de 2% e juros de 1% ao mês em caso de atraso
+• Relatório consolidado de repasses por beneficiário (plataforma, corretor, proprietário)
+6. PAINEL FINANCEIRO
+• Indicadores principais: faturamento previsto, faturamento recebido, valores em atraso,
+VGV (Valor Geral de Vendas)
+• Gráficos comparativos por período (mensal, trimestral, anual)
+• Filtros avançados por data, status de pagamento e tipo de transação
+• Visão consolidada de receitas e projeções
+7. PAINEL ADMINISTRATIVO COM ACL (CONTROLE DE ACESSO)
+• Gestão completa de usuários do sistema
+• Perfis de acesso diferenciados: Administrador, Corretor, Analista de Seguros
+• CRUD completo de contratos e imóveis com permissões granulares
+• Sistema de permissões baseado em perfil de usuário
+• Logs de auditoria completos de todas as ações dos usuários
+8. ÁREA DO ANALISTA DE SEGUROS
+• Acesso completo aos dados do inquilino interessado e do imóvel vinculado
+• Operação completa do processo de seguro fiança
+• Upload e armazenamento de documentos em PDF (apólices, propostas e documentação
+relacionada)
+• Integração com APIs de seguradoras para consultas e cotações automáticas
+• Registro de parecer técnico do analista
+• Exibição condicional apenas para contratos com seguro
+• Histórico completo de pareceres emitidos por contrato
+9. PAINEL DO CORRETOR
+• Acesso restrito exclusivamente aos dados vinculados ao corretor autenticado
+• Dashboard personalizado com métricas próprias do corretor
+• Gestão completa de imóveis e contratos vinculados
+• Extrato detalhado de comissões (valores a receber e já recebidos)
+• Filtros por período e status
+10. INTEGRAÇÃO COM API DESK DATA
+• Consulta automatizada de restrições financeiras por CPF/CNPJ
+• Consulta de pendências judiciais e protestos
+• Consulta de score de crédito e histórico financeiro
+• Exibição dos resultados em interface amigável e de fácil interpretação
+• Registro completo do histórico de todas as consultas realizadas
+11. BI (BUSINESS INTELLIGENCE)
+• Tela analítica separada dentro do painel administrativo
+• Visualização de origem de assinantes, locações, leads e conversões
+• Gráficos comparativos por período (mensal, trimestral, anual)
+• Análise por região geográfica
+• Indicadores financeiros consolidados (faturamento, comissões, repasses)
+• Métricas operacionais do negócio
+12. BANNER INTERNO
+• Cadastro administrativo de banners e comunicados institucionais
+• Definição de status (ativo ou inativo)
+• Exibição dinâmica no Dashboard principal
+• Gerenciamento de prioridade de exibição
+• Controle de período de exibição (data início e fim)
+13. SISTEMA DE AFILIADOS
+• Cadastro completo de afiliados com dados pessoais e bancários
+• Geração automática de link ou código único de indicação
+• Rastreamento completo de cadastros indicados
+• Aplicação de comissão exclusivamente no primeiro pagamento do indicado
+• Sistema de cálculo automático de comissões
+• Relatórios detalhados de comissões por afiliado
+• Dashboard de performance com métricas de conversão
+• Controle de status (ativo, inativo, bloqueado)
+14. MARKETPLACE IMOBILIÁRIO
+• Vitrine interna compartilhada de imóveis entre corretores da plataforma
+• Sistema avançado de filtros (cidade, tipo, valor, características, status)
+• Exibição segura de dados públicos dos imóveis (sem informações sensíveis)
+• Fluxo "tenho cliente interessado" com formulário de registro
+• Sistema de registro e histórico completo de leads
+• Notificações internas automatizadas entre corretores
+• Controle de status de anúncios (pendente aprovação, ativo, pausado, expirado)
+• Painel administrativo de moderação de anúncios
+• Sistema de aprovação/reprovação de anúncios pelo administrador
+• Relatórios consolidados do marketplace (visualizações, leads gerados, conversões)
+• Dashboard específico para performance do marketplace
+FUNCIONALIDADES DETALHADAS - APLICATIVO MOBILE
+PERFIL CORRETOR:
+• Login seguro e autenticação com JWT
+• Dashboard resumido com contratos ativos e total de comissões do período
+• Listagem completa de imóveis vinculados ao corretor
+• Visualização detalhada de cada imóvel: galeria de fotos, características completas,
+endereço, status, valor de locação
+• Listagem de todos os contratos vinculados ao corretor
+• Detalhes completos de cada contrato: locatário, proprietário, vigência, valores
+• Extrato de comissões com filtro por período (valores recebidos e valores a receber)
+PERFIL PROPRIETÁRIO:
+• Login seguro e autenticação com JWT
+• Dashboard resumido com contratos ativos e receitas do período
+• Listagem completa de todos os imóveis cadastrados
+• Visualização detalhada de cada imóvel com todas as informações
+• Contratos ativos vinculados aos imóveis do proprietário
+• Extrato financeiro completo e detalhado (repasses recebidos e pendentes)
+• Consulta de inadimplências discriminadas por locatário
+PERFIL LOCATÁRIO:
+• Login seguro e autenticação com JWT
+• Visualização completa do contrato ativo de locação
+• Dados completos do imóvel alugado (galeria de fotos, endereço, características)
+• Consulta detalhada de cobranças (valor, data de vencimento, status de pagamento)
+• Histórico completo de todos os pagamentos realizados
+• Visualização de saldo devedor quando aplicável
+MARKETPLACE IMOBILIÁRIO (TODOS OS PERFIS):
+• Acesso à vitrine de imóveis do marketplace
+• Sistema de filtros básicos (cidade, tipo, valor)
+• Visualização de imóveis disponíveis
+• Funcionalidade "tenho cliente interessado"
+RECURSOS GERAIS DO APLICATIVO:
+• Sistema robusto de autenticação JWT com renovação automática de tokens
+• Funcionalidade completa de recuperação de senha via e-mail
+• Galeria de fotos otimizada com carregamento progressivo
+• Sistema de cache de dados para melhor performance oxline
+• Interface limpa, moderna e profissional
+• Funcionalidade de compartilhamento de informações via WhatsApp
+• Integração completa com Marketplace Imobiliário
+ENTREGÁVEIS DA FASE 2:
+• Código-fonte completo e documentado do aplicativo React Native
+• Aplicativo publicado e disponível na Google Play Store
+• Aplicativo publicado e disponível na Apple App Store
+• Arquivos de build: APK para Android e IPA para iOS
+• Todos os assets e recursos gráficos utilizados no desenvolvimento
+• Documentação básica de instalação, configuração e manutenção
+IMPORTANTE: O aplicativo mobile inclui acesso ao Marketplace Imobiliário com
+funcionalidades completas de consulta, filtros e registro de interesse em imóveis. O
+aplicativo não possui funcionalidades de cadastro de novos registros (imóveis,
+proprietários, locatários), criação ou edição de contratos, configurações administrativas,
+análise de seguros ou integração com API Desk Data. O foco principal do aplicativo é
+consulta e acompanhamento de informações já cadastradas na plataforma web, com
+exceção do Marketplace que permite interação completa.
+EXCLUSÕES EXPLÍCITAS DO ESCOPO
+NÃO ESTÃO INCLUSOS NESTE CONTRATO:
+FUNCIONALIDADES EXCLUÍDAS DO APLICATIVO:
+• Cadastro de novos imóveis, proprietários ou locatários
+• Criação ou edição de contratos de locação
+• Painel administrativo completo
+• Integração com API Desk Data para consultas
+• Funcionalidades de configuração administrativa
+OBSERVAÇÃO: O aplicativo mobile possui acesso completo ao Marketplace Imobiliário
+com todas as suas funcionalidades de consulta e interação.
+INFRAESTRUTURA E HOSPEDAGEM:
+• Contratação de servidores cloud (AWS, Google Cloud, Azure, DigitalOcean, etc.)
+• Registro e renovação de domínio
+• Certificado SSL/TLS
+• Serviços de CDN (Content Delivery Network)
+• Banco de dados em produção
+• Serviços de backup e recuperação de dados
+CONTAS E LICENÇAS:
+• Apple Developer Program (custo anual de US$ 99)
+• Google Play Developer (custo único de US$ 25)
+• Licenças de software de terceiros
+• Renovações anuais de contas
+APIs E SERVIÇOS DE TERCEIROS:
+• API Desk Data (licenciamento e consultas)
+• APIs de seguradoras (licenciamento e integrações específicas)
+• Gateway de pagamento (taxas e mensalidades)
+• Serviço de armazenamento de arquivos (AWS S3, Google Cloud Storage)
+• Serviço de envio de e-mails transacionais (SendGrid, AWS SES)
+• Serviço de envio de SMS
+• Ferramentas de monitoramento e analytics (Google Analytics, Sentry)
+SERVIÇOS ADICIONAIS:
+• Manutenção corretiva ou evolutiva após o período de garantia de 15 dias
+• Suporte técnico contínuo após a entrega final
+• Treinamento de usuários finais ou administradores
+• Elaboração de manuais completos e documentação para usuários
+• Migração de dados de sistemas anteriores
+• Customizações futuras não previstas no escopo original
+• Redesign completo de interface após aprovação inicial
+• Integrações com outros sistemas não especificados neste documento
+• Adequação a novas legislações publicadas após a entrega
+FIM DO ANEXO I

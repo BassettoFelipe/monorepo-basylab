@@ -213,6 +213,82 @@ function FloatingParticles() {
   );
 }
 
+function StatusBar() {
+  const [time, setTime] = useState("");
+  const [statusIndex, setStatusIndex] = useState(0);
+
+  const statusMessages = [
+    { text: "sistemas operacionais", icon: "●" },
+    { text: "aguardando input", icon: "◐" },
+    { text: "pronto para deploy", icon: "▲" },
+  ];
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setTime(
+        now.toLocaleTimeString("pt-BR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      );
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStatusIndex((prev) => (prev + 1) % statusMessages.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [statusMessages.length]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 2, duration: 0.8 }}
+      className={styles.statusBar}
+    >
+      <div className={styles.statusContent}>
+        <span className={styles.statusBranch}>
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M9.5 3.25a2.25 2.25 0 1 1 3 2.122V6A2.5 2.5 0 0 1 10 8.5H6a1 1 0 0 0-1 1v1.128a2.251 2.251 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.5 0v1.836A2.5 2.5 0 0 1 6 7h4a1 1 0 0 0 1-1v-.628A2.25 2.25 0 0 1 9.5 3.25Zm-6 0a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Zm8.25-.75a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM4.25 12a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z" />
+          </svg>
+          main
+        </span>
+
+        <span className={styles.statusDivider}>|</span>
+
+        <motion.span
+          key={statusIndex}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className={styles.statusMessage}
+        >
+          <span className={styles.statusIcon}>
+            {statusMessages[statusIndex].icon}
+          </span>
+          {statusMessages[statusIndex].text}
+        </motion.span>
+
+        <span className={styles.statusDivider}>|</span>
+
+        <span className={styles.statusTime}>{time}</span>
+      </div>
+
+      <motion.div
+        className={styles.statusPulse}
+        animate={{ opacity: [0.5, 1, 0.5] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      />
+    </motion.div>
+  );
+}
+
 function GlitchText({ children }: { children: string }) {
   const [isGlitching, setIsGlitching] = useState(false);
 
@@ -409,22 +485,8 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
-        className={styles.scrollIndicator}
-      >
-        <motion.div
-          className={styles.scrollMouse}
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          <div className={styles.scrollWheel} />
-        </motion.div>
-        <span className={styles.scrollText}>Scroll para explorar</span>
-      </motion.div>
+      {/* Status Bar */}
+      <StatusBar />
     </section>
   );
 }

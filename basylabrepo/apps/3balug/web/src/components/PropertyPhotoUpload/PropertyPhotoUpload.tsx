@@ -181,20 +181,14 @@ export function PropertyPhotoUpload({
 			</span>
 
 			{canUploadMore && (
-				<div
+				<button
+					type="button"
 					className={dropZoneClasses}
 					onDragOver={handleDragOver}
 					onDragLeave={handleDragLeave}
 					onDrop={handleDrop}
 					onClick={handleClick}
-					onKeyDown={(e) => {
-						if (e.key === 'Enter' || e.key === ' ') {
-							e.preventDefault()
-							handleClick()
-						}
-					}}
-					role="button"
-					tabIndex={disabled || !canUploadMore ? -1 : 0}
+					disabled={disabled || !canUploadMore || isUploading}
 				>
 					<input
 						ref={inputRef}
@@ -218,7 +212,7 @@ export function PropertyPhotoUpload({
 							<span className={styles.dropHint}>JPG, PNG, WebP ou GIF - Max 10MB por foto</span>
 						</>
 					)}
-				</div>
+				</button>
 			)}
 
 			{error && <p className={styles.errorMessage}>{error}</p>}

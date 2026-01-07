@@ -137,8 +137,11 @@ export function ContractsPage() {
 			<div className={styles.filtersCard}>
 				<div className={styles.filterRow}>
 					<div className={styles.filterItem}>
-						<label className={styles.filterLabel}>Status</label>
+						<label className={styles.filterLabel} htmlFor="status-filter">
+							Status
+						</label>
 						<Select
+							id="status-filter"
 							value={statusFilter}
 							onChange={(e) => {
 								updateSearchParams({ status: e.target.value, page: '1' })

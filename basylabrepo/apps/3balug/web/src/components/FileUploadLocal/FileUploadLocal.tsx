@@ -269,20 +269,14 @@ export function FileUploadLocal({
 			)}
 
 			{canUploadMore && (
-				<div
+				<button
+					type="button"
 					className={dropZoneClasses}
 					onDragOver={handleDragOver}
 					onDragLeave={handleDragLeave}
 					onDrop={handleDrop}
 					onClick={handleClick}
-					onKeyDown={(e) => {
-						if (e.key === 'Enter' || e.key === ' ') {
-							e.preventDefault()
-							handleClick()
-						}
-					}}
-					role="button"
-					tabIndex={disabled || !canUploadMore ? -1 : 0}
+					disabled={disabled || !canUploadMore}
 				>
 					<input
 						ref={inputRef}
@@ -322,7 +316,7 @@ export function FileUploadLocal({
 							{allowedTypes.map((t) => FILE_TYPE_LABELS[t] || t).join(', ')}
 						</span>
 					)}
-				</div>
+				</button>
 			)}
 
 			{displayError && <p className={styles.errorMessage}>{displayError}</p>}

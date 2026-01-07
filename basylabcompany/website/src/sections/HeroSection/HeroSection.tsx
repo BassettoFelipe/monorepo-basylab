@@ -215,12 +215,12 @@ function TypewriterCode() {
       <div className={styles.terminalBody}>
         <div className={styles.lineNumbers}>
           {displayedLines.map((_, i) => (
-            <span key={codeLines[i]?.id ?? `num-${i}`}>{i + 1}</span>
+            <span key={codeLines[i]?.id ?? `num-extra-${i}`}>{i + 1}</span>
           ))}
         </div>
         <pre className={styles.code}>
           {displayedLines.map((line, i) => {
-            const lineId = codeLines[i]?.id ?? `line-${i}`;
+            const lineId = codeLines[i]?.id ?? `displayed-line-${i}`;
             return (
               <div key={lineId} className={styles.codeLine}>
                 <span>{getHighlightedText(line, lineId)}</span>

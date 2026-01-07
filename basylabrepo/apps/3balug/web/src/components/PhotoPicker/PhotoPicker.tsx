@@ -172,20 +172,14 @@ export function PhotoPicker({
 			</span>
 
 			{canUploadMore && (
-				<div
+				<button
+					type="button"
 					className={dropZoneClasses}
 					onDragOver={handleDragOver}
 					onDragLeave={handleDragLeave}
 					onDrop={handleDrop}
 					onClick={handleClick}
-					onKeyDown={(e) => {
-						if (e.key === 'Enter' || e.key === ' ') {
-							e.preventDefault()
-							handleClick()
-						}
-					}}
-					role="button"
-					tabIndex={disabled || !canUploadMore ? -1 : 0}
+					disabled={disabled || !canUploadMore}
 				>
 					<input
 						ref={inputRef}
@@ -200,7 +194,7 @@ export function PhotoPicker({
 					<ImagePlus size={32} className={styles.icon} />
 					<span className={styles.dropText}>Arraste fotos aqui ou clique para selecionar</span>
 					<span className={styles.dropHint}>JPG, PNG, WebP ou GIF - Max 10MB por foto</span>
-				</div>
+				</button>
 			)}
 
 			{error && <p className={styles.errorMessage}>{error}</p>}

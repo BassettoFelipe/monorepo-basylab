@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+:root {
+  /* Cores da marca Basylab */
+  --basylab-red: #e7343a;
+  --basylab-dark: #111111;
+  --basylab-light: #e7e6e6;
+
+  --background: #ffffff;
+  --foreground: #111111;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-basylab-red: var(--basylab-red);
+  --color-basylab-dark: var(--basylab-dark);
+  --color-basylab-light: var(--basylab-light);
+  --font-sans: var(--font-inter);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #e7e6e6;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+}

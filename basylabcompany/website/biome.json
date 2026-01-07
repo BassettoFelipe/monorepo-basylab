@@ -7,7 +7,14 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.json", "**/*.css"]
+    "includes": [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx",
+      "**/*.json",
+      "**/*.css"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -49,6 +56,9 @@
         "noConsole": "warn",
         "noExplicitAny": "warn",
         "noImplicitAnyLet": "error"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "warn"
       },
       "a11y": {
         "useButtonType": "error",

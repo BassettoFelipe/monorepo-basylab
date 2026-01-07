@@ -20,6 +20,7 @@ function ArrowIcon() {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={styles.icon}
+      aria-hidden="true"
     >
       <path
         d="M3.33337 8H12.6667M12.6667 8L8.00004 3.33333M12.6667 8L8.00004 12.6667"
@@ -41,6 +42,7 @@ function EyeIcon() {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={styles.icon}
+      aria-hidden="true"
     >
       <path
         d="M1.33337 8C1.33337 8 3.33337 3.33333 8.00004 3.33333C12.6667 3.33333 14.6667 8 14.6667 8C14.6667 8 12.6667 12.6667 8.00004 12.6667C3.33337 12.6667 1.33337 8 1.33337 8Z"

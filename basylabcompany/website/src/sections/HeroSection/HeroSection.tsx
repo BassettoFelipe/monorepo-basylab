@@ -1,10 +1,43 @@
 "use client";
 
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import Image from "next/image";
 import { GlowButton } from "@/components/GlowButton/GlowButton";
 import styles from "./HeroSection.module.css";
+
+// Hook to detect mobile/tablet devices
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  return isMobile;
+}
+
+// Hook to detect reduced motion preference
+function usePrefersReducedMotion() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mediaQuery.matches);
+
+    const handler = (e: MediaQueryListEvent) =>
+      setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
+
+  return prefersReducedMotion;
+}
 
 const codeLines = [
   { text: "// Sua ideia começa aqui", delay: 0 },
@@ -196,7 +229,7 @@ function FloatingParticles() {
             }}
             transition={{
               duration: 14 + Math.random() * 6,
-              repeat: Infinity,
+              repeat: Number.POSITIVE_INFINITY,
               delay: i * 1.5 + Math.random() * 2,
               ease: "linear",
             }}
@@ -243,7 +276,7 @@ function StatusBar() {
       setStatusIndex((prev) => (prev + 1) % statusMessages.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, [statusMessages.length]);
+  }, []);
 
   return (
     <motion.div
@@ -254,7 +287,13 @@ function StatusBar() {
     >
       <div className={styles.statusContent}>
         <span className={styles.statusBranch}>
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            aria-hidden="true"
+          >
             <path d="M9.5 3.25a2.25 2.25 0 1 1 3 2.122V6A2.5 2.5 0 0 1 10 8.5H6a1 1 0 0 0-1 1v1.128a2.251 2.251 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.5 0v1.836A2.5 2.5 0 0 1 6 7h4a1 1 0 0 0 1-1v-.628A2.25 2.25 0 0 1 9.5 3.25Zm-6 0a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Zm8.25-.75a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM4.25 12a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z" />
           </svg>
           main
@@ -283,7 +322,7 @@ function StatusBar() {
       <motion.div
         className={styles.statusPulse}
         animate={{ opacity: [0.5, 1, 0.5] }}
-        transition={{ duration: 2, repeat: Infinity }}
+        transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
       />
     </motion.div>
   );
@@ -316,9 +355,14 @@ function GlitchText({ children }: { children: string }) {
 
 export function HeroSection() {
   const containerRef = useRef<HTMLElement>(null);
+  const isMobile = useIsMobile();
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const shouldAnimate = !isMobile && !prefersReducedMotion;
+
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
+  // Only use springs on desktop for performance
   const smoothMouseX = useSpring(mouseX, { stiffness: 50, damping: 20 });
   const smoothMouseY = useSpring(mouseY, { stiffness: 50, damping: 20 });
 
@@ -326,6 +370,9 @@ export function HeroSection() {
   const gridRotateY = useTransform(smoothMouseX, [-500, 500], [-5, 5]);
 
   useEffect(() => {
+    // Skip mouse tracking on mobile
+    if (isMobile) return;
+
     const handleMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
       const { innerWidth, innerHeight } = window;
@@ -335,7 +382,42 @@ export function HeroSection() {
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
+  }, [mouseX, mouseY, isMobile]);
+
+  // Memoize orb animations - full animation on desktop, light animation on mobile
+  const orbPrimaryAnimation = useMemo(
+    () =>
+      prefersReducedMotion
+        ? {}
+        : shouldAnimate
+          ? {
+              scale: [1, 1.2, 1],
+              x: [0, 30, -20, 0],
+              y: [0, -20, 30, 0],
+            }
+          : {
+              // Light animation for mobile - just subtle opacity pulse
+              opacity: [1, 0.7, 1],
+            },
+    [shouldAnimate, prefersReducedMotion],
+  );
+
+  const orbSecondaryAnimation = useMemo(
+    () =>
+      prefersReducedMotion
+        ? {}
+        : shouldAnimate
+          ? {
+              scale: [1, 1.3, 1],
+              x: [0, -40, 20, 0],
+              y: [0, 40, -30, 0],
+            }
+          : {
+              // Light animation for mobile - just subtle opacity pulse
+              opacity: [1, 0.6, 1],
+            },
+    [shouldAnimate, prefersReducedMotion],
+  );
 
   return (
     <section ref={containerRef} className={styles.section}>
@@ -345,40 +427,45 @@ export function HeroSection() {
 
         <motion.div
           className={styles.grid3d}
-          style={{
-            rotateX: gridRotateX,
-            rotateY: gridRotateY,
-          }}
+          style={
+            shouldAnimate
+              ? {
+                  rotateX: gridRotateX,
+                  rotateY: gridRotateY,
+                }
+              : undefined
+          }
         />
 
-        <FloatingParticles />
+        {/* Only render particles on desktop */}
+        {!isMobile && <FloatingParticles />}
 
-        {/* Gradient orbs */}
+        {/* Gradient orbs - full animation on desktop, light pulse on mobile */}
         <motion.div
           className={styles.orbPrimary}
-          animate={{
-            scale: [1, 1.2, 1],
-            x: [0, 30, -20, 0],
-            y: [0, -20, 30, 0],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
+          animate={orbPrimaryAnimation}
+          transition={
+            prefersReducedMotion
+              ? undefined
+              : {
+                  duration: shouldAnimate ? 10 : 6,
+                  repeat: Number.POSITIVE_INFINITY,
+                  ease: "easeInOut",
+                }
+          }
         />
         <motion.div
           className={styles.orbSecondary}
-          animate={{
-            scale: [1, 1.3, 1],
-            x: [0, -40, 20, 0],
-            y: [0, 40, -30, 0],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
+          animate={orbSecondaryAnimation}
+          transition={
+            prefersReducedMotion
+              ? undefined
+              : {
+                  duration: shouldAnimate ? 12 : 8,
+                  repeat: Number.POSITIVE_INFINITY,
+                  ease: "easeInOut",
+                }
+          }
         />
 
         <div className={styles.scanlines} />

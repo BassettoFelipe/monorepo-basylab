@@ -445,11 +445,11 @@ export function MyProfilePage() {
 					}
 
 					return (
-						<div key={field.id} className={styles.customFieldWrapper}>
-							<label className={styles.customFieldLabel}>
+						<div key={field.id} className={styles.customFieldWrapper} role="group" aria-labelledby={`field-label-${field.id}`}>
+							<span id={`field-label-${field.id}`} className={styles.customFieldLabel}>
 								{field.label}
 								{field.isRequired && ' *'}
-							</label>
+							</span>
 							<div className={styles.checkboxGroupOptions}>
 								{(field.options || []).map((opt) => (
 									<label key={opt} className={styles.checkboxWrapper}>

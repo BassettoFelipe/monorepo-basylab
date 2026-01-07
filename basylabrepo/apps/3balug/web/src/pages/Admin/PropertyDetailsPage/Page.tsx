@@ -226,6 +226,14 @@ export function PropertyDetailsPage() {
 															index === selectedPhotoIndex ? styles.thumbnailActive : ''
 														}`}
 														onClick={() => setSelectedPhotoIndex(index)}
+														onKeyDown={(e) => {
+															if (e.key === 'Enter' || e.key === ' ') {
+																e.preventDefault()
+																setSelectedPhotoIndex(index)
+															}
+														}}
+														tabIndex={0}
+														role="button"
 													/>
 												))}
 											</div>

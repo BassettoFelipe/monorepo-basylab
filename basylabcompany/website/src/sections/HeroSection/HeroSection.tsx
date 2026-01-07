@@ -52,15 +52,72 @@ const codeLines = [
   { id: "line-10", text: "// Resultado: software que funciona", delay: 900 },
 ];
 
+// Pre-calculated values to avoid hydration mismatch from Math.random()
 const floatingChars = [
-  { id: "char-1", char: "</>" },
-  { id: "char-2", char: "{}" },
-  { id: "char-3", char: "=>" },
-  { id: "char-4", char: "()" },
-  { id: "char-5", char: "&&" },
-  { id: "char-6", char: "[]" },
-  { id: "char-7", char: "//" },
-  { id: "char-8", char: "**" },
+  {
+    id: "char-1",
+    char: "</>",
+    left: 4.2,
+    duration: 16,
+    delay: 0.3,
+    rotate: 180,
+  },
+  {
+    id: "char-2",
+    char: "{}",
+    left: 18.5,
+    duration: 18,
+    delay: 1.8,
+    rotate: -180,
+  },
+  {
+    id: "char-3",
+    char: "=>",
+    left: 29.8,
+    duration: 15,
+    delay: 3.5,
+    rotate: 180,
+  },
+  {
+    id: "char-4",
+    char: "()",
+    left: 42.1,
+    duration: 17,
+    delay: 5.1,
+    rotate: -180,
+  },
+  {
+    id: "char-5",
+    char: "&&",
+    left: 55.7,
+    duration: 19,
+    delay: 6.8,
+    rotate: 180,
+  },
+  {
+    id: "char-6",
+    char: "[]",
+    left: 67.3,
+    duration: 14,
+    delay: 8.2,
+    rotate: -180,
+  },
+  {
+    id: "char-7",
+    char: "//",
+    left: 80.9,
+    duration: 16,
+    delay: 10.1,
+    rotate: 180,
+  },
+  {
+    id: "char-8",
+    char: "**",
+    left: 93.2,
+    duration: 18,
+    delay: 11.5,
+    rotate: -180,
+  },
 ];
 
 function TypewriterCode() {
@@ -241,27 +298,9 @@ function TypewriterCode() {
 }
 
 function FloatingParticles() {
-  // Pre-calculate random values to avoid recalculation on re-renders
-  const particleConfigs = useMemo(
-    () =>
-      floatingChars.map((item, i) => {
-        const sectionWidth = 100 / floatingChars.length;
-        const baseLeft = sectionWidth * i + sectionWidth * 0.2;
-        const randomOffset = sectionWidth * 0.6 * Math.random();
-        return {
-          ...item,
-          left: baseLeft + randomOffset,
-          duration: 14 + Math.random() * 6,
-          delay: i * 1.5 + Math.random() * 2,
-          rotateDirection: Math.random() > 0.5 ? 180 : -180,
-        };
-      }),
-    [],
-  );
-
   return (
     <div className={styles.particles}>
-      {particleConfigs.map((config) => (
+      {floatingChars.map((config) => (
         <motion.span
           key={config.id}
           className={styles.particle}
@@ -272,7 +311,7 @@ function FloatingParticles() {
           animate={{
             y: ["105%", "35%"],
             opacity: [0, 0.5, 0.5, 0],
-            rotate: [0, config.rotateDirection],
+            rotate: [0, config.rotate],
           }}
           transition={{
             duration: config.duration,

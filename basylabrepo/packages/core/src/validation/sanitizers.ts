@@ -44,7 +44,6 @@ export const Sanitizers = {
 	 * @returns Slug-formatted string
 	 */
 	toSlug(value: string): string {
-		// biome-ignore lint/suspicious/noMisleadingCharacterClass: Unicode range for diacritical marks is intentional
 		const diacriticsRegex = /[\u0300-\u036f]/g
 		return value
 			.toLowerCase()

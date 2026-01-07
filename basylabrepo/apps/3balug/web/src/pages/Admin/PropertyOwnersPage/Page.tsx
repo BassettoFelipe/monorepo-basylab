@@ -129,8 +129,11 @@ export function PropertyOwnersPage() {
 			<div className={styles.filtersCard}>
 				<div className={styles.filterRow}>
 					<div className={styles.filterItem}>
-						<label className={styles.filterLabel}>Buscar</label>
+						<label className={styles.filterLabel} htmlFor="search-filter">
+							Buscar
+						</label>
 						<Input
+							id="search-filter"
 							value={search}
 							onChange={(e) => {
 								updateSearchParams({ search: e.target.value, page: '1' })

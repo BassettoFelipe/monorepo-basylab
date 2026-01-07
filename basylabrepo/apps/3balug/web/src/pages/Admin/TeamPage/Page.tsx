@@ -294,8 +294,11 @@ export function TeamPage() {
 					<div className={styles.filtersCard}>
 						<div className={styles.filterRow}>
 							<div className={styles.filterItem}>
-								<label className={styles.filterLabel}>Filtrar por função</label>
+								<label className={styles.filterLabel} htmlFor="role-filter">
+									Filtrar por função
+								</label>
 								<Select
+									id="role-filter"
 									value={roleFilter}
 									onChange={(e) => {
 										updateSearchParams({ role: e.target.value, page: '1' })
@@ -313,8 +316,11 @@ export function TeamPage() {
 							</div>
 
 							<div className={styles.filterItem}>
-								<label className={styles.filterLabel}>Filtrar por status</label>
+								<label className={styles.filterLabel} htmlFor="status-filter">
+									Filtrar por status
+								</label>
 								<Select
+									id="status-filter"
 									value={statusFilter}
 									onChange={(e) => {
 										updateSearchParams({ status: e.target.value, page: '1' })

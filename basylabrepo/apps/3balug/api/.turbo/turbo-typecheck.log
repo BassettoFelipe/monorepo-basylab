@@ -1,42 +1,266 @@
-$ tsc --noEmit
-src/repositories/providers/drizzle/document.repository.ts(6,2): error TS2305: Module '"@/repositories/contracts/document.repository"' has no exported member 'BatchDocumentsInput'.
-src/repositories/providers/drizzle/document.repository.ts(7,2): error TS2305: Module '"@/repositories/contracts/document.repository"' has no exported member 'BatchDocumentsResult'.
-src/repositories/providers/drizzle/lgpd-access-log.repository.ts(3,55): error TS2307: Cannot find module '@/db/schema/lgpd-access-logs' or its corresponding type declarations.
-src/repositories/providers/drizzle/lgpd-access-log.repository.ts(4,43): error TS2307: Cannot find module '@/repositories/contracts/lgpd.repository' or its corresponding type declarations.
-src/repositories/providers/drizzle/lgpd-consent.repository.ts(3,67): error TS2307: Cannot find module '@/db/schema/lgpd-consents' or its corresponding type declarations.
-src/repositories/providers/drizzle/lgpd-consent.repository.ts(4,41): error TS2307: Cannot find module '@/repositories/contracts/lgpd.repository' or its corresponding type declarations.
-src/repositories/providers/drizzle/property-audit.repository.ts(3,54): error TS2307: Cannot find module '@/db/schema/property-audits' or its corresponding type declarations.
-src/repositories/providers/drizzle/property-audit.repository.ts(4,32): error TS2307: Cannot find module '@/db/schema/property-audits' or its corresponding type declarations.
-src/repositories/providers/drizzle/property-audit.repository.ts(9,8): error TS2307: Cannot find module '@/repositories/contracts/property-audit.repository' or its corresponding type declarations.
-src/repositories/providers/drizzle/property-owner-history.repository.ts(6,8): error TS2307: Cannot find module '@/db/schema/property-owner-history' or its corresponding type declarations.
-src/repositories/providers/drizzle/property-owner-history.repository.ts(7,38): error TS2307: Cannot find module '@/db/schema/property-owner-history' or its corresponding type declarations.
-src/repositories/providers/drizzle/property-owner-history.repository.ts(12,8): error TS2307: Cannot find module '@/repositories/contracts/property-owner-history.repository' or its corresponding type declarations.
-src/repositories/providers/drizzle/property-owner.repository.ts(10,2): error TS2305: Module '"@/repositories/contracts/property-owner.repository"' has no exported member 'PropertyOwnerWithPropertiesCount'.
-src/repositories/providers/drizzle/property-owner.repository.ts(40,24): error TS2339: Property 'rg' does not exist on type 'PgTableWithColumns<{ name: "property_owners"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "property_owners"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<...>;...'.
-src/repositories/providers/drizzle/property-owner.repository.ts(41,30): error TS2339: Property 'photoUrl' does not exist on type 'PgTableWithColumns<{ name: "property_owners"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "property_owners"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<...>;...'.
-src/repositories/providers/drizzle/property-owner.repository.ts(95,4): error TS2339: Property 'documentType' does not exist on type 'PropertyOwnerFilters'.
-src/repositories/providers/drizzle/property-owner.repository.ts(96,4): error TS2339: Property 'state' does not exist on type 'PropertyOwnerFilters'.
-src/repositories/providers/drizzle/property-owner.repository.ts(97,4): error TS2339: Property 'hasProperties' does not exist on type 'PropertyOwnerFilters'.
-src/repositories/providers/drizzle/property-owner.repository.ts(149,25): error TS2339: Property 'rg' does not exist on type 'PgTableWithColumns<{ name: "property_owners"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "property_owners"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<...>;...'.
-src/repositories/providers/drizzle/property-owner.repository.ts(150,31): error TS2339: Property 'photoUrl' does not exist on type 'PgTableWithColumns<{ name: "property_owners"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "property_owners"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<...>;...'.
-src/repositories/providers/drizzle/property-owner.repository.ts(219,24): error TS2339: Property 'rg' does not exist on type 'PgTableWithColumns<{ name: "property_owners"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "property_owners"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<...>;...'.
-src/repositories/providers/drizzle/property-owner.repository.ts(220,30): error TS2339: Property 'photoUrl' does not exist on type 'PgTableWithColumns<{ name: "property_owners"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "property_owners"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; ... 7 more ...; generated: undefined; }, {}, {}>; ... 14 more ...; updatedAt: PgColumn<...>;...'.
-src/repositories/providers/drizzle/property-share.repository.ts(7,8): error TS2307: Cannot find module '@/db/schema/property-shares' or its corresponding type declarations.
-src/repositories/providers/drizzle/property-share.repository.ts(8,55): error TS2307: Cannot find module '@/db/schema/property-shares' or its corresponding type declarations.
-src/repositories/providers/drizzle/property-share.repository.ts(9,47): error TS2307: Cannot find module '@/repositories/contracts/property-share.repository' or its corresponding type declarations.
-src/repositories/providers/drizzle/property.repository.ts(20,56): error TS2339: Property 'deletedAt' does not exist on type 'PgTableWithColumns<{ name: "properties"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "properties"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 24 more ...; updatedAt: PgColu...'.
-src/repositories/providers/drizzle/property.repository.ts(30,62): error TS2339: Property 'deletedAt' does not exist on type 'PgTableWithColumns<{ name: "properties"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "properties"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 24 more ...; updatedAt: PgColu...'.
-src/repositories/providers/drizzle/property.repository.ts(37,70): error TS2339: Property 'deletedAt' does not exist on type 'PgTableWithColumns<{ name: "properties"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "properties"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 24 more ...; updatedAt: PgColu...'.
-src/repositories/providers/drizzle/property.repository.ts(44,66): error TS2339: Property 'deletedAt' does not exist on type 'PgTableWithColumns<{ name: "properties"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "properties"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 24 more ...; updatedAt: PgColu...'.
-src/repositories/providers/drizzle/property.repository.ts(51,68): error TS2339: Property 'deletedAt' does not exist on type 'PgTableWithColumns<{ name: "properties"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "properties"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 24 more ...; updatedAt: PgColu...'.
-src/repositories/providers/drizzle/property.repository.ts(61,20): error TS2339: Property 'code' does not exist on type 'PgTableWithColumns<{ name: "properties"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "properties"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 24 more ...; updatedAt: PgColu...'.
-src/repositories/providers/drizzle/property.repository.ts(62,24): error TS2339: Property 'deletedAt' does not exist on type 'PgTableWithColumns<{ name: "properties"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "properties"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 24 more ...; updatedAt: PgColu...'.
-src/repositories/providers/drizzle/property.repository.ts(89,78): error TS2339: Property 'deletedAt' does not exist on type 'PgTableWithColumns<{ name: "properties"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "properties"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 24 more ...; updatedAt: PgColu...'.
-src/repositories/providers/drizzle/property.repository.ts(203,5): error TS2353: Object literal may only specify known properties, and 'deletedAt' does not exist in type '{ ownerId?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; companyId?: string | SQL<...> | PgColumn<...> | undefined; ... 23 more ...; features?: SQL<...> | ... 3 more ... | undefined; }'.
-src/repositories/providers/drizzle/property.repository.ts(207,56): error TS2339: Property 'deletedAt' does not exist on type 'PgTableWithColumns<{ name: "properties"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "properties"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 24 more ...; updatedAt: PgColu...'.
-src/repositories/providers/drizzle/property.repository.ts(216,5): error TS2353: Object literal may only specify known properties, and 'deletedAt' does not exist in type '{ ownerId?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; companyId?: string | SQL<...> | PgColumn<...> | undefined; ... 23 more ...; features?: SQL<...> | ... 3 more ... | undefined; }'.
-src/repositories/providers/drizzle/property.repository.ts(229,70): error TS2339: Property 'deletedAt' does not exist on type 'PgTableWithColumns<{ name: "properties"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "properties"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 24 more ...; updatedAt: PgColu...'.
-src/repositories/providers/drizzle/property.repository.ts(237,66): error TS2339: Property 'deletedAt' does not exist on type 'PgTableWithColumns<{ name: "properties"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "properties"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 24 more ...; updatedAt: PgColu...'.
-src/repositories/providers/drizzle/property.repository.ts(248,70): error TS2339: Property 'deletedAt' does not exist on type 'PgTableWithColumns<{ name: "properties"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "properties"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 24 more ...; updatedAt: PgColu...'.
-src/repositories/providers/drizzle/property.repository.ts(291,24): error TS2339: Property 'deletedAt' does not exist on type 'PgTableWithColumns<{ name: "properties"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "properties"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 24 more ...; updatedAt: PgColu...'.
-src/repositories/providers/drizzle/property.repository.ts(327,31): error TS2339: Property 'code' does not exist on type 'PgTableWithColumns<{ name: "properties"; schema: undefined; columns: { id: PgColumn<{ name: "id"; tableName: "properties"; dataType: "string"; columnType: "PgUUID"; data: string; driverParam: string; notNull: true; hasDefault: true; ... 6 more ...; generated: undefined; }, {}, {}>; ... 24 more ...; updatedAt: PgColu...'.
+
+[0m[2m[35m$[0m [2m[1mtsc --noEmit[0m
+[96msrc/repositories/providers/drizzle/property.repository.ts[0m:[93m204[0m:[93m5[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'deletedBy' does not exist in type '{ ownerId?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; companyId?: string | SQL<...> | PgColumn<...> | undefined; ... 25 more ...; deletedAt?: Date | ... 3 more ... | undefined; }'.
+
+[7m204[0m     deletedBy,
+[7m   [0m [91m    ~~~~~~~~~[0m
+
+[96msrc/repositories/providers/drizzle/property.repository.ts[0m:[93m217[0m:[93m5[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'deletedBy' does not exist in type '{ ownerId?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; companyId?: string | SQL<...> | PgColumn<...> | undefined; ... 25 more ...; deletedAt?: Date | ... 3 more ... | undefined; }'.
+
+[7m217[0m     deletedBy: null,
+[7m   [0m [91m    ~~~~~~~~~[0m
+
+[96msrc/test/mock-repository.ts[0m:[93m948[0m:[93m14[0m - [91merror[0m[90m TS2420: [0mClass 'InMemoryPropertyOwnerRepository' incorrectly implements interface 'IPropertyOwnerRepository'.
+  Property 'findByIdWithDetails' is missing in type 'InMemoryPropertyOwnerRepository' but required in type 'IPropertyOwnerRepository'.
+
+[7m948[0m export class InMemoryPropertyOwnerRepository implements IPropertyOwnerRepository {
+[7m   [0m [91m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/repositories/contracts/property-owner.repository.ts[0m:[93m27[0m:[93m2[0m
+    [7m27[0m  findByIdWithDetails(id: string): Promise<PropertyOwnerWithPropertiesCount | null>
+    [7m  [0m [96m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    'findByIdWithDetails' is declared here.
+
+[96msrc/test/mock-repository.ts[0m:[93m1005[0m:[93m4[0m - [91merror[0m[90m TS2322: [0mType '{ id: string; name: string; email: string | null; phone: string | null; address: string | null; city: string | null; state: string | null; zipCode: string | null; createdAt: Date; ... 8 more ...; notes: string | null; }[]' is not assignable to type 'PropertyOwnerWithPropertiesCount[]'.
+  Type '{ id: string; name: string; email: string | null; phone: string | null; address: string | null; city: string | null; state: string | null; zipCode: string | null; createdAt: Date; ... 8 more ...; notes: string | null; }' is not assignable to type 'PropertyOwnerWithPropertiesCount'.
+    Property 'propertiesCount' is missing in type '{ id: string; name: string; email: string | null; phone: string | null; address: string | null; city: string | null; state: string | null; zipCode: string | null; createdAt: Date; ... 8 more ...; notes: string | null; }' but required in type '{ propertiesCount: number; }'.
+
+[7m1005[0m    data: result.slice(offset, offset + limit),
+[7m    [0m [91m   ~~~~[0m
+
+  [96msrc/repositories/contracts/property-owner.repository.ts[0m:[93m15[0m:[93m2[0m
+    [7m15[0m  propertiesCount: number
+    [7m  [0m [96m ~~~~~~~~~~~~~~~[0m
+    'propertiesCount' is declared here.
+  [96msrc/repositories/contracts/property-owner.repository.ts[0m:[93m19[0m:[93m2[0m
+    [7m19[0m  data: PropertyOwnerWithPropertiesCount[]
+    [7m  [0m [96m ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type 'PropertyOwnerListResult'
+
+[96msrc/test/mock-repository.ts[0m:[93m1013[0m:[93m9[0m - [91merror[0m[90m TS2739: [0mType '{ id: string; companyId: string; name: string; document: string; documentType: string; email: string | null; phone: string | null; address: string | null; city: string | null; state: string | null; ... 5 more ...; updatedAt: Date; }' is missing the following properties from type '{ id: string; name: string; email: string | null; phone: string | null; address: string | null; city: string | null; state: string | null; zipCode: string | null; createdAt: Date; ... 8 more ...; notes: string | null; }': rg, photoUrl
+
+[7m1013[0m   const owner: PropertyOwner = {
+[7m    [0m [91m        ~~~~~[0m
+
+[96msrc/test/mock-repository.ts[0m:[93m1304[0m:[93m9[0m - [91merror[0m[90m TS2739: [0mType '{ id: string; companyId: string; ownerId: string; brokerId: string | null; title: string; description: string | null; type: string; listingType: string; status: string; address: string | null; ... 15 more ...; updatedAt: Date; }' is missing the following properties from type '{ id: string; ownerId: string; address: string | null; city: string | null; state: string | null; zipCode: string | null; createdAt: Date; updatedAt: Date; companyId: string; ... 18 more ...; deletedAt: Date | null; }': code, deletedAt
+
+[7m1304[0m   const property: Property = {
+[7m    [0m [91m        ~~~~~~~~[0m
+
+[96msrc/test/mock-repository.ts[0m:[93m1844[0m:[93m14[0m - [91merror[0m[90m TS2420: [0mClass 'InMemoryDocumentRepository' incorrectly implements interface 'IDocumentRepository'.
+  Type 'InMemoryDocumentRepository' is missing the following properties from type 'IDocumentRepository': findByIds, findByEntityTypeAndIds, createMany, deleteMany, and 2 more.
+
+[7m1844[0m export class InMemoryDocumentRepository implements IDocumentRepository {
+[7m    [0m [91m             ~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/test/setup.ts[0m:[93m107[0m:[93m2[0m - [91merror[0m[90m TS2741: [0mProperty 'findByIdWithDetails' is missing in type 'InMemoryPropertyOwnerRepository' but required in type 'IPropertyOwnerRepository'.
+
+[7m107[0m  return propertyOwnerRepository
+[7m   [0m [91m ~~~~~~[0m
+
+  [96msrc/repositories/contracts/property-owner.repository.ts[0m:[93m27[0m:[93m2[0m
+    [7m27[0m  findByIdWithDetails(id: string): Promise<PropertyOwnerWithPropertiesCount | null>
+    [7m  [0m [96m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    'findByIdWithDetails' is declared here.
+
+[96msrc/test/setup.ts[0m:[93m156[0m:[93m2[0m - [91merror[0m[90m TS2740: [0mType 'InMemoryDocumentRepository' is missing the following properties from type 'IDocumentRepository': findByIds, findByEntityTypeAndIds, createMany, deleteMany, and 2 more.
+
+[7m156[0m  return documentRepository
+[7m   [0m [91m ~~~~~~[0m
+
+[96msrc/test/setup.ts[0m:[93m197[0m:[93m3[0m - [91merror[0m[90m TS2352: [0mConversion of type 'IPropertyOwnerRepository' to type 'InMemoryPropertyOwnerRepository' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'IPropertyOwnerRepository' is missing the following properties from type 'InMemoryPropertyOwnerRepository': owners, clear
+
+[7m197[0m   getPropertyOwnerRepository() as InMemoryPropertyOwnerRepository
+[7m   [0m [91m  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/test/setup.ts[0m:[93m206[0m:[93m33[0m - [91merror[0m[90m TS2352: [0mConversion of type 'IDocumentRepository' to type 'InMemoryDocumentRepository' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'IDocumentRepository' is missing the following properties from type 'InMemoryDocumentRepository': documents, clear
+
+[7m206[0m  const testDocumentRepository = getDocumentRepository() as InMemoryDocumentRepository
+[7m   [0m [91m                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/test/setup.ts[0m:[93m222[0m:[93m3[0m - [91merror[0m[90m TS2741: [0mProperty 'findByIdWithDetails' is missing in type 'InMemoryPropertyOwnerRepository' but required in type 'IPropertyOwnerRepository'.
+
+[7m222[0m   propertyOwnerRepository: testPropertyOwnerRepository,
+[7m   [0m [91m  ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/repositories/contracts/property-owner.repository.ts[0m:[93m27[0m:[93m2[0m
+    [7m27[0m  findByIdWithDetails(id: string): Promise<PropertyOwnerWithPropertiesCount | null>
+    [7m  [0m [96m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    'findByIdWithDetails' is declared here.
+  [96msrc/container/index.ts[0m:[93m115[0m:[93m2[0m
+    [7m115[0m  propertyOwnerRepository?: IPropertyOwnerRepository
+    [7m   [0m [96m ~~~~~~~~~~~~~~~~~~~~~~~[0m
+    The expected type comes from property 'propertyOwnerRepository' which is declared here on type '{ userRepository?: IUserRepository | undefined; companyRepository?: ICompanyRepository | undefined; planRepository?: IPlanRepository | undefined; ... 11 more ...; userCacheService?: IUserCacheService | undefined; }'
+
+[96msrc/test/setup.ts[0m:[93m229[0m:[93m3[0m - [91merror[0m[90m TS2740: [0mType 'InMemoryDocumentRepository' is missing the following properties from type 'IDocumentRepository': findByIds, findByEntityTypeAndIds, createMany, deleteMany, and 2 more.
+
+[7m229[0m   documentRepository: testDocumentRepository,
+[7m   [0m [91m  ~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/container/index.ts[0m:[93m120[0m:[93m2[0m
+    [7m120[0m  documentRepository?: IDocumentRepository
+    [7m   [0m [96m ~~~~~~~~~~~~~~~~~~[0m
+    The expected type comes from property 'documentRepository' which is declared here on type '{ userRepository?: IUserRepository | undefined; companyRepository?: ICompanyRepository | undefined; planRepository?: IPlanRepository | undefined; ... 11 more ...; userCacheService?: IUserCacheService | undefined; }'
+
+[96msrc/use-cases/contracts/create-contract/create-contract.use-case.test.ts[0m:[93m61[0m:[93m4[0m - [91merror[0m[90m TS2345: [0mArgument of type 'InMemoryPropertyOwnerRepository' is not assignable to parameter of type 'IPropertyOwnerRepository'.
+  Property 'findByIdWithDetails' is missing in type 'InMemoryPropertyOwnerRepository' but required in type 'IPropertyOwnerRepository'.
+
+[7m61[0m    propertyOwnerRepository,
+[7m  [0m [91m   ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/repositories/contracts/property-owner.repository.ts[0m:[93m27[0m:[93m2[0m
+    [7m27[0m  findByIdWithDetails(id: string): Promise<PropertyOwnerWithPropertiesCount | null>
+    [7m  [0m [96m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    'findByIdWithDetails' is declared here.
+
+[96msrc/use-cases/contracts/get-contract/get-contract.use-case.test.ts[0m:[93m54[0m:[93m4[0m - [91merror[0m[90m TS2345: [0mArgument of type 'InMemoryPropertyOwnerRepository' is not assignable to parameter of type 'IPropertyOwnerRepository'.
+  Property 'findByIdWithDetails' is missing in type 'InMemoryPropertyOwnerRepository' but required in type 'IPropertyOwnerRepository'.
+
+[7m54[0m    propertyOwnerRepository,
+[7m  [0m [91m   ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/repositories/contracts/property-owner.repository.ts[0m:[93m27[0m:[93m2[0m
+    [7m27[0m  findByIdWithDetails(id: string): Promise<PropertyOwnerWithPropertiesCount | null>
+    [7m  [0m [96m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    'findByIdWithDetails' is declared here.
+
+[96msrc/use-cases/dashboard/get-dashboard-stats/get-dashboard-stats.use-case.test.ts[0m:[93m44[0m:[93m4[0m - [91merror[0m[90m TS2345: [0mArgument of type 'InMemoryPropertyOwnerRepository' is not assignable to parameter of type 'IPropertyOwnerRepository'.
+  Property 'findByIdWithDetails' is missing in type 'InMemoryPropertyOwnerRepository' but required in type 'IPropertyOwnerRepository'.
+
+[7m44[0m    propertyOwnerRepository,
+[7m  [0m [91m   ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/repositories/contracts/property-owner.repository.ts[0m:[93m27[0m:[93m2[0m
+    [7m27[0m  findByIdWithDetails(id: string): Promise<PropertyOwnerWithPropertiesCount | null>
+    [7m  [0m [96m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    'findByIdWithDetails' is declared here.
+
+[96msrc/use-cases/documents/add-document/add-document.use-case.test.ts[0m:[93m46[0m:[93m36[0m - [91merror[0m[90m TS2345: [0mArgument of type 'InMemoryDocumentRepository' is not assignable to parameter of type 'IDocumentRepository'.
+  Type 'InMemoryDocumentRepository' is missing the following properties from type 'IDocumentRepository': findByIds, findByEntityTypeAndIds, createMany, deleteMany, and 2 more.
+
+[7m46[0m   useCase = new AddDocumentUseCase(documentRepository, propertyOwnerRepository, tenantRepository)
+[7m  [0m [91m                                   ~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/use-cases/documents/list-documents/list-documents.use-case.test.ts[0m:[93m47[0m:[93m4[0m - [91merror[0m[90m TS2345: [0mArgument of type 'InMemoryDocumentRepository' is not assignable to parameter of type 'IDocumentRepository'.
+  Type 'InMemoryDocumentRepository' is missing the following properties from type 'IDocumentRepository': findByIds, findByEntityTypeAndIds, createMany, deleteMany, and 2 more.
+
+[7m47[0m    documentRepository,
+[7m  [0m [91m   ~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/use-cases/documents/remove-document/remove-document.use-case.test.ts[0m:[93m76[0m:[93m4[0m - [91merror[0m[90m TS2345: [0mArgument of type 'InMemoryDocumentRepository' is not assignable to parameter of type 'IDocumentRepository'.
+  Type 'InMemoryDocumentRepository' is missing the following properties from type 'IDocumentRepository': findByIds, findByEntityTypeAndIds, createMany, deleteMany, and 2 more.
+
+[7m76[0m    documentRepository,
+[7m  [0m [91m   ~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/use-cases/properties/create-property/create-property.use-case.test.ts[0m:[93m42[0m:[93m59[0m - [91merror[0m[90m TS2345: [0mArgument of type 'InMemoryPropertyOwnerRepository' is not assignable to parameter of type 'IPropertyOwnerRepository'.
+  Property 'findByIdWithDetails' is missing in type 'InMemoryPropertyOwnerRepository' but required in type 'IPropertyOwnerRepository'.
+
+[7m42[0m   useCase = new CreatePropertyUseCase(propertyRepository, propertyOwnerRepository)
+[7m  [0m [91m                                                          ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/repositories/contracts/property-owner.repository.ts[0m:[93m27[0m:[93m2[0m
+    [7m27[0m  findByIdWithDetails(id: string): Promise<PropertyOwnerWithPropertiesCount | null>
+    [7m  [0m [96m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    'findByIdWithDetails' is declared here.
+
+[96msrc/use-cases/properties/get-property/get-property.use-case.test.ts[0m:[93m45[0m:[93m4[0m - [91merror[0m[90m TS2345: [0mArgument of type 'InMemoryPropertyOwnerRepository' is not assignable to parameter of type 'IPropertyOwnerRepository'.
+  Property 'findByIdWithDetails' is missing in type 'InMemoryPropertyOwnerRepository' but required in type 'IPropertyOwnerRepository'.
+
+[7m45[0m    propertyOwnerRepository,
+[7m  [0m [91m   ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/repositories/contracts/property-owner.repository.ts[0m:[93m27[0m:[93m2[0m
+    [7m27[0m  findByIdWithDetails(id: string): Promise<PropertyOwnerWithPropertiesCount | null>
+    [7m  [0m [96m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    'findByIdWithDetails' is declared here.
+
+[96msrc/use-cases/properties/update-property/update-property.use-case.test.ts[0m:[93m46[0m:[93m59[0m - [91merror[0m[90m TS2345: [0mArgument of type 'InMemoryPropertyOwnerRepository' is not assignable to parameter of type 'IPropertyOwnerRepository'.
+  Property 'findByIdWithDetails' is missing in type 'InMemoryPropertyOwnerRepository' but required in type 'IPropertyOwnerRepository'.
+
+[7m46[0m   useCase = new UpdatePropertyUseCase(propertyRepository, propertyOwnerRepository)
+[7m  [0m [91m                                                          ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/repositories/contracts/property-owner.repository.ts[0m:[93m27[0m:[93m2[0m
+    [7m27[0m  findByIdWithDetails(id: string): Promise<PropertyOwnerWithPropertiesCount | null>
+    [7m  [0m [96m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    'findByIdWithDetails' is declared here.
+
+[96msrc/use-cases/property-owners/create-property-owner/create-property-owner.use-case.test.ts[0m:[93m37[0m:[93m4[0m - [91merror[0m[90m TS2345: [0mArgument of type 'InMemoryPropertyOwnerRepository' is not assignable to parameter of type 'IPropertyOwnerRepository'.
+  Property 'findByIdWithDetails' is missing in type 'InMemoryPropertyOwnerRepository' but required in type 'IPropertyOwnerRepository'.
+
+[7m37[0m    propertyOwnerRepository,
+[7m  [0m [91m   ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/repositories/contracts/property-owner.repository.ts[0m:[93m27[0m:[93m2[0m
+    [7m27[0m  findByIdWithDetails(id: string): Promise<PropertyOwnerWithPropertiesCount | null>
+    [7m  [0m [96m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    'findByIdWithDetails' is declared here.
+
+[96msrc/use-cases/property-owners/delete-property-owner/delete-property-owner.use-case.test.ts[0m:[93m35[0m:[93m44[0m - [91merror[0m[90m TS2345: [0mArgument of type 'InMemoryPropertyOwnerRepository' is not assignable to parameter of type 'IPropertyOwnerRepository'.
+  Property 'findByIdWithDetails' is missing in type 'InMemoryPropertyOwnerRepository' but required in type 'IPropertyOwnerRepository'.
+
+[7m35[0m   useCase = new DeletePropertyOwnerUseCase(propertyOwnerRepository, propertyRepository)
+[7m  [0m [91m                                           ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/repositories/contracts/property-owner.repository.ts[0m:[93m27[0m:[93m2[0m
+    [7m27[0m  findByIdWithDetails(id: string): Promise<PropertyOwnerWithPropertiesCount | null>
+    [7m  [0m [96m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    'findByIdWithDetails' is declared here.
+
+[96msrc/use-cases/property-owners/get-property-owner/get-property-owner.use-case.test.ts[0m:[93m35[0m:[93m41[0m - [91merror[0m[90m TS2345: [0mArgument of type 'InMemoryPropertyOwnerRepository' is not assignable to parameter of type 'IPropertyOwnerRepository'.
+  Property 'findByIdWithDetails' is missing in type 'InMemoryPropertyOwnerRepository' but required in type 'IPropertyOwnerRepository'.
+
+[7m35[0m   useCase = new GetPropertyOwnerUseCase(propertyOwnerRepository)
+[7m  [0m [91m                                        ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/repositories/contracts/property-owner.repository.ts[0m:[93m27[0m:[93m2[0m
+    [7m27[0m  findByIdWithDetails(id: string): Promise<PropertyOwnerWithPropertiesCount | null>
+    [7m  [0m [96m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    'findByIdWithDetails' is declared here.
+
+[96msrc/use-cases/property-owners/list-property-owners/list-property-owners.use-case.test.ts[0m:[93m35[0m:[93m43[0m - [91merror[0m[90m TS2345: [0mArgument of type 'InMemoryPropertyOwnerRepository' is not assignable to parameter of type 'IPropertyOwnerRepository'.
+  Property 'findByIdWithDetails' is missing in type 'InMemoryPropertyOwnerRepository' but required in type 'IPropertyOwnerRepository'.
+
+[7m35[0m   useCase = new ListPropertyOwnersUseCase(propertyOwnerRepository)
+[7m  [0m [91m                                          ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/repositories/contracts/property-owner.repository.ts[0m:[93m27[0m:[93m2[0m
+    [7m27[0m  findByIdWithDetails(id: string): Promise<PropertyOwnerWithPropertiesCount | null>
+    [7m  [0m [96m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    'findByIdWithDetails' is declared here.
+
+[96msrc/use-cases/property-owners/update-property-owner/update-property-owner.use-case.test.ts[0m:[93m40[0m:[93m4[0m - [91merror[0m[90m TS2345: [0mArgument of type 'InMemoryPropertyOwnerRepository' is not assignable to parameter of type 'IPropertyOwnerRepository'.
+  Property 'findByIdWithDetails' is missing in type 'InMemoryPropertyOwnerRepository' but required in type 'IPropertyOwnerRepository'.
+
+[7m40[0m    propertyOwnerRepository,
+[7m  [0m [91m   ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/repositories/contracts/property-owner.repository.ts[0m:[93m27[0m:[93m2[0m
+    [7m27[0m  findByIdWithDetails(id: string): Promise<PropertyOwnerWithPropertiesCount | null>
+    [7m  [0m [96m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    'findByIdWithDetails' is declared here.
+
+
+Found 27 errors in 17 files.
+
+Errors  Files
+     2  src/repositories/providers/drizzle/property.repository.ts[90m:204[0m
+     5  src/test/mock-repository.ts[90m:948[0m
+     6  src/test/setup.ts[90m:107[0m
+     1  src/use-cases/contracts/create-contract/create-contract.use-case.test.ts[90m:61[0m
+     1  src/use-cases/contracts/get-contract/get-contract.use-case.test.ts[90m:54[0m
+     1  src/use-cases/dashboard/get-dashboard-stats/get-dashboard-stats.use-case.test.ts[90m:44[0m
+     1  src/use-cases/documents/add-document/add-document.use-case.test.ts[90m:46[0m
+     1  src/use-cases/documents/list-documents/list-documents.use-case.test.ts[90m:47[0m
+     1  src/use-cases/documents/remove-document/remove-document.use-case.test.ts[90m:76[0m
+     1  src/use-cases/properties/create-property/create-property.use-case.test.ts[90m:42[0m
+     1  src/use-cases/properties/get-property/get-property.use-case.test.ts[90m:45[0m
+     1  src/use-cases/properties/update-property/update-property.use-case.test.ts[90m:46[0m
+     1  src/use-cases/property-owners/create-property-owner/create-property-owner.use-case.test.ts[90m:37[0m
+     1  src/use-cases/property-owners/delete-property-owner/delete-property-owner.use-case.test.ts[90m:35[0m
+     1  src/use-cases/property-owners/get-property-owner/get-property-owner.use-case.test.ts[90m:35[0m
+     1  src/use-cases/property-owners/list-property-owners/list-property-owners.use-case.test.ts[90m:35[0m
+     1  src/use-cases/property-owners/update-property-owner/update-property-owner.use-case.test.ts[90m:40[0m

@@ -199,8 +199,11 @@ export function PropertiesPage() {
 			<div className={styles.filtersCard}>
 				<div className={styles.filterRow}>
 					<div className={styles.filterItem}>
-						<label className={styles.filterLabel}>Buscar</label>
+						<label className={styles.filterLabel} htmlFor="search-filter">
+							Buscar
+						</label>
 						<Input
+							id="search-filter"
 							value={search}
 							onChange={(e) => {
 								updateSearchParams({ search: e.target.value, page: '1' })
@@ -210,8 +213,11 @@ export function PropertiesPage() {
 						/>
 					</div>
 					<div className={styles.filterItem}>
-						<label className={styles.filterLabel}>Tipo</label>
+						<label className={styles.filterLabel} htmlFor="type-filter">
+							Tipo
+						</label>
 						<Select
+							id="type-filter"
 							value={typeFilter}
 							onChange={(e) => {
 								updateSearchParams({ type: e.target.value, page: '1' })
@@ -221,8 +227,11 @@ export function PropertiesPage() {
 						/>
 					</div>
 					<div className={styles.filterItem}>
-						<label className={styles.filterLabel}>Finalidade</label>
+						<label className={styles.filterLabel} htmlFor="listing-type-filter">
+							Finalidade
+						</label>
 						<Select
+							id="listing-type-filter"
 							value={listingTypeFilter}
 							onChange={(e) => {
 								updateSearchParams({ listingType: e.target.value, page: '1' })
@@ -232,8 +241,11 @@ export function PropertiesPage() {
 						/>
 					</div>
 					<div className={styles.filterItem}>
-						<label className={styles.filterLabel}>Status</label>
+						<label className={styles.filterLabel} htmlFor="status-filter">
+							Status
+						</label>
 						<Select
+							id="status-filter"
 							value={statusFilter}
 							onChange={(e) => {
 								updateSearchParams({ status: e.target.value, page: '1' })

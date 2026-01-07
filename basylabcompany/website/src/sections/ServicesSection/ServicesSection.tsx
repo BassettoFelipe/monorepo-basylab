@@ -2,6 +2,7 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import Image from "next/image";
 import styles from "./ServicesSection.module.css";
 
 export function ServicesSection() {
@@ -11,7 +12,7 @@ export function ServicesSection() {
   return (
     <section ref={sectionRef} className={styles.section}>
       <div className={styles.container}>
-        {/* Grande número decorativo */}
+        {/* Número 3 decorativo */}
         <motion.div
           className={styles.bigNumber}
           initial={{ opacity: 0, x: -50 }}
@@ -19,6 +20,25 @@ export function ServicesSection() {
           transition={{ duration: 0.8 }}
         >
           03
+        </motion.div>
+
+        {/* Logo decorativa */}
+        <motion.div
+          className={styles.bgSymbol}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={
+            isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }
+          }
+          transition={{ duration: 1 }}
+        >
+          <Image
+            src="/images/symbol.svg"
+            alt=""
+            width={200}
+            height={200}
+            className={styles.bgSymbolImage}
+            aria-hidden="true"
+          />
         </motion.div>
 
         {/* Conteúdo central */}

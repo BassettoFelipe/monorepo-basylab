@@ -47,23 +47,31 @@ function StepCard({
   const isEven = index % 2 === 0;
 
   return (
-    <motion.div
-      className={`${styles.stepCard} ${isEven ? styles.stepCardLeft : styles.stepCardRight}`}
-      initial={{ opacity: 0, x: isEven ? -60 : 60 }}
-      animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: isEven ? -60 : 60 }}
-      transition={{ duration: 0.6, delay: index * 0.15 }}
-    >
-      <div className={styles.stepNumber}>{step.number}</div>
-      <div className={styles.stepContent}>
-        <h3 className={styles.stepTitle}>{step.title}</h3>
-        <p className={styles.stepDescription}>{step.description}</p>
-        <span className={styles.stepDetail}>{step.detail}</span>
-      </div>
-    </motion.div>
+    <div className={styles.stepRow}>
+      <motion.div
+        className={styles.timelineDot}
+        initial={{ scale: 0 }}
+        animate={isInView ? { scale: 1 } : { scale: 0 }}
+        transition={{ duration: 0.4, delay: 0.3 + index * 0.15 }}
+      />
+      <motion.div
+        className={`${styles.stepCard} ${isEven ? styles.stepCardLeft : styles.stepCardRight}`}
+        initial={{ opacity: 0, x: isEven ? -60 : 60 }}
+        animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: isEven ? -60 : 60 }}
+        transition={{ duration: 0.6, delay: index * 0.15 }}
+      >
+        <div className={styles.stepNumber}>{step.number}</div>
+        <div className={styles.stepContent}>
+          <h3 className={styles.stepTitle}>{step.title}</h3>
+          <p className={styles.stepDescription}>{step.description}</p>
+          <span className={styles.stepDetail}>{step.detail}</span>
+        </div>
+      </motion.div>
+    </div>
   );
 }
 
-function TimelineConnector({ isInView }: { isInView: boolean }) {
+function TimelineLine({ isInView }: { isInView: boolean }) {
   return (
     <div className={styles.timeline}>
       <motion.div
@@ -72,16 +80,6 @@ function TimelineConnector({ isInView }: { isInView: boolean }) {
         animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
         transition={{ duration: 1.2, ease: "easeOut" }}
       />
-      {processSteps.map((step, index) => (
-        <motion.div
-          key={step.id}
-          className={styles.timelineDot}
-          style={{ top: `${(index / (processSteps.length - 1)) * 100}%` }}
-          initial={{ scale: 0 }}
-          animate={isInView ? { scale: 1 } : { scale: 0 }}
-          transition={{ duration: 0.4, delay: 0.3 + index * 0.15 }}
-        />
-      ))}
     </div>
   );
 }
@@ -155,7 +153,7 @@ export function ProcessSection() {
 
         {/* Steps Grid com Timeline */}
         <div className={styles.stepsWrapper}>
-          <TimelineConnector isInView={isInView} />
+          <TimelineLine isInView={isInView} />
 
           <div className={styles.stepsGrid}>
             {processSteps.map((step, index) => (

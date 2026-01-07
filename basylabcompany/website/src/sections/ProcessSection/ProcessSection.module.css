@@ -17,9 +17,6 @@
     }
 }
 
-/* ============================================
-   BACKGROUND
-   ============================================ */
 .backgroundGradient {
     position: absolute;
     top: -50%;
@@ -61,9 +58,6 @@
     pointer-events: none;
 }
 
-/* ============================================
-   CONTAINER
-   ============================================ */
 .container {
     position: relative;
     z-index: 10;
@@ -78,9 +72,6 @@
     }
 }
 
-/* ============================================
-   HEADER - ASYMMETRIC LAYOUT
-   ============================================ */
 .header {
     display: flex;
     flex-direction: column;
@@ -148,9 +139,6 @@
     }
 }
 
-/* ============================================
-   STEPS WRAPPER WITH TIMELINE
-   ============================================ */
 .stepsWrapper {
     position: relative;
     padding: 0 1rem;
@@ -168,9 +156,6 @@
     }
 }
 
-/* ============================================
-   TIMELINE
-   ============================================ */
 .timeline {
     display: none;
 }
@@ -184,6 +169,7 @@
         bottom: 0;
         width: 2px;
         transform: translateX(-50%);
+        pointer-events: none;
     }
 }
 
@@ -203,21 +189,6 @@
     transform-origin: top;
 }
 
-.timelineDot {
-    position: absolute;
-    left: 50%;
-    width: 12px;
-    height: 12px;
-    background: var(--color-brand-primary);
-    border: 2px solid #030303;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 20px rgba(231, 52, 58, 0.4);
-}
-
-/* ============================================
-   STEPS GRID
-   ============================================ */
 .stepsGrid {
     display: flex;
     flex-direction: column;
@@ -226,13 +197,38 @@
 
 @media (min-width: 768px) {
     .stepsGrid {
-        gap: 0;
+        gap: 3rem;
     }
 }
 
-/* ============================================
-   STEP CARD
-   ============================================ */
+.stepRow {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.timelineDot {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .timelineDot {
+        display: block;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 12px;
+        height: 12px;
+        background: var(--color-brand-primary);
+        border: 2px solid #030303;
+        border-radius: 50%;
+        margin-left: -6px;
+        margin-top: -6px;
+        box-shadow: 0 0 20px rgba(231, 52, 58, 0.4);
+        z-index: 10;
+    }
+}
+
 .stepCard {
     display: flex;
     gap: 1.25rem;
@@ -241,6 +237,7 @@
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 12px;
     transition: all 0.3s ease;
+    width: 100%;
 }
 
 .stepCard:hover {
@@ -253,11 +250,6 @@
     .stepCard {
         width: calc(50% - 2rem);
         padding: 2rem;
-        margin-bottom: 3rem;
-    }
-
-    .stepCard:last-child {
-        margin-bottom: 0;
     }
 
     .stepCardLeft {
@@ -329,9 +321,6 @@
     margin-top: 0.5rem;
 }
 
-/* ============================================
-   BOTTOM CTA
-   ============================================ */
 .bottomCta {
     display: flex;
     align-items: center;
@@ -372,9 +361,6 @@
     font-weight: 600;
 }
 
-/* ============================================
-   FLOATING TAGS
-   ============================================ */
 .floatingTag {
     display: none;
 }

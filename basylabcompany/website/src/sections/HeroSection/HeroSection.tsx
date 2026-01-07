@@ -40,19 +40,28 @@ function usePrefersReducedMotion() {
 }
 
 const codeLines = [
-  { text: "// Sua ideia começa aqui", delay: 0 },
-  { text: "", delay: 100 },
-  { text: "const seuProjeto = {", delay: 200 },
-  { text: '  ideia: "Sua visão",', delay: 300 },
-  { text: "  prazo: definido,", delay: 400 },
-  { text: "  qualidade: garantida,", delay: 500 },
-  { text: "};", delay: 600 },
-  { text: "", delay: 700 },
-  { text: "basylab.transformar(seuProjeto);", delay: 800 },
-  { text: "// Resultado: software que funciona", delay: 900 },
+  { id: "line-1", text: "// Sua ideia começa aqui", delay: 0 },
+  { id: "line-2", text: "", delay: 100 },
+  { id: "line-3", text: "const seuProjeto = {", delay: 200 },
+  { id: "line-4", text: '  ideia: "Sua visão",', delay: 300 },
+  { id: "line-5", text: "  prazo: definido,", delay: 400 },
+  { id: "line-6", text: "  qualidade: garantida,", delay: 500 },
+  { id: "line-7", text: "};", delay: 600 },
+  { id: "line-8", text: "", delay: 700 },
+  { id: "line-9", text: "basylab.transformar(seuProjeto);", delay: 800 },
+  { id: "line-10", text: "// Resultado: software que funciona", delay: 900 },
 ];
 
-const floatingChars = ["</>", "{}", "=>", "()", "&&", "[]", "//", "**"];
+const floatingChars = [
+  { id: "char-1", char: "</>" },
+  { id: "char-2", char: "{}" },
+  { id: "char-3", char: "=>" },
+  { id: "char-4", char: "()" },
+  { id: "char-5", char: "&&" },
+  { id: "char-6", char: "[]" },
+  { id: "char-7", char: "//" },
+  { id: "char-8", char: "**" },
+];
 
 function TypewriterCode() {
   const [displayedLines, setDisplayedLines] = useState<string[]>([]);
@@ -95,21 +104,17 @@ function TypewriterCode() {
     return () => clearTimeout(timeout);
   }, [currentLine, currentChar]);
 
-  const getHighlightedText = (text: string) => {
+  const getHighlightedText = (
+    text: string,
+    lineId: string,
+  ): React.ReactNode => {
+    if (!text) return null;
+
     // Comentários
     if (text.trim().startsWith("//")) {
-      return `<span class="${styles.comment}">${text}</span>`;
+      return <span className={styles.comment}>{text}</span>;
     }
 
-    let result = text;
-
-    // Strings entre aspas
-    result = result.replace(
-      /"([^"]*)"/g,
-      `<span class="${styles.string}">"$1"</span>`,
-    );
-
-    // Keywords
     const keywords = [
       "const",
       "let",
@@ -121,15 +126,6 @@ function TypewriterCode() {
       "if",
       "else",
     ];
-    keywords.forEach((kw) => {
-      const regex = new RegExp(`\\b${kw}\\b`, "g");
-      result = result.replace(
-        regex,
-        `<span class="${styles.keyword}">${kw}</span>`,
-      );
-    });
-
-    // Valores especiais
     const values = [
       "true",
       "false",
@@ -138,33 +134,72 @@ function TypewriterCode() {
       "definido",
       "garantida",
     ];
-    values.forEach((val) => {
-      const regex = new RegExp(`\\b${val}\\b`, "g");
-      result = result.replace(
-        regex,
-        `<span class="${styles.value}">${val}</span>`,
-      );
-    });
 
-    // Nomes de funções/métodos (antes de parênteses)
-    result = result.replace(
-      /(\w+)(\()/g,
-      `<span class="${styles.function}">$1</span>$2`,
-    );
+    // Tokenizar o texto
+    const tokenRegex =
+      /("(?:[^"\\]|\\.)*")|(\b(?:const|let|var|await|async|function|return|if|else|true|false|null|undefined|definido|garantida)\b)|(\w+)(?=\()|(\w+)(?=:)|([{}[\]();,.])|(\s+)|(.)/g;
 
-    // Propriedades (antes de dois pontos)
-    result = result.replace(
-      /(\w+):/g,
-      `<span class="${styles.property}">$1</span>:`,
-    );
+    const matches = Array.from(text.matchAll(tokenRegex));
+    const tokens: React.ReactNode[] = [];
 
-    // Brackets e pontuação
-    result = result.replace(
-      /([{}[\]();,.])/g,
-      `<span class="${styles.punctuation}">$1</span>`,
-    );
+    for (const [tokenIndex, match] of matches.entries()) {
+      const [
+        fullMatch,
+        stringMatch,
+        keywordOrValue,
+        functionName,
+        propertyName,
+        punctuation,
+        whitespace,
+        other,
+      ] = match;
 
-    return result;
+      const key = `${lineId}-token-${tokenIndex}`;
+
+      if (stringMatch) {
+        tokens.push(
+          <span key={key} className={styles.string}>
+            {stringMatch}
+          </span>,
+        );
+      } else if (keywordOrValue) {
+        if (keywords.includes(keywordOrValue)) {
+          tokens.push(
+            <span key={key} className={styles.keyword}>
+              {keywordOrValue}
+            </span>,
+          );
+        } else if (values.includes(keywordOrValue)) {
+          tokens.push(
+            <span key={key} className={styles.value}>
+              {keywordOrValue}
+            </span>,
+          );
+        }
+      } else if (functionName) {
+        tokens.push(
+          <span key={key} className={styles.function}>
+            {functionName}
+          </span>,
+        );
+      } else if (propertyName) {
+        tokens.push(
+          <span key={key} className={styles.property}>
+            {propertyName}
+          </span>,
+        );
+      } else if (punctuation) {
+        tokens.push(
+          <span key={key} className={styles.punctuation}>
+            {punctuation}
+          </span>,
+        );
+      } else if (whitespace || other) {
+        tokens.push(<span key={key}>{fullMatch}</span>);
+      }
+    }
+
+    return tokens.length > 0 ? tokens : text;
   };
 
   return (
@@ -180,26 +215,25 @@ function TypewriterCode() {
       <div className={styles.terminalBody}>
         <div className={styles.lineNumbers}>
           {displayedLines.map((_, i) => (
-            <span key={i}>{i + 1}</span>
+            <span key={codeLines[i]?.id ?? `num-${i}`}>{i + 1}</span>
           ))}
         </div>
         <pre className={styles.code}>
-          {displayedLines.map((line, i) => (
-            <div key={i} className={styles.codeLine}>
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: getHighlightedText(line),
-                }}
-              />
-              {i === currentLine && currentLine < codeLines.length && (
-                <span
-                  className={`${styles.cursor} ${showCursor ? styles.cursorVisible : ""}`}
-                >
-                  |
-                </span>
-              )}
-            </div>
-          ))}
+          {displayedLines.map((line, i) => {
+            const lineId = codeLines[i]?.id ?? `line-${i}`;
+            return (
+              <div key={lineId} className={styles.codeLine}>
+                <span>{getHighlightedText(line, lineId)}</span>
+                {i === currentLine && currentLine < codeLines.length && (
+                  <span
+                    className={`${styles.cursor} ${showCursor ? styles.cursorVisible : ""}`}
+                  >
+                    |
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </pre>
       </div>
     </div>
@@ -207,41 +241,53 @@ function TypewriterCode() {
 }
 
 function FloatingParticles() {
-  return (
-    <div className={styles.particles}>
-      {floatingChars.map((char, i) => {
+  // Pre-calculate random values to avoid recalculation on re-renders
+  const particleConfigs = useMemo(
+    () =>
+      floatingChars.map((item, i) => {
         const sectionWidth = 100 / floatingChars.length;
         const baseLeft = sectionWidth * i + sectionWidth * 0.2;
         const randomOffset = sectionWidth * 0.6 * Math.random();
+        return {
+          ...item,
+          left: baseLeft + randomOffset,
+          duration: 14 + Math.random() * 6,
+          delay: i * 1.5 + Math.random() * 2,
+          rotateDirection: Math.random() > 0.5 ? 180 : -180,
+        };
+      }),
+    [],
+  );
 
-        return (
-          <motion.span
-            key={i}
-            className={styles.particle}
-            initial={{
-              y: "105%",
-              opacity: 0,
-            }}
-            animate={{
-              y: ["105%", "35%"],
-              opacity: [0, 0.5, 0.5, 0],
-              rotate: [0, Math.random() > 0.5 ? 180 : -180],
-            }}
-            transition={{
-              duration: 14 + Math.random() * 6,
-              repeat: Number.POSITIVE_INFINITY,
-              delay: i * 1.5 + Math.random() * 2,
-              ease: "linear",
-            }}
-            style={{
-              left: `${baseLeft + randomOffset}%`,
-              fontSize: "1rem",
-            }}
-          >
-            {char}
-          </motion.span>
-        );
-      })}
+  return (
+    <div className={styles.particles}>
+      {particleConfigs.map((config) => (
+        <motion.span
+          key={config.id}
+          className={styles.particle}
+          initial={{
+            y: "105%",
+            opacity: 0,
+          }}
+          animate={{
+            y: ["105%", "35%"],
+            opacity: [0, 0.5, 0.5, 0],
+            rotate: [0, config.rotateDirection],
+          }}
+          transition={{
+            duration: config.duration,
+            repeat: Number.POSITIVE_INFINITY,
+            delay: config.delay,
+            ease: "linear",
+          }}
+          style={{
+            left: `${config.left}%`,
+            fontSize: "1rem",
+          }}
+        >
+          {config.char}
+        </motion.span>
+      ))}
     </div>
   );
 }

@@ -51,6 +51,7 @@ export const properties = pgTable(
 	'properties',
 	{
 		id: uuid('id').primaryKey().defaultRandom(),
+		code: text('code').unique(), // Código único do imóvel (ex: IMV-001)
 		companyId: uuid('company_id')
 			.notNull()
 			.references(() => companies.id, { onDelete: 'cascade' }),
@@ -84,6 +85,7 @@ export const properties = pgTable(
 			.references(() => users.id, { onDelete: 'restrict' }),
 		createdAt: timestamp('created_at').defaultNow().notNull(),
 		updatedAt: timestamp('updated_at').defaultNow().notNull(),
+		deletedAt: timestamp('deleted_at'), // Soft delete
 	},
 	(table) => [
 		index('properties_company_id_idx').on(table.companyId),

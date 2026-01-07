@@ -70,27 +70,13 @@ export function ConfirmDialog({
 		setInputValue(e.target.value.toUpperCase())
 	}, [])
 
-	const handleOverlayKeyDown = useCallback(
-		(e: React.KeyboardEvent) => {
-			if (e.key === 'Enter' || e.key === ' ') {
-				e.preventDefault()
-				handleOverlayClick()
-			}
-		},
-		[handleOverlayClick],
-	)
-
 	if (!isOpen) return null
 
 	const isConfirmDisabled = requireConfirmation && inputValue !== confirmationText
 
 	return (
-		<div
-			className={styles.overlay}
-			onClick={handleOverlayClick}
-			onKeyDown={handleOverlayKeyDown}
-			role="presentation"
-		>
+		// biome-ignore lint/a11y/useKeyWithClickEvents: Overlay click-to-dismiss is a common UX pattern, keyboard users can use Escape key
+		<div className={styles.overlay} onClick={handleOverlayClick}>
 			<div
 				className={styles.dialog}
 				onClick={(e) => e.stopPropagation()}

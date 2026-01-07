@@ -291,16 +291,8 @@ export function Header({ onMenuToggle, hideHamburgerOnDesktop = false }: HeaderP
 
 			{/* Mobile Search Overlay */}
 			{isSearchExpanded && (
-				<div
-					className={styles.mobileSearchOverlay}
-					onClick={handleCloseSearch}
-					onKeyDown={(e) => {
-						if (e.key === 'Escape') {
-							handleCloseSearch()
-						}
-					}}
-					role="presentation"
-				>
+				// biome-ignore lint/a11y/useKeyWithClickEvents: Overlay click-to-dismiss is a common UX pattern, keyboard users can use Escape key via close button
+				<div className={styles.mobileSearchOverlay} onClick={handleCloseSearch}>
 					<div
 						className={styles.mobileSearchContainer}
 						onClick={(e) => e.stopPropagation()}

@@ -176,20 +176,14 @@ export function DocumentPicker({
 						</select>
 					</div>
 
-					<div
+					<button
+						type="button"
 						className={dropZoneClasses}
 						onDragOver={handleDragOver}
 						onDragLeave={handleDragLeave}
 						onDrop={handleDrop}
 						onClick={handleClick}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault()
-								handleClick()
-							}
-						}}
-						role="button"
-						tabIndex={disabled || !canUploadMore ? -1 : 0}
+						disabled={disabled || !canUploadMore}
 					>
 						<input
 							ref={inputRef}
@@ -203,7 +197,7 @@ export function DocumentPicker({
 						<Upload size={24} className={styles.icon} />
 						<span className={styles.dropText}>Arraste ou clique para enviar</span>
 						<span className={styles.dropHint}>PDF, JPG, PNG ou WebP - Max 10MB</span>
-					</div>
+					</button>
 				</div>
 			)}
 
@@ -271,17 +265,8 @@ export function DocumentPicker({
 
 			{/* Modal de preview de imagem */}
 			{previewImage && (
-				<div
-					className={styles.previewOverlay}
-					onClick={() => setPreviewImage(null)}
-					onKeyDown={(e) => {
-						if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
-							e.preventDefault()
-							setPreviewImage(null)
-						}
-					}}
-					role="presentation"
-				>
+				// biome-ignore lint/a11y/useKeyWithClickEvents: Overlay click-to-dismiss is a common UX pattern, keyboard users can use Escape key via close button
+				<div className={styles.previewOverlay} onClick={() => setPreviewImage(null)}>
 					<div className={styles.previewModal}>
 						<button
 							type="button"

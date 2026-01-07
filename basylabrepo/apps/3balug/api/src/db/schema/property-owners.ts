@@ -12,6 +12,7 @@ export const propertyOwners = pgTable(
 		name: text('name').notNull(),
 		documentType: text('document_type').notNull().default('cpf'), // cpf ou cnpj
 		document: text('document').notNull(), // CPF ou CNPJ (apenas números)
+		rg: text('rg'), // RG (apenas para PF)
 		email: text('email'),
 		phone: text('phone'),
 		address: text('address'),
@@ -19,6 +20,7 @@ export const propertyOwners = pgTable(
 		state: text('state'),
 		zipCode: text('zip_code'),
 		birthDate: text('birth_date'), // Data de nascimento (para PF)
+		photoUrl: text('photo_url'), // URL da foto do proprietário
 		notes: text('notes'),
 		createdBy: uuid('created_by')
 			.notNull()

@@ -57,9 +57,6 @@
         "noExplicitAny": "warn",
         "noImplicitAnyLet": "error"
       },
-      "security": {
-        "noDangerouslySetInnerHtml": "warn"
-      },
       "a11y": {
         "useButtonType": "error",
         "useAltText": "error"

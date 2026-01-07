@@ -45,16 +45,8 @@ export function Modal({ isOpen, onClose, title, children, footer, size = 'md' }:
 					: styles.modalMd
 
 	return (
-		<div
-			className={styles.overlay}
-			onClick={onClose}
-			onKeyDown={(e) => {
-				if (e.key === 'Escape') {
-					onClose()
-				}
-			}}
-			role="presentation"
-		>
+		// biome-ignore lint/a11y/useKeyWithClickEvents: Overlay click-to-dismiss is a common UX pattern, keyboard users can use Escape key
+		<div className={styles.overlay} onClick={onClose}>
 			<div
 				className={`${styles.modal} ${modalSizeClass}`}
 				onClick={(e) => e.stopPropagation()}

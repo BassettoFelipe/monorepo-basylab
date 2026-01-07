@@ -219,20 +219,14 @@ export function DocumentUpload({
 						</select>
 					</div>
 
-					<div
+					<button
+						type="button"
 						className={dropZoneClasses}
 						onDragOver={handleDragOver}
 						onDragLeave={handleDragLeave}
 						onDrop={handleDrop}
 						onClick={handleClick}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault()
-								handleClick()
-							}
-						}}
-						role="button"
-						tabIndex={disabled || !canUploadMore || isUploading ? -1 : 0}
+						disabled={disabled || !canUploadMore || isUploading}
 					>
 						<input
 							ref={inputRef}
@@ -255,7 +249,7 @@ export function DocumentUpload({
 								<span className={styles.dropHint}>PDF, JPG, PNG ou WebP - Max 10MB</span>
 							</>
 						)}
-					</div>
+					</button>
 				</div>
 			)}
 

@@ -1,0 +1,41 @@
+/* ============================================
+   TAILWIND THEME INTEGRATION
+   Maps CSS variables to Tailwind classes
+   ============================================ */
+
+@theme inline {
+  /* Background */
+  --color-background: var(--background);
+  --color-background-subtle: var(--background-subtle);
+  --color-background-muted: var(--background-muted);
+
+  /* Foreground */
+  --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-subtle: var(--foreground-subtle);
+
+  /* Brand */
+  --color-brand: var(--color-brand-primary);
+  --color-brand-hover: var(--color-brand-primary-hover);
+  --color-brand-light: var(--color-brand-primary-light);
+
+  /* Border */
+  --color-border: var(--border);
+  --color-border-muted: var(--border-muted);
+
+  /* Semantic */
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-error: var(--color-error);
+  --color-info: var(--color-info);
+
+  /* Typography */
+  --font-sans: var(--font-sans);
+
+  /* Border Radius */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-full: var(--radius-full);
+}

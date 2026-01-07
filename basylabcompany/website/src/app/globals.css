@@ -1,33 +1,20 @@
 @import "tailwindcss";
 
-:root {
-  /* Cores da marca Basylab */
-  --basylab-red: #e7343a;
-  --basylab-dark: #111111;
-  --basylab-light: #e7e6e6;
+/* ============================================
+   BASYLAB DESIGN SYSTEM
+   ============================================ */
 
-  --background: #ffffff;
-  --foreground: #111111;
-}
+/* Tokens */
+@import "../styles/tokens/colors.css";
+@import "../styles/tokens/typography.css";
+@import "../styles/tokens/spacing.css";
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-basylab-red: var(--basylab-red);
-  --color-basylab-dark: var(--basylab-dark);
-  --color-basylab-light: var(--basylab-light);
-  --font-sans: var(--font-inter);
-}
+/* Themes */
+@import "../styles/themes/light.css";
+@import "../styles/themes/dark.css";
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #e7e6e6;
-  }
-}
+/* Tailwind Integration */
+@import "../styles/tailwind.css";
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
-}
+/* Base Styles */
+@import "../styles/base.css";

@@ -1,0 +1,18 @@
+/* ============================================
+   LIGHT THEME (Default)
+   ============================================ */
+
+:root {
+  --background: #ffffff;
+  --background-subtle: var(--color-neutral-50);
+  --background-muted: var(--color-neutral-100);
+
+  --foreground: var(--color-neutral-900);
+  --foreground-muted: var(--color-neutral-600);
+  --foreground-subtle: var(--color-neutral-400);
+
+  --border: var(--color-neutral-200);
+  --border-muted: var(--color-neutral-100);
+
+  --ring: var(--color-brand-primary);
+}

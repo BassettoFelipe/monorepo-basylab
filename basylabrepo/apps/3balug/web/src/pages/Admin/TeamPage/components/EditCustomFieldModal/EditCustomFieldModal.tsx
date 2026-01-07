@@ -320,10 +320,10 @@ export function EditCustomFieldModal({ isOpen, onClose, field }: EditCustomField
 				</div>
 
 				<div className={styles.previewField}>
-					<label className={styles.previewLabel}>
+					<span className={styles.previewLabel} id="edit-preview-field-label">
 						{previewLabel}
 						{isRequired && <span className={styles.previewRequired}>*</span>}
-					</label>
+					</span>
 
 					{field.type === FIELD_TYPES.TEXT && (
 						<input
@@ -331,6 +331,7 @@ export function EditCustomFieldModal({ isOpen, onClose, field }: EditCustomField
 							className={styles.previewInput}
 							placeholder={previewPlaceholder}
 							disabled
+							aria-labelledby="edit-preview-field-label"
 						/>
 					)}
 
@@ -417,7 +418,8 @@ export function EditCustomFieldModal({ isOpen, onClose, field }: EditCustomField
 					{field.type === FIELD_TYPES.FILE && (
 						<div className={styles.filePreviewContainer}>
 							{previewFiles.length < (fileMaxFiles || 1) && (
-								<div
+								<button
+									type="button"
 									className={`${styles.fileDropZone} ${isDragging ? styles.fileDropZoneDragging : ''}`}
 									onDragOver={handleDragOver}
 									onDragLeave={handleDragLeave}
@@ -440,6 +442,7 @@ export function EditCustomFieldModal({ isOpen, onClose, field }: EditCustomField
 										fill="none"
 										stroke="currentColor"
 										strokeWidth="1.5"
+										aria-hidden="true"
 									>
 										<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
 										<polyline points="17 8 12 3 7 8" />
@@ -462,7 +465,7 @@ export function EditCustomFieldModal({ isOpen, onClose, field }: EditCustomField
 													.join(', ')
 											: 'Todos os tipos'}
 									</span>
-								</div>
+								</button>
 							)}
 
 							{previewFiles.length > 0 && (
@@ -484,6 +487,7 @@ export function EditCustomFieldModal({ isOpen, onClose, field }: EditCustomField
 														fill="none"
 														stroke="currentColor"
 														strokeWidth="2"
+														aria-hidden="true"
 													>
 														<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
 														<polyline points="14 2 14 8 20 8" />
@@ -496,6 +500,7 @@ export function EditCustomFieldModal({ isOpen, onClose, field }: EditCustomField
 												className={styles.fileItemRemove}
 												onClick={() => handleRemovePreviewFile(file.id)}
 												title="Remover"
+												aria-label="Remover arquivo"
 											>
 												<svg
 													width="10"
@@ -504,6 +509,7 @@ export function EditCustomFieldModal({ isOpen, onClose, field }: EditCustomField
 													fill="none"
 													stroke="currentColor"
 													strokeWidth="3"
+													aria-hidden="true"
 												>
 													<line x1="18" y1="6" x2="6" y2="18" />
 													<line x1="6" y1="6" x2="18" y2="18" />
@@ -597,28 +603,30 @@ export function EditCustomFieldModal({ isOpen, onClose, field }: EditCustomField
 						</div>
 
 						<div style={{ marginTop: '16px' }}>
-							<label className={styles.switchLabel}>
-								<span>Tornar este campo obrigatório</span>
+							<div className={styles.switchLabel}>
+								<span id="edit-switch-required-label">Tornar este campo obrigatório</span>
 								<Switch
 									checked={isRequired}
 									onChange={(checked) => setValue('isRequired', checked)}
 									disabled={updateMutation.isPending}
+									aria-labelledby="edit-switch-required-label"
 								/>
-							</label>
+							</div>
 							<p className={styles.fieldDescription}>
 								Se ativado, o usuário não poderá salvar sem preencher este campo
 							</p>
 						</div>
 
 						<div style={{ marginTop: '16px' }}>
-							<label className={styles.switchLabel}>
-								<span>Campo ativo</span>
+							<div className={styles.switchLabel}>
+								<span id="edit-switch-active-label">Campo ativo</span>
 								<Switch
 									checked={isActive}
 									onChange={(checked) => setValue('isActive', checked)}
 									disabled={updateMutation.isPending}
+									aria-labelledby="edit-switch-active-label"
 								/>
-							</label>
+							</div>
 							<p className={styles.fieldDescription}>
 								Campos inativos não aparecem no formulário de cadastro
 							</p>
@@ -638,14 +646,15 @@ export function EditCustomFieldModal({ isOpen, onClose, field }: EditCustomField
 								{errors.options && <p className={styles.errorText}>{errors.options.message}</p>}
 
 								<div style={{ marginTop: '16px' }}>
-									<label className={styles.switchLabel}>
-										<span>Permitir múltiplas opções</span>
+									<div className={styles.switchLabel}>
+										<span id="edit-switch-multiple-label">Permitir múltiplas opções</span>
 										<Switch
 											checked={allowMultiple ?? false}
 											onChange={(checked) => setValue('allowMultiple', checked)}
 											disabled={updateMutation.isPending}
+											aria-labelledby="edit-switch-multiple-label"
 										/>
-									</label>
+									</div>
 									<p className={styles.fieldDescription}>
 										Se ativado, o usuário poderá selecionar mais de uma opção
 									</p>
@@ -710,8 +719,11 @@ export function EditCustomFieldModal({ isOpen, onClose, field }: EditCustomField
 								</p>
 
 								<div style={{ marginTop: '12px' }}>
-									<label className={styles.fieldTypeLabel}>Tamanho Máximo (MB)</label>
+									<label htmlFor="edit-file-max-size" className={styles.fieldTypeLabel}>
+										Tamanho Máximo (MB)
+									</label>
 									<select
+										id="edit-file-max-size"
 										className={styles.previewSelect}
 										value={fileMaxSize}
 										onChange={(e) => setValue('fileMaxSize', Number(e.target.value))}
@@ -727,8 +739,11 @@ export function EditCustomFieldModal({ isOpen, onClose, field }: EditCustomField
 								</div>
 
 								<div style={{ marginTop: '12px' }}>
-									<label className={styles.fieldTypeLabel}>Quantidade Máxima de Arquivos</label>
+									<label htmlFor="edit-file-max-files" className={styles.fieldTypeLabel}>
+										Quantidade Máxima de Arquivos
+									</label>
 									<select
+										id="edit-file-max-files"
 										className={styles.previewSelect}
 										value={fileMaxFiles}
 										onChange={(e) => setValue('fileMaxFiles', Number(e.target.value))}
@@ -746,11 +761,12 @@ export function EditCustomFieldModal({ isOpen, onClose, field }: EditCustomField
 								</div>
 
 								<div style={{ marginTop: '12px' }}>
-									<label
+									<span
 										className={`${styles.fieldTypeLabel} ${errors.fileAllowedTypes ? styles.labelError : ''}`}
+										id="edit-file-types-label"
 									>
 										Tipos de Arquivos Permitidos
-									</label>
+									</span>
 									<div
 										className={`${styles.checkboxGroup} ${errors.fileAllowedTypes ? styles.checkboxGroupError : ''}`}
 									>

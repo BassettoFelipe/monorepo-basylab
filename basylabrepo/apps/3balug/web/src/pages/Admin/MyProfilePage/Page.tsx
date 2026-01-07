@@ -445,11 +445,11 @@ export function MyProfilePage() {
 					}
 
 					return (
-						<div key={field.id} className={styles.customFieldWrapper} role="group" aria-labelledby={`field-label-${field.id}`}>
-							<span id={`field-label-${field.id}`} className={styles.customFieldLabel}>
+						<fieldset key={field.id} className={styles.customFieldWrapper}>
+							<legend className={styles.customFieldLabel}>
 								{field.label}
 								{field.isRequired && ' *'}
-							</span>
+							</legend>
 							<div className={styles.checkboxGroupOptions}>
 								{(field.options || []).map((opt) => (
 									<label key={opt} className={styles.checkboxWrapper}>
@@ -464,7 +464,7 @@ export function MyProfilePage() {
 									</label>
 								))}
 							</div>
-						</div>
+						</fieldset>
 					)
 				}
 
@@ -488,11 +488,12 @@ export function MyProfilePage() {
 			case FIELD_TYPES.TEXTAREA:
 				return (
 					<div key={field.id} className={styles.customFieldWrapper}>
-						<label className={styles.customFieldLabel}>
+						<label htmlFor={`textarea-${field.id}`} className={styles.customFieldLabel}>
 							{field.label}
 							{field.isRequired && ' *'}
 						</label>
 						<textarea
+							id={`textarea-${field.id}`}
 							value={value}
 							onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
 							placeholder={field.placeholder || ''}

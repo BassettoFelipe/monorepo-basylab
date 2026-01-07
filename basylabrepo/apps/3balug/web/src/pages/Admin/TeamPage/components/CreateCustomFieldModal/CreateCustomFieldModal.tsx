@@ -285,13 +285,18 @@ export function CreateCustomFieldModal({ isOpen, onClose }: CreateCustomFieldMod
 				</div>
 
 				<div className={styles.previewField}>
-					<label className={styles.previewLabel}>
+					<span className={styles.previewLabel} id="preview-field-label">
 						{previewLabel}
 						{isRequired && <span className={styles.previewRequired}>*</span>}
-					</label>
+					</span>
 
 					{selectedType === FIELD_TYPES.TEXT && (
-						<input type="text" className={styles.previewInput} placeholder={previewPlaceholder} />
+						<input
+							type="text"
+							className={styles.previewInput}
+							placeholder={previewPlaceholder}
+							aria-labelledby="preview-field-label"
+						/>
 					)}
 
 					{selectedType === FIELD_TYPES.TEXTAREA && (
@@ -361,7 +366,8 @@ export function CreateCustomFieldModal({ isOpen, onClose }: CreateCustomFieldMod
 					{selectedType === FIELD_TYPES.FILE && (
 						<div className={styles.filePreviewContainer}>
 							{previewFiles.length < (fileMaxFiles || 1) && (
-								<div
+								<button
+									type="button"
 									className={`${styles.fileDropZone} ${isDragging ? styles.fileDropZoneDragging : ''}`}
 									onDragOver={handleDragOver}
 									onDragLeave={handleDragLeave}
@@ -384,6 +390,7 @@ export function CreateCustomFieldModal({ isOpen, onClose }: CreateCustomFieldMod
 										fill="none"
 										stroke="currentColor"
 										strokeWidth="1.5"
+										aria-hidden="true"
 									>
 										<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
 										<polyline points="17 8 12 3 7 8" />
@@ -403,7 +410,7 @@ export function CreateCustomFieldModal({ isOpen, onClose }: CreateCustomFieldMod
 											})
 											.join(', ') || 'Imagens e PDF'}
 									</span>
-								</div>
+								</button>
 							)}
 
 							{previewFiles.length > 0 && (
@@ -425,6 +432,7 @@ export function CreateCustomFieldModal({ isOpen, onClose }: CreateCustomFieldMod
 														fill="none"
 														stroke="currentColor"
 														strokeWidth="2"
+														aria-hidden="true"
 													>
 														<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
 														<polyline points="14 2 14 8 20 8" />
@@ -437,6 +445,7 @@ export function CreateCustomFieldModal({ isOpen, onClose }: CreateCustomFieldMod
 												className={styles.fileItemRemove}
 												onClick={() => handleRemovePreviewFile(file.id)}
 												title="Remover"
+												aria-label="Remover arquivo"
 											>
 												<svg
 													width="10"
@@ -445,6 +454,7 @@ export function CreateCustomFieldModal({ isOpen, onClose }: CreateCustomFieldMod
 													fill="none"
 													stroke="currentColor"
 													strokeWidth="3"
+													aria-hidden="true"
 												>
 													<line x1="18" y1="6" x2="6" y2="18" />
 													<line x1="6" y1="6" x2="18" y2="18" />
@@ -548,14 +558,15 @@ export function CreateCustomFieldModal({ isOpen, onClose }: CreateCustomFieldMod
 						</div>
 
 						<div style={{ marginTop: '16px' }}>
-							<label className={styles.switchLabel}>
-								<span>Tornar este campo obrigatório</span>
+							<div className={styles.switchLabel}>
+								<span id="switch-required-label">Tornar este campo obrigatório</span>
 								<Switch
 									checked={isRequired}
 									onChange={(checked) => setValue('isRequired', checked)}
 									disabled={createMutation.isPending}
+									aria-labelledby="switch-required-label"
 								/>
-							</label>
+							</div>
 							<p className={styles.fieldDescription}>
 								Se ativado, o usuário não poderá salvar sem preencher este campo
 							</p>
@@ -575,14 +586,15 @@ export function CreateCustomFieldModal({ isOpen, onClose }: CreateCustomFieldMod
 								{errors.options && <p className={styles.errorText}>{errors.options.message}</p>}
 
 								<div style={{ marginTop: '16px' }}>
-									<label className={styles.switchLabel}>
-										<span>Permitir múltiplas opções</span>
+									<div className={styles.switchLabel}>
+										<span id="switch-multiple-label">Permitir múltiplas opções</span>
 										<Switch
 											checked={allowMultiple ?? false}
 											onChange={(checked) => setValue('allowMultiple', checked)}
 											disabled={createMutation.isPending}
+											aria-labelledby="switch-multiple-label"
 										/>
-									</label>
+									</div>
 									<p className={styles.fieldDescription}>
 										Se ativado, o usuário poderá selecionar mais de uma opção
 									</p>
@@ -645,17 +657,8 @@ export function CreateCustomFieldModal({ isOpen, onClose }: CreateCustomFieldMod
 								<p className={styles.fieldDescription}>Defina os limites para upload de arquivos</p>
 
 								<div style={{ marginTop: '16px' }}>
-									<label
-										style={{
-											display: 'block',
-											fontSize: '14px',
-											fontWeight: 500,
-											marginBottom: '8px',
-										}}
-									>
-										Tamanho máximo por arquivo
-									</label>
 									<Select
+										label="Tamanho máximo por arquivo"
 										value={String(fileMaxSize)}
 										onChange={(e) => setValue('fileMaxSize', Number(e.target.value))}
 										disabled={createMutation.isPending}
@@ -671,17 +674,8 @@ export function CreateCustomFieldModal({ isOpen, onClose }: CreateCustomFieldMod
 								</div>
 
 								<div style={{ marginTop: '16px' }}>
-									<label
-										style={{
-											display: 'block',
-											fontSize: '14px',
-											fontWeight: 500,
-											marginBottom: '8px',
-										}}
-									>
-										Quantidade máxima de arquivos
-									</label>
 									<Select
+										label="Quantidade máxima de arquivos"
 										value={String(fileMaxFiles)}
 										onChange={(e) => setValue('fileMaxFiles', Number(e.target.value))}
 										disabled={createMutation.isPending}
@@ -696,11 +690,12 @@ export function CreateCustomFieldModal({ isOpen, onClose }: CreateCustomFieldMod
 								</div>
 
 								<div style={{ marginTop: '16px' }}>
-									<label
+									<span
 										className={`${styles.fieldTypeLabel} ${errors.fileAllowedTypes ? styles.labelError : ''}`}
+										id="file-types-label"
 									>
 										Tipos de arquivos permitidos
-									</label>
+									</span>
 									<div
 										className={`${styles.checkboxGroup} ${errors.fileAllowedTypes ? styles.checkboxGroupError : ''}`}
 									>

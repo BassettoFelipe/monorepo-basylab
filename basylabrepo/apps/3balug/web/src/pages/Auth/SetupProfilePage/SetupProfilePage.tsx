@@ -356,11 +356,11 @@ export function SetupProfilePage() {
 					}
 
 					return (
-						<div key={field.id} className={styles.fieldWrapper}>
-							<label className={styles.fieldLabel}>
+						<fieldset key={field.id} className={styles.fieldWrapper}>
+							<legend className={styles.fieldLabel}>
 								{field.label}
 								{field.isRequired && ' *'}
-							</label>
+							</legend>
 							<div
 								className={`${styles.checkboxGroupOptions} ${error ? styles.checkboxGroupOptionsError : ''}`}
 							>
@@ -379,7 +379,7 @@ export function SetupProfilePage() {
 							</div>
 							{field.helpText && <p className={styles.fieldHelpText}>{field.helpText}</p>}
 							{error && <p className={styles.fieldError}>{error}</p>}
-						</div>
+						</fieldset>
 					)
 				}
 
@@ -404,11 +404,12 @@ export function SetupProfilePage() {
 			case FIELD_TYPES.TEXTAREA:
 				return (
 					<div key={field.id} className={`${styles.fieldWrapper} ${styles.fullWidthField}`}>
-						<label className={styles.fieldLabel}>
+						<label htmlFor={`setup-textarea-${field.id}`} className={styles.fieldLabel}>
 							{field.label}
 							{field.isRequired && ' *'}
 						</label>
 						<textarea
+							id={`setup-textarea-${field.id}`}
 							value={value}
 							onChange={(e) => handleFieldChange(field.id, e.target.value)}
 							placeholder={field.placeholder || ''}

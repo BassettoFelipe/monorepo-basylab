@@ -13,6 +13,7 @@ export function NavigationSetup() {
 	}, [navigate])
 
 	// Scroll to top on route change
+	// biome-ignore lint/correctness/useExhaustiveDependencies: location.pathname is intentionally used as dependency to trigger scroll on route change
 	useEffect(() => {
 		window.scrollTo(0, 0)
 	}, [location.pathname])

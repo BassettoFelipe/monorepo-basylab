@@ -39,6 +39,7 @@ import type {
 	IPropertyOwnerRepository,
 	PropertyOwnerFilters,
 	PropertyOwnerListResult,
+	PropertyOwnerWithPropertiesCount,
 } from '@/repositories/contracts/property-owner.repository'
 import type { IPropertyPhotoRepository } from '@/repositories/contracts/property-photo.repository'
 import type {
@@ -946,10 +947,16 @@ export class InMemoryCustomFieldResponseRepository implements ICustomFieldRespon
 }
 
 export class InMemoryPropertyOwnerRepository implements IPropertyOwnerRepository {
-	private owners: Map<string, PropertyOwner> = new Map()
+	owners: Map<string, PropertyOwner> = new Map()
 
 	async findById(id: string): Promise<PropertyOwner | null> {
 		return this.owners.get(id) ?? null
+	}
+
+	async findByIdWithDetails(id: string): Promise<PropertyOwnerWithPropertiesCount | null> {
+		const owner = this.owners.get(id)
+		if (!owner) return null
+		return { ...owner, propertiesCount: 0 }
 	}
 
 	async findByDocument(document: string, companyId: string): Promise<PropertyOwner | null> {
@@ -1001,8 +1008,9 @@ export class InMemoryPropertyOwnerRepository implements IPropertyOwnerRepository
 		}
 		const limit = filters.limit ?? 10
 		const offset = filters.offset ?? 0
+		const paginatedData = result.slice(offset, offset + limit)
 		return {
-			data: result.slice(offset, offset + limit),
+			data: paginatedData.map((owner) => ({ ...owner, propertiesCount: 0 })),
 			total: result.length,
 			limit,
 			offset,
@@ -1016,6 +1024,7 @@ export class InMemoryPropertyOwnerRepository implements IPropertyOwnerRepository
 			name: data.name,
 			document: data.document,
 			documentType: data.documentType ?? 'cpf',
+			rg: data.rg ?? null,
 			email: data.email ?? null,
 			phone: data.phone ?? null,
 			address: data.address ?? null,
@@ -1023,6 +1032,7 @@ export class InMemoryPropertyOwnerRepository implements IPropertyOwnerRepository
 			state: data.state ?? null,
 			zipCode: data.zipCode ?? null,
 			birthDate: data.birthDate ?? null,
+			photoUrl: data.photoUrl ?? null,
 			notes: data.notes ?? null,
 			createdBy: data.createdBy ?? '',
 			createdAt: new Date(),
@@ -1303,6 +1313,7 @@ export class InMemoryPropertyRepository implements IPropertyRepository {
 	async create(data: NewProperty): Promise<Property> {
 		const property: Property = {
 			id: generateUUID(),
+			code: data.code ?? null,
 			companyId: data.companyId,
 			ownerId: data.ownerId,
 			brokerId: data.brokerId ?? null,
@@ -1328,6 +1339,8 @@ export class InMemoryPropertyRepository implements IPropertyRepository {
 			createdBy: data.createdBy ?? '',
 			createdAt: new Date(),
 			updatedAt: new Date(),
+			deletedAt: null,
+			deletedBy: null,
 		}
 		this.properties.set(property.id, property)
 		return property
@@ -1842,10 +1855,19 @@ export class InMemoryContractRepository implements IContractRepository {
 }
 
 export class InMemoryDocumentRepository implements IDocumentRepository {
-	private documents: Map<string, Document> = new Map()
+	documents: Map<string, Document> = new Map()
 
 	async findById(id: string): Promise<Document | null> {
 		return this.documents.get(id) ?? null
+	}
+
+	async findByIds(ids: string[]): Promise<Document[]> {
+		const result: Document[] = []
+		for (const id of ids) {
+			const doc = this.documents.get(id)
+			if (doc) result.push(doc)
+		}
+		return result
 	}
 
 	async findByEntity(
@@ -1888,6 +1910,27 @@ export class InMemoryDocumentRepository implements IDocumentRepository {
 		return result.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
 	}
 
+	async findByEntityTypeAndIds(
+		entityType: DocumentEntityType,
+		entityIds: string[],
+		documentType: string,
+	): Promise<Map<string, Document[]>> {
+		const result = new Map<string, Document[]>()
+		for (const doc of this.documents.values()) {
+			if (
+				doc.entityType === entityType &&
+				entityIds.includes(doc.entityId) &&
+				doc.documentType === documentType
+			) {
+				if (!result.has(doc.entityId)) {
+					result.set(doc.entityId, [])
+				}
+				result.get(doc.entityId)!.push(doc)
+			}
+		}
+		return result
+	}
+
 	async create(data: NewDocument): Promise<Document> {
 		const doc: Document = {
 			id: generateUUID(),
@@ -1908,6 +1951,15 @@ export class InMemoryDocumentRepository implements IDocumentRepository {
 		return doc
 	}
 
+	async createMany(data: NewDocument[]): Promise<Document[]> {
+		const docs: Document[] = []
+		for (const d of data) {
+			const doc = await this.create(d)
+			docs.push(doc)
+		}
+		return docs
+	}
+
 	async update(id: string, data: Partial<NewDocument>): Promise<Document | null> {
 		const existing = this.documents.get(id)
 		if (!existing) return null
@@ -1922,6 +1974,16 @@ export class InMemoryDocumentRepository implements IDocumentRepository {
 
 	async delete(id: string): Promise<boolean> {
 		return this.documents.delete(id)
+	}
+
+	async deleteMany(ids: string[]): Promise<string[]> {
+		const deleted: string[] = []
+		for (const id of ids) {
+			if (this.documents.delete(id)) {
+				deleted.push(id)
+			}
+		}
+		return deleted
 	}
 
 	async deleteByEntity(entityType: DocumentEntityType, entityId: string): Promise<boolean> {
@@ -1943,6 +2005,33 @@ export class InMemoryDocumentRepository implements IDocumentRepository {
 			}
 		}
 		return count
+	}
+
+	async countByEntityAndType(
+		entityType: DocumentEntityType,
+		entityId: string,
+		documentType: string,
+	): Promise<number> {
+		let count = 0
+		for (const doc of this.documents.values()) {
+			if (
+				doc.entityType === entityType &&
+				doc.entityId === entityId &&
+				doc.documentType === documentType
+			) {
+				count++
+			}
+		}
+		return count
+	}
+
+	async batchOperations(input: {
+		toDelete: string[]
+		toAdd: NewDocument[]
+	}): Promise<{ deleted: string[]; added: Document[] }> {
+		const deleted = await this.deleteMany(input.toDelete)
+		const added = await this.createMany(input.toAdd)
+		return { deleted, added }
 	}
 
 	clear(): void {

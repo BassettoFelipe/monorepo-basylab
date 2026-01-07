@@ -75,7 +75,7 @@ export function ConfirmDialog({
 	const isConfirmDisabled = requireConfirmation && inputValue !== confirmationText
 
 	return (
-		// biome-ignore lint/a11y/useKeyWithClickEvents: Overlay click-to-dismiss is a common UX pattern, keyboard users can use Escape key
+		// biome-ignore lint/a11y/useKeyWithClickEvents lint/a11y/noStaticElementInteractions: Overlay click-to-dismiss is a common UX pattern, keyboard users can use Escape key
 		<div className={styles.overlay} onClick={handleOverlayClick}>
 			<div
 				className={styles.dialog}

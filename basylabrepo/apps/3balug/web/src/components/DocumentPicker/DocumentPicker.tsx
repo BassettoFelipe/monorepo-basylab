@@ -265,7 +265,7 @@ export function DocumentPicker({
 
 			{/* Modal de preview de imagem */}
 			{previewImage && (
-				// biome-ignore lint/a11y/useKeyWithClickEvents: Overlay click-to-dismiss is a common UX pattern, keyboard users can use Escape key via close button
+				// biome-ignore lint/a11y/useKeyWithClickEvents lint/a11y/noStaticElementInteractions: Overlay click-to-dismiss is a common UX pattern, keyboard users can use Escape key via close button
 				<div className={styles.previewOverlay} onClick={() => setPreviewImage(null)}>
 					<div className={styles.previewModal}>
 						<button

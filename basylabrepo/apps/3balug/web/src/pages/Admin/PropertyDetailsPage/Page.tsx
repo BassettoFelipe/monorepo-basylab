@@ -218,23 +218,20 @@ export function PropertyDetailsPage() {
 										{sortedPhotos.length > 1 && (
 											<div className={styles.thumbnailsRow}>
 												{sortedPhotos.map((photo, index) => (
-													<img
+													<button
 														key={photo.id}
-														src={photo.url}
-														alt={`Foto ${index + 1}`}
-														className={`${styles.thumbnail} ${
+														type="button"
+														className={`${styles.thumbnailButton} ${
 															index === selectedPhotoIndex ? styles.thumbnailActive : ''
 														}`}
 														onClick={() => setSelectedPhotoIndex(index)}
-														onKeyDown={(e) => {
-															if (e.key === 'Enter' || e.key === ' ') {
-																e.preventDefault()
-																setSelectedPhotoIndex(index)
-															}
-														}}
-														tabIndex={0}
-														role="button"
-													/>
+													>
+														<img
+															src={photo.url}
+															alt={`Foto ${index + 1}`}
+															className={styles.thumbnail}
+														/>
+													</button>
 												))}
 											</div>
 										)}

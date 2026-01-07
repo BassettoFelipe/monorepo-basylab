@@ -134,8 +134,11 @@ export function TenantsPage() {
 			<div className={styles.filtersCard}>
 				<div className={styles.filterRow}>
 					<div className={styles.filterItem}>
-						<label className={styles.filterLabel}>Buscar</label>
+						<label htmlFor="tenant-search" className={styles.filterLabel}>
+							Buscar
+						</label>
 						<Input
+							id="tenant-search"
 							value={search}
 							onChange={(e) => {
 								updateSearchParams({ search: e.target.value, page: '1' })

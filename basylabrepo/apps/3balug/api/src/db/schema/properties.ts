@@ -86,6 +86,7 @@ export const properties = pgTable(
 		createdAt: timestamp('created_at').defaultNow().notNull(),
 		updatedAt: timestamp('updated_at').defaultNow().notNull(),
 		deletedAt: timestamp('deleted_at'), // Soft delete
+		deletedBy: uuid('deleted_by').references(() => users.id, { onDelete: 'set null' }), // Quem excluiu
 	},
 	(table) => [
 		index('properties_company_id_idx').on(table.companyId),

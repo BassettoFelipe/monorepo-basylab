@@ -152,19 +152,27 @@ export const thumbnailsRow = style({
 	paddingBottom: vars.spacing.xs,
 })
 
-export const thumbnail = style({
-	width: '80px',
-	height: '60px',
-	objectFit: 'cover',
+export const thumbnailButton = style({
+	padding: 0,
+	margin: 0,
+	background: 'none',
+	border: '2px solid transparent',
 	borderRadius: vars.borderRadius.md,
 	cursor: 'pointer',
-	border: '2px solid transparent',
 	transition: `all ${vars.transitionDuration.base}`,
 	flexShrink: 0,
+	overflow: 'hidden',
 
 	':hover': {
 		borderColor: vars.color.primary.main,
 	},
+})
+
+export const thumbnail = style({
+	width: '80px',
+	height: '60px',
+	objectFit: 'cover',
+	display: 'block',
 })
 
 export const thumbnailActive = style({

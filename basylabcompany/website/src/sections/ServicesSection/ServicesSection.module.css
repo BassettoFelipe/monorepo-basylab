@@ -1,214 +1,214 @@
 .section {
-    position: relative;
-    padding: 5rem 0;
-    background: #0c0c0c;
-    overflow: hidden;
+  position: relative;
+  padding: 5rem 0;
+  background: #0c0c0c;
+  overflow: hidden;
 }
 
 @media (min-width: 768px) {
-    .section {
-        padding: 6rem 0;
-    }
+  .section {
+    padding: 6rem 0;
+  }
 }
 
 /* ============================================
    CONTAINER
    ============================================ */
 .container {
-    position: relative;
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
+  position: relative;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
 }
 
 @media (min-width: 768px) {
-    .container {
-        padding: 0 2.5rem;
-    }
+  .container {
+    padding: 0 2.5rem;
+  }
 }
 
 /* ============================================
    BIG NUMBER
    ============================================ */
 .bigNumber {
-    position: absolute;
-    top: -0.5rem;
-    left: -0.5rem;
-    font-size: clamp(6rem, 20vw, 12rem);
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.05em;
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.06);
-    user-select: none;
-    pointer-events: none;
+  position: absolute;
+  top: -0.5rem;
+  left: -0.5rem;
+  font-size: clamp(6rem, 20vw, 12rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.06);
+  user-select: none;
+  pointer-events: none;
 }
 
 @media (min-width: 768px) {
-    .bigNumber {
-        top: 50%;
-        left: -2rem;
-        transform: translateY(-50%);
-    }
+  .bigNumber {
+    top: 50%;
+    left: -2rem;
+    transform: translateY(-50%);
+  }
 }
 
 /* ============================================
    BACKGROUND SYMBOL
    ============================================ */
 .bgSymbol {
-    position: absolute;
-    bottom: 0.5rem;
-    right: 0.5rem;
-    pointer-events: none;
-    user-select: none;
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  pointer-events: none;
+  user-select: none;
 }
 
 @media (min-width: 768px) {
-    .bgSymbol {
-        top: -1rem;
-        bottom: auto;
-        right: 0;
-    }
+  .bgSymbol {
+    top: -1rem;
+    bottom: auto;
+    right: 0;
+  }
 }
 
 @media (min-width: 1024px) {
-    .bgSymbol {
-        top: -1.5rem;
-        right: 1rem;
-    }
+  .bgSymbol {
+    top: -1.5rem;
+    right: 1rem;
+  }
 }
 
 .bgSymbolImage {
-    width: 80px;
-    height: 80px;
-    opacity: 0.12;
+  width: 80px;
+  height: 80px;
+  opacity: 0.12;
 }
 
 @media (min-width: 768px) {
-    .bgSymbolImage {
-        width: 100px;
-        height: 100px;
-    }
+  .bgSymbolImage {
+    width: 100px;
+    height: 100px;
+  }
 }
 
 @media (min-width: 1024px) {
-    .bgSymbolImage {
-        width: 120px;
-        height: 120px;
-    }
+  .bgSymbolImage {
+    width: 120px;
+    height: 120px;
+  }
 }
 
 /* ============================================
    CONTENT
    ============================================ */
 .content {
-    position: relative;
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .intro {
-    font-size: clamp(0.875rem, 2vw, 1rem);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--color-brand-primary);
-    margin-bottom: 2.5rem;
+  font-size: clamp(0.875rem, 2vw, 1rem);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-brand-primary);
+  margin-bottom: 2.5rem;
 }
 
 @media (min-width: 768px) {
-    .intro {
-        margin-bottom: 3rem;
-    }
+  .intro {
+    margin-bottom: 3rem;
+  }
 }
 
 /* ============================================
    PILLARS
    ============================================ */
 .pillars {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-    margin-bottom: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 
 @media (min-width: 768px) {
-    .pillars {
-        flex-direction: row;
-        justify-content: center;
-        gap: 0;
-        margin-bottom: 3rem;
-    }
+  .pillars {
+    flex-direction: row;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 3rem;
+  }
 }
 
 .pillar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 2rem;
 }
 
 @media (min-width: 768px) {
-    .pillar {
-        padding: 0 2.5rem;
-    }
+  .pillar {
+    padding: 0 2.5rem;
+  }
 }
 
 @media (min-width: 1024px) {
-    .pillar {
-        padding: 0 3.5rem;
-    }
+  .pillar {
+    padding: 0 3.5rem;
+  }
 }
 
 .pillarLabel {
-    font-size: clamp(1.75rem, 4vw, 2.5rem);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: white;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: white;
 }
 
 .pillarText {
-    font-size: 0.875rem;
-    color: var(--color-neutral-500);
-    max-width: 180px;
-    line-height: 1.5;
+  font-size: 0.875rem;
+  color: var(--color-neutral-500);
+  max-width: 180px;
+  line-height: 1.5;
 }
 
 .pillarDivider {
-    display: none;
+  display: none;
 }
 
 @media (min-width: 768px) {
-    .pillarDivider {
-        display: block;
-        width: 1px;
-        height: 60px;
-        background: linear-gradient(
-            180deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0.15) 50%,
-            transparent 100%
-        );
-        transform-origin: center;
-    }
+  .pillarDivider {
+    display: block;
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.15) 50%,
+      transparent 100%
+    );
+    transform-origin: center;
+  }
 }
 
 /* ============================================
    CLOSING
    ============================================ */
 .closing {
-    font-size: clamp(1rem, 2.5vw, 1.25rem);
-    font-weight: 500;
-    color: var(--color-neutral-400);
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  font-weight: 500;
+  color: var(--color-neutral-400);
 }
 
 .closing::before {
-    content: "—";
-    margin-right: 0.75rem;
-    color: var(--color-brand-primary);
+  content: "—";
+  margin-right: 0.75rem;
+  color: var(--color-brand-primary);
 }

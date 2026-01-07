@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useEffect, useRef, useState, useMemo } from "react";
-import Image from "next/image";
-import { GlowButton } from "@/components/GlowButton/GlowButton";
-import styles from "./HeroSection.module.css";
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import Image from 'next/image';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { GlowButton } from '@/components/GlowButton/GlowButton';
+import styles from './HeroSection.module.css';
 
 // Hook to detect mobile/tablet devices
 function useIsMobile() {
@@ -15,8 +15,8 @@ function useIsMobile() {
       setIsMobile(window.innerWidth < 768);
     };
     checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   return isMobile;
@@ -27,92 +27,91 @@ function usePrefersReducedMotion() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     setPrefersReducedMotion(mediaQuery.matches);
 
-    const handler = (e: MediaQueryListEvent) =>
-      setPrefersReducedMotion(e.matches);
-    mediaQuery.addEventListener("change", handler);
-    return () => mediaQuery.removeEventListener("change", handler);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
   return prefersReducedMotion;
 }
 
 const codeLines = [
-  { id: "line-1", text: "// Sua ideia começa aqui", delay: 0 },
-  { id: "line-2", text: "", delay: 100 },
-  { id: "line-3", text: "const seuProjeto = {", delay: 200 },
-  { id: "line-4", text: '  ideia: "Sua visão",', delay: 300 },
-  { id: "line-5", text: "  prazo: definido,", delay: 400 },
-  { id: "line-6", text: "  qualidade: garantida,", delay: 500 },
-  { id: "line-7", text: "};", delay: 600 },
-  { id: "line-8", text: "", delay: 700 },
-  { id: "line-9", text: "basylab.transformar(seuProjeto);", delay: 800 },
-  { id: "line-10", text: "// Resultado: software que funciona", delay: 900 },
+  { id: 'line-1', text: '// Sua ideia começa aqui', delay: 0 },
+  { id: 'line-2', text: '', delay: 100 },
+  { id: 'line-3', text: 'const seuProjeto = {', delay: 200 },
+  { id: 'line-4', text: '  ideia: "Sua visão",', delay: 300 },
+  { id: 'line-5', text: '  prazo: definido,', delay: 400 },
+  { id: 'line-6', text: '  qualidade: garantida,', delay: 500 },
+  { id: 'line-7', text: '};', delay: 600 },
+  { id: 'line-8', text: '', delay: 700 },
+  { id: 'line-9', text: 'basylab.transformar(seuProjeto);', delay: 800 },
+  { id: 'line-10', text: '// Resultado: software que funciona', delay: 900 },
 ];
 
 // Pre-calculated values to avoid hydration mismatch from Math.random()
 const floatingChars = [
   {
-    id: "char-1",
-    char: "</>",
+    id: 'char-1',
+    char: '</>',
     left: 4.2,
     duration: 16,
     delay: 0.3,
     rotate: 180,
   },
   {
-    id: "char-2",
-    char: "{}",
+    id: 'char-2',
+    char: '{}',
     left: 18.5,
     duration: 18,
     delay: 1.8,
     rotate: -180,
   },
   {
-    id: "char-3",
-    char: "=>",
+    id: 'char-3',
+    char: '=>',
     left: 29.8,
     duration: 15,
     delay: 3.5,
     rotate: 180,
   },
   {
-    id: "char-4",
-    char: "()",
+    id: 'char-4',
+    char: '()',
     left: 42.1,
     duration: 17,
     delay: 5.1,
     rotate: -180,
   },
   {
-    id: "char-5",
-    char: "&&",
+    id: 'char-5',
+    char: '&&',
     left: 55.7,
     duration: 19,
     delay: 6.8,
     rotate: 180,
   },
   {
-    id: "char-6",
-    char: "[]",
+    id: 'char-6',
+    char: '[]',
     left: 67.3,
     duration: 14,
     delay: 8.2,
     rotate: -180,
   },
   {
-    id: "char-7",
-    char: "//",
+    id: 'char-7',
+    char: '//',
     left: 80.9,
     duration: 16,
     delay: 10.1,
     rotate: 180,
   },
   {
-    id: "char-8",
-    char: "**",
+    id: 'char-8',
+    char: '**',
     left: 93.2,
     duration: 18,
     delay: 11.5,
@@ -156,41 +155,21 @@ function TypewriterCode() {
     const timeout = setTimeout(() => {
       setCurrentLine((prev) => prev + 1);
       setCurrentChar(0);
-      setDisplayedLines((prev) => [...prev, ""]);
+      setDisplayedLines((prev) => [...prev, '']);
     }, 200);
     return () => clearTimeout(timeout);
   }, [currentLine, currentChar]);
 
-  const getHighlightedText = (
-    text: string,
-    lineId: string,
-  ): React.ReactNode => {
+  const getHighlightedText = (text: string, lineId: string): React.ReactNode => {
     if (!text) return null;
 
     // Comentários
-    if (text.trim().startsWith("//")) {
+    if (text.trim().startsWith('//')) {
       return <span className={styles.comment}>{text}</span>;
     }
 
-    const keywords = [
-      "const",
-      "let",
-      "var",
-      "await",
-      "async",
-      "function",
-      "return",
-      "if",
-      "else",
-    ];
-    const values = [
-      "true",
-      "false",
-      "null",
-      "undefined",
-      "definido",
-      "garantida",
-    ];
+    const keywords = ['const', 'let', 'var', 'await', 'async', 'function', 'return', 'if', 'else'];
+    const values = ['true', 'false', 'null', 'undefined', 'definido', 'garantida'];
 
     // Tokenizar o texto
     const tokenRegex =
@@ -282,9 +261,7 @@ function TypewriterCode() {
               <div key={lineId} className={styles.codeLine}>
                 <span>{getHighlightedText(line, lineId)}</span>
                 {i === currentLine && currentLine < codeLines.length && (
-                  <span
-                    className={`${styles.cursor} ${showCursor ? styles.cursorVisible : ""}`}
-                  >
+                  <span className={`${styles.cursor} ${showCursor ? styles.cursorVisible : ''}`}>
                     |
                   </span>
                 )}
@@ -305,11 +282,11 @@ function FloatingParticles() {
           key={config.id}
           className={styles.particle}
           initial={{
-            y: "105%",
+            y: '105%',
             opacity: 0,
           }}
           animate={{
-            y: ["105%", "35%"],
+            y: ['105%', '35%'],
             opacity: [0, 0.5, 0.5, 0],
             rotate: [0, config.rotate],
           }}
@@ -317,11 +294,11 @@ function FloatingParticles() {
             duration: config.duration,
             repeat: Number.POSITIVE_INFINITY,
             delay: config.delay,
-            ease: "linear",
+            ease: 'linear',
           }}
           style={{
             left: `${config.left}%`,
-            fontSize: "1rem",
+            fontSize: '1rem',
           }}
         >
           {config.char}
@@ -332,22 +309,22 @@ function FloatingParticles() {
 }
 
 function StatusBar() {
-  const [time, setTime] = useState("");
+  const [time, setTime] = useState('');
   const [statusIndex, setStatusIndex] = useState(0);
 
   const statusMessages = [
-    { text: "sistemas operacionais", icon: "●" },
-    { text: "aguardando input", icon: "◐" },
-    { text: "pronto para deploy", icon: "▲" },
+    { text: 'sistemas operacionais', icon: '●' },
+    { text: 'aguardando input', icon: '◐' },
+    { text: 'pronto para deploy', icon: '▲' },
   ];
 
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
       setTime(
-        now.toLocaleTimeString("pt-BR", {
-          hour: "2-digit",
-          minute: "2-digit",
+        now.toLocaleTimeString('pt-BR', {
+          hour: '2-digit',
+          minute: '2-digit',
         }),
       );
     };
@@ -372,13 +349,7 @@ function StatusBar() {
     >
       <div className={styles.statusContent}>
         <span className={styles.statusBranch}>
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 16 16"
-            fill="currentColor"
-            aria-hidden="true"
-          >
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
             <path d="M9.5 3.25a2.25 2.25 0 1 1 3 2.122V6A2.5 2.5 0 0 1 10 8.5H6a1 1 0 0 0-1 1v1.128a2.251 2.251 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.5 0v1.836A2.5 2.5 0 0 1 6 7h4a1 1 0 0 0 1-1v-.628A2.25 2.25 0 0 1 9.5 3.25Zm-6 0a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Zm8.25-.75a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM4.25 12a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z" />
           </svg>
           main
@@ -393,9 +364,7 @@ function StatusBar() {
           exit={{ opacity: 0, y: -10 }}
           className={styles.statusMessage}
         >
-          <span className={styles.statusIcon}>
-            {statusMessages[statusIndex].icon}
-          </span>
+          <span className={styles.statusIcon}>{statusMessages[statusIndex].icon}</span>
           {statusMessages[statusIndex].text}
         </motion.span>
 
@@ -428,9 +397,7 @@ function GlitchText({ children }: { children: string }) {
   }, []);
 
   return (
-    <span
-      className={`${styles.glitchWrapper} ${isGlitching ? styles.glitching : ""}`}
-    >
+    <span className={`${styles.glitchWrapper} ${isGlitching ? styles.glitching : ''}`}>
       <span className={styles.glitchText} data-text={children}>
         {children}
       </span>
@@ -465,8 +432,8 @@ export function HeroSection() {
       mouseY.set(clientY - innerHeight / 2);
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [mouseX, mouseY, isMobile]);
 
   // Memoize orb animations - full animation on desktop, light animation on mobile
@@ -535,7 +502,7 @@ export function HeroSection() {
               : {
                   duration: shouldAnimate ? 10 : 6,
                   repeat: Number.POSITIVE_INFINITY,
-                  ease: "easeInOut",
+                  ease: 'easeInOut',
                 }
           }
         />
@@ -548,7 +515,7 @@ export function HeroSection() {
               : {
                   duration: shouldAnimate ? 12 : 8,
                   repeat: Number.POSITIVE_INFINITY,
-                  ease: "easeInOut",
+                  ease: 'easeInOut',
                 }
           }
         />
@@ -567,13 +534,7 @@ export function HeroSection() {
           transition={{ delay: 0.1, duration: 0.6 }}
           className={styles.logo}
         >
-          <Image
-            src="/images/logo-light.svg"
-            alt="Basylab"
-            width={320}
-            height={107}
-            priority
-          />
+          <Image src="/images/logo-light.svg" alt="Basylab" width={320} height={107} priority />
         </motion.div>
 
         <div className={styles.layout}>
@@ -582,7 +543,7 @@ export function HeroSection() {
             className={styles.textContent}
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
           >
             {/* Headline */}
             <motion.h1
@@ -601,9 +562,8 @@ export function HeroSection() {
               transition={{ delay: 0.3, duration: 0.8 }}
               className={styles.subheadline}
             >
-              Desenvolvemos soluções digitais com o{" "}
-              <span className={styles.highlight}>rigor técnico</span> que seu
-              negócio merece.
+              Desenvolvemos soluções digitais com o{' '}
+              <span className={styles.highlight}>rigor técnico</span> que seu negócio merece.
             </motion.p>
 
             {/* Stats */}
@@ -650,7 +610,7 @@ export function HeroSection() {
             className={styles.terminalWrapper}
             initial={{ opacity: 0, x: 50, rotateY: -10 }}
             animate={{ opacity: 1, x: 0, rotateY: 0 }}
-            transition={{ delay: 0.5, duration: 1, ease: "easeOut" }}
+            transition={{ delay: 0.5, duration: 1, ease: 'easeOut' }}
           >
             <TypewriterCode />
           </motion.div>

@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import Link from "next/link";
-import styles from "./GlowButton.module.css";
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import styles from './GlowButton.module.css';
 
 interface GlowButtonProps {
   href: string;
-  variant?: "primary" | "secondary";
+  variant?: 'primary' | 'secondary';
   children: React.ReactNode;
   icon?: React.ReactNode;
 }
@@ -62,27 +62,22 @@ function EyeIcon() {
   );
 }
 
-export function GlowButton({
-  href,
-  variant = "primary",
-  children,
-  icon,
-}: GlowButtonProps) {
-  const defaultIcon = variant === "primary" ? <ArrowIcon /> : <EyeIcon />;
+export function GlowButton({ href, variant = 'primary', children, icon }: GlowButtonProps) {
+  const defaultIcon = variant === 'primary' ? <ArrowIcon /> : <EyeIcon />;
   const displayIcon = icon !== undefined ? icon : defaultIcon;
 
   return (
     <motion.div
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.97 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
       className={styles.wrapper}
     >
       <Link
         href={href}
-        className={`${styles.button} ${variant === "primary" ? styles.primary : styles.secondary}`}
+        className={`${styles.button} ${variant === 'primary' ? styles.primary : styles.secondary}`}
       >
-        {variant === "primary" && <span className={styles.glow} />}
+        {variant === 'primary' && <span className={styles.glow} />}
         <span className={styles.text}>
           {children}
           {displayIcon}

@@ -1,37 +1,37 @@
-"use client";
+'use client';
 
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
-import styles from "./ProcessSection.module.css";
+import { motion, useInView, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
+import styles from './ProcessSection.module.css';
 
 const processSteps = [
   {
-    id: "discovery",
-    number: "01",
-    title: "Escuta",
-    description: "Entendemos seu negócio antes de escrever uma linha de código",
-    detail: "Reuniões, pesquisa, imersão no problema",
+    id: 'discovery',
+    number: '01',
+    title: 'Escuta',
+    description: 'Entendemos seu negócio antes de escrever uma linha de código',
+    detail: 'Reuniões, pesquisa, imersão no problema',
   },
   {
-    id: "architecture",
-    number: "02",
-    title: "Arquitetura",
-    description: "Desenhamos a solução técnica que faz sentido pro seu contexto",
-    detail: "Stack, infraestrutura, integrações",
+    id: 'architecture',
+    number: '02',
+    title: 'Arquitetura',
+    description: 'Desenhamos a solução técnica que faz sentido pro seu contexto',
+    detail: 'Stack, infraestrutura, integrações',
   },
   {
-    id: "build",
-    number: "03",
-    title: "Construção",
-    description: "Desenvolvimento iterativo com entregas constantes",
-    detail: "Sprints semanais, demos, ajustes",
+    id: 'build',
+    number: '03',
+    title: 'Construção',
+    description: 'Desenvolvimento iterativo com entregas constantes',
+    detail: 'Sprints semanais, demos, ajustes',
   },
   {
-    id: "launch",
-    number: "04",
-    title: "Lançamento",
-    description: "Deploy, monitoramento e suporte pós-entrega",
-    detail: "CI/CD, observabilidade, manutenção",
+    id: 'launch',
+    number: '04',
+    title: 'Lançamento',
+    description: 'Deploy, monitoramento e suporte pós-entrega',
+    detail: 'CI/CD, observabilidade, manutenção',
   },
 ];
 
@@ -78,7 +78,7 @@ function TimelineLine({ isInView }: { isInView: boolean }) {
         className={styles.timelineLine}
         initial={{ scaleY: 0 }}
         animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
-        transition={{ duration: 1.2, ease: "easeOut" }}
+        transition={{ duration: 1.2, ease: 'easeOut' }}
       />
     </div>
   );
@@ -108,14 +108,14 @@ function FloatingTag({
 
 export function ProcessSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+  const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start end", "end start"],
+    offset: ['start end', 'end start'],
   });
 
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
 
   return (
     <section ref={sectionRef} className={styles.section}>
@@ -146,8 +146,8 @@ export function ProcessSection() {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            Não trabalhamos com achismos. Cada projeto segue um fluxo testado que
-            garante entregas previsíveis sem sacrificar a qualidade técnica.
+            Não trabalhamos com achismos. Cada projeto segue um fluxo testado que garante entregas
+            previsíveis sem sacrificar a qualidade técnica.
           </motion.p>
         </div>
 
@@ -180,13 +180,13 @@ export function ProcessSection() {
       {/* Floating Tags - Elementos decorativos */}
       {isInView && (
         <>
-          <FloatingTag delay={1} position={{ top: "15%", left: "5%" }}>
+          <FloatingTag delay={1} position={{ top: '15%', left: '5%' }}>
             git commit
           </FloatingTag>
-          <FloatingTag delay={1.2} position={{ top: "45%", right: "3%" }}>
+          <FloatingTag delay={1.2} position={{ top: '45%', right: '3%' }}>
             npm run build
           </FloatingTag>
-          <FloatingTag delay={1.4} position={{ bottom: "20%", left: "8%" }}>
+          <FloatingTag delay={1.4} position={{ bottom: '20%', left: '8%' }}>
             deploy --prod
           </FloatingTag>
         </>

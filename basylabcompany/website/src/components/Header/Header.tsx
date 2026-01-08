@@ -40,7 +40,16 @@ export function Header() {
   const collapseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
-    setShowNav(latest > 300);
+    const footer = document.querySelector("footer");
+    if (footer) {
+      const footerTop = footer.getBoundingClientRect().top;
+      const windowHeight = window.innerHeight;
+      // Hide nav when footer is visible (with some buffer)
+      const isFooterVisible = footerTop < windowHeight - 100;
+      setShowNav(latest > 300 && !isFooterVisible);
+    } else {
+      setShowNav(latest > 300);
+    }
   });
 
   const handleMouseEnter = () => {

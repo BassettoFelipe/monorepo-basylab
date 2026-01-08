@@ -114,10 +114,7 @@ export function ListingTypeSelector({
 				{LISTING_TYPES.map((option) => {
 					const isSelected = value === option.value
 
-					const labelClasses = [
-						styles.listingLabel,
-						isSelected && styles.listingLabelSelected,
-					]
+					const labelClasses = [styles.listingLabel, isSelected && styles.listingLabelSelected]
 						.filter(Boolean)
 						.join(' ')
 
@@ -129,11 +126,11 @@ export function ListingTypeSelector({
 						.join(' ')
 
 					return (
-						<div
+						<button
+							type="button"
 							key={option.value}
 							className={getOptionClasses(option, isSelected)}
 							onClick={() => handleSelect(option.value)}
-							role="button"
 							tabIndex={disabled ? -1 : 0}
 							onKeyDown={(e) => {
 								if (e.key === 'Enter' || e.key === ' ') {
@@ -142,12 +139,12 @@ export function ListingTypeSelector({
 								}
 							}}
 							aria-pressed={isSelected}
-							aria-disabled={disabled}
+							disabled={disabled}
 						>
 							<div className={getIconClasses(option, isSelected)}>{option.icon}</div>
 							<span className={labelClasses}>{option.label}</span>
 							<span className={descriptionClasses}>{option.description}</span>
-						</div>
+						</button>
 					)
 				})}
 			</div>

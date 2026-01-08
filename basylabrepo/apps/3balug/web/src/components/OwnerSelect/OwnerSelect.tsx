@@ -1,4 +1,14 @@
-import { Building2, Check, ChevronDown, Loader2, Mail, MapPin, Phone, Search, User } from 'lucide-react'
+import {
+	Building2,
+	Check,
+	ChevronDown,
+	Loader2,
+	Mail,
+	MapPin,
+	Phone,
+	Search,
+	User,
+} from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Avatar } from '@/components/Avatar/Avatar'
@@ -133,10 +143,10 @@ export function OwnerSelect({
 	return (
 		<div className={containerClasses} ref={containerRef}>
 			{label && (
-				<label className={styles.label}>
+				<span className={styles.label}>
 					{label}
 					{required && <span className={styles.required}>*</span>}
-				</label>
+				</span>
 			)}
 
 			<div className={styles.dropdownWrapper}>
@@ -157,11 +167,7 @@ export function OwnerSelect({
 						</div>
 					) : selectedOwner ? (
 						<div className={styles.selectedOwnerTrigger}>
-							<Avatar
-								src={selectedOwner.photoUrl}
-								name={selectedOwner.name}
-								size="small"
-							/>
+							<Avatar src={selectedOwner.photoUrl} name={selectedOwner.name} size="small" />
 							<div className={styles.selectedOwnerInfo}>
 								<span className={styles.selectedOwnerName}>{selectedOwner.name}</span>
 								<span className={styles.selectedOwnerDocument}>
@@ -194,9 +200,7 @@ export function OwnerSelect({
 						<div className={styles.optionsList} role="listbox">
 							{filteredOwners.length === 0 ? (
 								<div className={styles.noResults}>
-									{searchTerm
-										? 'Nenhum proprietario encontrado'
-										: 'Nenhum proprietario cadastrado'}
+									{searchTerm ? 'Nenhum proprietario encontrado' : 'Nenhum proprietario cadastrado'}
 								</div>
 							) : (
 								filteredOwners.map((owner) => {
@@ -208,8 +212,15 @@ export function OwnerSelect({
 											key={owner.id}
 											className={`${styles.optionItem} ${isSelected ? styles.optionItemSelected : ''}`}
 											onClick={() => handleSelect(owner.id)}
+											onKeyDown={(e) => {
+												if (e.key === 'Enter' || e.key === ' ') {
+													e.preventDefault()
+													handleSelect(owner.id)
+												}
+											}}
 											role="option"
 											aria-selected={isSelected}
+											tabIndex={0}
 										>
 											<Avatar src={owner.photoUrl} name={owner.name} size="small" />
 											<div className={styles.optionInfo}>
@@ -257,13 +268,19 @@ export function OwnerSelect({
 					{selectedOwner.city && (
 						<div className={styles.previewMetaItem}>
 							<MapPin size={14} className={styles.previewMetaIcon} />
-							<span>{selectedOwner.city}{selectedOwner.state ? ` - ${selectedOwner.state}` : ''}</span>
+							<span>
+								{selectedOwner.city}
+								{selectedOwner.state ? ` - ${selectedOwner.state}` : ''}
+							</span>
 						</div>
 					)}
 					{selectedOwner.propertiesCount !== undefined && (
 						<div className={styles.previewMetaItem}>
 							<Building2 size={14} className={styles.previewMetaIcon} />
-							<span>{selectedOwner.propertiesCount} {selectedOwner.propertiesCount === 1 ? 'imovel' : 'imoveis'}</span>
+							<span>
+								{selectedOwner.propertiesCount}{' '}
+								{selectedOwner.propertiesCount === 1 ? 'imovel' : 'imoveis'}
+							</span>
 						</div>
 					)}
 				</div>

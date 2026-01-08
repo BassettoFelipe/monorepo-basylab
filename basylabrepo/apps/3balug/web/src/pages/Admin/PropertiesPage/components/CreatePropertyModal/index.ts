@@ -1,1 +1,0 @@
-export { CreatePropertyModal } from './CreatePropertyModal'

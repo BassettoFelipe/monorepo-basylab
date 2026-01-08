@@ -167,6 +167,16 @@ export const mobileStepDot = style({
 	borderRadius: '50%',
 	backgroundColor: vars.color.border.primary,
 	transition: `all ${vars.transitionDuration.base}`,
+	border: 'none',
+	padding: 0,
+	cursor: 'pointer',
+	':hover': {
+		transform: 'scale(1.3)',
+	},
+	':disabled': {
+		cursor: 'not-allowed',
+		transform: 'none',
+	},
 })
 
 export const mobileStepDotActive = style({
@@ -190,6 +200,23 @@ export const stepContent = style({
 	alignItems: 'center',
 	gap: '4px',
 	flexShrink: 0,
+	background: 'none',
+	border: 'none',
+	padding: '4px',
+	margin: 0,
+	font: 'inherit',
+})
+
+export const stepContentClickable = style({
+	cursor: 'pointer',
+	transition: `transform ${vars.transitionDuration.base}`,
+	':hover': {
+		transform: 'scale(1.05)',
+	},
+	':disabled': {
+		cursor: 'not-allowed',
+		transform: 'none',
+	},
 })
 
 export const stepCircle = style({

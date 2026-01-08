@@ -25,8 +25,8 @@ import {
 	MapPin,
 	PawPrint,
 	Percent,
-	RotateCcw,
 	Rocket,
+	RotateCcw,
 	Ruler,
 	Settings,
 	Shield,
@@ -57,12 +57,7 @@ import { useDeletePropertyPhotoMutation } from '@/queries/property-photos/useDel
 import { useSetPrimaryPhotoMutation } from '@/queries/property-photos/useSetPrimaryPhotoMutation'
 import { getPresignedUrl, uploadToPresignedUrl } from '@/services/files/presigned-url'
 import type { BatchRegisterPhotoItem } from '@/services/property-photos/batch-register'
-import type {
-	ListingType,
-	Property,
-	PropertyStatus,
-	PropertyType,
-} from '@/types/property.types'
+import type { ListingType, Property, PropertyStatus, PropertyType } from '@/types/property.types'
 import { BRAZILIAN_STATES } from '@/types/property-owner.types'
 import { applyMask, formatCurrencyToInput, getCurrencyRawValue } from '@/utils/masks'
 import * as styles from '../CreatePropertyModal/CreatePropertyModal.styles.css'
@@ -444,9 +439,7 @@ export function EditPropertyModal({
 	const handleMarkForDeletion = useCallback(
 		(photoId: string) => {
 			setExistingPhotos((prev) =>
-				prev.map((photo) =>
-					photo.id === photoId ? { ...photo, markedForDeletion: true } : photo,
-				),
+				prev.map((photo) => (photo.id === photoId ? { ...photo, markedForDeletion: true } : photo)),
 			)
 
 			// If deleting primary, reassign
@@ -469,9 +462,7 @@ export function EditPropertyModal({
 
 	const handleRestorePhoto = useCallback((photoId: string) => {
 		setExistingPhotos((prev) =>
-			prev.map((photo) =>
-				photo.id === photoId ? { ...photo, markedForDeletion: false } : photo,
-			),
+			prev.map((photo) => (photo.id === photoId ? { ...photo, markedForDeletion: false } : photo)),
 		)
 	}, [])
 
@@ -504,18 +495,13 @@ export function EditPropertyModal({
 		[newPhotos, primaryPhotoId, activeExistingPhotos],
 	)
 
-	const handleSetPrimary = useCallback(
-		(photoId: string, isNew: boolean) => {
-			setPrimaryPhotoId(photoId)
+	const handleSetPrimary = useCallback((photoId: string, isNew: boolean) => {
+		setPrimaryPhotoId(photoId)
 
-			if (isNew) {
-				setNewPhotos((prev) =>
-					prev.map((p) => ({ ...p, isPrimary: p.id === photoId })),
-				)
-			}
-		},
-		[],
-	)
+		if (isNew) {
+			setNewPhotos((prev) => prev.map((p) => ({ ...p, isPrimary: p.id === photoId })))
+		}
+	}, [])
 
 	const handleDragOver = useCallback(
 		(e: React.DragEvent) => {
@@ -666,6 +652,25 @@ export function EditPropertyModal({
 	const handlePrevious = () => {
 		if (currentStep > 0) {
 			setCurrentStep(currentStep - 1)
+		}
+	}
+
+	const handleStepClick = async (stepIndex: number) => {
+		if (isSubmitting || isLoading) return
+
+		// Se clicar no step atual, nao faz nada
+		if (stepIndex === currentStep) return
+
+		// Se clicar em um step anterior (ja completado), navega diretamente
+		if (stepIndex < currentStep) {
+			setCurrentStep(stepIndex)
+			return
+		}
+
+		// Se clicar em um step futuro, valida o step atual antes de avancar
+		const isValid = await validateCurrentStep()
+		if (isValid) {
+			setCurrentStep(stepIndex)
 		}
 	}
 
@@ -1042,6 +1047,7 @@ export function EditPropertyModal({
 					{steps.map((step, index) => {
 						const isCompleted = index < currentStep
 						const isActive = index === currentStep
+						const isClickable = !isSubmitting && !isLoading
 
 						return (
 							<div key={step.id} className={styles.stepItem}>
@@ -1052,7 +1058,13 @@ export function EditPropertyModal({
 										}`}
 									/>
 								)}
-								<div className={styles.stepContent}>
+								<button
+									type="button"
+									className={`${styles.stepContent} ${isClickable ? styles.stepContentClickable : ''}`}
+									onClick={() => handleStepClick(index)}
+									disabled={!isClickable}
+									title={`Ir para ${step.title}`}
+								>
 									<div
 										className={`${styles.stepCircle} ${
 											isCompleted
@@ -1067,7 +1079,7 @@ export function EditPropertyModal({
 									<span className={`${styles.stepLabel} ${isActive ? styles.stepLabelActive : ''}`}>
 										{step.title}
 									</span>
-								</div>
+								</button>
 							</div>
 						)
 					})}
@@ -1078,9 +1090,11 @@ export function EditPropertyModal({
 					{steps.map((step, index) => {
 						const isCompleted = index < currentStep
 						const isActive = index === currentStep
+						const isClickable = !isSubmitting && !isLoading
 
 						return (
-							<div
+							<button
+								type="button"
 								key={step.id}
 								className={`${styles.mobileStepDot} ${
 									isActive
@@ -1089,6 +1103,9 @@ export function EditPropertyModal({
 											? styles.mobileStepDotCompleted
 											: ''
 								}`}
+								onClick={() => handleStepClick(index)}
+								disabled={!isClickable}
+								title={`Ir para ${step.title}`}
 							/>
 						)
 					})}
@@ -1173,8 +1190,8 @@ export function EditPropertyModal({
 							<div className={styles.infoBox}>
 								<Info size={18} className={styles.infoBoxIcon} />
 								<p className={styles.infoBoxText}>
-									Altere o proprietario do imovel se necessario. Caso o proprietario ainda nao esteja
-									cadastrado, voce pode adiciona-lo na pagina de Proprietarios.
+									Altere o proprietario do imovel se necessario. Caso o proprietario ainda nao
+									esteja cadastrado, voce pode adiciona-lo na pagina de Proprietarios.
 								</p>
 							</div>
 

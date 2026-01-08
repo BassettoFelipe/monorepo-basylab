@@ -71,11 +71,11 @@ export function PropertyTypeSelector({
 						.join(' ')
 
 					return (
-						<div
+						<button
+							type="button"
 							key={option.value}
 							className={optionClasses}
 							onClick={() => handleSelect(option.value)}
-							role="button"
 							tabIndex={disabled ? -1 : 0}
 							onKeyDown={(e) => {
 								if (e.key === 'Enter' || e.key === ' ') {
@@ -84,11 +84,11 @@ export function PropertyTypeSelector({
 								}
 							}}
 							aria-pressed={isSelected}
-							aria-disabled={disabled}
+							disabled={disabled}
 						>
 							<div className={iconClasses}>{option.icon}</div>
 							<span className={labelClasses}>{option.label}</span>
-						</div>
+						</button>
 					)
 				})}
 			</div>

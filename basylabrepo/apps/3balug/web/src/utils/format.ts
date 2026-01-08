@@ -75,27 +75,3 @@ export function formatCurrencyFromCents(valueInCents: number | null | undefined)
 		currency: 'BRL',
 	}).format(valueInCents / 100)
 }
-
-/**
- * Formata um valor em reais para moeda brasileira
- * @param value - Valor em reais
- * @returns Valor formatado (ex: R$ 1.234,56) ou null se invalido
- */
-export function formatCurrency(value: number | null | undefined): string | null {
-	if (value === null || value === undefined) return null
-	return new Intl.NumberFormat('pt-BR', {
-		style: 'currency',
-		currency: 'BRL',
-	}).format(value)
-}
-
-/**
- * Formata tamanho de arquivo para exibicao legivel
- * @param bytes - Tamanho em bytes
- * @returns Tamanho formatado (ex: 1.5 MB)
- */
-export function formatFileSize(bytes: number): string {
-	if (bytes < 1024) return `${bytes} B`
-	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}

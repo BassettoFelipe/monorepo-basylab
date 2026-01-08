@@ -40,6 +40,7 @@
     "react-dom": "^19"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@playwright/test": "^1.57.0",
     "@types/bun": "latest",
     "@types/node": "^24.10.1",

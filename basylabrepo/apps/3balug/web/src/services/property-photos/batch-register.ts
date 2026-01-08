@@ -1,5 +1,12 @@
 import { api } from '@/lib/api'
-import type { PropertyPhotoResponse } from './upload'
+
+export interface PropertyPhotoResponse {
+	id: string
+	url: string
+	isPrimary: boolean
+	order: number
+	createdAt: string
+}
 
 export interface BatchRegisterPhotoItem {
 	key: string

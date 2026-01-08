@@ -1,2 +1,2 @@
-export { PropertyTypeSelector } from './PropertyTypeSelector'
 export { ListingTypeSelector } from './ListingTypeSelector'
+export { PropertyTypeSelector } from './PropertyTypeSelector'

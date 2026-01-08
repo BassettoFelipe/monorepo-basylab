@@ -572,6 +572,25 @@ export function EditPropertyOwnerModal({
 		}
 	}
 
+	const handleStepClick = async (stepIndex: number) => {
+		if (isSubmitting || isLoading) return
+
+		// Se clicar no step atual, nao faz nada
+		if (stepIndex === currentStep) return
+
+		// Se clicar em um step anterior (ja completado), navega diretamente
+		if (stepIndex < currentStep) {
+			setCurrentStep(stepIndex)
+			return
+		}
+
+		// Se clicar em um step futuro, valida o step atual antes de avancar
+		const isValid = await validateCurrentStep()
+		if (isValid) {
+			setCurrentStep(stepIndex)
+		}
+	}
+
 	const onSubmit = async (data: EditPropertyOwnerFormData) => {
 		if (!propertyOwner) return
 
@@ -712,10 +731,17 @@ export function EditPropertyOwnerModal({
 					{STEPS.map((step, index) => {
 						const isCompleted = index < currentStep
 						const isActive = index === currentStep
+						const isClickable = !isSubmitting && !isLoading
 
 						return (
 							<div key={step.id} className={styles.stepItem}>
-								<div className={styles.stepContent}>
+								<button
+									type="button"
+									className={`${styles.stepContent} ${isClickable ? styles.stepContentClickable : ''}`}
+									onClick={() => handleStepClick(index)}
+									disabled={!isClickable}
+									title={`Ir para ${step.title}`}
+								>
 									<div
 										className={`${styles.stepCircle} ${
 											isCompleted
@@ -730,7 +756,7 @@ export function EditPropertyOwnerModal({
 									<span className={`${styles.stepLabel} ${isActive ? styles.stepLabelActive : ''}`}>
 										{step.title}
 									</span>
-								</div>
+								</button>
 								{index < STEPS.length - 1 && (
 									<div
 										className={`${styles.stepConnector} ${

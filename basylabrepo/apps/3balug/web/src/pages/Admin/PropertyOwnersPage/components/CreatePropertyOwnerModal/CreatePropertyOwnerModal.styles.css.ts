@@ -134,6 +134,23 @@ export const stepContent = style({
 	flexDirection: 'column',
 	alignItems: 'center',
 	gap: vars.spacing.xs,
+	background: 'none',
+	border: 'none',
+	padding: '4px',
+	margin: 0,
+	font: 'inherit',
+})
+
+export const stepContentClickable = style({
+	cursor: 'pointer',
+	transition: `transform ${vars.transitionDuration.base}`,
+	':hover': {
+		transform: 'scale(1.05)',
+	},
+	':disabled': {
+		cursor: 'not-allowed',
+		transform: 'none',
+	},
 })
 
 export const stepCircle = style({

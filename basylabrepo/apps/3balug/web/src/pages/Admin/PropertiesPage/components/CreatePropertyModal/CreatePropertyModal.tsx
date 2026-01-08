@@ -92,9 +92,9 @@ const createPropertySchema = z
 		// Step 4: Endereco
 		zipCode: z.string().optional(),
 		address: z.string().min(1, 'Endereco e obrigatorio'),
-		addressNumber: z.string().optional(),
+		addressNumber: z.string().min(1, 'Numero e obrigatorio'),
 		addressComplement: z.string().optional(),
-		neighborhood: z.string().optional(),
+		neighborhood: z.string().min(1, 'Bairro e obrigatorio'),
 		city: z.string().min(1, 'Cidade e obrigatoria'),
 		state: z.string().min(1, 'Estado e obrigatorio').max(2, 'Use a sigla do estado (ex: SP)'),
 
@@ -319,7 +319,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 			case 'details':
 				return await trigger(['title'])
 			case 'address':
-				return await trigger(['address', 'city', 'state'])
+				return await trigger(['address', 'addressNumber', 'neighborhood', 'city', 'state'])
 			case 'pricing':
 				if (listingType === 'rent' || listingType === 'both') {
 					const isValid = await trigger(['rentalPrice'])
@@ -741,7 +741,9 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								{...register('neighborhood')}
 								label="Bairro"
 								placeholder="Centro"
+								error={errors.neighborhood?.message}
 								fullWidth
+								required
 								disabled={isSubmitting}
 							/>
 							<div className={styles.row2ColsInner}>
@@ -749,7 +751,9 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 									{...register('addressNumber')}
 									label="Numero"
 									placeholder="123"
+									error={errors.addressNumber?.message}
 									fullWidth
+									required
 									disabled={isSubmitting}
 								/>
 								<Input

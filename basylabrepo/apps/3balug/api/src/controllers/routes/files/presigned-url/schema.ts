@@ -1,10 +1,10 @@
 import { t } from 'elysia'
 
 export const presignedUrlBodySchema = t.Object({
-	fileName: t.String({ minLength: 1 }),
-	contentType: t.String({ minLength: 1 }),
-	fieldId: t.Optional(t.String()),
-	allowedTypes: t.Optional(t.Array(t.String())),
+	fileName: t.String({ minLength: 1, maxLength: 255 }),
+	contentType: t.String({ minLength: 1, maxLength: 100 }),
+	fieldId: t.Optional(t.String({ maxLength: 100 })),
+	allowedTypes: t.Optional(t.Array(t.String({ maxLength: 50 }), { maxItems: 10 })),
 })
 
 export const presignedUrlResponseSchema = t.Object({

@@ -49,6 +49,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Output standalone para deploy em VPS
+  output: "standalone",
+
   // Otimizações de build
   reactStrictMode: true,
   poweredByHeader: false,

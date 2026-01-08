@@ -53,11 +53,14 @@ export const batchRegisterPhotosParamsSchema = t.Object({
 	id: t.String(),
 })
 
+// Max file size: 10MB in bytes
+const MAX_PHOTO_SIZE = 10 * 1024 * 1024
+
 export const batchRegisterPhotoItemSchema = t.Object({
 	key: t.String(),
-	originalName: t.String(),
-	mimeType: t.String(),
-	size: t.Number(),
+	originalName: t.String({ maxLength: 255 }),
+	mimeType: t.String({ pattern: '^image/(jpeg|png|webp|gif)$' }),
+	size: t.Number({ minimum: 1, maximum: MAX_PHOTO_SIZE }),
 	url: t.String(),
 	isPrimary: t.Optional(t.Boolean()),
 })

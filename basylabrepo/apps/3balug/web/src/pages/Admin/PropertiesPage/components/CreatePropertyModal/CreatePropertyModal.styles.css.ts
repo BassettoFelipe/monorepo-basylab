@@ -6,22 +6,20 @@ const spin = keyframes({
 	to: { transform: 'rotate(360deg)' },
 })
 
-// Custom Header - Layout em 3 colunas com grid
+// Custom Header - Layout flexível que se adapta ao espaço
 export const customHeader = style({
-	padding: `${vars.spacing.lg} ${vars.spacing.lg}`,
+	padding: `${vars.spacing.md} ${vars.spacing.xl}`,
 	borderBottom: `1px solid ${vars.color.border.primary}`,
-	display: 'grid',
-	gridTemplateColumns: '250px 1fr 40px',
+	display: 'flex',
 	alignItems: 'center',
 	gap: vars.spacing.md,
 	backgroundColor: vars.color.bg.secondary,
 
 	'@media': {
 		'(max-width: 768px)': {
-			display: 'flex',
 			flexDirection: 'column',
 			alignItems: 'stretch',
-			gap: vars.spacing.md,
+			gap: vars.spacing.sm,
 			padding: vars.spacing.md,
 			position: 'relative',
 		},
@@ -31,14 +29,15 @@ export const customHeader = style({
 export const headerLeft = style({
 	display: 'flex',
 	flexDirection: 'column',
-	gap: vars.spacing.xs,
-	minWidth: 0,
-	justifySelf: 'start',
+	gap: '2px',
+	minWidth: '150px',
+	flexShrink: 0,
 
 	'@media': {
 		'(max-width: 768px)': {
 			order: 1,
 			paddingRight: '48px',
+			minWidth: 0,
 		},
 	},
 })
@@ -50,29 +49,46 @@ export const headerInfo = style({
 })
 
 export const headerTitle = style({
-	fontSize: vars.fontSize.xl,
+	fontSize: vars.fontSize.lg,
 	fontWeight: vars.fontWeight.bold,
 	color: vars.color.text.primary,
 	margin: 0,
+
+	'@media': {
+		'(max-width: 768px)': {
+			fontSize: vars.fontSize.base,
+		},
+	},
 })
 
 export const headerDescription = style({
 	fontSize: vars.fontSize.sm,
 	color: vars.color.text.secondary,
 	margin: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+
+	'@media': {
+		'(max-width: 768px)': {
+			fontSize: vars.fontSize.xs,
+		},
+	},
 })
 
 export const headerCenter = style({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
-	justifySelf: 'center',
-	width: '100%',
+	flex: 1,
+	minWidth: 0,
+	overflow: 'hidden',
 
 	'@media': {
 		'(max-width: 768px)': {
 			order: 3,
-			justifyContent: 'flex-start',
+			justifyContent: 'center',
+			width: '100%',
 		},
 	},
 })
@@ -81,13 +97,13 @@ export const headerRight = style({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'flex-end',
-	justifySelf: 'end',
+	flexShrink: 0,
 
 	'@media': {
 		'(max-width: 768px)': {
 			position: 'absolute',
-			top: vars.spacing.lg,
-			right: vars.spacing.lg,
+			top: vars.spacing.md,
+			right: vars.spacing.md,
 			order: 2,
 		},
 	},
@@ -104,7 +120,6 @@ export const closeButton = style({
 	justifyContent: 'center',
 	borderRadius: vars.borderRadius.md,
 	transition: `all ${vars.transitionDuration.base}`,
-	flexShrink: 0,
 	':hover': {
 		backgroundColor: vars.color.bg.primary,
 		color: vars.color.text.primary,
@@ -115,43 +130,79 @@ export const closeButton = style({
 	},
 })
 
-// Steps
+// Steps - usando flex-wrap para se adaptar ao espaço disponível
 export const stepsContainer = style({
 	display: 'flex',
-	alignItems: 'flex-start',
+	alignItems: 'center',
 	justifyContent: 'center',
+	flexWrap: 'wrap',
+	gap: vars.spacing.xs,
+	maxWidth: '100%',
+
+	'@media': {
+		'(max-width: 768px)': {
+			display: 'none',
+		},
+	},
+})
+
+// Mobile step indicator (shown on mobile screens)
+export const mobileStepIndicator = style({
+	display: 'none',
+
+	'@media': {
+		'(max-width: 768px)': {
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'center',
+			gap: '8px',
+			padding: `${vars.spacing.xs} 0`,
+		},
+	},
+})
+
+export const mobileStepDot = style({
+	width: '10px',
+	height: '10px',
+	borderRadius: '50%',
+	backgroundColor: vars.color.border.primary,
+	transition: `all ${vars.transitionDuration.base}`,
+})
+
+export const mobileStepDotActive = style({
+	backgroundColor: vars.color.primary.dark,
+	transform: 'scale(1.25)',
+})
+
+export const mobileStepDotCompleted = style({
+	backgroundColor: '#16A34A',
 })
 
 export const stepItem = style({
 	display: 'flex',
 	alignItems: 'flex-start',
+	flexShrink: 0,
 })
 
 export const stepContent = style({
 	display: 'flex',
 	flexDirection: 'column',
 	alignItems: 'center',
-	gap: '6px',
+	gap: '4px',
+	flexShrink: 0,
 })
 
 export const stepCircle = style({
-	width: '36px',
-	height: '36px',
-	borderRadius: '50%',
+	width: '28px',
+	height: '28px',
+	borderRadius: vars.borderRadius.full,
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
-	fontSize: vars.fontSize.sm,
+	fontSize: vars.fontSize.xs,
 	fontWeight: vars.fontWeight.medium,
 	transition: `all ${vars.transitionDuration.base}`,
 	flexShrink: 0,
-
-	'@media': {
-		'(max-width: 768px)': {
-			width: '32px',
-			height: '32px',
-		},
-	},
 })
 
 export const stepCirclePending = style({
@@ -174,17 +225,14 @@ export const stepCircleCompleted = style({
 })
 
 export const stepLabel = style({
-	fontSize: vars.fontSize.xs,
+	fontSize: '10px',
 	fontWeight: vars.fontWeight.medium,
 	color: vars.color.text.secondary,
 	textAlign: 'center',
 	whiteSpace: 'nowrap',
-
-	'@media': {
-		'(max-width: 900px)': {
-			display: 'none',
-		},
-	},
+	maxWidth: '60px',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
 })
 
 export const stepLabelActive = style({
@@ -192,34 +240,15 @@ export const stepLabelActive = style({
 	fontWeight: vars.fontWeight.bold,
 })
 
-export const stepConnectorWrapper = style({
-	display: 'flex',
-	alignItems: 'center',
-	height: '36px',
-	padding: '0 4px',
-
-	'@media': {
-		'(max-width: 768px)': {
-			height: '32px',
-			padding: '0 2px',
-		},
-	},
-})
-
 export const stepConnector = style({
-	width: '24px',
+	width: '16px',
 	height: '2px',
 	backgroundColor: vars.color.border.primary,
 	transition: `background-color ${vars.transitionDuration.base}`,
-
-	'@media': {
-		'(max-width: 900px)': {
-			width: '16px',
-		},
-		'(max-width: 768px)': {
-			width: '10px',
-		},
-	},
+	flexShrink: 0,
+	marginLeft: vars.spacing.xs,
+	marginRight: vars.spacing.xs,
+	marginTop: '13px',
 })
 
 export const stepConnectorCompleted = style({
@@ -636,7 +665,7 @@ export const toggleSlider = style({
 
 // Global styles for toggle input states
 globalStyle(`${toggleInput}:checked + ${toggleSlider}`, {
-	backgroundColor: vars.color.primary.main,
+	backgroundColor: '#16A34A',
 })
 
 globalStyle(`${toggleInput}:checked + ${toggleSlider}::before`, {
@@ -915,4 +944,207 @@ export const summaryItemIcon = style({
 export const summaryItemContent = style({
 	display: 'flex',
 	flexDirection: 'column',
+})
+
+// Photo upload dropzone styles
+export const photoDropzone = style({
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'center',
+	justifyContent: 'center',
+	gap: vars.spacing.md,
+	padding: vars.spacing.xl,
+	border: `2px dashed ${vars.color.border.primary}`,
+	borderRadius: vars.borderRadius.lg,
+	backgroundColor: vars.color.bg.primary,
+	cursor: 'pointer',
+	transition: `all ${vars.transitionDuration.base}`,
+	':hover': {
+		borderColor: vars.color.primary.main,
+		backgroundColor: vars.color.bg.secondary,
+	},
+})
+
+export const photoDropzoneDragging = style({
+	borderColor: vars.color.primary.dark,
+	backgroundColor: 'rgba(154, 169, 51, 0.08)',
+	boxShadow: '0 0 0 4px rgba(154, 169, 51, 0.15)',
+})
+
+export const photoDropzoneDisabled = style({
+	opacity: 0.5,
+	cursor: 'not-allowed',
+	':hover': {
+		borderColor: vars.color.border.primary,
+		backgroundColor: vars.color.bg.primary,
+	},
+})
+
+export const photoDropzoneIcon = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	width: '64px',
+	height: '64px',
+	backgroundColor: vars.color.bg.secondary,
+	borderRadius: vars.borderRadius.full,
+	color: vars.color.text.tertiary,
+	transition: `all ${vars.transitionDuration.base}`,
+})
+
+export const photoDropzoneTitle = style({
+	fontSize: vars.fontSize.base,
+	fontWeight: vars.fontWeight.medium,
+	color: vars.color.text.primary,
+	margin: 0,
+	textAlign: 'center',
+})
+
+export const photoDropzoneSubtitle = style({
+	fontSize: vars.fontSize.sm,
+	color: vars.color.text.tertiary,
+	margin: 0,
+	textAlign: 'center',
+})
+
+// Photo grid styles
+export const photosGrid = style({
+	display: 'grid',
+	gridTemplateColumns: 'repeat(5, 1fr)',
+	gap: vars.spacing.md,
+	marginTop: vars.spacing.lg,
+
+	'@media': {
+		'(max-width: 900px)': {
+			gridTemplateColumns: 'repeat(4, 1fr)',
+		},
+		'(max-width: 640px)': {
+			gridTemplateColumns: 'repeat(3, 1fr)',
+		},
+		'(max-width: 480px)': {
+			gridTemplateColumns: 'repeat(2, 1fr)',
+		},
+	},
+})
+
+export const photoCard = style({
+	position: 'relative',
+	aspectRatio: '1',
+	borderRadius: vars.borderRadius.md,
+	overflow: 'hidden',
+	border: `1px solid ${vars.color.border.primary}`,
+	backgroundColor: vars.color.bg.secondary,
+	transition: `all ${vars.transitionDuration.base}`,
+	':hover': {
+		boxShadow: '0 4px 12px rgba(0, 0, 0, 0.12)',
+	},
+})
+
+export const photoCardPrimary = style({
+	border: `2px solid ${vars.color.primary.dark}`,
+	boxShadow: '0 0 0 2px rgba(154, 169, 51, 0.2)',
+})
+
+export const photoCardDeleted = style({
+	opacity: 0.6,
+	border: '2px dashed #EF4444',
+})
+
+export const photoImage = style({
+	width: '100%',
+	height: '100%',
+	objectFit: 'cover',
+})
+
+export const photoOverlay = style({
+	position: 'absolute',
+	inset: 0,
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	backgroundColor: 'rgba(0, 0, 0, 0.5)',
+	opacity: 0,
+	transition: `opacity ${vars.transitionDuration.base}`,
+	selectors: {
+		[`${photoCard}:hover &`]: {
+			opacity: 1,
+		},
+	},
+})
+
+export const photoActions = style({
+	display: 'flex',
+	gap: vars.spacing.xs,
+})
+
+export const photoActionButton = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	width: '32px',
+	height: '32px',
+	padding: 0,
+	border: 'none',
+	borderRadius: vars.borderRadius.md,
+	backgroundColor: 'rgba(255, 255, 255, 0.95)',
+	color: vars.color.text.secondary,
+	cursor: 'pointer',
+	transition: `all ${vars.transitionDuration.base}`,
+	':hover': {
+		backgroundColor: '#FFFFFF',
+		color: vars.color.text.primary,
+		transform: 'scale(1.1)',
+	},
+	':disabled': {
+		opacity: 0.5,
+		cursor: 'not-allowed',
+		transform: 'none',
+	},
+})
+
+export const photoActionButtonDanger = style({
+	':hover': {
+		backgroundColor: '#FEE2E2',
+		color: '#DC2626',
+	},
+})
+
+export const photoActionButtonSuccess = style({
+	':hover': {
+		backgroundColor: '#DCFCE7',
+		color: '#16A34A',
+	},
+})
+
+export const photoBadge = style({
+	position: 'absolute',
+	display: 'flex',
+	alignItems: 'center',
+	gap: '3px',
+	padding: '3px 8px',
+	fontSize: '10px',
+	fontWeight: 600,
+	borderRadius: vars.borderRadius.sm,
+	zIndex: 1,
+})
+
+export const photoBadgePrimary = style({
+	top: vars.spacing.xs,
+	left: vars.spacing.xs,
+	color: '#FFFFFF',
+	backgroundColor: vars.color.primary.dark,
+})
+
+export const photoBadgeNew = style({
+	bottom: vars.spacing.xs,
+	left: vars.spacing.xs,
+	color: '#FFFFFF',
+	backgroundColor: '#22C55E',
+})
+
+export const photoBadgeDeleted = style({
+	top: vars.spacing.xs,
+	right: vars.spacing.xs,
+	color: '#FFFFFF',
+	backgroundColor: '#EF4444',
 })

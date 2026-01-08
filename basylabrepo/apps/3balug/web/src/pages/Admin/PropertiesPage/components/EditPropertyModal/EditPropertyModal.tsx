@@ -19,21 +19,25 @@ import {
 	Globe,
 	Home,
 	Image,
+	ImagePlus,
 	Info,
 	Loader2,
 	MapPin,
 	PawPrint,
 	Percent,
+	RotateCcw,
 	Rocket,
 	Ruler,
 	Settings,
 	Shield,
 	Sparkles,
+	Star,
+	Trash2,
 	User,
 	Waves,
 	X,
 } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { z } from 'zod'
@@ -42,14 +46,23 @@ import { Button } from '@/components/Button/Button'
 import { Input } from '@/components/Input/Input'
 import { Modal } from '@/components/Modal/Modal'
 import { OwnerSelect } from '@/components/OwnerSelect'
-import { PropertyPhotoUpload } from '@/components/PropertyPhotoUpload/PropertyPhotoUpload'
 import { ListingTypeSelector, PropertyTypeSelector } from '@/components/PropertyTypeSelector'
 import { Select } from '@/components/Select/Select'
 import { Skeleton } from '@/components/Skeleton/Skeleton'
 import { Textarea } from '@/components/Textarea/Textarea'
 import { useUpdatePropertyMutation } from '@/queries/properties/useUpdatePropertyMutation'
 import { usePropertyOwnersQuery } from '@/queries/property-owners/usePropertyOwnersQuery'
-import type { ListingType, Property, PropertyStatus, PropertyType } from '@/types/property.types'
+import { useBatchRegisterPhotosMutation } from '@/queries/property-photos/useBatchRegisterPhotosMutation'
+import { useDeletePropertyPhotoMutation } from '@/queries/property-photos/useDeletePropertyPhotoMutation'
+import { useSetPrimaryPhotoMutation } from '@/queries/property-photos/useSetPrimaryPhotoMutation'
+import { getPresignedUrl, uploadToPresignedUrl } from '@/services/files/presigned-url'
+import type { BatchRegisterPhotoItem } from '@/services/property-photos/batch-register'
+import type {
+	ListingType,
+	Property,
+	PropertyStatus,
+	PropertyType,
+} from '@/types/property.types'
 import { BRAZILIAN_STATES } from '@/types/property-owner.types'
 import { applyMask, formatCurrencyToInput, getCurrencyRawValue } from '@/utils/masks'
 import * as styles from '../CreatePropertyModal/CreatePropertyModal.styles.css'
@@ -63,6 +76,25 @@ interface ViaCepResponse {
 	uf: string
 	erro?: boolean
 }
+
+// Photo management types
+interface ExistingPhoto {
+	id: string
+	url: string
+	isPrimary: boolean
+	order: number
+	markedForDeletion: boolean
+}
+
+interface NewPhoto {
+	id: string
+	file: File
+	preview: string
+	isPrimary: boolean
+}
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 
 const editPropertySchema = z
 	.object({
@@ -97,9 +129,9 @@ const editPropertySchema = z
 		// Step 4: Endereco
 		zipCode: z.string().optional(),
 		address: z.string().min(1, 'Endereco e obrigatorio'),
-		addressNumber: z.string().optional(),
+		addressNumber: z.string().min(1, 'Numero e obrigatorio'),
 		addressComplement: z.string().optional(),
-		neighborhood: z.string().optional(),
+		neighborhood: z.string().min(1, 'Bairro e obrigatorio'),
 		city: z.string().min(1, 'Cidade e obrigatoria'),
 		state: z.string().min(1, 'Estado e obrigatorio').max(2, 'Use a sigla do estado (ex: SP)'),
 
@@ -244,9 +276,21 @@ export function EditPropertyModal({
 	isLoading = false,
 }: EditPropertyModalProps) {
 	const updateMutation = useUpdatePropertyMutation()
+	const deletePhotoMutation = useDeletePropertyPhotoMutation()
+	const setPrimaryPhotoMutation = useSetPrimaryPhotoMutation()
+	const batchRegisterPhotosMutation = useBatchRegisterPhotosMutation()
+
 	const [currentStep, setCurrentStep] = useState(0)
 	const [cepLoading, setCepLoading] = useState(false)
 	const [cepError, setCepError] = useState<string | null>(null)
+	const [isUploading, setIsUploading] = useState(false)
+
+	// Photo management state
+	const [existingPhotos, setExistingPhotos] = useState<ExistingPhoto[]>([])
+	const [newPhotos, setNewPhotos] = useState<NewPhoto[]>([])
+	const [primaryPhotoId, setPrimaryPhotoId] = useState<string | null>(null)
+	const [isDragging, setIsDragging] = useState(false)
+	const fileInputRef = useRef<HTMLInputElement>(null)
 
 	const { data: ownersData, isLoading: isLoadingOwners } = usePropertyOwnersQuery({ limit: 100 })
 
@@ -274,6 +318,12 @@ export function EditPropertyModal({
 	const isLastStep = currentStep === steps.length - 1
 	const isFirstStep = currentStep === 0
 	const progress = ((currentStep + 1) / steps.length) * 100
+
+	// Calculate total photos count
+	const activeExistingPhotos = existingPhotos.filter((p) => !p.markedForDeletion)
+	const totalPhotosCount = activeExistingPhotos.length + newPhotos.length
+	const maxPhotos = 20
+	const canAddMorePhotos = totalPhotosCount < maxPhotos
 
 	// Carregar dados da propriedade quando o modal abrir
 	useEffect(() => {
@@ -324,10 +374,184 @@ export function EditPropertyModal({
 				hasBarbecue: property.features?.hasBarbecue || false,
 			})
 
+			// Initialize photo state
+			const existingPhotosList: ExistingPhoto[] = (property.photos || []).map((photo) => ({
+				id: photo.id,
+				url: photo.url,
+				isPrimary: photo.isPrimary,
+				order: photo.order,
+				markedForDeletion: false,
+			}))
+			setExistingPhotos(existingPhotosList)
+			setNewPhotos([])
+
+			// Find primary photo
+			const primary = existingPhotosList.find((p) => p.isPrimary)
+			setPrimaryPhotoId(primary?.id || null)
+
 			setCurrentStep(0)
 			setCepError(null)
 		}
 	}, [property, isOpen, reset])
+
+	// Photo management handlers
+	const handleFiles = useCallback(
+		(files: FileList | null) => {
+			if (!files || files.length === 0) return
+
+			const availableSlots = maxPhotos - totalPhotosCount
+			const filesToAdd = Array.from(files).slice(0, availableSlots)
+
+			const validNewPhotos: NewPhoto[] = []
+
+			for (const file of filesToAdd) {
+				if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
+					toast.error(`Tipo de arquivo nao permitido: ${file.name}`)
+					continue
+				}
+
+				if (file.size > MAX_FILE_SIZE) {
+					toast.error(`Arquivo muito grande (max 10MB): ${file.name}`)
+					continue
+				}
+
+				const id = `new-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+				const preview = URL.createObjectURL(file)
+
+				validNewPhotos.push({
+					id,
+					file,
+					preview,
+					isPrimary: false,
+				})
+			}
+
+			if (validNewPhotos.length > 0) {
+				setNewPhotos((prev) => {
+					const updated = [...prev, ...validNewPhotos]
+					// If no primary exists, set first new photo as primary
+					if (!primaryPhotoId && activeExistingPhotos.length === 0 && updated.length > 0) {
+						updated[0].isPrimary = true
+						setPrimaryPhotoId(updated[0].id)
+					}
+					return updated
+				})
+			}
+		},
+		[totalPhotosCount, primaryPhotoId, activeExistingPhotos.length],
+	)
+
+	const handleMarkForDeletion = useCallback(
+		(photoId: string) => {
+			setExistingPhotos((prev) =>
+				prev.map((photo) =>
+					photo.id === photoId ? { ...photo, markedForDeletion: true } : photo,
+				),
+			)
+
+			// If deleting primary, reassign
+			if (photoId === primaryPhotoId) {
+				const remaining = existingPhotos.filter((p) => p.id !== photoId && !p.markedForDeletion)
+				if (remaining.length > 0) {
+					setPrimaryPhotoId(remaining[0].id)
+				} else if (newPhotos.length > 0) {
+					setPrimaryPhotoId(newPhotos[0].id)
+					setNewPhotos((prev) =>
+						prev.map((p, i) => (i === 0 ? { ...p, isPrimary: true } : { ...p, isPrimary: false })),
+					)
+				} else {
+					setPrimaryPhotoId(null)
+				}
+			}
+		},
+		[primaryPhotoId, existingPhotos, newPhotos],
+	)
+
+	const handleRestorePhoto = useCallback((photoId: string) => {
+		setExistingPhotos((prev) =>
+			prev.map((photo) =>
+				photo.id === photoId ? { ...photo, markedForDeletion: false } : photo,
+			),
+		)
+	}, [])
+
+	const handleRemoveNewPhoto = useCallback(
+		(photoId: string) => {
+			const photoToRemove = newPhotos.find((p) => p.id === photoId)
+			if (photoToRemove) {
+				URL.revokeObjectURL(photoToRemove.preview)
+			}
+
+			setNewPhotos((prev) => prev.filter((p) => p.id !== photoId))
+
+			// If removing primary, reassign
+			if (photoId === primaryPhotoId) {
+				const remainingNew = newPhotos.filter((p) => p.id !== photoId)
+				if (remainingNew.length > 0) {
+					setPrimaryPhotoId(remainingNew[0].id)
+					setNewPhotos((prev) =>
+						prev.map((p) =>
+							p.id === remainingNew[0].id ? { ...p, isPrimary: true } : { ...p, isPrimary: false },
+						),
+					)
+				} else if (activeExistingPhotos.length > 0) {
+					setPrimaryPhotoId(activeExistingPhotos[0].id)
+				} else {
+					setPrimaryPhotoId(null)
+				}
+			}
+		},
+		[newPhotos, primaryPhotoId, activeExistingPhotos],
+	)
+
+	const handleSetPrimary = useCallback(
+		(photoId: string, isNew: boolean) => {
+			setPrimaryPhotoId(photoId)
+
+			if (isNew) {
+				setNewPhotos((prev) =>
+					prev.map((p) => ({ ...p, isPrimary: p.id === photoId })),
+				)
+			}
+		},
+		[],
+	)
+
+	const handleDragOver = useCallback(
+		(e: React.DragEvent) => {
+			e.preventDefault()
+			if (canAddMorePhotos) {
+				setIsDragging(true)
+			}
+		},
+		[canAddMorePhotos],
+	)
+
+	const handleDragLeave = useCallback((e: React.DragEvent) => {
+		e.preventDefault()
+		setIsDragging(false)
+	}, [])
+
+	const handleDrop = useCallback(
+		(e: React.DragEvent) => {
+			e.preventDefault()
+			setIsDragging(false)
+			if (canAddMorePhotos) {
+				handleFiles(e.dataTransfer.files)
+			}
+		},
+		[canAddMorePhotos, handleFiles],
+	)
+
+	const handleInputChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			handleFiles(e.target.files)
+			if (fileInputRef.current) {
+				fileInputRef.current.value = ''
+			}
+		},
+		[handleFiles],
+	)
 
 	const handleOwnerChange = useCallback(
 		(ownerId: string) => {
@@ -412,7 +636,7 @@ export function EditPropertyModal({
 			case 'details':
 				return await trigger(['title'])
 			case 'address':
-				return await trigger(['address', 'city', 'state'])
+				return await trigger(['address', 'addressNumber', 'neighborhood', 'city', 'state'])
 			case 'pricing':
 				if (listingType === 'rent' || listingType === 'both') {
 					const isValid = await trigger(['rentalPrice'])
@@ -447,6 +671,8 @@ export function EditPropertyModal({
 
 	const onSubmit = async (data: EditPropertyFormData) => {
 		if (!property) return
+
+		setIsUploading(true)
 
 		try {
 			const features = {
@@ -499,11 +725,83 @@ export function EditPropertyModal({
 				features,
 			}
 
-			const response = await updateMutation.mutateAsync({
+			// 1. Update property data
+			await updateMutation.mutateAsync({
 				id: property.id,
 				input: payload,
 			})
-			toast.success(response.message || 'Imovel atualizado com sucesso!')
+
+			// 2. Delete photos marked for deletion
+			const photosToDelete = existingPhotos.filter((p) => p.markedForDeletion)
+			for (const photo of photosToDelete) {
+				try {
+					await deletePhotoMutation.mutateAsync({
+						propertyId: property.id,
+						photoId: photo.id,
+					})
+				} catch {
+					toast.error(`Erro ao remover foto`)
+				}
+			}
+
+			// 3. Upload new photos
+			if (newPhotos.length > 0) {
+				try {
+					// Get presigned URLs for all new photos
+					const presignedUrlPromises = newPhotos.map((photo) =>
+						getPresignedUrl({
+							fileName: photo.file.name,
+							contentType: photo.file.type,
+							fieldId: `property-${property.id}`,
+							allowedTypes: ['image/*'],
+						}),
+					)
+					const presignedUrls = await Promise.all(presignedUrlPromises)
+
+					// Upload all files directly to storage
+					const uploadPromises = newPhotos.map((photo, index) =>
+						uploadToPresignedUrl(presignedUrls[index].data.uploadUrl, photo.file),
+					)
+					await Promise.all(uploadPromises)
+
+					// Register all photos in the database
+					const photosToRegister: BatchRegisterPhotoItem[] = newPhotos.map((photo, index) => ({
+						key: presignedUrls[index].data.key,
+						originalName: photo.file.name,
+						mimeType: photo.file.type,
+						size: photo.file.size,
+						url: presignedUrls[index].data.publicUrl,
+						isPrimary: photo.id === primaryPhotoId,
+					}))
+
+					await batchRegisterPhotosMutation.mutateAsync({
+						propertyId: property.id,
+						photos: photosToRegister,
+					})
+				} catch {
+					toast.error('Erro ao enviar algumas fotos')
+				}
+			}
+
+			// 4. Update primary photo if it's an existing photo that changed
+			const originalPrimaryPhoto = property.photos?.find((p) => p.isPrimary)
+			const existingPrimaryChanged =
+				primaryPhotoId &&
+				!primaryPhotoId.startsWith('new-') &&
+				originalPrimaryPhoto?.id !== primaryPhotoId
+
+			if (existingPrimaryChanged) {
+				try {
+					await setPrimaryPhotoMutation.mutateAsync({
+						propertyId: property.id,
+						photoId: primaryPhotoId,
+					})
+				} catch {
+					toast.error('Erro ao definir foto principal')
+				}
+			}
+
+			toast.success('Imovel atualizado com sucesso!')
 			handleClose()
 		} catch (error: unknown) {
 			const errorMessage =
@@ -519,19 +817,28 @@ export function EditPropertyModal({
 					? String(error.response.data.message)
 					: 'Erro ao atualizar imovel'
 			toast.error(errorMessage)
+		} finally {
+			setIsUploading(false)
 		}
 	}
 
 	const handleClose = useCallback(() => {
-		if (!updateMutation.isPending) {
+		if (!updateMutation.isPending && !isUploading) {
+			// Cleanup new photo previews
+			for (const photo of newPhotos) {
+				URL.revokeObjectURL(photo.preview)
+			}
 			reset()
 			setCepError(null)
 			setCurrentStep(0)
+			setExistingPhotos([])
+			setNewPhotos([])
+			setPrimaryPhotoId(null)
 			onClose()
 		}
-	}, [updateMutation.isPending, reset, onClose])
+	}, [updateMutation.isPending, isUploading, newPhotos, reset, onClose])
 
-	const isSubmitting = updateMutation.isPending
+	const isSubmitting = updateMutation.isPending || isUploading
 
 	// Skeleton renderers
 	const renderStep1Skeleton = () => (
@@ -730,6 +1037,7 @@ export function EditPropertyModal({
 
 			{/* Center: Steps */}
 			<div className={styles.headerCenter}>
+				{/* Full step indicators (hidden on mobile) */}
 				<div className={styles.stepsContainer}>
 					{steps.map((step, index) => {
 						const isCompleted = index < currentStep
@@ -737,6 +1045,13 @@ export function EditPropertyModal({
 
 						return (
 							<div key={step.id} className={styles.stepItem}>
+								{index > 0 && (
+									<div
+										className={`${styles.stepConnector} ${
+											isCompleted ? styles.stepConnectorCompleted : ''
+										}`}
+									/>
+								)}
 								<div className={styles.stepContent}>
 									<div
 										className={`${styles.stepCircle} ${
@@ -747,22 +1062,34 @@ export function EditPropertyModal({
 													: styles.stepCirclePending
 										}`}
 									>
-										{isCompleted ? <Check size={18} /> : step.icon}
+										{isCompleted ? <Check size={16} /> : step.icon}
 									</div>
 									<span className={`${styles.stepLabel} ${isActive ? styles.stepLabelActive : ''}`}>
 										{step.title}
 									</span>
 								</div>
-								{index < steps.length - 1 && (
-									<div className={styles.stepConnectorWrapper}>
-										<div
-											className={`${styles.stepConnector} ${
-												isCompleted ? styles.stepConnectorCompleted : ''
-											}`}
-										/>
-									</div>
-								)}
 							</div>
+						)
+					})}
+				</div>
+
+				{/* Mobile dot indicators (shown only on small screens) */}
+				<div className={styles.mobileStepIndicator}>
+					{steps.map((step, index) => {
+						const isCompleted = index < currentStep
+						const isActive = index === currentStep
+
+						return (
+							<div
+								key={step.id}
+								className={`${styles.mobileStepDot} ${
+									isActive
+										? styles.mobileStepDotActive
+										: isCompleted
+											? styles.mobileStepDotCompleted
+											: ''
+								}`}
+							/>
 						)
 					})}
 				</div>
@@ -813,7 +1140,7 @@ export function EditPropertyModal({
 						loading={isSubmitting}
 						disabled={isLoading}
 					>
-						Salvar Alteracoes
+						{isUploading ? 'Salvando...' : 'Salvar Alteracoes'}
 					</Button>
 				) : (
 					<Button variant="primary" onClick={handleNext} disabled={isSubmitting || isLoading}>
@@ -1074,7 +1401,9 @@ export function EditPropertyModal({
 									{...register('neighborhood')}
 									label="Bairro"
 									placeholder="Centro"
+									error={errors.neighborhood?.message}
 									fullWidth
+									required
 									disabled={isSubmitting}
 								/>
 								<div className={styles.row2ColsInner}>
@@ -1082,7 +1411,9 @@ export function EditPropertyModal({
 										{...register('addressNumber')}
 										label="Numero"
 										placeholder="123"
+										error={errors.addressNumber?.message}
 										fullWidth
+										required
 										disabled={isSubmitting}
 									/>
 									<Input
@@ -1354,37 +1685,181 @@ export function EditPropertyModal({
 									<div className={styles.photosHeaderText}>
 										<h3 className={styles.photosHeaderTitle}>Galeria de Fotos</h3>
 										<p className={styles.photosHeaderDescription}>
-											Gerencie as fotos do imovel. Adicione novas ou remova as existentes.
+											Gerencie as fotos do imovel. As alteracoes serao salvas ao clicar em "Salvar
+											Alteracoes".
 										</p>
 									</div>
 								</div>
 								<div className={styles.photosCounter}>
 									<Camera size={12} />
-									<span>{property.photos?.length || 0}/20</span>
+									<span>
+										{totalPhotosCount}/{maxPhotos}
+									</span>
 								</div>
 							</div>
 
 							<div className={styles.photosTips}>
 								<div className={styles.photosTipItem}>
 									<CheckCircle2 size={12} className={styles.photosTipIcon} />
-									<span>Primeira foto = capa</span>
+									<span>Clique na estrela para definir a foto principal</span>
 								</div>
 								<div className={styles.photosTipItem}>
 									<CheckCircle2 size={12} className={styles.photosTipIcon} />
-									<span>Fotos bem iluminadas</span>
-								</div>
-								<div className={styles.photosTipItem}>
-									<CheckCircle2 size={12} className={styles.photosTipIcon} />
-									<span>Todos os comodos</span>
+									<span>Fotos removidas podem ser restauradas</span>
 								</div>
 							</div>
 
-							<PropertyPhotoUpload
-								propertyId={property.id}
-								photos={property.photos || []}
-								maxPhotos={20}
-								disabled={isSubmitting}
-							/>
+							{/* Drop zone for new photos */}
+							{canAddMorePhotos && (
+								<button
+									type="button"
+									className={`${styles.photoDropzone} ${isDragging ? styles.photoDropzoneDragging : ''} ${isSubmitting ? styles.photoDropzoneDisabled : ''}`}
+									onDragOver={handleDragOver}
+									onDragLeave={handleDragLeave}
+									onDrop={handleDrop}
+									onClick={() => fileInputRef.current?.click()}
+									disabled={isSubmitting}
+								>
+									<input
+										ref={fileInputRef}
+										type="file"
+										style={{ display: 'none' }}
+										onChange={handleInputChange}
+										accept={ALLOWED_PHOTO_TYPES.join(',')}
+										multiple
+										disabled={isSubmitting}
+									/>
+									<div className={styles.photoDropzoneIcon}>
+										<ImagePlus size={28} />
+									</div>
+									<p className={styles.photoDropzoneTitle}>
+										Arraste fotos aqui ou clique para selecionar
+									</p>
+									<p className={styles.photoDropzoneSubtitle}>
+										JPG, PNG, WebP ou GIF - Max 10MB por foto
+									</p>
+								</button>
+							)}
+
+							{/* Photos grid */}
+							{(activeExistingPhotos.length > 0 ||
+								newPhotos.length > 0 ||
+								existingPhotos.some((p) => p.markedForDeletion)) && (
+								<div className={styles.photosGrid}>
+									{/* Existing photos (not marked for deletion) */}
+									{existingPhotos
+										.filter((p) => !p.markedForDeletion)
+										.sort((a, b) => a.order - b.order)
+										.map((photo) => (
+											<div
+												key={photo.id}
+												className={`${styles.photoCard} ${photo.id === primaryPhotoId ? styles.photoCardPrimary : ''}`}
+											>
+												<img src={photo.url} alt="Foto do imovel" className={styles.photoImage} />
+												{photo.id === primaryPhotoId && (
+													<div className={`${styles.photoBadge} ${styles.photoBadgePrimary}`}>
+														<Star size={10} />
+														Principal
+													</div>
+												)}
+												<div className={styles.photoOverlay}>
+													<div className={styles.photoActions}>
+														{photo.id !== primaryPhotoId && (
+															<button
+																type="button"
+																className={styles.photoActionButton}
+																onClick={() => handleSetPrimary(photo.id, false)}
+																disabled={isSubmitting}
+																title="Definir como principal"
+															>
+																<Star size={14} />
+															</button>
+														)}
+														<button
+															type="button"
+															className={`${styles.photoActionButton} ${styles.photoActionButtonDanger}`}
+															onClick={() => handleMarkForDeletion(photo.id)}
+															disabled={isSubmitting}
+															title="Remover foto"
+														>
+															<Trash2 size={14} />
+														</button>
+													</div>
+												</div>
+											</div>
+										))}
+
+									{/* New photos */}
+									{newPhotos.map((photo) => (
+										<div
+											key={photo.id}
+											className={`${styles.photoCard} ${photo.id === primaryPhotoId ? styles.photoCardPrimary : ''}`}
+										>
+											<img src={photo.preview} alt="Nova foto" className={styles.photoImage} />
+											{photo.id === primaryPhotoId && (
+												<div className={`${styles.photoBadge} ${styles.photoBadgePrimary}`}>
+													<Star size={10} />
+													Principal
+												</div>
+											)}
+											<div className={`${styles.photoBadge} ${styles.photoBadgeNew}`}>Nova</div>
+											<div className={styles.photoOverlay}>
+												<div className={styles.photoActions}>
+													{photo.id !== primaryPhotoId && (
+														<button
+															type="button"
+															className={styles.photoActionButton}
+															onClick={() => handleSetPrimary(photo.id, true)}
+															disabled={isSubmitting}
+															title="Definir como principal"
+														>
+															<Star size={14} />
+														</button>
+													)}
+													<button
+														type="button"
+														className={`${styles.photoActionButton} ${styles.photoActionButtonDanger}`}
+														onClick={() => handleRemoveNewPhoto(photo.id)}
+														disabled={isSubmitting}
+														title="Remover foto"
+													>
+														<Trash2 size={14} />
+													</button>
+												</div>
+											</div>
+										</div>
+									))}
+
+									{/* Deleted photos (with restore option) */}
+									{existingPhotos
+										.filter((p) => p.markedForDeletion)
+										.map((photo) => (
+											<div
+												key={photo.id}
+												className={`${styles.photoCard} ${styles.photoCardDeleted}`}
+											>
+												<img src={photo.url} alt="Foto removida" className={styles.photoImage} />
+												<div className={`${styles.photoBadge} ${styles.photoBadgeDeleted}`}>
+													<Trash2 size={10} />
+													Removida
+												</div>
+												<div className={styles.photoOverlay}>
+													<div className={styles.photoActions}>
+														<button
+															type="button"
+															className={`${styles.photoActionButton} ${styles.photoActionButtonSuccess}`}
+															onClick={() => handleRestorePhoto(photo.id)}
+															disabled={isSubmitting}
+															title="Restaurar foto"
+														>
+															<RotateCcw size={14} />
+														</button>
+													</div>
+												</div>
+											</div>
+										))}
+								</div>
+							)}
 						</div>
 					)}
 
@@ -1490,9 +1965,10 @@ export function EditPropertyModal({
 										<div className={styles.summaryItemContent}>
 											<span className={styles.summaryLabel}>Fotos</span>
 											<span className={styles.summaryValue}>
-												{property?.photos?.length === 0
-													? 'Nenhuma'
-													: `${property?.photos?.length || 0} foto(s)`}
+												{totalPhotosCount === 0 ? 'Nenhuma' : `${totalPhotosCount} foto(s)`}
+												{newPhotos.length > 0 && ` (+${newPhotos.length} nova(s))`}
+												{existingPhotos.filter((p) => p.markedForDeletion).length > 0 &&
+													` (-${existingPhotos.filter((p) => p.markedForDeletion).length} removida(s))`}
 											</span>
 										</div>
 									</div>

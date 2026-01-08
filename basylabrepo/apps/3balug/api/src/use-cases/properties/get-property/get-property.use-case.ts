@@ -30,10 +30,12 @@ type PropertyPhotoDTO = {
 	id: string
 	url: string
 	isPrimary: boolean
+	order: number
 }
 
 type GetPropertyOutput = {
 	id: string
+	code: string | null
 	title: string
 	description: string | null
 	type: PropertyType
@@ -41,14 +43,25 @@ type GetPropertyOutput = {
 	status: PropertyStatus
 	rentalPrice: number | null
 	salePrice: number | null
+	iptuPrice: number | null
+	condoFee: number | null
+	commissionPercentage: number | null
 	address: string | null
+	addressNumber: string | null
+	addressComplement: string | null
+	neighborhood: string | null
 	city: string | null
 	state: string | null
 	zipCode: string | null
 	bedrooms: number | null
 	bathrooms: number | null
+	suites: number | null
 	parkingSpaces: number | null
 	area: number | null
+	floor: number | null
+	totalFloors: number | null
+	isMarketplace: boolean
+	notes: string | null
 	features: PropertyFeatures | null
 	ownerId: string
 	owner: PropertyOwnerDTO | null
@@ -124,10 +137,12 @@ export class GetPropertyUseCase {
 			id: photo.id,
 			url: photo.url,
 			isPrimary: photo.isPrimary ?? false,
+			order: photo.order ?? 0,
 		}))
 
 		return {
 			id: property.id,
+			code: property.code,
 			title: property.title,
 			description: property.description,
 			type: property.type as PropertyType,
@@ -135,14 +150,25 @@ export class GetPropertyUseCase {
 			status: property.status as PropertyStatus,
 			rentalPrice: property.rentalPrice,
 			salePrice: property.salePrice,
+			iptuPrice: property.iptuPrice,
+			condoFee: property.condoFee,
+			commissionPercentage: property.commissionPercentage,
 			address: property.address,
+			addressNumber: property.addressNumber,
+			addressComplement: property.addressComplement,
+			neighborhood: property.neighborhood,
 			city: property.city,
 			state: property.state,
 			zipCode: property.zipCode,
 			bedrooms: property.bedrooms,
 			bathrooms: property.bathrooms,
+			suites: property.suites,
 			parkingSpaces: property.parkingSpaces,
 			area: property.area,
+			floor: property.floor,
+			totalFloors: property.totalFloors,
+			isMarketplace: property.isMarketplace,
+			notes: property.notes,
 			features: property.features as PropertyFeatures | null,
 			ownerId: property.ownerId,
 			owner,

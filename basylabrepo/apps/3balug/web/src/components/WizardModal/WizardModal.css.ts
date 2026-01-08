@@ -5,23 +5,13 @@ import { vars } from '@/design-system/theme.css'
 export const customHeader = style({
 	padding: `${vars.spacing.md} ${vars.spacing.xl}`,
 	borderBottom: `1px solid ${vars.color.border.primary}`,
-	display: 'grid',
-	gridTemplateColumns: '200px 1fr 48px',
+	display: 'flex',
 	alignItems: 'center',
 	gap: vars.spacing.md,
 	backgroundColor: vars.color.bg.secondary,
 
 	'@media': {
-		'(max-width: 1100px)': {
-			gridTemplateColumns: '180px 1fr 48px',
-			padding: `${vars.spacing.md} ${vars.spacing.lg}`,
-		},
-		'(max-width: 900px)': {
-			gridTemplateColumns: '150px 1fr 48px',
-			gap: vars.spacing.sm,
-		},
 		'(max-width: 768px)': {
-			display: 'flex',
 			flexDirection: 'column',
 			alignItems: 'stretch',
 			gap: vars.spacing.sm,
@@ -35,12 +25,14 @@ export const headerLeft = style({
 	display: 'flex',
 	flexDirection: 'column',
 	gap: '2px',
-	minWidth: 0,
+	minWidth: '150px',
+	flexShrink: 0,
 
 	'@media': {
 		'(max-width: 768px)': {
 			order: 1,
 			paddingRight: '48px',
+			minWidth: 0,
 		},
 	},
 })
@@ -77,26 +69,15 @@ export const headerCenter = style({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
+	flex: 1,
 	minWidth: 0,
-	overflow: 'visible',
+	overflow: 'hidden',
 
 	'@media': {
-		'(max-width: 900px)': {
-			overflow: 'hidden',
-		},
 		'(max-width: 768px)': {
 			order: 3,
 			justifyContent: 'center',
 			width: '100%',
-			overflowX: 'auto',
-			paddingBottom: vars.spacing.xs,
-			scrollbarWidth: 'none',
-			msOverflowStyle: 'none',
-			selectors: {
-				'&::-webkit-scrollbar': {
-					display: 'none',
-				},
-			},
 		},
 	},
 })
@@ -138,12 +119,14 @@ export const closeButton = style({
 	},
 })
 
-// Steps
+// Steps - usando flex-wrap para se adaptar ao espaço disponível
 export const stepsContainer = style({
 	display: 'flex',
-	alignItems: 'flex-start',
+	alignItems: 'center',
 	justifyContent: 'center',
-	flexShrink: 0,
+	flexWrap: 'wrap',
+	gap: vars.spacing.xs,
+	maxWidth: '100%',
 
 	'@media': {
 		'(max-width: 768px)': {
@@ -152,7 +135,7 @@ export const stepsContainer = style({
 	},
 })
 
-// Mobile step indicator (shown on tablet and smaller screens)
+// Mobile step indicator (shown on mobile screens)
 export const mobileStepIndicator = style({
 	display: 'none',
 
@@ -199,8 +182,8 @@ export const stepContent = style({
 })
 
 export const stepCircle = style({
-	width: '32px',
-	height: '32px',
+	width: '28px',
+	height: '28px',
 	borderRadius: vars.borderRadius.full,
 	display: 'flex',
 	alignItems: 'center',
@@ -209,17 +192,6 @@ export const stepCircle = style({
 	fontWeight: vars.fontWeight.medium,
 	transition: `all ${vars.transitionDuration.base}`,
 	flexShrink: 0,
-
-	'@media': {
-		'(max-width: 1100px)': {
-			width: '28px',
-			height: '28px',
-		},
-		'(max-width: 900px)': {
-			width: '24px',
-			height: '24px',
-		},
-	},
 })
 
 export const stepCirclePending = style({
@@ -242,17 +214,14 @@ export const stepCircleCompleted = style({
 })
 
 export const stepLabel = style({
-	fontSize: vars.fontSize.xs,
+	fontSize: '10px',
 	fontWeight: vars.fontWeight.medium,
 	color: vars.color.text.secondary,
 	textAlign: 'center',
 	whiteSpace: 'nowrap',
-
-	'@media': {
-		'(max-width: 1100px)': {
-			display: 'none',
-		},
-	},
+	maxWidth: '60px',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
 })
 
 export const stepLabelActive = style({
@@ -261,29 +230,14 @@ export const stepLabelActive = style({
 })
 
 export const stepConnector = style({
-	width: '24px',
+	width: '16px',
 	height: '2px',
 	backgroundColor: vars.color.border.primary,
 	transition: `background-color ${vars.transitionDuration.base}`,
-	marginTop: '15px',
-	marginLeft: '6px',
-	marginRight: '6px',
 	flexShrink: 0,
-
-	'@media': {
-		'(max-width: 1100px)': {
-			width: '20px',
-			marginTop: '13px',
-			marginLeft: '4px',
-			marginRight: '4px',
-		},
-		'(max-width: 900px)': {
-			width: '12px',
-			marginTop: '11px',
-			marginLeft: '3px',
-			marginRight: '3px',
-		},
-	},
+	marginLeft: vars.spacing.xs,
+	marginRight: vars.spacing.xs,
+	marginTop: '13px',
 })
 
 export const stepConnectorCompleted = style({

@@ -13,53 +13,39 @@ interface CaseStudy {
   segment: string;
   challenge: string;
   result: string;
-  metric: {
-    value: string;
-    label: string;
-  };
   image?: string;
   accentColor: string;
 }
 
 const CASES: CaseStudy[] = [
   {
-    id: "case-1",
-    client: "Rede de Restaurantes",
-    segment: "Food Service",
-    challenge: "Gestão manual de pedidos causando erros e atrasos",
-    result: "Sistema integrado de pedidos e estoque em tempo real",
-    metric: {
-      value: "-40%",
-      label: "tempo de atendimento",
-    },
-    image: "/images/cases/restaurant.jpg",
-    accentColor: "#FF6B35",
+    id: "case-dinefy",
+    client: "Dinefy",
+    segment: "Alimentação",
+    challenge: "Restaurantes sem presença digital e cardápios desatualizados",
+    result: "Cardápio online e app personalizado para cada restaurante",
+    image: "/images/cases/dinefy.png",
+    accentColor: "#3B9EFF",
   },
   {
-    id: "case-2",
-    client: "Imobiliária Regional",
-    segment: "Real Estate",
-    challenge: "Processos burocráticos e documentação descentralizada",
-    result: "Plataforma de gestão de contratos e acompanhamento de vendas",
-    metric: {
-      value: "3x",
-      label: "mais contratos/mês",
-    },
-    image: "/images/cases/realestate.jpg",
-    accentColor: "#4ECDC4",
+    id: "case-gradely",
+    client: "Gradely",
+    segment: "Educação",
+    challenge: "Organização manual de cronogramas, salas e horários de aulas",
+    result: "Sistema que gera automaticamente grades horárias otimizadas",
+    image: "/images/cases/gradely.png",
+    accentColor: "#22C55E",
   },
   {
-    id: "case-3",
-    client: "Startup de Logística",
-    segment: "Logistics",
-    challenge: "Rastreamento de entregas por planilhas Excel",
-    result: "App mobile para motoristas + painel de controle para operação",
-    metric: {
-      value: "98%",
-      label: "entregas rastreadas",
-    },
-    image: "/images/cases/logistics.jpg",
-    accentColor: "#A855F7",
+    id: "case-intralog",
+    client: "IntraLog",
+    segment: "Indústria",
+    challenge:
+      "Fluxos operacionais desorganizados e sem visibilidade em tempo real",
+    result:
+      "Sistema de logística interna com rastreabilidade e controle de rotas",
+    image: "/images/cases/intralog.png",
+    accentColor: "#F97316",
   },
 ];
 
@@ -140,11 +126,6 @@ function CaseCardContent({ caseStudy }: { caseStudy: CaseStudy }) {
             <span className={styles.flowLabel}>Solução</span>
             <p className={styles.flowText}>{caseStudy.result}</p>
           </div>
-        </div>
-
-        <div className={styles.cardMetric}>
-          <span className={styles.metricValue}>{caseStudy.metric.value}</span>
-          <span className={styles.metricLabel}>{caseStudy.metric.label}</span>
         </div>
       </div>
     </div>

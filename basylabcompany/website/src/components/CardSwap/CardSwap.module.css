@@ -1,10 +1,5 @@
 .container {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    transform: translate(5%, 20%);
-    transform-origin: bottom right;
-
+    position: relative;
     perspective: 900px;
     overflow: visible;
 }
@@ -21,16 +16,4 @@
     will-change: transform;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-}
-
-@media (max-width: 768px) {
-    .container {
-        transform: scale(0.75) translate(25%, 25%);
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        transform: scale(0.55) translate(25%, 25%);
-    }
 }

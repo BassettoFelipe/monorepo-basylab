@@ -268,7 +268,7 @@ export const sectionHeader = style({
 })
 
 export const sectionHeaderIcon = style({
-	color: vars.color.primary.main,
+	color: vars.color.primary.dark,
 	flexShrink: 0,
 	marginTop: '2px',
 })
@@ -489,32 +489,66 @@ export const infoBoxText = style({
 // Features grid
 export const featuresGrid = style({
 	display: 'grid',
-	gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+	gridTemplateColumns: 'repeat(4, 1fr)',
 	gap: vars.spacing.md,
+
+	'@media': {
+		'(max-width: 900px)': {
+			gridTemplateColumns: 'repeat(3, 1fr)',
+		},
+		'(max-width: 640px)': {
+			gridTemplateColumns: 'repeat(2, 1fr)',
+		},
+	},
 })
 
 export const featureCheckbox = style({
 	display: 'flex',
+	flexDirection: 'column',
 	alignItems: 'center',
+	justifyContent: 'center',
 	gap: vars.spacing.sm,
 	cursor: 'pointer',
-	padding: vars.spacing.sm,
-	borderRadius: vars.borderRadius.md,
-	transition: `background-color ${vars.transitionDuration.base}`,
+	padding: vars.spacing.lg,
+	borderRadius: vars.borderRadius.lg,
+	border: `2px solid ${vars.color.border.primary}`,
+	backgroundColor: vars.color.bg.primary,
+	transition: `all ${vars.transitionDuration.base}`,
+	minHeight: '120px',
+	textAlign: 'center',
+	position: 'relative',
 	':hover': {
+		borderColor: vars.color.primary.main,
 		backgroundColor: vars.color.bg.secondary,
+		transform: 'translateY(-2px)',
+		boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
 	},
 })
 
+export const featureCheckboxChecked = style({
+	borderColor: vars.color.primary.main,
+	backgroundColor: 'rgba(154, 169, 51, 0.08)',
+})
+
 export const checkbox = style({
-	width: '18px',
-	height: '18px',
+	position: 'absolute',
+	top: vars.spacing.sm,
+	right: vars.spacing.sm,
+	width: '20px',
+	height: '20px',
 	cursor: 'pointer',
 	accentColor: vars.color.primary.main,
 })
 
+export const featureIcon = style({
+	color: vars.color.primary.dark,
+	flexShrink: 0,
+	marginBottom: vars.spacing.xs,
+})
+
 export const featureLabel = style({
 	fontSize: vars.fontSize.sm,
+	fontWeight: vars.fontWeight.medium,
 	color: vars.color.text.primary,
 	cursor: 'pointer',
 })
@@ -620,24 +654,30 @@ globalStyle(`${toggleInput}:disabled + ${toggleSlider}`, {
 
 // Summary card
 export const summaryCard = style({
-	padding: vars.spacing.lg,
-	backgroundColor: vars.color.bg.tertiary,
+	padding: vars.spacing.md,
+	backgroundColor: vars.color.bg.primary,
 	border: `1px solid ${vars.color.border.primary}`,
-	borderRadius: vars.borderRadius.lg,
+	borderRadius: vars.borderRadius.md,
 })
 
 export const summaryTitle = style({
-	fontSize: vars.fontSize.base,
+	fontSize: vars.fontSize.sm,
 	fontWeight: vars.fontWeight.medium,
 	color: vars.color.text.primary,
 	margin: 0,
-	marginBottom: vars.spacing.md,
+	marginBottom: vars.spacing.sm,
 })
 
 export const summaryGrid = style({
 	display: 'grid',
-	gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-	gap: vars.spacing.md,
+	gridTemplateColumns: 'repeat(2, 1fr)',
+	gap: vars.spacing.sm,
+
+	'@media': {
+		'(max-width: 480px)': {
+			gridTemplateColumns: '1fr',
+		},
+	},
 })
 
 export const summaryItem = style({
@@ -647,12 +687,12 @@ export const summaryItem = style({
 })
 
 export const summaryLabel = style({
-	fontSize: vars.fontSize.sm,
+	fontSize: vars.fontSize.xs,
 	color: vars.color.text.secondary,
 })
 
 export const summaryValue = style({
-	fontSize: vars.fontSize.sm,
+	fontSize: vars.fontSize.xs,
 	fontWeight: vars.fontWeight.medium,
 	color: vars.color.text.primary,
 })
@@ -662,24 +702,22 @@ export const photosHeader = style({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'space-between',
-	padding: vars.spacing.lg,
-	backgroundColor: vars.color.bg.secondary,
-	borderRadius: vars.borderRadius.lg,
-	border: `1px solid ${vars.color.border.primary}`,
+	paddingBottom: vars.spacing.md,
+	borderBottom: `1px solid ${vars.color.border.primary}`,
 })
 
 export const photosHeaderContent = style({
 	display: 'flex',
 	alignItems: 'center',
-	gap: vars.spacing.md,
+	gap: vars.spacing.sm,
 })
 
 export const photosHeaderIcon = style({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
-	width: '48px',
-	height: '48px',
+	width: '36px',
+	height: '36px',
 	backgroundColor: vars.color.bg.secondary,
 	color: vars.color.primary.dark,
 	borderRadius: vars.borderRadius.md,
@@ -688,18 +726,17 @@ export const photosHeaderIcon = style({
 export const photosHeaderText = style({
 	display: 'flex',
 	flexDirection: 'column',
-	gap: '2px',
 })
 
 export const photosHeaderTitle = style({
-	fontSize: vars.fontSize.lg,
+	fontSize: vars.fontSize.base,
 	fontWeight: vars.fontWeight.bold,
 	color: vars.color.text.primary,
 	margin: 0,
 })
 
 export const photosHeaderDescription = style({
-	fontSize: vars.fontSize.sm,
+	fontSize: vars.fontSize.xs,
 	color: vars.color.text.secondary,
 	margin: 0,
 })
@@ -708,20 +745,20 @@ export const photosCounter = style({
 	display: 'flex',
 	alignItems: 'center',
 	gap: vars.spacing.xs,
-	padding: `${vars.spacing.sm} ${vars.spacing.md}`,
-	backgroundColor: vars.color.bg.primary,
+	padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
+	backgroundColor: vars.color.bg.secondary,
 	borderRadius: vars.borderRadius.full,
-	fontSize: vars.fontSize.sm,
+	fontSize: vars.fontSize.xs,
 	fontWeight: vars.fontWeight.medium,
 	color: vars.color.text.secondary,
 })
 
 export const photosTips = style({
 	display: 'flex',
-	flexDirection: 'column',
-	gap: vars.spacing.sm,
-	padding: vars.spacing.md,
-	backgroundColor: vars.color.bg.secondary,
+	flexWrap: 'wrap',
+	gap: vars.spacing.md,
+	padding: vars.spacing.sm,
+	backgroundColor: vars.color.bg.primary,
 	border: `1px solid ${vars.color.border.primary}`,
 	borderRadius: vars.borderRadius.md,
 })
@@ -729,9 +766,9 @@ export const photosTips = style({
 export const photosTipItem = style({
 	display: 'flex',
 	alignItems: 'center',
-	gap: vars.spacing.sm,
-	fontSize: vars.fontSize.sm,
-	color: vars.color.text.primary,
+	gap: vars.spacing.xs,
+	fontSize: vars.fontSize.xs,
+	color: vars.color.text.secondary,
 })
 
 export const photosTipIcon = style({
@@ -744,17 +781,17 @@ export const photosEmptyState = style({
 	flexDirection: 'column',
 	alignItems: 'center',
 	justifyContent: 'center',
-	padding: vars.spacing.xl,
+	padding: vars.spacing.lg,
 	textAlign: 'center',
 })
 
 export const photosEmptyIcon = style({
 	color: vars.color.text.tertiary,
-	marginBottom: vars.spacing.md,
+	marginBottom: vars.spacing.sm,
 })
 
 export const photosEmptyTitle = style({
-	fontSize: vars.fontSize.base,
+	fontSize: vars.fontSize.sm,
 	fontWeight: vars.fontWeight.medium,
 	color: vars.color.text.secondary,
 	margin: 0,
@@ -762,7 +799,7 @@ export const photosEmptyTitle = style({
 })
 
 export const photosEmptyText = style({
-	fontSize: vars.fontSize.sm,
+	fontSize: vars.fontSize.xs,
 	color: vars.color.text.tertiary,
 	margin: 0,
 })
@@ -770,39 +807,34 @@ export const photosEmptyText = style({
 // Publish step styles
 export const publishHeader = style({
 	display: 'flex',
-	flexDirection: 'column',
 	alignItems: 'center',
-	textAlign: 'center',
-	padding: vars.spacing.lg,
-	backgroundColor: vars.color.bg.secondary,
-	borderRadius: vars.borderRadius.lg,
-	border: `1px solid ${vars.color.border.primary}`,
+	gap: vars.spacing.sm,
+	paddingBottom: vars.spacing.md,
+	borderBottom: `1px solid ${vars.color.border.primary}`,
 })
 
 export const publishHeaderIcon = style({
-	color: vars.color.success.main,
-	marginBottom: vars.spacing.sm,
+	color: vars.color.primary.dark,
 })
 
 export const publishHeaderTitle = style({
-	fontSize: vars.fontSize.xl,
+	fontSize: vars.fontSize.base,
 	fontWeight: vars.fontWeight.bold,
 	color: vars.color.text.primary,
 	margin: 0,
-	marginBottom: vars.spacing.xs,
 })
 
 export const publishHeaderDescription = style({
-	fontSize: vars.fontSize.sm,
+	fontSize: vars.fontSize.xs,
 	color: vars.color.text.secondary,
 	margin: 0,
 })
 
 export const visibilityCard = style({
-	padding: vars.spacing.lg,
+	padding: vars.spacing.md,
 	backgroundColor: vars.color.bg.primary,
 	border: `1px solid ${vars.color.border.primary}`,
-	borderRadius: vars.borderRadius.lg,
+	borderRadius: vars.borderRadius.md,
 })
 
 export const visibilityOption = style({
@@ -815,10 +847,10 @@ export const visibilityOptionIcon = style({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
-	width: '48px',
-	height: '48px',
+	width: '36px',
+	height: '36px',
 	backgroundColor: vars.color.bg.secondary,
-	color: vars.color.primary.main,
+	color: vars.color.primary.dark,
 	borderRadius: vars.borderRadius.md,
 	flexShrink: 0,
 })
@@ -827,18 +859,17 @@ export const visibilityOptionContent = style({
 	flex: 1,
 	display: 'flex',
 	flexDirection: 'column',
-	gap: '2px',
 })
 
 export const visibilityOptionTitle = style({
-	fontSize: vars.fontSize.base,
+	fontSize: vars.fontSize.sm,
 	fontWeight: vars.fontWeight.medium,
 	color: vars.color.text.primary,
 	margin: 0,
 })
 
 export const visibilityOptionDescription = style({
-	fontSize: vars.fontSize.sm,
+	fontSize: vars.fontSize.xs,
 	color: vars.color.text.secondary,
 	margin: 0,
 })
@@ -846,13 +877,13 @@ export const visibilityOptionDescription = style({
 export const notesSection = style({
 	display: 'flex',
 	flexDirection: 'column',
-	gap: vars.spacing.sm,
+	gap: vars.spacing.xs,
 })
 
 export const notesSectionHeader = style({
 	display: 'flex',
 	alignItems: 'center',
-	gap: vars.spacing.sm,
+	gap: vars.spacing.xs,
 	fontSize: vars.fontSize.sm,
 	fontWeight: vars.fontWeight.medium,
 	color: vars.color.text.primary,
@@ -861,28 +892,27 @@ export const notesSectionHeader = style({
 export const summaryHeader = style({
 	display: 'flex',
 	alignItems: 'center',
-	gap: vars.spacing.sm,
-	marginBottom: vars.spacing.md,
+	gap: vars.spacing.xs,
+	marginBottom: vars.spacing.sm,
 })
 
 export const summaryHeaderIcon = style({
-	color: vars.color.primary.main,
+	color: vars.color.primary.dark,
 })
 
 export const summaryItemIcon = style({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
-	width: '36px',
-	height: '36px',
+	width: '28px',
+	height: '28px',
 	backgroundColor: vars.color.bg.secondary,
 	color: vars.color.text.secondary,
-	borderRadius: vars.borderRadius.md,
+	borderRadius: vars.borderRadius.sm,
 	flexShrink: 0,
 })
 
 export const summaryItemContent = style({
 	display: 'flex',
 	flexDirection: 'column',
-	gap: '2px',
 })

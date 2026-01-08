@@ -1,26 +1,34 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
 	AlertTriangle,
+	AirVent,
+	Armchair,
+	Baby,
 	Building2,
 	Camera,
+	Car,
 	CheckCircle2,
 	DollarSign,
-	Eye,
-	EyeOff,
+	Dumbbell,
 	FileText,
+	Flame,
+	Flower2,
 	Globe,
 	Home,
 	Image,
 	Info,
 	Loader2,
 	MapPin,
+	PawPrint,
 	Percent,
 	Rocket,
 	Ruler,
 	Settings,
+	Shield,
 	Sparkles,
 	Upload,
 	User,
+	Waves,
 } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -36,7 +44,9 @@ import { Textarea } from '@/components/Textarea/Textarea'
 import { WizardModal, type WizardStep } from '@/components/WizardModal'
 import { useCreatePropertyMutation } from '@/queries/properties/useCreatePropertyMutation'
 import { usePropertyOwnersQuery } from '@/queries/property-owners/usePropertyOwnersQuery'
-import { useUploadPropertyPhotoMutation } from '@/queries/property-photos/useUploadPropertyPhotoMutation'
+import { useBatchRegisterPhotosMutation } from '@/queries/property-photos/useBatchRegisterPhotosMutation'
+import { getPresignedUrl, uploadToPresignedUrl } from '@/services/files/presigned-url'
+import type { BatchRegisterPhotoItem } from '@/services/property-photos/batch-register'
 import type { ListingType, PropertyType } from '@/types/property.types'
 import { BRAZILIAN_STATES } from '@/types/property-owner.types'
 import { applyMask, getCurrencyRawValue } from '@/utils/masks'
@@ -147,7 +157,7 @@ interface CreatePropertyModalProps {
 	onClose: () => void
 }
 
-const STEPS: WizardStep[] = [
+const ALL_STEPS: WizardStep[] = [
 	{
 		id: 'owner',
 		title: 'Proprietario',
@@ -198,9 +208,16 @@ const STEPS: WizardStep[] = [
 	},
 ]
 
+function getStepsForPropertyType(type: PropertyType): WizardStep[] {
+	if (type === 'land') {
+		return ALL_STEPS.filter((step) => step.id !== 'features')
+	}
+	return ALL_STEPS
+}
+
 export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProps) {
 	const createMutation = useCreatePropertyMutation()
-	const uploadPhotoMutation = useUploadPropertyPhotoMutation()
+	const batchRegisterPhotosMutation = useBatchRegisterPhotosMutation()
 	const [currentStep, setCurrentStep] = useState(0)
 	const [cepLoading, setCepLoading] = useState(false)
 	const [cepError, setCepError] = useState<string | null>(null)
@@ -230,6 +247,9 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 	const listingType = watch('listingType')
 	const propertyType = watch('type')
 	const notesValue = watch('notes') || ''
+
+	const steps = getStepsForPropertyType(propertyType)
+	const currentStepId = steps[currentStep]?.id
 
 	useEffect(() => {
 		if (isOpen) {
@@ -291,16 +311,16 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 	)
 
 	const validateCurrentStep = async (): Promise<boolean> => {
-		switch (currentStep) {
-			case 0: // Proprietario
+		switch (currentStepId) {
+			case 'owner':
 				return await trigger(['ownerId'])
-			case 1: // Tipo
+			case 'type':
 				return await trigger(['type', 'listingType'])
-			case 2: // Detalhes
+			case 'details':
 				return await trigger(['title'])
-			case 3: // Endereco
+			case 'address':
 				return await trigger(['address', 'city', 'state'])
-			case 4: // Valores
+			case 'pricing':
 				if (listingType === 'rent' || listingType === 'both') {
 					const isValid = await trigger(['rentalPrice'])
 					if (!isValid) return false
@@ -310,9 +330,9 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 					if (!isValid) return false
 				}
 				return true
-			case 5: // Comodidades
-			case 6: // Fotos
-			case 7: // Publicacao
+			case 'features':
+			case 'photos':
+			case 'publish':
 				return true
 			default:
 				return true
@@ -321,7 +341,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 
 	const handleNext = async () => {
 		const isValid = await validateCurrentStep()
-		if (isValid && currentStep < STEPS.length - 1) {
+		if (isValid && currentStep < steps.length - 1) {
 			setCurrentStep(currentStep + 1)
 		}
 	}
@@ -389,13 +409,37 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 			if (selectedPhotos.length > 0) {
 				setIsUploading(true)
 				try {
-					for (const photo of selectedPhotos) {
-						await uploadPhotoMutation.mutateAsync({
-							propertyId,
-							file: photo.file,
-							isPrimary: photo.isPrimary,
-						})
-					}
+					// Step 1: Get presigned URLs for all photos in parallel
+					const presignedUrlPromises = selectedPhotos.map((photo) =>
+						getPresignedUrl({
+							fileName: photo.file.name,
+							contentType: photo.file.type,
+							fieldId: `property-${propertyId}`,
+							allowedTypes: ['image/*'],
+						}),
+					)
+					const presignedUrls = await Promise.all(presignedUrlPromises)
+
+					// Step 2: Upload all files directly to storage in parallel
+					const uploadPromises = selectedPhotos.map((photo, index) =>
+						uploadToPresignedUrl(presignedUrls[index].data.uploadUrl, photo.file),
+					)
+					await Promise.all(uploadPromises)
+
+					// Step 3: Register all photos in the database with a single batch request
+					const photosToRegister: BatchRegisterPhotoItem[] = selectedPhotos.map((photo, index) => ({
+						key: presignedUrls[index].data.key,
+						originalName: photo.file.name,
+						mimeType: photo.file.type,
+						size: photo.file.size,
+						url: presignedUrls[index].data.publicUrl,
+						isPrimary: photo.isPrimary,
+					}))
+
+					await batchRegisterPhotosMutation.mutateAsync({
+						propertyId,
+						photos: photosToRegister,
+					})
 				} catch {
 					toast.error('Imovel criado, mas houve erro ao enviar algumas fotos')
 				} finally {
@@ -465,7 +509,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 			isOpen={isOpen}
 			onClose={handleClose}
 			title="Adicionar Imovel"
-			steps={STEPS}
+			steps={steps}
 			currentStep={currentStep}
 			onNext={handleNext}
 			onPrevious={handlePrevious}
@@ -475,8 +519,8 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 			submitLoadingText={isUploading ? 'Enviando fotos...' : undefined}
 		>
 			<form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-				{/* Step 1: Proprietario */}
-				{currentStep === 0 && (
+				{/* Step: Proprietario */}
+				{currentStepId === 'owner' && (
 					<div className={styles.formSection}>
 						<div className={styles.infoBox}>
 							<Info size={18} className={styles.infoBoxIcon} />
@@ -499,8 +543,8 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 					</div>
 				)}
 
-				{/* Step 2: Tipo do Imovel */}
-				{currentStep === 1 && (
+				{/* Step: Tipo do Imovel */}
+				{currentStepId === 'type' && (
 					<div className={styles.formSection}>
 						<PropertyTypeSelector
 							value={propertyType}
@@ -520,8 +564,8 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 					</div>
 				)}
 
-				{/* Step 3: Detalhes */}
-				{currentStep === 2 && (
+				{/* Step: Detalhes */}
+				{currentStepId === 'details' && (
 					<div className={styles.formSection}>
 						<Input
 							{...register('title')}
@@ -630,8 +674,8 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 					</div>
 				)}
 
-				{/* Step 4: Endereco */}
-				{currentStep === 3 && (
+				{/* Step: Endereco */}
+				{currentStepId === 'address' && (
 					<div className={styles.formSection}>
 						<div className={styles.row3Cols}>
 							<div className={styles.cepWrapper}>
@@ -720,8 +764,8 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 					</div>
 				)}
 
-				{/* Step 5: Valores e Comissao */}
-				{currentStep === 4 && (
+				{/* Step: Valores e Comissao */}
+				{currentStepId === 'pricing' && (
 					<div className={styles.formSection}>
 						<div className={styles.sectionHeader}>
 							<DollarSign size={20} className={styles.sectionHeaderIcon} />
@@ -811,139 +855,141 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 					</div>
 				)}
 
-				{/* Step 6: Comodidades */}
-				{currentStep === 5 && (
+				{/* Step: Comodidades */}
+				{currentStepId === 'features' && (
 					<div className={styles.formSection}>
-						{propertyType === 'land' ? (
-							<div className={styles.infoBox}>
-								<Info size={18} className={styles.infoBoxIcon} />
-								<p className={styles.infoBoxText}>
-									Terrenos geralmente nao possuem comodidades. Clique em &quot;Proximo&quot; para
-									continuar.
-								</p>
-							</div>
-						) : (
-							<div className={styles.featuresGrid}>
-								<label className={styles.featureCheckbox}>
+						<div className={styles.featuresGrid}>
+								<label className={`${styles.featureCheckbox} ${watch('hasPool') ? styles.featureCheckboxChecked : ''}`}>
 									<input
 										type="checkbox"
 										className={styles.checkbox}
 										{...register('hasPool')}
 										disabled={isSubmitting}
 									/>
+									<Waves size={28} className={styles.featureIcon} />
 									<span className={styles.featureLabel}>Piscina</span>
 								</label>
-								<label className={styles.featureCheckbox}>
+								<label className={`${styles.featureCheckbox} ${watch('hasGarden') ? styles.featureCheckboxChecked : ''}`}>
 									<input
 										type="checkbox"
 										className={styles.checkbox}
 										{...register('hasGarden')}
 										disabled={isSubmitting}
 									/>
+									<Flower2 size={28} className={styles.featureIcon} />
 									<span className={styles.featureLabel}>Jardim</span>
 								</label>
-								<label className={styles.featureCheckbox}>
+								<label className={`${styles.featureCheckbox} ${watch('hasGarage') ? styles.featureCheckboxChecked : ''}`}>
 									<input
 										type="checkbox"
 										className={styles.checkbox}
 										{...register('hasGarage')}
 										disabled={isSubmitting}
 									/>
+									<Car size={28} className={styles.featureIcon} />
 									<span className={styles.featureLabel}>Garagem</span>
 								</label>
-								<label className={styles.featureCheckbox}>
+								<label className={`${styles.featureCheckbox} ${watch('hasElevator') ? styles.featureCheckboxChecked : ''}`}>
 									<input
 										type="checkbox"
 										className={styles.checkbox}
 										{...register('hasElevator')}
 										disabled={isSubmitting}
 									/>
+									<Building2 size={28} className={styles.featureIcon} />
 									<span className={styles.featureLabel}>Elevador</span>
 								</label>
-								<label className={styles.featureCheckbox}>
+								<label className={`${styles.featureCheckbox} ${watch('hasGym') ? styles.featureCheckboxChecked : ''}`}>
 									<input
 										type="checkbox"
 										className={styles.checkbox}
 										{...register('hasGym')}
 										disabled={isSubmitting}
 									/>
+									<Dumbbell size={28} className={styles.featureIcon} />
 									<span className={styles.featureLabel}>Academia</span>
 								</label>
-								<label className={styles.featureCheckbox}>
+								<label className={`${styles.featureCheckbox} ${watch('hasPlayground') ? styles.featureCheckboxChecked : ''}`}>
 									<input
 										type="checkbox"
 										className={styles.checkbox}
 										{...register('hasPlayground')}
 										disabled={isSubmitting}
 									/>
+									<Baby size={28} className={styles.featureIcon} />
 									<span className={styles.featureLabel}>Playground</span>
 								</label>
-								<label className={styles.featureCheckbox}>
+								<label className={`${styles.featureCheckbox} ${watch('hasSecurity') ? styles.featureCheckboxChecked : ''}`}>
 									<input
 										type="checkbox"
 										className={styles.checkbox}
 										{...register('hasSecurity')}
 										disabled={isSubmitting}
 									/>
+									<Shield size={28} className={styles.featureIcon} />
 									<span className={styles.featureLabel}>Seguranca 24h</span>
 								</label>
-								<label className={styles.featureCheckbox}>
+								<label className={`${styles.featureCheckbox} ${watch('hasAirConditioning') ? styles.featureCheckboxChecked : ''}`}>
 									<input
 										type="checkbox"
 										className={styles.checkbox}
 										{...register('hasAirConditioning')}
 										disabled={isSubmitting}
 									/>
+									<AirVent size={28} className={styles.featureIcon} />
 									<span className={styles.featureLabel}>Ar Condicionado</span>
 								</label>
-								<label className={styles.featureCheckbox}>
+								<label className={`${styles.featureCheckbox} ${watch('hasFurnished') ? styles.featureCheckboxChecked : ''}`}>
 									<input
 										type="checkbox"
 										className={styles.checkbox}
 										{...register('hasFurnished')}
 										disabled={isSubmitting}
 									/>
+									<Armchair size={28} className={styles.featureIcon} />
 									<span className={styles.featureLabel}>Mobiliado</span>
 								</label>
-								<label className={styles.featureCheckbox}>
+								<label className={`${styles.featureCheckbox} ${watch('hasPetFriendly') ? styles.featureCheckboxChecked : ''}`}>
 									<input
 										type="checkbox"
 										className={styles.checkbox}
 										{...register('hasPetFriendly')}
 										disabled={isSubmitting}
 									/>
+									<PawPrint size={28} className={styles.featureIcon} />
 									<span className={styles.featureLabel}>Aceita Pets</span>
 								</label>
-								<label className={styles.featureCheckbox}>
+								<label className={`${styles.featureCheckbox} ${watch('hasBalcony') ? styles.featureCheckboxChecked : ''}`}>
 									<input
 										type="checkbox"
 										className={styles.checkbox}
 										{...register('hasBalcony')}
 										disabled={isSubmitting}
 									/>
+									<Home size={28} className={styles.featureIcon} />
 									<span className={styles.featureLabel}>Varanda</span>
 								</label>
-								<label className={styles.featureCheckbox}>
+								<label className={`${styles.featureCheckbox} ${watch('hasBarbecue') ? styles.featureCheckboxChecked : ''}`}>
 									<input
 										type="checkbox"
 										className={styles.checkbox}
 										{...register('hasBarbecue')}
 										disabled={isSubmitting}
 									/>
+									<Flame size={28} className={styles.featureIcon} />
 									<span className={styles.featureLabel}>Churrasqueira</span>
 								</label>
-							</div>
-						)}
+						</div>
 					</div>
 				)}
 
-				{/* Step 7: Fotos */}
-				{currentStep === 6 && (
+				{/* Step: Fotos */}
+				{currentStepId === 'photos' && (
 					<div className={styles.formSection}>
 						<div className={styles.photosHeader}>
 							<div className={styles.photosHeaderContent}>
 								<div className={styles.photosHeaderIcon}>
-									<Image size={24} />
+									<Image size={18} />
 								</div>
 								<div className={styles.photosHeaderText}>
 									<h3 className={styles.photosHeaderTitle}>Galeria de Fotos</h3>
@@ -953,23 +999,23 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								</div>
 							</div>
 							<div className={styles.photosCounter}>
-								<Camera size={16} />
+								<Camera size={12} />
 								<span>{selectedPhotos.length}/20</span>
 							</div>
 						</div>
 
 						<div className={styles.photosTips}>
 							<div className={styles.photosTipItem}>
-								<CheckCircle2 size={16} className={styles.photosTipIcon} />
-								<span>A primeira foto sera a capa do anuncio</span>
+								<CheckCircle2 size={12} className={styles.photosTipIcon} />
+								<span>Primeira foto = capa</span>
 							</div>
 							<div className={styles.photosTipItem}>
-								<CheckCircle2 size={16} className={styles.photosTipIcon} />
-								<span>Use fotos bem iluminadas e em alta resolucao</span>
+								<CheckCircle2 size={12} className={styles.photosTipIcon} />
+								<span>Fotos bem iluminadas</span>
 							</div>
 							<div className={styles.photosTipItem}>
-								<CheckCircle2 size={16} className={styles.photosTipIcon} />
-								<span>Inclua fotos de todos os comodos principais</span>
+								<CheckCircle2 size={12} className={styles.photosTipIcon} />
+								<span>Todos os comodos</span>
 							</div>
 						</div>
 
@@ -983,40 +1029,38 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 
 						{selectedPhotos.length === 0 && (
 							<div className={styles.photosEmptyState}>
-								<Upload size={48} className={styles.photosEmptyIcon} />
+								<Upload size={32} className={styles.photosEmptyIcon} />
 								<p className={styles.photosEmptyTitle}>Nenhuma foto adicionada</p>
 								<p className={styles.photosEmptyText}>
-									Clique na area acima ou arraste suas fotos para adicionar
+									Clique acima ou arraste suas fotos
 								</p>
 							</div>
 						)}
 					</div>
 				)}
 
-				{/* Step 8: Publicacao */}
-				{currentStep === 7 && (
+				{/* Step: Publicacao */}
+				{currentStepId === 'publish' && (
 					<div className={styles.formSection}>
 						<div className={styles.publishHeader}>
-							<Rocket size={32} className={styles.publishHeaderIcon} />
-							<h3 className={styles.publishHeaderTitle}>Pronto para publicar!</h3>
-							<p className={styles.publishHeaderDescription}>
-								Revise as configuracoes e publique seu imovel
-							</p>
+							<Rocket size={18} className={styles.publishHeaderIcon} />
+							<div>
+								<h3 className={styles.publishHeaderTitle}>Publicacao</h3>
+								<p className={styles.publishHeaderDescription}>
+									Configure a visibilidade do imovel
+								</p>
+							</div>
 						</div>
 
 						<div className={styles.visibilityCard}>
 							<div className={styles.visibilityOption}>
 								<div className={styles.visibilityOptionIcon}>
-									{watch('isMarketplace') ? <Eye size={24} /> : <EyeOff size={24} />}
+									<Globe size={18} />
 								</div>
 								<div className={styles.visibilityOptionContent}>
-									<h4 className={styles.visibilityOptionTitle}>
-										{watch('isMarketplace') ? 'Visivel no Marketplace' : 'Apenas interno'}
-									</h4>
+									<h4 className={styles.visibilityOptionTitle}>Marketplace</h4>
 									<p className={styles.visibilityOptionDescription}>
-										{watch('isMarketplace')
-											? 'O imovel ficara visivel para todos no marketplace publico'
-											: 'O imovel ficara visivel apenas para a equipe interna'}
+										Exibir este imovel no marketplace publico
 									</p>
 								</div>
 								<label className={styles.marketplaceToggle}>
@@ -1033,14 +1077,14 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 
 						<div className={styles.notesSection}>
 							<div className={styles.notesSectionHeader}>
-								<FileText size={18} />
+								<FileText size={14} />
 								<span>Observacoes Internas</span>
 							</div>
 							<Textarea
 								{...register('notes')}
-								placeholder="Anotacoes internas sobre o imovel (nao serao exibidas publicamente)..."
+								placeholder="Anotacoes internas (nao exibidas publicamente)..."
 								error={errors.notes?.message}
-								rows={3}
+								rows={2}
 								showCharCount
 								maxLength={2000}
 								value={notesValue}
@@ -1050,13 +1094,13 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 
 						<div className={styles.summaryCard}>
 							<div className={styles.summaryHeader}>
-								<Sparkles size={20} className={styles.summaryHeaderIcon} />
-								<h3 className={styles.summaryTitle}>Resumo do Imovel</h3>
+								<Sparkles size={14} className={styles.summaryHeaderIcon} />
+								<h3 className={styles.summaryTitle}>Resumo</h3>
 							</div>
 							<div className={styles.summaryGrid}>
 								<div className={styles.summaryItem}>
 									<div className={styles.summaryItemIcon}>
-										<Home size={18} />
+										<Home size={14} />
 									</div>
 									<div className={styles.summaryItemContent}>
 										<span className={styles.summaryLabel}>Tipo</span>
@@ -1075,7 +1119,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								</div>
 								<div className={styles.summaryItem}>
 									<div className={styles.summaryItemIcon}>
-										<DollarSign size={18} />
+										<DollarSign size={14} />
 									</div>
 									<div className={styles.summaryItemContent}>
 										<span className={styles.summaryLabel}>Finalidade</span>
@@ -1084,7 +1128,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 												{
 													rent: 'Locacao',
 													sale: 'Venda',
-													both: 'Locacao e Venda',
+													both: 'Ambos',
 												}[listingType]
 											}
 										</span>
@@ -1092,20 +1136,20 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								</div>
 								<div className={styles.summaryItem}>
 									<div className={styles.summaryItemIcon}>
-										<Camera size={18} />
+										<Camera size={14} />
 									</div>
 									<div className={styles.summaryItemContent}>
 										<span className={styles.summaryLabel}>Fotos</span>
 										<span className={styles.summaryValue}>
 											{selectedPhotos.length === 0
-												? 'Nenhuma foto'
+												? 'Nenhuma'
 												: `${selectedPhotos.length} foto(s)`}
 										</span>
 									</div>
 								</div>
 								<div className={styles.summaryItem}>
 									<div className={styles.summaryItemIcon}>
-										<Globe size={18} />
+										<Globe size={14} />
 									</div>
 									<div className={styles.summaryItemContent}>
 										<span className={styles.summaryLabel}>Visibilidade</span>

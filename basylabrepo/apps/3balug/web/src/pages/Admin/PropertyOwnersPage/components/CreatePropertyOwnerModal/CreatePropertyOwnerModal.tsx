@@ -41,7 +41,6 @@ import { BRAZILIAN_STATES, MARITAL_STATUS_LABELS } from '@/types/property-owner.
 import { applyMask } from '@/utils/masks'
 import * as styles from './CreatePropertyOwnerModal.styles.css'
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
 
 interface DocumentSlot {

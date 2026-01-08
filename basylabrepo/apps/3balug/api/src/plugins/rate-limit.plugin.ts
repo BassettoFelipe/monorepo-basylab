@@ -87,7 +87,7 @@ export function createRateLimitPlugin(config: RateLimitConfig) {
 
 	return new Elysia({ name: 'rate-limit' })
 		.onBeforeHandle({ as: 'global' }, ({ request, set }) => {
-			if (env.NODE_ENV === 'test') {
+			if (env.NODE_ENV === 'test' || env.NODE_ENV === 'development') {
 				return
 			}
 

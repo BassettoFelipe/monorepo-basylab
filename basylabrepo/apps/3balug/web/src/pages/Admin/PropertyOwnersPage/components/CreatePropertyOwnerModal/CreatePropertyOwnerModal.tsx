@@ -31,7 +31,7 @@ import { useUploadDocumentMutation } from '@/queries/documents/documents.queries
 import { useCreatePropertyOwnerMutation } from '@/queries/property-owners/useCreatePropertyOwnerMutation'
 import { uploadWithPresignedUrl } from '@/services/files/upload'
 import { DOCUMENT_ENTITY_TYPES, DOCUMENT_TYPES, type DocumentType } from '@/types/document.types'
-import { MARITAL_STATUS_LABELS } from '@/types/property-owner.types'
+import { BRAZILIAN_STATES, MARITAL_STATUS_LABELS } from '@/types/property-owner.types'
 import { applyMask } from '@/utils/masks'
 import * as styles from './CreatePropertyOwnerModal.styles.css'
 
@@ -897,15 +897,14 @@ export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwne
 								fullWidth
 								disabled={isSubmitting}
 							/>
-							<Input
+							<Select
 								{...register('state')}
 								label="Estado"
-								placeholder="UF"
-								maxLength={2}
+								placeholder="Selecione"
 								error={errors.state?.message}
 								fullWidth
 								disabled={isSubmitting}
-								style={{ textTransform: 'uppercase' }}
+								options={BRAZILIAN_STATES}
 							/>
 						</div>
 

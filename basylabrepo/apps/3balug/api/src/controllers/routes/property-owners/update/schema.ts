@@ -1,5 +1,35 @@
 import { t } from 'elysia'
 
+const brazilianStateSchema = t.Union([
+	t.Literal('AC'),
+	t.Literal('AL'),
+	t.Literal('AP'),
+	t.Literal('AM'),
+	t.Literal('BA'),
+	t.Literal('CE'),
+	t.Literal('DF'),
+	t.Literal('ES'),
+	t.Literal('GO'),
+	t.Literal('MA'),
+	t.Literal('MT'),
+	t.Literal('MS'),
+	t.Literal('MG'),
+	t.Literal('PA'),
+	t.Literal('PB'),
+	t.Literal('PR'),
+	t.Literal('PE'),
+	t.Literal('PI'),
+	t.Literal('RJ'),
+	t.Literal('RN'),
+	t.Literal('RS'),
+	t.Literal('RO'),
+	t.Literal('RR'),
+	t.Literal('SC'),
+	t.Literal('SP'),
+	t.Literal('SE'),
+	t.Literal('TO'),
+])
+
 export const updatePropertyOwnerParamsSchema = t.Object({
 	id: t.String({ format: 'uuid' }),
 })
@@ -29,7 +59,7 @@ export const updatePropertyOwnerBodySchema = t.Object({
 	addressComplement: t.Optional(t.Union([t.String({ maxLength: 100 }), t.Null()])),
 	neighborhood: t.Optional(t.Union([t.String({ maxLength: 100 }), t.Null()])),
 	city: t.Optional(t.Union([t.String({ maxLength: 100 }), t.Null()])),
-	state: t.Optional(t.Union([t.String({ minLength: 2, maxLength: 2 }), t.Null()])),
+	state: t.Optional(t.Union([brazilianStateSchema, t.Null()])),
 	zipCode: t.Optional(t.Union([t.String({ minLength: 8, maxLength: 9 }), t.Null()])),
 	birthDate: t.Optional(t.Union([t.String(), t.Null()])),
 	photoUrl: t.Optional(t.Union([t.String(), t.Null()])),

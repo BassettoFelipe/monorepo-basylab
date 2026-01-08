@@ -28,6 +28,8 @@ export const propertyOwnerResponseSchema = t.Object({
 	birthDate: t.Union([t.String(), t.Null()]),
 	photoUrl: t.Union([t.String(), t.Null()]),
 	notes: t.Union([t.String(), t.Null()]),
+	createdAt: t.Date(),
+	propertiesCount: t.Optional(t.Number()),
 })
 
 export const listPropertyOwnersResponseSchema = t.Object({

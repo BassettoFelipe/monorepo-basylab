@@ -12,7 +12,9 @@ type ListPropertyOwnersInput = {
 	requestedBy: User
 }
 
-type PropertyOwnerListItem = Omit<PropertyOwner, 'updatedAt' | 'createdBy' | 'companyId'>
+type PropertyOwnerListItem = Omit<PropertyOwner, 'updatedAt' | 'createdBy' | 'companyId'> & {
+	propertiesCount?: number
+}
 
 type ListPropertyOwnersOutput = {
 	data: PropertyOwnerListItem[]

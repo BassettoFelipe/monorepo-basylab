@@ -12,7 +12,7 @@ import { Select } from '@/components/Select/Select'
 import { Textarea } from '@/components/Textarea/Textarea'
 import { useUpdatePropertyOwnerMutation } from '@/queries/property-owners/useUpdatePropertyOwnerMutation'
 import { DOCUMENT_ENTITY_TYPES } from '@/types/document.types'
-import type { PropertyOwner } from '@/types/property-owner.types'
+import { BRAZILIAN_STATES, type PropertyOwner } from '@/types/property-owner.types'
 import { applyMask } from '@/utils/masks'
 import * as styles from '../PropertyOwnerForm.styles.css'
 
@@ -337,15 +337,14 @@ export function EditPropertyOwnerModal({
 							fullWidth
 							disabled={updateMutation.isPending}
 						/>
-						<Input
+						<Select
 							{...register('state')}
 							label="Estado"
-							placeholder="UF"
-							maxLength={2}
+							placeholder="Selecione"
 							error={errors.state?.message}
 							fullWidth
 							disabled={updateMutation.isPending}
-							style={{ textTransform: 'uppercase' }}
+							options={BRAZILIAN_STATES}
 						/>
 						{cepError && !cepLoading && (
 							<div className={styles.cepAlert}>

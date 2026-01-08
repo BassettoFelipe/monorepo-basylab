@@ -1,4 +1,15 @@
-import { Edit, Eye, Plus, Trash2, Users } from 'lucide-react'
+import {
+	Building2,
+	Calendar,
+	Edit,
+	Eye,
+	Mail,
+	MapPin,
+	Phone,
+	Plus,
+	Trash2,
+	Users,
+} from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/Button/Button'
 import { ConfirmDialog } from '@/components/ConfirmDialog/ConfirmDialog'
@@ -110,6 +121,45 @@ export function PropertyOwnersPage() {
 		return doc
 	}
 
+	const formatPhone = (phone: string | null) => {
+		if (!phone) return null
+		const digits = phone.replace(/\D/g, '')
+		if (digits.length === 11) {
+			return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+		}
+		if (digits.length === 10) {
+			return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
+		}
+		return phone
+	}
+
+	const formatDate = (dateString: string | null | undefined) => {
+		if (!dateString) return '-'
+		const date = new Date(dateString)
+		if (Number.isNaN(date.getTime())) return '-'
+		return date.toLocaleDateString('pt-BR')
+	}
+
+	const getInitials = (name: string) => {
+		const parts = name.trim().split(' ')
+		if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
+		return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
+	}
+
+	const getAvatarColor = (name: string) => {
+		const colors = [
+			{ bg: '#DBEAFE', text: '#1E40AF' },
+			{ bg: '#E0E7FF', text: '#4338CA' },
+			{ bg: '#D1FAE5', text: '#065F46' },
+			{ bg: '#FEF3C7', text: '#92400E' },
+			{ bg: '#FCE7F3', text: '#9D174D' },
+			{ bg: '#E0F2FE', text: '#0369A1' },
+			{ bg: '#F3E8FF', text: '#7C3AED' },
+		]
+		const index = name.length % colors.length
+		return colors[index]
+	}
+
 	return (
 		<AdminLayout>
 			<div className={styles.sectionHeader}>
@@ -148,12 +198,12 @@ export function PropertyOwnersPage() {
 			{isLoading && (
 				<div>
 					<div style={{ marginBottom: '8px' }}>
-						<Skeleton width="100%" height="60px" />
+						<Skeleton width="100%" height="80px" />
 					</div>
 					<div style={{ marginBottom: '8px' }}>
-						<Skeleton width="100%" height="60px" />
+						<Skeleton width="100%" height="80px" />
 					</div>
-					<Skeleton width="100%" height="60px" />
+					<Skeleton width="100%" height="80px" />
 				</div>
 			)}
 
@@ -184,88 +234,150 @@ export function PropertyOwnersPage() {
 							<thead className={styles.tableHeader}>
 								<tr>
 									<th className={styles.tableHeaderCell}>Proprietario</th>
-									<th className={styles.tableHeaderCell}>Tipo</th>
 									<th className={styles.tableHeaderCell}>Contato</th>
-									<th className={styles.tableHeaderCell}>Cidade/UF</th>
-									<th className={styles.tableHeaderCell}>Data de Cadastro</th>
+									<th className={styles.tableHeaderCell}>Localizacao</th>
+									<th className={styles.tableHeaderCell}>Imoveis</th>
+									<th className={styles.tableHeaderCell}>Cadastro</th>
 									<th className={styles.tableHeaderCell}>Acoes</th>
 								</tr>
 							</thead>
 							<tbody>
-								{data.data.map((owner) => (
-									<tr key={owner.id} className={styles.tableRow}>
-										<td className={styles.tableCell}>
-											<div className={styles.ownerInfo}>
-												<span className={styles.ownerName}>{owner.name}</span>
-												<span className={styles.ownerDocument}>
-													{formatDocument(owner.document, owner.documentType)}
-												</span>
-											</div>
-										</td>
-										<td className={styles.tableCell}>
-											<span
-												className={`${styles.badge} ${
-													owner.documentType === 'cpf' ? styles.badgeCpf : styles.badgeCnpj
-												}`}
-											>
-												{owner.documentType.toUpperCase()}
-											</span>
-										</td>
-										<td className={styles.tableCell}>
-											<div className={styles.ownerInfo}>
-												<span style={{ color: owner.email ? '#111827' : '#9CA3AF' }}>
-													{owner.email || '-'}
-												</span>
-												<span
-													style={{
-														fontSize: '13px',
-														color: owner.phone ? '#6B7280' : '#9CA3AF',
-													}}
-												>
-													{owner.phone || '-'}
-												</span>
-											</div>
-										</td>
-										<td className={styles.tableCell}>
-											<span style={{ color: owner.city ? '#111827' : '#9CA3AF' }}>
-												{owner.city && owner.state
-													? `${owner.city}/${owner.state}`
-													: owner.city || owner.state || '-'}
-											</span>
-										</td>
-										<td className={styles.tableCell}>
-											{new Date(owner.createdAt).toLocaleDateString('pt-BR')}
-										</td>
-										<td className={styles.tableCell}>
-											<div className={styles.actions}>
-												<button
-													type="button"
-													className={styles.iconButton}
-													onClick={() => openViewModal(owner)}
-													title="Visualizar proprietario"
-												>
-													<Eye size={18} />
-												</button>
-												<button
-													type="button"
-													className={styles.iconButton}
-													onClick={() => openEditModal(owner)}
-													title="Editar proprietario"
-												>
-													<Edit size={18} />
-												</button>
-												<button
-													type="button"
-													className={`${styles.iconButton} ${styles.iconButtonDanger}`}
-													onClick={() => openDeleteDialog(owner)}
-													title="Excluir proprietario"
-												>
-													<Trash2 size={18} />
-												</button>
-											</div>
-										</td>
-									</tr>
-								))}
+								{data.data.map((owner) => {
+									const avatarColor = getAvatarColor(owner.name)
+									return (
+										<tr key={owner.id} className={styles.tableRow}>
+											<td className={styles.tableCell}>
+												<div className={styles.ownerMainInfo}>
+													{owner.photoUrl ? (
+														<img
+															src={owner.photoUrl}
+															alt={owner.name}
+															className={styles.avatar}
+														/>
+													) : (
+														<div
+															className={styles.avatarFallback}
+															style={{
+																backgroundColor: avatarColor.bg,
+																color: avatarColor.text,
+															}}
+														>
+															{getInitials(owner.name)}
+														</div>
+													)}
+													<div className={styles.ownerInfo}>
+														<span className={styles.ownerName}>{owner.name}</span>
+														<div className={styles.ownerMeta}>
+															<span
+																className={`${styles.badge} ${
+																	owner.documentType === 'cpf'
+																		? styles.badgeCpf
+																		: styles.badgeCnpj
+																}`}
+															>
+																{owner.documentType.toUpperCase()}
+															</span>
+															<span className={styles.ownerDocument}>
+																{formatDocument(owner.document, owner.documentType)}
+															</span>
+														</div>
+													</div>
+												</div>
+											</td>
+											<td className={styles.tableCell}>
+												<div className={styles.contactInfo}>
+													{owner.email ? (
+														<div className={styles.contactRow}>
+															<Mail size={14} className={styles.contactIcon} />
+															<span className={styles.contactText}>{owner.email}</span>
+														</div>
+													) : (
+														<div className={styles.contactRow}>
+															<Mail size={14} className={styles.contactIconMuted} />
+															<span className={styles.contactTextMuted}>-</span>
+														</div>
+													)}
+													{owner.phone ? (
+														<div className={styles.contactRow}>
+															<Phone size={14} className={styles.contactIcon} />
+															<span className={styles.contactText}>
+																{formatPhone(owner.phone)}
+															</span>
+														</div>
+													) : (
+														<div className={styles.contactRow}>
+															<Phone size={14} className={styles.contactIconMuted} />
+															<span className={styles.contactTextMuted}>-</span>
+														</div>
+													)}
+												</div>
+											</td>
+											<td className={styles.tableCell}>
+												{owner.city || owner.state ? (
+													<div className={styles.contactRow}>
+														<MapPin size={14} className={styles.contactIcon} />
+														<span className={styles.contactText}>
+															{owner.city && owner.state
+																? `${owner.city}/${owner.state}`
+																: owner.city || owner.state}
+														</span>
+													</div>
+												) : (
+													<div className={styles.contactRow}>
+														<MapPin size={14} className={styles.contactIconMuted} />
+														<span className={styles.contactTextMuted}>-</span>
+													</div>
+												)}
+											</td>
+											<td className={styles.tableCell}>
+												<div className={styles.propertiesCount}>
+													<Building2 size={14} className={styles.contactIcon} />
+													<span className={styles.propertiesCountText}>
+														{owner.propertiesCount ?? 0}
+													</span>
+												</div>
+											</td>
+											<td className={styles.tableCell}>
+												<div className={styles.contactInfo}>
+													<div className={styles.contactRow}>
+														<Calendar size={14} className={styles.contactIcon} />
+														<span className={styles.contactText}>
+															{formatDate(owner.createdAt)}
+														</span>
+													</div>
+												</div>
+											</td>
+											<td className={styles.tableCell}>
+												<div className={styles.actions}>
+													<button
+														type="button"
+														className={styles.iconButton}
+														onClick={() => openViewModal(owner)}
+														title="Visualizar proprietario"
+													>
+														<Eye size={16} />
+													</button>
+													<button
+														type="button"
+														className={styles.iconButton}
+														onClick={() => openEditModal(owner)}
+														title="Editar proprietario"
+													>
+														<Edit size={16} />
+													</button>
+													<button
+														type="button"
+														className={`${styles.iconButton} ${styles.iconButtonDanger}`}
+														onClick={() => openDeleteDialog(owner)}
+														title="Excluir proprietario"
+													>
+														<Trash2 size={16} />
+													</button>
+												</div>
+											</td>
+										</tr>
+									)
+								})}
 							</tbody>
 						</table>
 					</div>

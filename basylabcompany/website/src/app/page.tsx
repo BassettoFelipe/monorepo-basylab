@@ -1,4 +1,5 @@
 import { CasesSection } from "@/sections/CasesSection/CasesSection";
+import { ContactSection } from "@/sections/ContactSection/ContactSection";
 import { HeroSection } from "@/sections/HeroSection/HeroSection";
 import { ProcessSection } from "@/sections/ProcessSection/ProcessSection";
 import { ServicesSection } from "@/sections/ServicesSection/ServicesSection";
@@ -12,6 +13,7 @@ export default function Home() {
       <ProcessSection />
       <TechSection />
       <CasesSection />
+      <ContactSection />
     </main>
   );
 }

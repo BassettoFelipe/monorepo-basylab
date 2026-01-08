@@ -7,10 +7,17 @@ interface UploadWithPresignedUrlParams {
 	allowedTypes?: string[]
 }
 
-interface PresignedUrlResponse {
+interface PresignedUrlData {
 	uploadUrl: string
 	publicUrl: string
 	key: string
+	expiresAt: string
+}
+
+interface PresignedUrlResponse {
+	success: boolean
+	message: string
+	data: PresignedUrlData
 }
 
 export async function uploadWithPresignedUrl({
@@ -23,13 +30,13 @@ export async function uploadWithPresignedUrl({
 	size: number
 	contentType: string
 }> {
-	const { data } = await api.post<PresignedUrlResponse>('/files/presigned-url', {
+	const { data: response } = await api.post<PresignedUrlResponse>('/files/presigned-url', {
 		fileName: file.name,
 		contentType: file.type,
 		fieldId,
 	})
 
-	await fetch(data.uploadUrl, {
+	await fetch(response.data.uploadUrl, {
 		method: 'PUT',
 		body: file,
 		headers: {
@@ -38,8 +45,8 @@ export async function uploadWithPresignedUrl({
 	})
 
 	return {
-		url: data.publicUrl,
-		key: data.key,
+		url: response.data.publicUrl,
+		key: response.data.key,
 		fileName: file.name,
 		size: file.size,
 		contentType: file.type,

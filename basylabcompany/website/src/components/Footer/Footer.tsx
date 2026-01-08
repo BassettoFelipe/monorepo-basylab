@@ -236,7 +236,9 @@ export function Footer() {
                 className={styles.logo}
               />
               <p className={styles.tagline}>
-                Transformando ideias em software que funciona.
+                Transformando ideias em
+                <br />
+                software que funciona.
               </p>
             </div>
           </div>

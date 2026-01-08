@@ -227,11 +227,13 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
                 .slice(0, wordIndex)
                 .reduce((sum, word) => sum + word.characters.length, 0);
               return (
+                // biome-ignore lint/suspicious/noArrayIndexKey: elements are derived from text, index provides stable identity within current text
                 <span
                   key={wordIndex}
                   className={cn("inline-flex", splitLevelClassName)}
                 >
                   {wordObj.characters.map((char, charIndex) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: characters are derived from text, index provides stable identity within current text
                     <motion.span
                       key={charIndex}
                       initial={initial}

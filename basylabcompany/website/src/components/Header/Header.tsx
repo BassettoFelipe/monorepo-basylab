@@ -117,7 +117,13 @@ export function Header() {
           >
             {/* Progress indicator - inline to avoid extra component overhead */}
             <div className={styles.progressRing}>
-              <svg width="28" height="28" viewBox="0 0 28 28">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 28 28"
+                aria-hidden="true"
+              >
+                <title>Progresso da pagina</title>
                 <circle
                   cx="14"
                   cy="14"
@@ -189,7 +195,9 @@ export function Header() {
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
+                      aria-hidden="true"
                     >
+                      <title>Expandir menu</title>
                       <path d="M15 18l-6-6 6-6" />
                     </svg>
                   </span>

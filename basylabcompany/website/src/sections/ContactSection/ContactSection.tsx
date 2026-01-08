@@ -39,7 +39,9 @@ const PROJECT_TYPES: ProjectType[] = [
         fill="none"
         stroke="currentColor"
         strokeWidth="1.5"
+        aria-hidden="true"
       >
+        <title>Sistema Web</title>
         <rect x="2" y="3" width="20" height="14" rx="2" />
         <path d="M8 21h8M12 17v4" />
       </svg>
@@ -55,7 +57,9 @@ const PROJECT_TYPES: ProjectType[] = [
         fill="none"
         stroke="currentColor"
         strokeWidth="1.5"
+        aria-hidden="true"
       >
+        <title>App Mobile</title>
         <rect x="5" y="2" width="14" height="20" rx="3" />
         <path d="M12 18h.01" />
       </svg>
@@ -71,7 +75,9 @@ const PROJECT_TYPES: ProjectType[] = [
         fill="none"
         stroke="currentColor"
         strokeWidth="1.5"
+        aria-hidden="true"
       >
+        <title>Automacao</title>
         <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
         <circle cx="12" cy="12" r="3" />
       </svg>
@@ -89,7 +95,9 @@ const PROJECT_TYPES: ProjectType[] = [
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        aria-hidden="true"
       >
+        <title>Outro</title>
         <circle cx="12" cy="12" r="10" />
         <path d="M9 9h.01" />
         <path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.4-1 1-1 1.7v.5" />
@@ -184,7 +192,9 @@ function ProjectTypeCard({
           initial={{ pathLength: 0 }}
           animate={{ pathLength: isSelected ? 1 : 0 }}
           transition={{ duration: 0.3 }}
+          aria-hidden="true"
         >
+          <title>Selecionado</title>
           <path d="M5 12l5 5L20 7" />
         </motion.svg>
       </div>
@@ -405,6 +415,7 @@ function StepIndicator({
   return (
     <div className={styles.stepIndicator}>
       {Array.from({ length: totalSteps }, (_, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: static array of step indicators, index is stable
         <div
           key={`step-${i}`}
           className={`${styles.stepDot} ${i < currentStep ? styles.stepDotCompleted : ""} ${i === currentStep ? styles.stepDotActive : ""}`}

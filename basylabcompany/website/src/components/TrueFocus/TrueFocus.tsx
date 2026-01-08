@@ -86,9 +86,10 @@ export const TrueFocus = ({
       {words.map((word, index) => {
         const isActive = index === currentIndex;
         return (
+          // biome-ignore lint/suspicious/noArrayIndexKey: words array is static from sentence prop, index is necessary to handle duplicate words
           <button
             type="button"
-            key={`${word}-${index}`}
+            key={`word-${index}`}
             ref={(el) => {
               wordRefs.current[index] = el;
             }}

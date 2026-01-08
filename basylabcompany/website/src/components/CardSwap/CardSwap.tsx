@@ -108,9 +108,9 @@ export const CardSwap = ({
         };
 
   const childArr = useMemo(() => Children.toArray(children), [children]);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only recreate refs when array length changes, not on every childArr reference change
   const refs = useMemo<RefObject<HTMLDivElement | null>[]>(
     () => childArr.map(() => ({ current: null })),
-    // biome-ignore lint/correctness/useExhaustiveDependencies: only update on length change
     [childArr.length],
   );
 
@@ -120,16 +120,16 @@ export const CardSwap = ({
   const intervalRef = useRef<number | undefined>(undefined);
   const container = useRef<HTMLDivElement>(null);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally limited deps - config values derived from easing prop, refs is stable
   useEffect(() => {
     const total = refs.length;
-    // biome-ignore lint/suspicious/useIterableCallbackReturn: third-party component
-    refs.forEach((r, i) =>
+    for (let i = 0; i < refs.length; i++) {
       placeNow(
-        r.current,
+        refs[i].current,
         makeSlot(i, cardDistance, verticalDistance, total),
         skewAmount,
-      ),
-    );
+      );
+    }
 
     const swap = () => {
       if (order.current.length < 2) return;
@@ -218,7 +218,6 @@ export const CardSwap = ({
       };
     }
     return () => clearInterval(intervalRef.current);
-    // biome-ignore lint/correctness/useExhaustiveDependencies: match original dependencies
   }, [cardDistance, verticalDistance, delay, pauseOnHover, skewAmount, easing]);
 
   const rendered = childArr.map((child, i) => {

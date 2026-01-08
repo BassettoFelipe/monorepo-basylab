@@ -249,9 +249,9 @@
 }
 
 .trueFocus :global(.corner) {
-    border-color: #e7343a !important;
+    border-color: #e7343a;
     filter: drop-shadow(0 0 8px rgba(231, 52, 58, 0.6))
-        drop-shadow(0 0 20px rgba(255, 107, 53, 0.3)) !important;
+        drop-shadow(0 0 20px rgba(255, 107, 53, 0.3));
 }
 
 .trueFocus :global(.focus-frame) {
@@ -289,9 +289,9 @@
 
 /* Swap Card */
 .swapCard {
-    background: rgba(22, 22, 22, 0.98) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-radius: 16px !important;
+    background: rgba(22, 22, 22, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
 }

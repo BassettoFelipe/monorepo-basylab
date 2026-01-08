@@ -17,7 +17,9 @@ const consoleData = [
         fill="none"
         stroke="currentColor"
         strokeWidth="1.5"
+        aria-hidden="true"
       >
+        <title>Foco</title>
         <circle cx="12" cy="12" r="10" />
         <circle cx="12" cy="12" r="6" />
         <circle cx="12" cy="12" r="2" />
@@ -35,7 +37,9 @@ const consoleData = [
         fill="none"
         stroke="currentColor"
         strokeWidth="1.5"
+        aria-hidden="true"
       >
+        <title>Comunicacao</title>
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
       </svg>
     ),
@@ -51,7 +55,9 @@ const consoleData = [
         fill="none"
         stroke="currentColor"
         strokeWidth="1.5"
+        aria-hidden="true"
       >
+        <title>Entrega</title>
         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
       </svg>
     ),
@@ -67,7 +73,9 @@ const consoleData = [
         fill="none"
         stroke="currentColor"
         strokeWidth="1.5"
+        aria-hidden="true"
       >
+        <title>Suporte</title>
         <path d="M18 18.72a9.1 9.1 0 0 0 3.74-7.22A10.5 10.5 0 0 0 12 1C6.477 1 2 5.477 2 11a9.1 9.1 0 0 0 3.74 7.22" />
         <circle cx="12" cy="11" r="3" />
         <path d="M12 17v4M8 21h8" />
@@ -106,7 +114,7 @@ function StatusDot() {
     <motion.div
       className={styles.statusDot}
       animate={{ opacity: [1, 0.5, 1] }}
-      transition={{ duration: 2, repeat: Infinity }}
+      transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
     />
   );
 }

@@ -14,9 +14,22 @@ export default defineConfig({
 		screenshot: 'only-on-failure',
 	},
 	projects: [
+		// Setup project - faz login uma vez e salva o estado
+		{
+			name: 'setup',
+			testMatch: /auth\.setup\.ts/,
+		},
+		// Testes que requerem autenticação
 		{
 			name: 'chromium',
-			use: { ...devices['Desktop Chrome'] },
+			use: {
+				...devices['Desktop Chrome'],
+				// Usa o estado de autenticação salvo pelo setup
+				storageState: 'e2e/.auth/user.json',
+			},
+			dependencies: ['setup'],
+			// Ignora o arquivo de setup nos testes normais
+			testIgnore: /auth\.setup\.ts/,
 		},
 	],
 	webServer: {

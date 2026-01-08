@@ -14,13 +14,22 @@ type CreatePropertyOwnerInput = {
 	name: string
 	documentType: 'cpf' | 'cnpj'
 	document: string
+	rg?: string
+	nationality?: string
+	maritalStatus?: 'solteiro' | 'casado' | 'divorciado' | 'viuvo' | 'uniao_estavel'
+	profession?: string
 	email?: string
 	phone?: string
+	phoneSecondary?: string
 	address?: string
+	addressNumber?: string
+	addressComplement?: string
+	neighborhood?: string
 	city?: string
 	state?: string
 	zipCode?: string
 	birthDate?: string
+	photoUrl?: string
 	notes?: string
 	createdBy: User
 }
@@ -31,13 +40,22 @@ type CreatePropertyOwnerOutput = {
 	name: string
 	documentType: string
 	document: string
+	rg: string | null
+	nationality: string | null
+	maritalStatus: string | null
+	profession: string | null
 	email: string | null
 	phone: string | null
+	phoneSecondary: string | null
 	address: string | null
+	addressNumber: string | null
+	addressComplement: string | null
+	neighborhood: string | null
 	city: string | null
 	state: string | null
 	zipCode: string | null
 	birthDate: string | null
+	photoUrl: string | null
 	notes: string | null
 	createdAt: Date
 }
@@ -75,6 +93,9 @@ export class CreatePropertyOwnerUseCase {
 		}
 
 		const normalizedPhone = input.phone ? this.contactValidator.normalizePhone(input.phone) : null
+		const normalizedPhoneSecondary = input.phoneSecondary
+			? this.contactValidator.normalizePhone(input.phoneSecondary)
+			: null
 
 		const normalizedZipCode = input.zipCode
 			? this.contactValidator.normalizeZipCode(input.zipCode)
@@ -86,13 +107,22 @@ export class CreatePropertyOwnerUseCase {
 				name: input.name.trim(),
 				documentType: input.documentType,
 				document: normalizedDocument,
+				rg: input.rg?.trim() || null,
+				nationality: input.nationality?.trim() || null,
+				maritalStatus: input.maritalStatus || null,
+				profession: input.profession?.trim() || null,
 				email: normalizedEmail,
 				phone: normalizedPhone,
+				phoneSecondary: normalizedPhoneSecondary,
 				address: input.address?.trim() || null,
+				addressNumber: input.addressNumber?.trim() || null,
+				addressComplement: input.addressComplement?.trim() || null,
+				neighborhood: input.neighborhood?.trim() || null,
 				city: input.city?.trim() || null,
 				state: input.state?.toUpperCase().trim() || null,
 				zipCode: normalizedZipCode,
 				birthDate: input.birthDate || null,
+				photoUrl: input.photoUrl || null,
 				notes: input.notes?.trim() || null,
 				createdBy: createdBy.id,
 			})
@@ -112,13 +142,22 @@ export class CreatePropertyOwnerUseCase {
 				name: propertyOwner.name,
 				documentType: propertyOwner.documentType,
 				document: propertyOwner.document,
+				rg: propertyOwner.rg,
+				nationality: propertyOwner.nationality,
+				maritalStatus: propertyOwner.maritalStatus,
+				profession: propertyOwner.profession,
 				email: propertyOwner.email,
 				phone: propertyOwner.phone,
+				phoneSecondary: propertyOwner.phoneSecondary,
 				address: propertyOwner.address,
+				addressNumber: propertyOwner.addressNumber,
+				addressComplement: propertyOwner.addressComplement,
+				neighborhood: propertyOwner.neighborhood,
 				city: propertyOwner.city,
 				state: propertyOwner.state,
 				zipCode: propertyOwner.zipCode,
 				birthDate: propertyOwner.birthDate,
+				photoUrl: propertyOwner.photoUrl,
 				notes: propertyOwner.notes,
 				createdAt: propertyOwner.createdAt,
 			}

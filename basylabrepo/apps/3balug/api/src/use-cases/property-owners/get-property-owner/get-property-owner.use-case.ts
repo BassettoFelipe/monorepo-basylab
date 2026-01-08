@@ -15,13 +15,22 @@ type GetPropertyOwnerOutput = {
 	document: string
 	companyId: string
 	documentType: string
+	rg: string | null
+	nationality: string | null
+	maritalStatus: string | null
+	profession: string | null
 	email: string | null
 	phone: string | null
+	phoneSecondary: string | null
 	birthDate: string | null
 	address: string | null
+	addressNumber: string | null
+	addressComplement: string | null
+	neighborhood: string | null
 	city: string | null
 	state: string | null
 	zipCode: string | null
+	photoUrl: string | null
 	notes: string | null
 }
 
@@ -62,13 +71,22 @@ export class GetPropertyOwnerUseCase {
 			document: propertyOwner.document,
 			companyId: propertyOwner.companyId,
 			documentType: propertyOwner.documentType,
+			rg: propertyOwner.rg,
+			nationality: propertyOwner.nationality,
+			maritalStatus: propertyOwner.maritalStatus,
+			profession: propertyOwner.profession,
 			email: propertyOwner.email,
 			phone: propertyOwner.phone,
+			phoneSecondary: propertyOwner.phoneSecondary,
 			birthDate: propertyOwner.birthDate,
 			address: propertyOwner.address,
+			addressNumber: propertyOwner.addressNumber,
+			addressComplement: propertyOwner.addressComplement,
+			neighborhood: propertyOwner.neighborhood,
 			city: propertyOwner.city,
 			state: propertyOwner.state,
 			zipCode: propertyOwner.zipCode,
+			photoUrl: propertyOwner.photoUrl,
 			notes: propertyOwner.notes,
 		}
 	}

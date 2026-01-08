@@ -9,10 +9,19 @@ interface ModalProps {
 	title: string
 	children: ReactNode
 	footer?: ReactNode
-	size?: 'sm' | 'md' | 'lg' | 'xl'
+	size?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
+	customHeader?: ReactNode
 }
 
-export function Modal({ isOpen, onClose, title, children, footer, size = 'md' }: ModalProps) {
+export function Modal({
+	isOpen,
+	onClose,
+	title,
+	children,
+	footer,
+	size = 'md',
+	customHeader,
+}: ModalProps) {
 	// Fecha modal com ESC
 	useEffect(() => {
 		const handleEscape = (event: KeyboardEvent) => {
@@ -42,7 +51,9 @@ export function Modal({ isOpen, onClose, title, children, footer, size = 'md' }:
 				? styles.modalLg
 				: size === 'xl'
 					? styles.modalXl
-					: styles.modalMd
+					: size === 'full'
+						? styles.modalFull
+						: styles.modalMd
 
 	return (
 		// biome-ignore lint/a11y/useKeyWithClickEvents lint/a11y/noStaticElementInteractions: Overlay click-to-dismiss is a common UX pattern, keyboard users can use Escape key
@@ -55,19 +66,23 @@ export function Modal({ isOpen, onClose, title, children, footer, size = 'md' }:
 				aria-modal="true"
 				aria-labelledby="modal-title"
 			>
-				<div className={styles.header}>
-					<h2 id="modal-title" className={styles.title}>
-						{title}
-					</h2>
-					<button
-						type="button"
-						className={styles.closeButton}
-						onClick={onClose}
-						aria-label="Fechar modal"
-					>
-						<X size={20} />
-					</button>
-				</div>
+				{customHeader ? (
+					customHeader
+				) : (
+					<div className={styles.header}>
+						<h2 id="modal-title" className={styles.title}>
+							{title}
+						</h2>
+						<button
+							type="button"
+							className={styles.closeButton}
+							onClick={onClose}
+							aria-label="Fechar modal"
+						>
+							<X size={20} />
+						</button>
+					</div>
+				)}
 				<div className={styles.body}>{children}</div>
 				{footer && <div className={styles.footer}>{footer}</div>}
 			</div>

@@ -12,6 +12,10 @@ let failedQueue: Array<{
 
 let navigationCallback: ((path: string, replace?: boolean) => void) | null = null
 
+// Controle para evitar múltiplos toasts de logout simultâneos
+let lastLogoutToastTime = 0
+const LOGOUT_TOAST_DEBOUNCE_MS = 1000
+
 function processQueue(error: Error | null, token: string | null = null): void {
 	for (const prom of failedQueue) {
 		if (error) {
@@ -29,7 +33,14 @@ export function setNavigationCallback(callback: (path: string, replace?: boolean
 
 function performLogout(message?: string): void {
 	storage.clearAll()
-	toast.error(message || 'Sua sessão expirou. Faça login novamente.')
+
+	// Evita múltiplos toasts quando várias requisições falham simultaneamente
+	const now = Date.now()
+	if (now - lastLogoutToastTime > LOGOUT_TOAST_DEBOUNCE_MS) {
+		lastLogoutToastTime = now
+		toast.error(message || 'Sua sessão expirou. Faça login novamente.')
+	}
+
 	if (navigationCallback) {
 		navigationCallback('/login', true)
 	}

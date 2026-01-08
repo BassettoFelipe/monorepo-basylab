@@ -169,9 +169,17 @@ Todas as correções foram aplicadas com sucesso em 07/01/2026.
 - **TypeCheck:** 0 erros
 - **Lint:** 0 erros, 0 warnings
 - **Build:** Sucesso em todos os 4 pacotes
-- **Testes:** 
-  - @basyadmin/api: 193 testes passando
-  - @3balug/api: 192 testes passando (use-cases)
+- **Testes @3balug/api (COMPLETOS):**
+  | Suite | Pass | Fail | Total |
+  |-------|------|------|-------|
+  | Unit Tests (use-cases) | 1324 | 0 | 1324 |
+  | Middleware Tests | 53 | 0 | 53 |
+  | E2E Tests (routes) | 712 | 0 | 712 |
+  | Repository Tests* | 76 | 19 | 95 |
+  
+  *Os 19 testes falhando em Repository são testes de INTEGRAÇÃO que requerem banco PostgreSQL com schema atualizado. O erro `column "deleted_at" of relation "properties" does not exist` indica que o banco local não tem a migration aplicada. Isso é problema de ambiente/infraestrutura, não de código.
+
+- **Testes @basyadmin/api:** 193 testes passando
 
 ### Principais Correções Realizadas:
 

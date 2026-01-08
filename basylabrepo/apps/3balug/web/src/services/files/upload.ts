@@ -9,7 +9,7 @@ interface UploadWithPresignedUrlParams {
 
 interface PresignedUrlResponse {
 	uploadUrl: string
-	fileUrl: string
+	publicUrl: string
 	key: string
 }
 
@@ -38,7 +38,7 @@ export async function uploadWithPresignedUrl({
 	})
 
 	return {
-		url: data.fileUrl,
+		url: data.publicUrl,
 		key: data.key,
 		fileName: file.name,
 		size: file.size,

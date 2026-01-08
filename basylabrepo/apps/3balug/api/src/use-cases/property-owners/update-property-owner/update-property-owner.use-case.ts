@@ -17,13 +17,22 @@ type UpdatePropertyOwnerInput = {
 	name?: string
 	documentType?: 'cpf' | 'cnpj'
 	document?: string
+	rg?: string | null
+	nationality?: string | null
+	maritalStatus?: 'solteiro' | 'casado' | 'divorciado' | 'viuvo' | 'uniao_estavel' | null
+	profession?: string | null
 	email?: string | null
 	phone?: string | null
+	phoneSecondary?: string | null
 	address?: string | null
+	addressNumber?: string | null
+	addressComplement?: string | null
+	neighborhood?: string | null
 	city?: string | null
 	state?: string | null
 	zipCode?: string | null
 	birthDate?: string | null
+	photoUrl?: string | null
 	notes?: string | null
 	updatedBy: User
 }
@@ -103,8 +112,42 @@ export class UpdatePropertyOwnerUseCase {
 			updateData.phone = input.phone ? this.contactValidator.normalizePhone(input.phone) : null
 		}
 
+		if (input.phoneSecondary !== undefined) {
+			updateData.phoneSecondary = input.phoneSecondary
+				? this.contactValidator.normalizePhone(input.phoneSecondary)
+				: null
+		}
+
+		if (input.rg !== undefined) {
+			updateData.rg = input.rg?.trim() || null
+		}
+
+		if (input.nationality !== undefined) {
+			updateData.nationality = input.nationality?.trim() || null
+		}
+
+		if (input.maritalStatus !== undefined) {
+			updateData.maritalStatus = input.maritalStatus || null
+		}
+
+		if (input.profession !== undefined) {
+			updateData.profession = input.profession?.trim() || null
+		}
+
 		if (input.address !== undefined) {
 			updateData.address = input.address?.trim() || null
+		}
+
+		if (input.addressNumber !== undefined) {
+			updateData.addressNumber = input.addressNumber?.trim() || null
+		}
+
+		if (input.addressComplement !== undefined) {
+			updateData.addressComplement = input.addressComplement?.trim() || null
+		}
+
+		if (input.neighborhood !== undefined) {
+			updateData.neighborhood = input.neighborhood?.trim() || null
 		}
 
 		if (input.city !== undefined) {
@@ -123,6 +166,10 @@ export class UpdatePropertyOwnerUseCase {
 
 		if (input.birthDate !== undefined) {
 			updateData.birthDate = input.birthDate || null
+		}
+
+		if (input.photoUrl !== undefined) {
+			updateData.photoUrl = input.photoUrl || null
 		}
 
 		if (input.notes !== undefined) {

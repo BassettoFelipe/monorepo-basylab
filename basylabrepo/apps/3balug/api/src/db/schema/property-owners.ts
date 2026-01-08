@@ -13,9 +13,16 @@ export const propertyOwners = pgTable(
 		documentType: text('document_type').notNull().default('cpf'), // cpf ou cnpj
 		document: text('document').notNull(), // CPF ou CNPJ (apenas números)
 		rg: text('rg'), // RG (apenas para PF)
+		nationality: text('nationality'), // Nacionalidade
+		maritalStatus: text('marital_status'), // Estado civil
+		profession: text('profession'), // Profissao
 		email: text('email'),
 		phone: text('phone'),
+		phoneSecondary: text('phone_secondary'), // Telefone secundario/WhatsApp
 		address: text('address'),
+		addressNumber: text('address_number'), // Numero
+		addressComplement: text('address_complement'), // Complemento
+		neighborhood: text('neighborhood'), // Bairro
 		city: text('city'),
 		state: text('state'),
 		zipCode: text('zip_code'),

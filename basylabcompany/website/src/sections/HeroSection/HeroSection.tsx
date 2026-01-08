@@ -3,7 +3,7 @@
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import CountUp from "@/components/CountUp";
+import { CountUp } from "@/components/CountUp/CountUp";
 import { GlowButton } from "@/components/GlowButton/GlowButton";
 import styles from "./HeroSection.module.css";
 

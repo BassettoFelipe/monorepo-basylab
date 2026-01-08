@@ -3,7 +3,7 @@
 import { LayoutGroup, motion, useInView } from "motion/react";
 import Image from "next/image";
 import { useRef, useState, type CSSProperties } from "react";
-import { RotatingText } from "@/components/RotatingText";
+import { RotatingText } from "@/components/RotatingText/RotatingText";
 import styles from "./TechSection.module.css";
 
 type BenefitPosition = "top" | "right" | "bottom" | "left";

@@ -14,7 +14,7 @@ import {
   useMemo,
   useRef,
 } from "react";
-import "./CardSwap.css";
+import styles from "./CardSwap.module.css";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   customClass?: string;
@@ -25,7 +25,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     <div
       ref={ref}
       {...rest}
-      className={`card ${customClass ?? ""} ${className ?? ""}`.trim()}
+      className={`${styles.card} ${customClass ?? ""} ${className ?? ""}`.trim()}
     />
   ),
 );
@@ -76,7 +76,7 @@ interface CardSwapProps {
   children: ReactNode;
 }
 
-const CardSwap = ({
+export const CardSwap = ({
   width = 500,
   height = 400,
   cardDistance = 60,
@@ -241,14 +241,8 @@ const CardSwap = ({
   });
 
   return (
-    <div
-      ref={container}
-      className="card-swap-container"
-      style={{ width, height }}
-    >
+    <div ref={container} className={styles.container} style={{ width, height }}>
       {rendered}
     </div>
   );
 };
-
-export default CardSwap;

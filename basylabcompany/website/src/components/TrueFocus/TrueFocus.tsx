@@ -2,7 +2,7 @@
 
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import "./TrueFocus.css";
+import styles from "./TrueFocus.module.css";
 
 interface TrueFocusProps {
   sentence?: string;
@@ -16,7 +16,7 @@ interface TrueFocusProps {
   className?: string;
 }
 
-const TrueFocus = ({
+export const TrueFocus = ({
   sentence = "True Focus",
   separator = " ",
   manualMode = false,
@@ -83,7 +83,10 @@ const TrueFocus = ({
   };
 
   return (
-    <div className={`focus-container ${className || ""}`} ref={containerRef}>
+    <div
+      className={`${styles.container} ${className || ""}`}
+      ref={containerRef}
+    >
       {words.map((word, index) => {
         const isActive = index === currentIndex;
         return (
@@ -93,7 +96,7 @@ const TrueFocus = ({
             ref={(el) => {
               wordRefs.current[index] = el;
             }}
-            className={`focus-word ${manualMode ? "manual" : ""} ${isActive && !manualMode ? "active" : ""}`}
+            className={`${styles.word} ${manualMode ? styles.manual : ""} ${isActive && !manualMode ? styles.active : ""}`}
             style={
               {
                 filter: isActive ? "blur(0px)" : `blur(${blurAmount}px)`,
@@ -111,7 +114,7 @@ const TrueFocus = ({
       })}
 
       <motion.div
-        className="focus-frame"
+        className={styles.frame}
         animate={{
           x: focusRect.x,
           y: focusRect.y,
@@ -129,13 +132,11 @@ const TrueFocus = ({
           } as React.CSSProperties
         }
       >
-        <span className="corner top-left" />
-        <span className="corner top-right" />
-        <span className="corner bottom-left" />
-        <span className="corner bottom-right" />
+        <span className={`${styles.corner} ${styles.topLeft}`} />
+        <span className={`${styles.corner} ${styles.topRight}`} />
+        <span className={`${styles.corner} ${styles.bottomLeft}`} />
+        <span className={`${styles.corner} ${styles.bottomRight}`} />
       </motion.div>
     </div>
   );
 };
-
-export default TrueFocus;

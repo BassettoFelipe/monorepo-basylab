@@ -1,7 +1,7 @@
 "use client";
 
-import CardSwap, { Card } from "@/components/CardSwap";
-import TrueFocus from "@/components/TrueFocus";
+import { CardSwap, Card } from "@/components/CardSwap/CardSwap";
+import { TrueFocus } from "@/components/TrueFocus/TrueFocus";
 import { motion, useInView } from "motion/react";
 import Image from "next/image";
 import { useRef, useState } from "react";

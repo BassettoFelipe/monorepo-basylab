@@ -182,29 +182,6 @@ function SocialBlock() {
   );
 }
 
-function StatusIndicator() {
-  // Calculate status once on mount - no need for useEffect
-  const [status] = useState<"online" | "away">(() => {
-    const hour = new Date().getHours();
-    return hour >= 9 && hour < 18 ? "online" : "away";
-  });
-
-  return (
-    <div className={styles.statusIndicator}>
-      <motion.span
-        className={`${styles.statusDot} ${status === "online" ? styles.statusOnline : styles.statusAway}`}
-        animate={{ opacity: [1, 0.5, 1] }}
-        transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-      />
-      <span className={styles.statusText}>
-        {status === "online"
-          ? "Disponível para novos projetos"
-          : "Responderemos em breve"}
-      </span>
-    </div>
-  );
-}
-
 // ============================================
 // MAIN COMPONENT
 // ============================================
@@ -258,11 +235,10 @@ export function Footer() {
                 height={60}
                 className={styles.logo}
               />
+              <p className={styles.tagline}>
+                Transformando ideias em software que funciona.
+              </p>
             </div>
-            <p className={styles.tagline}>
-              Transformando ideias em software que funciona.
-            </p>
-            <StatusIndicator />
           </div>
 
           {/* Navigation column */}
@@ -287,10 +263,6 @@ export function Footer() {
             <span>{currentYear}</span>
             <span className={styles.copyrightDivider}>|</span>
             <span>Basylab</span>
-            <span className={styles.copyrightDivider}>|</span>
-            <span className={styles.copyrightText}>
-              CNPJ 00.000.000/0001-00
-            </span>
           </div>
 
           <div className={styles.bottomLinks}>

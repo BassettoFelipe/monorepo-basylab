@@ -173,17 +173,42 @@
 
 /* TrueFocus */
 .trueFocusWrapper {
-    margin-top: 3rem;
     display: flex;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
     justify-content: center;
+    width: 100%;
 }
 
-.trueFocus {
-    gap: 1.5em !important;
+@media (min-width: 768px) {
+    .trueFocusWrapper {
+        margin-bottom: 0;
+    }
+}
+
+@media (min-width: 1024px) {
+    .leftContent {
+        text-align: left;
+    }
+
+    .trueFocusWrapper {
+        justify-content: flex-start;
+        margin-top: 3.5rem;
+    }
+}
+
+.trueFocus :global(.focus-container) {
+    gap: 0.75em;
+}
+
+@media (min-width: 768px) {
+    .trueFocus :global(.focus-container) {
+        gap: 1.5em;
+    }
 }
 
 .trueFocus :global(.focus-word) {
-    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: -0.02em;
     background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 50%, #ffffff 100%);
@@ -195,6 +220,12 @@
         transform 0.3s ease;
 }
 
+@media (min-width: 768px) {
+    .trueFocus :global(.focus-word) {
+        font-size: 1.5rem;
+    }
+}
+
 .trueFocus :global(.focus-word.active) {
     background: linear-gradient(135deg, #e7343a 0%, #ff6b35 50%, #e7343a 100%);
     background-size: 200% 200%;
@@ -203,7 +234,6 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     transform: scale(1.05);
-    text-shadow: 0 0 30px rgba(231, 52, 58, 0.4);
 }
 
 @keyframes gradientShift {
@@ -219,9 +249,6 @@
 }
 
 .trueFocus :global(.corner) {
-    width: 0.75rem;
-    height: 0.75rem;
-    border-width: 2px;
     border-color: #e7343a !important;
     filter: drop-shadow(0 0 8px rgba(231, 52, 58, 0.6))
         drop-shadow(0 0 20px rgba(255, 107, 53, 0.3)) !important;
@@ -229,17 +256,6 @@
 
 .trueFocus :global(.focus-frame) {
     filter: drop-shadow(0 0 15px rgba(231, 52, 58, 0.3));
-}
-
-@media (min-width: 1024px) {
-    .leftContent {
-        text-align: left;
-    }
-
-    .trueFocusWrapper {
-        justify-content: flex-start;
-        margin-top: 3.5rem;
-    }
 }
 
 /* Right Content - CardSwap */
@@ -255,9 +271,18 @@
 @media (max-width: 767px) {
     .rightContent {
         min-width: 100%;
-        min-height: 500px;
-        transform: scale(0.85);
-        transform-origin: center center;
+        min-height: 340px;
+        transform: scale(0.55);
+        transform-origin: center top;
+        margin-top: 3rem;
+        overflow: visible;
+    }
+}
+
+@media (max-width: 400px) {
+    .rightContent {
+        transform: scale(0.5);
+        min-height: 300px;
     }
 }
 
@@ -267,6 +292,13 @@
     transform: translate(-15%, -10%);
     bottom: auto;
     right: auto;
+}
+
+@media (max-width: 767px) {
+    .rightContent :global(.card-swap-container) {
+        transform: translate(0, 0);
+        position: relative;
+    }
 }
 
 /* Swap Card */

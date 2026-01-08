@@ -122,6 +122,7 @@ const CardSwap = ({
 
   useEffect(() => {
     const total = refs.length;
+    // biome-ignore lint/suspicious/useIterableCallbackReturn: third-party component
     refs.forEach((r, i) =>
       placeNow(
         r.current,

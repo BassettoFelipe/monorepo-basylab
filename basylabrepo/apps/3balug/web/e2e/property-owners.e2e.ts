@@ -27,12 +27,12 @@ const E2E_TEST_USER = {
 	password: 'E2eTest@123456',
 }
 
-// Dados de teste para CPF
+// Dados de teste para CPF (CPF válido para testes)
 const CPF_OWNER_DATA = {
 	name: 'João Silva Teste E2E',
 	documentType: 'cpf',
-	document: '123.456.789-00',
-	documentRaw: '12345678900',
+	document: '529.982.247-25', // CPF válido para testes
+	documentRaw: '52998224725',
 	rg: '12.345.678-9',
 	birthDate: '1990-05-15',
 	nationality: 'Brasileiro',
@@ -52,12 +52,12 @@ const CPF_OWNER_DATA = {
 	notes: 'Proprietário de teste criado via E2E',
 }
 
-// Dados de teste para CNPJ
+// Dados de teste para CNPJ (CNPJ válido para testes)
 const CNPJ_OWNER_DATA = {
 	name: 'Empresa Teste LTDA',
 	documentType: 'cnpj',
-	document: '12.345.678/0001-90',
-	documentRaw: '12345678000190',
+	document: '11.222.333/0001-81', // CNPJ válido para testes
+	documentRaw: '11222333000181',
 	phone: '(11) 2222-3333',
 	phoneRaw: '1122223333',
 	email: 'empresa.teste@example.com',
@@ -282,10 +282,9 @@ async function goToNextStep(page: Page): Promise<void> {
 
 // Helper para submeter o formulário
 async function submitForm(page: Page): Promise<void> {
-	// Buscar o botão "Adicionar" dentro do modal (no footer)
-	// O modal tem um dialog, e o botão está no footer
-	const modal = page.locator('dialog, [role="dialog"]')
-	const submitButton = modal.getByRole('button', { name: 'Adicionar', exact: true })
+	// Buscar o botão "Adicionar" que está no footer do modal
+	// É o último botão com texto "Adicionar" na página (dentro do modal)
+	const submitButton = page.locator('[role="dialog"] button:has-text("Adicionar")').last()
 
 	await expect(submitButton).toBeVisible({ timeout: 10000 })
 	await submitButton.click()
@@ -506,7 +505,7 @@ test.describe('Property Owners - Fluxo Completo E2E', () => {
 
 			// Preencher Step 1
 			await page.locator('input[name="name"]').fill('Teste Telefone')
-			await page.locator('input[name="document"]').fill('123.456.789-09')
+			await page.locator('input[name="document"]').fill('847.219.386-54') // CPF válido
 			await goToNextStep(page)
 
 			// Pular Step 2
@@ -758,7 +757,7 @@ test.describe('Property Owners - Fluxo Completo E2E', () => {
 
 			// Criar proprietário
 			await page.locator('input[name="name"]').fill(testName)
-			await page.locator('input[name="document"]').fill('987.654.321-00')
+			await page.locator('input[name="document"]').fill('318.726.459-01') // CPF válido
 			await goToNextStep(page)
 			await goToNextStep(page)
 			await page.locator('input[name="phone"]').fill('(11) 98765-4321')
@@ -820,9 +819,9 @@ test.describe('Property Owners - Fluxo Completo E2E', () => {
 			await goToPropertyOwnersPage(page)
 			await openCreateModal(page)
 
-			// Preencher formulário
+			// Preencher formulário - usando CPF válido 745.128.639-70
 			await page.locator('input[name="name"]').fill(testName)
-			await page.locator('input[name="document"]').fill('111.222.333-44')
+			await page.locator('input[name="document"]').fill('745.128.639-70') // CPF válido
 			await goToNextStep(page)
 			await goToNextStep(page)
 			await page.locator('input[name="phone"]').fill('(11) 91111-2222')
@@ -837,7 +836,7 @@ test.describe('Property Owners - Fluxo Completo E2E', () => {
 			// Verificar payload da requisição
 			if (apiRequestBody) {
 				expect(apiRequestBody.name).toBe(testName)
-				expect(apiRequestBody.document).toBe('11122233344') // Sem máscara
+				expect(apiRequestBody.document).toBe('74512863970') // Sem máscara
 				expect(apiRequestBody.phone).toBe('11911112222') // Sem máscara
 				expect(apiRequestBody.email).toBe('apitest@example.com')
 				expect(apiRequestBody.documentType).toBe('cpf')
@@ -869,9 +868,9 @@ test.describe('Property Owners - Fluxo Completo E2E', () => {
 			await goToPropertyOwnersPage(page)
 			await openCreateModal(page)
 
-			// Preencher formulário
+			// Preencher formulário - usando CPF válido 962.471.583-02
 			await page.locator('input[name="name"]').fill('Teste Erro API')
-			await page.locator('input[name="document"]').fill('999.888.777-66')
+			await page.locator('input[name="document"]').fill('962.471.583-02') // CPF válido
 			await goToNextStep(page)
 			await goToNextStep(page)
 			await page.locator('input[name="phone"]').fill('(11) 99999-9999')
@@ -896,7 +895,7 @@ test.describe('Property Owners - Fluxo Completo E2E', () => {
 
 			// Preencher Step 1
 			await page.locator('input[name="name"]').fill('Teste Navegação')
-			await page.locator('input[name="document"]').fill('123.456.789-00')
+			await page.locator('input[name="document"]').fill('184.539.762-08') // CPF válido
 
 			// Step 1 -> Step 2
 			await goToNextStep(page)
@@ -964,7 +963,7 @@ test.describe('Property Owners - Fluxo Completo E2E', () => {
 
 			// Preencher e avançar
 			await page.locator('input[name="name"]').fill('Teste Progresso')
-			await page.locator('input[name="document"]').fill('123.456.789-00')
+			await page.locator('input[name="document"]').fill('653.842.197-06') // CPF válido
 			await goToNextStep(page)
 
 			// Verificar progresso atualizado
@@ -1053,7 +1052,7 @@ test.describe('Regressão - Bug Upload URL undefined', () => {
 
 		// Preencher formulário mínimo
 		await page.locator('input[name="name"]').fill('Teste Regressão Upload')
-		await page.locator('input[name="document"]').fill('123.456.789-00')
+		await page.locator('input[name="document"]').fill('271.695.843-50') // CPF válido
 		await goToNextStep(page)
 		await goToNextStep(page)
 		await page.locator('input[name="phone"]').fill('(11) 99999-8888')

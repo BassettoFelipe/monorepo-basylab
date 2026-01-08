@@ -45,7 +45,7 @@ const TrueFocus = ({
         () => {
           setCurrentIndex((prev) => (prev + 1) % words.length);
         },
-        (animationDuration + pauseBetweenAnimations) * 1000
+        (animationDuration + pauseBetweenAnimations) * 1000,
       );
 
       return () => clearInterval(interval);
@@ -58,7 +58,8 @@ const TrueFocus = ({
     if (!wordRefs.current[currentIndex] || !containerRef.current) return;
 
     const parentRect = containerRef.current.getBoundingClientRect();
-    const activeRect = wordRefs.current[currentIndex]!.getBoundingClientRect();
+    const activeRect = wordRefs.current[currentIndex]?.getBoundingClientRect();
+    if (!activeRect) return;
 
     setFocusRect({
       x: activeRect.left - parentRect.left,
@@ -66,7 +67,7 @@ const TrueFocus = ({
       width: activeRect.width,
       height: activeRect.height,
     });
-  }, [currentIndex, words.length]);
+  }, [currentIndex]);
 
   const handleMouseEnter = (index: number) => {
     if (manualMode) {
@@ -82,15 +83,13 @@ const TrueFocus = ({
   };
 
   return (
-    <div
-      className={`focus-container ${className || ""}`}
-      ref={containerRef}
-    >
+    <div className={`focus-container ${className || ""}`} ref={containerRef}>
       {words.map((word, index) => {
         const isActive = index === currentIndex;
         return (
-          <span
-            key={index}
+          <button
+            type="button"
+            key={`${word}-${index}`}
             ref={(el) => {
               wordRefs.current[index] = el;
             }}
@@ -107,7 +106,7 @@ const TrueFocus = ({
             onMouseLeave={handleMouseLeave}
           >
             {word}
-          </span>
+          </button>
         );
       })}
 

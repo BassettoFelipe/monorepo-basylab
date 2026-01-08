@@ -61,12 +61,15 @@ export const modalXl = style({
 })
 
 export const modalFull = style({
-	maxWidth: '1000px',
+	maxWidth: '1400px',
 	width: '95vw',
 	minHeight: '85vh',
 	maxHeight: '92vh',
 
 	'@media': {
+		'(max-width: 1440px)': {
+			maxWidth: '95vw',
+		},
 		'(max-width: 1080px)': {
 			maxWidth: '100%',
 			width: '100%',

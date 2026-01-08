@@ -1,21 +1,46 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { AlertTriangle, Loader2 } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import {
+	AlertTriangle,
+	Building2,
+	Camera,
+	CheckCircle2,
+	DollarSign,
+	Eye,
+	EyeOff,
+	FileText,
+	Globe,
+	Home,
+	Image,
+	Info,
+	Loader2,
+	MapPin,
+	Percent,
+	Rocket,
+	Ruler,
+	Settings,
+	Sparkles,
+	Upload,
+	User,
+} from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { z } from 'zod'
-import { Button } from '@/components/Button/Button'
+
 import { Input } from '@/components/Input/Input'
-import { Modal } from '@/components/Modal/Modal'
+import { OwnerSelect } from '@/components/OwnerSelect'
 import { PhotoPicker, type SelectedPhoto } from '@/components/PhotoPicker/PhotoPicker'
+import { ListingTypeSelector, PropertyTypeSelector } from '@/components/PropertyTypeSelector'
 import { Select } from '@/components/Select/Select'
 import { Textarea } from '@/components/Textarea/Textarea'
+import { WizardModal, type WizardStep } from '@/components/WizardModal'
 import { useCreatePropertyMutation } from '@/queries/properties/useCreatePropertyMutation'
 import { usePropertyOwnersQuery } from '@/queries/property-owners/usePropertyOwnersQuery'
 import { useUploadPropertyPhotoMutation } from '@/queries/property-photos/useUploadPropertyPhotoMutation'
 import type { ListingType, PropertyType } from '@/types/property.types'
+import { BRAZILIAN_STATES } from '@/types/property-owner.types'
 import { applyMask, getCurrencyRawValue } from '@/utils/masks'
-import * as styles from '../PropertyForm.styles.css'
+import * as styles from './CreatePropertyModal.styles.css'
 
 interface ViaCepResponse {
 	cep: string
@@ -29,31 +54,48 @@ interface ViaCepResponse {
 
 const createPropertySchema = z
 	.object({
+		// Step 1: Proprietario
 		ownerId: z.string().min(1, 'Proprietario e obrigatorio'),
-		title: z
-			.string()
-			.min(3, 'Titulo deve ter pelo menos 3 caracteres')
-			.max(200, 'Titulo deve ter no maximo 200 caracteres'),
-		description: z.string().optional(),
+
+		// Step 2: Tipo do Imovel
 		type: z.enum(['house', 'apartment', 'land', 'commercial', 'rural'], {
 			message: 'Selecione o tipo do imovel',
 		}),
 		listingType: z.enum(['rent', 'sale', 'both'], {
 			message: 'Selecione a finalidade',
 		}),
+
+		// Step 3: Informacoes Basicas
+		title: z
+			.string()
+			.min(3, 'Titulo deve ter pelo menos 3 caracteres')
+			.max(200, 'Titulo deve ter no maximo 200 caracteres'),
+		description: z.string().optional(),
+		bedrooms: z.string().optional(),
+		bathrooms: z.string().optional(),
+		suites: z.string().optional(),
+		parkingSpaces: z.string().optional(),
+		area: z.string().optional(),
+		floor: z.string().optional(),
+		totalFloors: z.string().optional(),
+
+		// Step 4: Endereco
 		zipCode: z.string().optional(),
 		address: z.string().min(1, 'Endereco e obrigatorio'),
+		addressNumber: z.string().optional(),
+		addressComplement: z.string().optional(),
 		neighborhood: z.string().optional(),
 		city: z.string().min(1, 'Cidade e obrigatoria'),
 		state: z.string().min(1, 'Estado e obrigatorio').max(2, 'Use a sigla do estado (ex: SP)'),
-		bedrooms: z.string().optional(),
-		bathrooms: z.string().optional(),
-		parkingSpaces: z.string().optional(),
-		area: z.string().optional(),
+
+		// Step 5: Valores e Comissao
 		rentalPrice: z.string().optional(),
 		salePrice: z.string().optional(),
 		iptuPrice: z.string().optional(),
 		condoFee: z.string().optional(),
+		commissionPercentage: z.string().optional(),
+
+		// Step 6: Comodidades
 		hasPool: z.boolean().optional(),
 		hasGarden: z.boolean().optional(),
 		hasGarage: z.boolean().optional(),
@@ -66,6 +108,10 @@ const createPropertySchema = z
 		hasPetFriendly: z.boolean().optional(),
 		hasBalcony: z.boolean().optional(),
 		hasBarbecue: z.boolean().optional(),
+
+		// Step 7: Publicacao
+		isMarketplace: z.boolean().optional(),
+		notes: z.string().optional(),
 	})
 	.refine(
 		(data) => {
@@ -101,15 +147,67 @@ interface CreatePropertyModalProps {
 	onClose: () => void
 }
 
+const STEPS: WizardStep[] = [
+	{
+		id: 'owner',
+		title: 'Proprietario',
+		description: 'Selecione o proprietario do imovel',
+		icon: <User size={16} />,
+	},
+	{
+		id: 'type',
+		title: 'Categoria',
+		description: 'Tipo e finalidade do imovel',
+		icon: <Building2 size={16} />,
+	},
+	{
+		id: 'details',
+		title: 'Detalhes',
+		description: 'Informacoes basicas do imovel',
+		icon: <Home size={16} />,
+	},
+	{
+		id: 'address',
+		title: 'Endereco',
+		description: 'Localizacao do imovel',
+		icon: <MapPin size={16} />,
+	},
+	{
+		id: 'pricing',
+		title: 'Valores',
+		description: 'Precos e comissao',
+		icon: <DollarSign size={16} />,
+	},
+	{
+		id: 'features',
+		title: 'Extras',
+		description: 'Caracteristicas do imovel',
+		icon: <Settings size={16} />,
+	},
+	{
+		id: 'photos',
+		title: 'Fotos',
+		description: 'Imagens do imovel',
+		icon: <Camera size={16} />,
+	},
+	{
+		id: 'publish',
+		title: 'Publicacao',
+		description: 'Configuracoes de publicacao',
+		icon: <Globe size={16} />,
+	},
+]
+
 export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProps) {
 	const createMutation = useCreatePropertyMutation()
 	const uploadPhotoMutation = useUploadPropertyPhotoMutation()
+	const [currentStep, setCurrentStep] = useState(0)
 	const [cepLoading, setCepLoading] = useState(false)
 	const [cepError, setCepError] = useState<string | null>(null)
 	const [selectedPhotos, setSelectedPhotos] = useState<SelectedPhoto[]>([])
 	const [isUploading, setIsUploading] = useState(false)
 
-	const { data: ownersData } = usePropertyOwnersQuery({ limit: 100 })
+	const { data: ownersData, isLoading: isLoadingOwners } = usePropertyOwnersQuery({ limit: 100 })
 
 	const {
 		register,
@@ -118,16 +216,26 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 		reset,
 		watch,
 		setValue,
+		trigger,
 	} = useForm<CreatePropertyFormData>({
 		resolver: zodResolver(createPropertySchema),
 		mode: 'onBlur',
 		defaultValues: {
 			type: 'house',
 			listingType: 'rent',
+			isMarketplace: false,
 		},
 	})
 
 	const listingType = watch('listingType')
+	const propertyType = watch('type')
+	const notesValue = watch('notes') || ''
+
+	useEffect(() => {
+		if (isOpen) {
+			setCurrentStep(0)
+		}
+	}, [isOpen])
 
 	const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const masked = applyMask(e.target.value, 'cep')
@@ -140,6 +248,15 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 			const masked = applyMask(e.target.value, 'currency')
 			setValue(field, masked, { shouldValidate: false })
 		}
+
+	const handlePercentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		let value = e.target.value.replace(/\D/g, '')
+		if (value.length > 4) value = value.slice(0, 4)
+		if (Number.parseInt(value, 10) > 10000) value = '10000'
+		const numValue = Number.parseInt(value, 10) || 0
+		const formatted = numValue > 0 ? `${(numValue / 100).toFixed(2)}%` : ''
+		setValue('commissionPercentage', formatted, { shouldValidate: false })
+	}
 
 	const fetchAddressByCep = useCallback(
 		async (cep: string) => {
@@ -173,6 +290,48 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 		[setValue],
 	)
 
+	const validateCurrentStep = async (): Promise<boolean> => {
+		switch (currentStep) {
+			case 0: // Proprietario
+				return await trigger(['ownerId'])
+			case 1: // Tipo
+				return await trigger(['type', 'listingType'])
+			case 2: // Detalhes
+				return await trigger(['title'])
+			case 3: // Endereco
+				return await trigger(['address', 'city', 'state'])
+			case 4: // Valores
+				if (listingType === 'rent' || listingType === 'both') {
+					const isValid = await trigger(['rentalPrice'])
+					if (!isValid) return false
+				}
+				if (listingType === 'sale' || listingType === 'both') {
+					const isValid = await trigger(['salePrice'])
+					if (!isValid) return false
+				}
+				return true
+			case 5: // Comodidades
+			case 6: // Fotos
+			case 7: // Publicacao
+				return true
+			default:
+				return true
+		}
+	}
+
+	const handleNext = async () => {
+		const isValid = await validateCurrentStep()
+		if (isValid && currentStep < STEPS.length - 1) {
+			setCurrentStep(currentStep + 1)
+		}
+	}
+
+	const handlePrevious = () => {
+		if (currentStep > 0) {
+			setCurrentStep(currentStep - 1)
+		}
+	}
+
 	const onSubmit = async (data: CreatePropertyFormData) => {
 		try {
 			const features = {
@@ -190,6 +349,10 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 				hasBarbecue: data.hasBarbecue === true,
 			}
 
+			const commissionPercentageRaw = data.commissionPercentage
+				? Number.parseInt(data.commissionPercentage.replace(/\D/g, ''), 10)
+				: undefined
+
 			const payload = {
 				ownerId: data.ownerId,
 				title: data.title,
@@ -198,24 +361,31 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 				listingType: data.listingType as ListingType,
 				zipCode: data.zipCode?.replace(/\D/g, '') || undefined,
 				address: data.address || undefined,
+				addressNumber: data.addressNumber || undefined,
+				addressComplement: data.addressComplement || undefined,
 				neighborhood: data.neighborhood || undefined,
 				city: data.city || undefined,
 				state: data.state || undefined,
 				bedrooms: data.bedrooms ? Number.parseInt(data.bedrooms, 10) : undefined,
 				bathrooms: data.bathrooms ? Number.parseInt(data.bathrooms, 10) : undefined,
+				suites: data.suites ? Number.parseInt(data.suites, 10) : undefined,
 				parkingSpaces: data.parkingSpaces ? Number.parseInt(data.parkingSpaces, 10) : undefined,
 				area: data.area ? Number.parseInt(data.area, 10) : undefined,
+				floor: data.floor ? Number.parseInt(data.floor, 10) : undefined,
+				totalFloors: data.totalFloors ? Number.parseInt(data.totalFloors, 10) : undefined,
 				rentalPrice: getCurrencyRawValue(data.rentalPrice || '') || undefined,
 				salePrice: getCurrencyRawValue(data.salePrice || '') || undefined,
 				iptuPrice: getCurrencyRawValue(data.iptuPrice || '') || undefined,
 				condoFee: getCurrencyRawValue(data.condoFee || '') || undefined,
+				commissionPercentage: commissionPercentageRaw || undefined,
+				isMarketplace: data.isMarketplace ?? false,
+				notes: data.notes || undefined,
 				features,
 			}
 
 			const response = await createMutation.mutateAsync(payload)
 			const propertyId = response.data.id
 
-			// Upload photos if any were selected
 			if (selectedPhotos.length > 0) {
 				setIsUploading(true)
 				try {
@@ -234,10 +404,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 			}
 
 			toast.success(response.message || 'Imovel criado com sucesso!')
-			reset()
-			setCepError(null)
-			setSelectedPhotos([])
-			onClose()
+			handleClose()
 		} catch (error: unknown) {
 			const errorMessage =
 				error &&
@@ -255,325 +422,703 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 		}
 	}
 
-	const handleClose = () => {
+	const handleClose = useCallback(() => {
 		if (!createMutation.isPending && !isUploading) {
-			// Cleanup photo previews
 			for (const photo of selectedPhotos) {
 				URL.revokeObjectURL(photo.preview)
 			}
 			reset()
 			setCepError(null)
 			setSelectedPhotos([])
+			setCurrentStep(0)
 			onClose()
 		}
-	}
+	}, [createMutation.isPending, isUploading, selectedPhotos, reset, onClose])
 
 	const isSubmitting = createMutation.isPending || isUploading
 
-	const ownerOptions = [
-		{ value: '', label: 'Selecione o proprietario' },
-		...(ownersData?.data.map((owner) => ({
-			value: owner.id,
-			label: owner.name,
-		})) || []),
-	]
+	const selectedOwnerId = watch('ownerId')
 
-	const typeOptions = [
-		{ value: 'house', label: 'Casa' },
-		{ value: 'apartment', label: 'Apartamento' },
-		{ value: 'land', label: 'Terreno' },
-		{ value: 'commercial', label: 'Comercial' },
-		{ value: 'rural', label: 'Rural' },
-	]
+	const handleOwnerChange = useCallback(
+		(ownerId: string) => {
+			setValue('ownerId', ownerId, { shouldValidate: true })
+		},
+		[setValue],
+	)
 
-	const listingTypeOptions = [
-		{ value: 'rent', label: 'Locacao' },
-		{ value: 'sale', label: 'Venda' },
-		{ value: 'both', label: 'Locacao e Venda' },
-	]
+	const handlePropertyTypeChange = useCallback(
+		(type: PropertyType) => {
+			setValue('type', type, { shouldValidate: true })
+		},
+		[setValue],
+	)
+
+	const handleListingTypeChange = useCallback(
+		(listingType: ListingType) => {
+			setValue('listingType', listingType, { shouldValidate: true })
+		},
+		[setValue],
+	)
 
 	return (
-		<Modal
+		<WizardModal
 			isOpen={isOpen}
 			onClose={handleClose}
 			title="Adicionar Imovel"
-			size="xl"
-			footer={
-				<>
-					<Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
-						Cancelar
-					</Button>
-					<Button variant="primary" onClick={handleSubmit(onSubmit)} loading={isSubmitting}>
-						{isUploading ? 'Enviando fotos...' : 'Adicionar'}
-					</Button>
-				</>
-			}
+			steps={STEPS}
+			currentStep={currentStep}
+			onNext={handleNext}
+			onPrevious={handlePrevious}
+			onSubmit={handleSubmit(onSubmit)}
+			isSubmitting={isSubmitting}
+			submitButtonText="Adicionar Imovel"
+			submitLoadingText={isUploading ? 'Enviando fotos...' : undefined}
 		>
 			<form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-				<div className={styles.section}>
-					<h3 className={styles.sectionTitle}>Dados Basicos</h3>
-					<div className={styles.row2Cols}>
-						<Select
+				{/* Step 1: Proprietario */}
+				{currentStep === 0 && (
+					<div className={styles.formSection}>
+						<div className={styles.infoBox}>
+							<Info size={18} className={styles.infoBoxIcon} />
+							<p className={styles.infoBoxText}>
+								Selecione o proprietario do imovel. Caso o proprietario ainda nao esteja cadastrado,
+								voce pode adiciona-lo na pagina de Proprietarios.
+							</p>
+						</div>
+
+						<OwnerSelect
+							owners={ownersData?.data || []}
+							value={selectedOwnerId || ''}
+							onChange={handleOwnerChange}
 							label="Proprietario"
 							error={errors.ownerId?.message}
-							{...register('ownerId')}
-							options={ownerOptions}
-							fullWidth
 							required
+							disabled={isSubmitting}
+							isLoading={isLoadingOwners}
 						/>
-						<Select
-							label="Tipo"
+					</div>
+				)}
+
+				{/* Step 2: Tipo do Imovel */}
+				{currentStep === 1 && (
+					<div className={styles.formSection}>
+						<PropertyTypeSelector
+							value={propertyType}
+							onChange={handlePropertyTypeChange}
 							error={errors.type?.message}
-							{...register('type')}
-							options={typeOptions}
-							fullWidth
 							required
+							disabled={isSubmitting}
+						/>
+
+						<ListingTypeSelector
+							value={listingType}
+							onChange={handleListingTypeChange}
+							error={errors.listingType?.message}
+							required
+							disabled={isSubmitting}
 						/>
 					</div>
-					<Input
-						label="Titulo"
-						placeholder="Ex: Casa 3 quartos no Centro"
-						error={errors.title?.message}
-						{...register('title')}
-						fullWidth
-						required
-					/>
-					<Textarea
-						label="Descricao"
-						placeholder="Descreva o imovel..."
-						error={errors.description?.message}
-						{...register('description')}
-						rows={3}
-					/>
-				</div>
+				)}
 
-				<div className={styles.section}>
-					<h3 className={styles.sectionTitle}>Finalidade e Valores</h3>
-					<Select
-						label="Finalidade"
-						error={errors.listingType?.message}
-						{...register('listingType')}
-						options={listingTypeOptions}
-						fullWidth
-						required
-					/>
-					<div className={styles.row2Cols}>
-						{(listingType === 'rent' || listingType === 'both') && (
-							<Input
-								label="Valor do Aluguel"
-								placeholder="R$ 0,00"
-								error={errors.rentalPrice?.message}
-								{...register('rentalPrice')}
-								onChange={handleCurrencyChange('rentalPrice')}
-								fullWidth
-							/>
+				{/* Step 3: Detalhes */}
+				{currentStep === 2 && (
+					<div className={styles.formSection}>
+						<Input
+							{...register('title')}
+							label="Titulo do Anuncio"
+							placeholder="Ex: Casa 3 quartos no Centro"
+							error={errors.title?.message}
+							fullWidth
+							required
+							disabled={isSubmitting}
+						/>
+
+						<Textarea
+							{...register('description')}
+							label="Descricao"
+							placeholder="Descreva o imovel em detalhes..."
+							error={errors.description?.message}
+							rows={4}
+							showCharCount
+							maxLength={5000}
+							disabled={isSubmitting}
+						/>
+
+						{propertyType !== 'land' && (
+							<>
+								<div className={styles.row4Cols}>
+									<Input
+										{...register('bedrooms')}
+										type="number"
+										label="Quartos"
+										placeholder="0"
+										min="0"
+										error={errors.bedrooms?.message}
+										fullWidth
+										disabled={isSubmitting}
+									/>
+									<Input
+										{...register('suites')}
+										type="number"
+										label="Suites"
+										placeholder="0"
+										min="0"
+										error={errors.suites?.message}
+										fullWidth
+										disabled={isSubmitting}
+									/>
+									<Input
+										{...register('bathrooms')}
+										type="number"
+										label="Banheiros"
+										placeholder="0"
+										min="0"
+										error={errors.bathrooms?.message}
+										fullWidth
+										disabled={isSubmitting}
+									/>
+									<Input
+										{...register('parkingSpaces')}
+										type="number"
+										label="Vagas"
+										placeholder="0"
+										min="0"
+										error={errors.parkingSpaces?.message}
+										fullWidth
+										disabled={isSubmitting}
+									/>
+								</div>
+
+								{propertyType === 'apartment' && (
+									<div className={styles.row2Cols}>
+										<Input
+											{...register('floor')}
+											type="number"
+											label="Andar"
+											placeholder="0"
+											min="0"
+											error={errors.floor?.message}
+											fullWidth
+											disabled={isSubmitting}
+										/>
+										<Input
+											{...register('totalFloors')}
+											type="number"
+											label="Total de Andares"
+											placeholder="0"
+											min="0"
+											error={errors.totalFloors?.message}
+											fullWidth
+											disabled={isSubmitting}
+										/>
+									</div>
+								)}
+							</>
 						)}
-						{(listingType === 'sale' || listingType === 'both') && (
-							<Input
-								label="Valor de Venda"
-								placeholder="R$ 0,00"
-								error={errors.salePrice?.message}
-								{...register('salePrice')}
-								onChange={handleCurrencyChange('salePrice')}
-								fullWidth
-							/>
-						)}
-					</div>
-					<div className={styles.row2Cols}>
-						<Input
-							label="IPTU (mensal)"
-							placeholder="R$ 0,00"
-							error={errors.iptuPrice?.message}
-							{...register('iptuPrice')}
-							onChange={handleCurrencyChange('iptuPrice')}
-							fullWidth
-						/>
-						<Input
-							label="Condominio"
-							placeholder="R$ 0,00"
-							error={errors.condoFee?.message}
-							{...register('condoFee')}
-							onChange={handleCurrencyChange('condoFee')}
-							fullWidth
-						/>
-					</div>
-				</div>
 
-				<div className={styles.section}>
-					<h3 className={styles.sectionTitle}>Endereco</h3>
-					<div className={styles.rowAddress}>
-						<div className={styles.cepWrapper}>
-							<Input
-								label="CEP"
-								placeholder="00000-000"
-								error={errors.zipCode?.message}
-								{...register('zipCode')}
-								onChange={handleCepChange}
-								onBlur={(e) => fetchAddressByCep(e.target.value)}
-								maxLength={9}
-								fullWidth
-								rightIcon={
-									cepLoading ? <Loader2 size={16} className={styles.spinner} /> : undefined
-								}
-							/>
-						</div>
 						<Input
-							label="Endereco"
-							placeholder="Rua, numero, complemento"
-							error={errors.address?.message}
-							{...register('address')}
-							fullWidth
-							required
-						/>
-						<Input
-							label="UF"
-							placeholder="SP"
-							error={errors.state?.message}
-							{...register('state')}
-							maxLength={2}
-							fullWidth
-							required
-						/>
-					</div>
-					{cepError && (
-						<div className={styles.cepAlert}>
-							<AlertTriangle size={16} className={styles.cepAlertIcon} />
-							<div className={styles.cepAlertContent}>
-								<p className={styles.cepAlertTitle}>{cepError}</p>
-								<p className={styles.cepAlertText}>Preencha o endereco manualmente.</p>
-							</div>
-						</div>
-					)}
-					<div className={styles.row2Cols}>
-						<Input
-							label="Bairro"
-							placeholder="Bairro"
-							error={errors.neighborhood?.message}
-							{...register('neighborhood')}
-							fullWidth
-						/>
-						<Input
-							label="Cidade"
-							placeholder="Cidade"
-							error={errors.city?.message}
-							{...register('city')}
-							fullWidth
-							required
-						/>
-					</div>
-				</div>
-
-				<div className={styles.section}>
-					<h3 className={styles.sectionTitle}>Caracteristicas</h3>
-					<div className={styles.row4Cols}>
-						<Input
-							label="Quartos"
+							{...register('area')}
 							type="number"
-							placeholder="0"
-							min="0"
-							error={errors.bedrooms?.message}
-							{...register('bedrooms')}
-							fullWidth
-						/>
-						<Input
-							label="Banheiros"
-							type="number"
-							placeholder="0"
-							min="0"
-							error={errors.bathrooms?.message}
-							{...register('bathrooms')}
-							fullWidth
-						/>
-						<Input
-							label="Vagas"
-							type="number"
-							placeholder="0"
-							min="0"
-							error={errors.parkingSpaces?.message}
-							{...register('parkingSpaces')}
-							fullWidth
-						/>
-						<Input
-							label="Area (m2)"
-							type="number"
+							label="Area (m²)"
 							placeholder="0"
 							min="0"
 							error={errors.area?.message}
-							{...register('area')}
 							fullWidth
+							disabled={isSubmitting}
+							leftIcon={<Ruler size={18} />}
 						/>
 					</div>
-				</div>
+				)}
 
-				<div className={styles.section}>
-					<h3 className={styles.sectionTitle}>Comodidades</h3>
-					<div className={styles.featuresGrid}>
-						<label className={styles.featureCheckbox}>
-							<input type="checkbox" className={styles.checkbox} {...register('hasPool')} />
-							<span className={styles.featureLabel}>Piscina</span>
-						</label>
-						<label className={styles.featureCheckbox}>
-							<input type="checkbox" className={styles.checkbox} {...register('hasGarden')} />
-							<span className={styles.featureLabel}>Jardim</span>
-						</label>
-						<label className={styles.featureCheckbox}>
-							<input type="checkbox" className={styles.checkbox} {...register('hasGarage')} />
-							<span className={styles.featureLabel}>Garagem</span>
-						</label>
-						<label className={styles.featureCheckbox}>
-							<input type="checkbox" className={styles.checkbox} {...register('hasElevator')} />
-							<span className={styles.featureLabel}>Elevador</span>
-						</label>
-						<label className={styles.featureCheckbox}>
-							<input type="checkbox" className={styles.checkbox} {...register('hasGym')} />
-							<span className={styles.featureLabel}>Academia</span>
-						</label>
-						<label className={styles.featureCheckbox}>
-							<input type="checkbox" className={styles.checkbox} {...register('hasPlayground')} />
-							<span className={styles.featureLabel}>Playground</span>
-						</label>
-						<label className={styles.featureCheckbox}>
-							<input type="checkbox" className={styles.checkbox} {...register('hasSecurity')} />
-							<span className={styles.featureLabel}>Seguranca 24h</span>
-						</label>
-						<label className={styles.featureCheckbox}>
-							<input
-								type="checkbox"
-								className={styles.checkbox}
-								{...register('hasAirConditioning')}
+				{/* Step 4: Endereco */}
+				{currentStep === 3 && (
+					<div className={styles.formSection}>
+						<div className={styles.row3Cols}>
+							<div className={styles.cepWrapper}>
+								<Input
+									{...register('zipCode')}
+									label="CEP"
+									placeholder="00000-000"
+									error={errors.zipCode?.message}
+									fullWidth
+									disabled={isSubmitting || cepLoading}
+									onChange={handleCepChange}
+									onBlur={(e) => fetchAddressByCep(e.target.value)}
+									maxLength={9}
+									rightIcon={
+										cepLoading ? <Loader2 size={18} className={styles.spinner} /> : undefined
+									}
+								/>
+								{cepLoading && <span className={styles.cepHint}>Buscando endereco...</span>}
+							</div>
+							<Input
+								{...register('city')}
+								label="Cidade"
+								placeholder="Cidade"
+								error={errors.city?.message}
+								fullWidth
+								required
+								disabled={isSubmitting}
 							/>
-							<span className={styles.featureLabel}>Ar Condicionado</span>
-						</label>
-						<label className={styles.featureCheckbox}>
-							<input type="checkbox" className={styles.checkbox} {...register('hasFurnished')} />
-							<span className={styles.featureLabel}>Mobiliado</span>
-						</label>
-						<label className={styles.featureCheckbox}>
-							<input type="checkbox" className={styles.checkbox} {...register('hasPetFriendly')} />
-							<span className={styles.featureLabel}>Aceita Pets</span>
-						</label>
-						<label className={styles.featureCheckbox}>
-							<input type="checkbox" className={styles.checkbox} {...register('hasBalcony')} />
-							<span className={styles.featureLabel}>Varanda</span>
-						</label>
-						<label className={styles.featureCheckbox}>
-							<input type="checkbox" className={styles.checkbox} {...register('hasBarbecue')} />
-							<span className={styles.featureLabel}>Churrasqueira</span>
-						</label>
-					</div>
-				</div>
+							<Select
+								{...register('state')}
+								label="Estado"
+								placeholder="Selecione"
+								error={errors.state?.message}
+								fullWidth
+								required
+								disabled={isSubmitting}
+								options={BRAZILIAN_STATES}
+							/>
+						</div>
 
-				<div className={styles.section}>
-					<h3 className={styles.sectionTitle}>Fotos</h3>
-					<PhotoPicker
-						photos={selectedPhotos}
-						onChange={setSelectedPhotos}
-						maxPhotos={20}
-						disabled={isSubmitting}
-						label="Fotos do Imovel"
-					/>
-				</div>
+						{cepError && !cepLoading && (
+							<div className={styles.cepAlert}>
+								<AlertTriangle size={18} className={styles.cepAlertIcon} />
+								<div className={styles.cepAlertContent}>
+									<p className={styles.cepAlertTitle}>CEP nao encontrado</p>
+									<p className={styles.cepAlertText}>Preencha os campos de endereco manualmente.</p>
+								</div>
+							</div>
+						)}
+
+						<Input
+							{...register('address')}
+							label="Logradouro"
+							placeholder="Rua, Avenida, etc."
+							error={errors.address?.message}
+							fullWidth
+							required
+							disabled={isSubmitting}
+						/>
+
+						<div className={styles.row2Cols}>
+							<Input
+								{...register('neighborhood')}
+								label="Bairro"
+								placeholder="Centro"
+								fullWidth
+								disabled={isSubmitting}
+							/>
+							<div className={styles.row2ColsInner}>
+								<Input
+									{...register('addressNumber')}
+									label="Numero"
+									placeholder="123"
+									fullWidth
+									disabled={isSubmitting}
+								/>
+								<Input
+									{...register('addressComplement')}
+									label="Complemento"
+									placeholder="Apto, Bloco, etc."
+									fullWidth
+									disabled={isSubmitting}
+								/>
+							</div>
+						</div>
+					</div>
+				)}
+
+				{/* Step 5: Valores e Comissao */}
+				{currentStep === 4 && (
+					<div className={styles.formSection}>
+						<div className={styles.sectionHeader}>
+							<DollarSign size={20} className={styles.sectionHeaderIcon} />
+							<div>
+								<h3 className={styles.sectionHeaderTitle}>Valores do Imovel</h3>
+								<p className={styles.sectionHeaderDescription}>Defina os precos e taxas</p>
+							</div>
+						</div>
+
+						<div className={styles.row2Cols}>
+							{(listingType === 'rent' || listingType === 'both') && (
+								<Input
+									{...register('rentalPrice')}
+									label="Valor do Aluguel"
+									placeholder="R$ 0,00"
+									error={errors.rentalPrice?.message}
+									onChange={handleCurrencyChange('rentalPrice')}
+									fullWidth
+									required
+									disabled={isSubmitting}
+									leftIcon={<DollarSign size={18} />}
+								/>
+							)}
+							{(listingType === 'sale' || listingType === 'both') && (
+								<Input
+									{...register('salePrice')}
+									label="Valor de Venda"
+									placeholder="R$ 0,00"
+									error={errors.salePrice?.message}
+									onChange={handleCurrencyChange('salePrice')}
+									fullWidth
+									required
+									disabled={isSubmitting}
+									leftIcon={<DollarSign size={18} />}
+								/>
+							)}
+						</div>
+
+						<div className={styles.row2Cols}>
+							<Input
+								{...register('iptuPrice')}
+								label="IPTU (mensal)"
+								placeholder="R$ 0,00"
+								error={errors.iptuPrice?.message}
+								onChange={handleCurrencyChange('iptuPrice')}
+								fullWidth
+								disabled={isSubmitting}
+								leftIcon={<FileText size={18} />}
+							/>
+							<Input
+								{...register('condoFee')}
+								label="Condominio"
+								placeholder="R$ 0,00"
+								error={errors.condoFee?.message}
+								onChange={handleCurrencyChange('condoFee')}
+								fullWidth
+								disabled={isSubmitting}
+								leftIcon={<Building2 size={18} />}
+							/>
+						</div>
+
+						<div className={styles.sectionHeader}>
+							<Percent size={20} className={styles.sectionHeaderIcon} />
+							<div>
+								<h3 className={styles.sectionHeaderTitle}>Comissao</h3>
+								<p className={styles.sectionHeaderDescription}>Percentual sobre o valor do negocio</p>
+							</div>
+						</div>
+
+						<Input
+							{...register('commissionPercentage')}
+							label="Percentual de Comissao"
+							placeholder="5.00%"
+							error={errors.commissionPercentage?.message}
+							onChange={handlePercentageChange}
+							fullWidth
+							disabled={isSubmitting}
+							leftIcon={<Percent size={18} />}
+						/>
+
+						<div className={styles.infoBox}>
+							<Info size={18} className={styles.infoBoxIcon} />
+							<p className={styles.infoBoxText}>
+								O percentual de comissao sera aplicado sobre o valor total do negocio (aluguel ou venda).
+							</p>
+						</div>
+					</div>
+				)}
+
+				{/* Step 6: Comodidades */}
+				{currentStep === 5 && (
+					<div className={styles.formSection}>
+						{propertyType === 'land' ? (
+							<div className={styles.infoBox}>
+								<Info size={18} className={styles.infoBoxIcon} />
+								<p className={styles.infoBoxText}>
+									Terrenos geralmente nao possuem comodidades. Clique em &quot;Proximo&quot; para
+									continuar.
+								</p>
+							</div>
+						) : (
+							<div className={styles.featuresGrid}>
+								<label className={styles.featureCheckbox}>
+									<input
+										type="checkbox"
+										className={styles.checkbox}
+										{...register('hasPool')}
+										disabled={isSubmitting}
+									/>
+									<span className={styles.featureLabel}>Piscina</span>
+								</label>
+								<label className={styles.featureCheckbox}>
+									<input
+										type="checkbox"
+										className={styles.checkbox}
+										{...register('hasGarden')}
+										disabled={isSubmitting}
+									/>
+									<span className={styles.featureLabel}>Jardim</span>
+								</label>
+								<label className={styles.featureCheckbox}>
+									<input
+										type="checkbox"
+										className={styles.checkbox}
+										{...register('hasGarage')}
+										disabled={isSubmitting}
+									/>
+									<span className={styles.featureLabel}>Garagem</span>
+								</label>
+								<label className={styles.featureCheckbox}>
+									<input
+										type="checkbox"
+										className={styles.checkbox}
+										{...register('hasElevator')}
+										disabled={isSubmitting}
+									/>
+									<span className={styles.featureLabel}>Elevador</span>
+								</label>
+								<label className={styles.featureCheckbox}>
+									<input
+										type="checkbox"
+										className={styles.checkbox}
+										{...register('hasGym')}
+										disabled={isSubmitting}
+									/>
+									<span className={styles.featureLabel}>Academia</span>
+								</label>
+								<label className={styles.featureCheckbox}>
+									<input
+										type="checkbox"
+										className={styles.checkbox}
+										{...register('hasPlayground')}
+										disabled={isSubmitting}
+									/>
+									<span className={styles.featureLabel}>Playground</span>
+								</label>
+								<label className={styles.featureCheckbox}>
+									<input
+										type="checkbox"
+										className={styles.checkbox}
+										{...register('hasSecurity')}
+										disabled={isSubmitting}
+									/>
+									<span className={styles.featureLabel}>Seguranca 24h</span>
+								</label>
+								<label className={styles.featureCheckbox}>
+									<input
+										type="checkbox"
+										className={styles.checkbox}
+										{...register('hasAirConditioning')}
+										disabled={isSubmitting}
+									/>
+									<span className={styles.featureLabel}>Ar Condicionado</span>
+								</label>
+								<label className={styles.featureCheckbox}>
+									<input
+										type="checkbox"
+										className={styles.checkbox}
+										{...register('hasFurnished')}
+										disabled={isSubmitting}
+									/>
+									<span className={styles.featureLabel}>Mobiliado</span>
+								</label>
+								<label className={styles.featureCheckbox}>
+									<input
+										type="checkbox"
+										className={styles.checkbox}
+										{...register('hasPetFriendly')}
+										disabled={isSubmitting}
+									/>
+									<span className={styles.featureLabel}>Aceita Pets</span>
+								</label>
+								<label className={styles.featureCheckbox}>
+									<input
+										type="checkbox"
+										className={styles.checkbox}
+										{...register('hasBalcony')}
+										disabled={isSubmitting}
+									/>
+									<span className={styles.featureLabel}>Varanda</span>
+								</label>
+								<label className={styles.featureCheckbox}>
+									<input
+										type="checkbox"
+										className={styles.checkbox}
+										{...register('hasBarbecue')}
+										disabled={isSubmitting}
+									/>
+									<span className={styles.featureLabel}>Churrasqueira</span>
+								</label>
+							</div>
+						)}
+					</div>
+				)}
+
+				{/* Step 7: Fotos */}
+				{currentStep === 6 && (
+					<div className={styles.formSection}>
+						<div className={styles.photosHeader}>
+							<div className={styles.photosHeaderContent}>
+								<div className={styles.photosHeaderIcon}>
+									<Image size={24} />
+								</div>
+								<div className={styles.photosHeaderText}>
+									<h3 className={styles.photosHeaderTitle}>Galeria de Fotos</h3>
+									<p className={styles.photosHeaderDescription}>
+										Adicione fotos de qualidade para atrair mais interessados
+									</p>
+								</div>
+							</div>
+							<div className={styles.photosCounter}>
+								<Camera size={16} />
+								<span>{selectedPhotos.length}/20</span>
+							</div>
+						</div>
+
+						<div className={styles.photosTips}>
+							<div className={styles.photosTipItem}>
+								<CheckCircle2 size={16} className={styles.photosTipIcon} />
+								<span>A primeira foto sera a capa do anuncio</span>
+							</div>
+							<div className={styles.photosTipItem}>
+								<CheckCircle2 size={16} className={styles.photosTipIcon} />
+								<span>Use fotos bem iluminadas e em alta resolucao</span>
+							</div>
+							<div className={styles.photosTipItem}>
+								<CheckCircle2 size={16} className={styles.photosTipIcon} />
+								<span>Inclua fotos de todos os comodos principais</span>
+							</div>
+						</div>
+
+						<PhotoPicker
+							photos={selectedPhotos}
+							onChange={setSelectedPhotos}
+							maxPhotos={20}
+							disabled={isSubmitting}
+							label=""
+						/>
+
+						{selectedPhotos.length === 0 && (
+							<div className={styles.photosEmptyState}>
+								<Upload size={48} className={styles.photosEmptyIcon} />
+								<p className={styles.photosEmptyTitle}>Nenhuma foto adicionada</p>
+								<p className={styles.photosEmptyText}>
+									Clique na area acima ou arraste suas fotos para adicionar
+								</p>
+							</div>
+						)}
+					</div>
+				)}
+
+				{/* Step 8: Publicacao */}
+				{currentStep === 7 && (
+					<div className={styles.formSection}>
+						<div className={styles.publishHeader}>
+							<Rocket size={32} className={styles.publishHeaderIcon} />
+							<h3 className={styles.publishHeaderTitle}>Pronto para publicar!</h3>
+							<p className={styles.publishHeaderDescription}>
+								Revise as configuracoes e publique seu imovel
+							</p>
+						</div>
+
+						<div className={styles.visibilityCard}>
+							<div className={styles.visibilityOption}>
+								<div className={styles.visibilityOptionIcon}>
+									{watch('isMarketplace') ? <Eye size={24} /> : <EyeOff size={24} />}
+								</div>
+								<div className={styles.visibilityOptionContent}>
+									<h4 className={styles.visibilityOptionTitle}>
+										{watch('isMarketplace') ? 'Visivel no Marketplace' : 'Apenas interno'}
+									</h4>
+									<p className={styles.visibilityOptionDescription}>
+										{watch('isMarketplace')
+											? 'O imovel ficara visivel para todos no marketplace publico'
+											: 'O imovel ficara visivel apenas para a equipe interna'}
+									</p>
+								</div>
+								<label className={styles.marketplaceToggle}>
+									<input
+										type="checkbox"
+										className={styles.toggleInput}
+										{...register('isMarketplace')}
+										disabled={isSubmitting}
+									/>
+									<span className={styles.toggleSlider} />
+								</label>
+							</div>
+						</div>
+
+						<div className={styles.notesSection}>
+							<div className={styles.notesSectionHeader}>
+								<FileText size={18} />
+								<span>Observacoes Internas</span>
+							</div>
+							<Textarea
+								{...register('notes')}
+								placeholder="Anotacoes internas sobre o imovel (nao serao exibidas publicamente)..."
+								error={errors.notes?.message}
+								rows={3}
+								showCharCount
+								maxLength={2000}
+								value={notesValue}
+								disabled={isSubmitting}
+							/>
+						</div>
+
+						<div className={styles.summaryCard}>
+							<div className={styles.summaryHeader}>
+								<Sparkles size={20} className={styles.summaryHeaderIcon} />
+								<h3 className={styles.summaryTitle}>Resumo do Imovel</h3>
+							</div>
+							<div className={styles.summaryGrid}>
+								<div className={styles.summaryItem}>
+									<div className={styles.summaryItemIcon}>
+										<Home size={18} />
+									</div>
+									<div className={styles.summaryItemContent}>
+										<span className={styles.summaryLabel}>Tipo</span>
+										<span className={styles.summaryValue}>
+											{
+												{
+													house: 'Casa',
+													apartment: 'Apartamento',
+													land: 'Terreno',
+													commercial: 'Comercial',
+													rural: 'Rural',
+												}[propertyType]
+											}
+										</span>
+									</div>
+								</div>
+								<div className={styles.summaryItem}>
+									<div className={styles.summaryItemIcon}>
+										<DollarSign size={18} />
+									</div>
+									<div className={styles.summaryItemContent}>
+										<span className={styles.summaryLabel}>Finalidade</span>
+										<span className={styles.summaryValue}>
+											{
+												{
+													rent: 'Locacao',
+													sale: 'Venda',
+													both: 'Locacao e Venda',
+												}[listingType]
+											}
+										</span>
+									</div>
+								</div>
+								<div className={styles.summaryItem}>
+									<div className={styles.summaryItemIcon}>
+										<Camera size={18} />
+									</div>
+									<div className={styles.summaryItemContent}>
+										<span className={styles.summaryLabel}>Fotos</span>
+										<span className={styles.summaryValue}>
+											{selectedPhotos.length === 0
+												? 'Nenhuma foto'
+												: `${selectedPhotos.length} foto(s)`}
+										</span>
+									</div>
+								</div>
+								<div className={styles.summaryItem}>
+									<div className={styles.summaryItemIcon}>
+										<Globe size={18} />
+									</div>
+									<div className={styles.summaryItemContent}>
+										<span className={styles.summaryLabel}>Visibilidade</span>
+										<span className={styles.summaryValue}>
+											{watch('isMarketplace') ? 'Publico' : 'Interno'}
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				)}
 			</form>
-		</Modal>
+		</WizardModal>
 	)
 }

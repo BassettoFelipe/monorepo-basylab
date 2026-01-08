@@ -31,18 +31,30 @@ type UpdatePropertyInput = {
 	listingType?: ListingType
 	status?: PropertyStatus
 	address?: string | null
+	addressNumber?: string | null
+	addressComplement?: string | null
 	neighborhood?: string | null
 	city?: string | null
 	state?: string | null
 	zipCode?: string | null
 	bedrooms?: number
 	bathrooms?: number
+	suites?: number
 	parkingSpaces?: number
 	area?: number | null
+	totalArea?: number | null
+	builtArea?: number | null
+	floor?: number | null
+	totalFloors?: number | null
+	yearBuilt?: number | null
 	rentalPrice?: number | null
 	salePrice?: number | null
 	iptuPrice?: number | null
 	condoFee?: number | null
+	commissionPercentage?: number | null
+	commissionValue?: number | null
+	isMarketplace?: boolean
+	notes?: string | null
 	features?: PropertyFeatures
 	updatedBy: User
 }
@@ -141,6 +153,14 @@ export class UpdatePropertyUseCase {
 			updateData.address = input.address?.trim() || null
 		}
 
+		if (input.addressNumber !== undefined) {
+			updateData.addressNumber = input.addressNumber?.trim() || null
+		}
+
+		if (input.addressComplement !== undefined) {
+			updateData.addressComplement = input.addressComplement?.trim() || null
+		}
+
 		if (input.neighborhood !== undefined) {
 			updateData.neighborhood = input.neighborhood?.trim() || null
 		}
@@ -173,12 +193,36 @@ export class UpdatePropertyUseCase {
 			updateData.bathrooms = input.bathrooms
 		}
 
+		if (input.suites !== undefined) {
+			updateData.suites = input.suites
+		}
+
 		if (input.parkingSpaces !== undefined) {
 			updateData.parkingSpaces = input.parkingSpaces
 		}
 
 		if (input.area !== undefined) {
 			updateData.area = input.area
+		}
+
+		if (input.totalArea !== undefined) {
+			updateData.totalArea = input.totalArea
+		}
+
+		if (input.builtArea !== undefined) {
+			updateData.builtArea = input.builtArea
+		}
+
+		if (input.floor !== undefined) {
+			updateData.floor = input.floor
+		}
+
+		if (input.totalFloors !== undefined) {
+			updateData.totalFloors = input.totalFloors
+		}
+
+		if (input.yearBuilt !== undefined) {
+			updateData.yearBuilt = input.yearBuilt
 		}
 
 		if (input.rentalPrice !== undefined) {
@@ -195,6 +239,22 @@ export class UpdatePropertyUseCase {
 
 		if (input.condoFee !== undefined) {
 			updateData.condoFee = input.condoFee
+		}
+
+		if (input.commissionPercentage !== undefined) {
+			updateData.commissionPercentage = input.commissionPercentage
+		}
+
+		if (input.commissionValue !== undefined) {
+			updateData.commissionValue = input.commissionValue
+		}
+
+		if (input.isMarketplace !== undefined) {
+			updateData.isMarketplace = input.isMarketplace
+		}
+
+		if (input.notes !== undefined) {
+			updateData.notes = input.notes?.trim() || null
 		}
 
 		if (input.features !== undefined) {

@@ -23,24 +23,37 @@ type CreatePropertyInput = {
 	type: PropertyType
 	listingType: ListingType
 	address?: string
+	addressNumber?: string
+	addressComplement?: string
 	neighborhood?: string
 	city?: string
 	state?: string
 	zipCode?: string
 	bedrooms?: number
 	bathrooms?: number
+	suites?: number
 	parkingSpaces?: number
 	area?: number
+	totalArea?: number
+	builtArea?: number
+	floor?: number
+	totalFloors?: number
+	yearBuilt?: number
 	rentalPrice?: number
 	salePrice?: number
 	iptuPrice?: number
 	condoFee?: number
+	commissionPercentage?: number
+	commissionValue?: number
+	isMarketplace?: boolean
+	notes?: string
 	features?: PropertyFeatures
 	createdBy: User
 }
 
 type CreatePropertyOutput = {
 	id: string
+	code: string | null
 	companyId: string
 	ownerId: string
 	brokerId: string | null
@@ -50,18 +63,30 @@ type CreatePropertyOutput = {
 	listingType: string
 	status: string
 	address: string | null
+	addressNumber: string | null
+	addressComplement: string | null
 	neighborhood: string | null
 	city: string | null
 	state: string | null
 	zipCode: string | null
 	bedrooms: number | null
 	bathrooms: number | null
+	suites: number | null
 	parkingSpaces: number | null
 	area: number | null
+	totalArea: number | null
+	builtArea: number | null
+	floor: number | null
+	totalFloors: number | null
+	yearBuilt: number | null
 	rentalPrice: number | null
 	salePrice: number | null
 	iptuPrice: number | null
 	condoFee: number | null
+	commissionPercentage: number | null
+	commissionValue: number | null
+	isMarketplace: boolean
+	notes: string | null
 	features: PropertyFeatures | null
 	createdAt: Date
 }
@@ -135,8 +160,12 @@ export class CreatePropertyUseCase {
 		}
 
 		try {
+			// Gera código único para o imóvel (formato: IMO-00001)
+			const propertyCode = await this.propertyRepository.generateNextCode(createdBy.companyId)
+
 			const property = await this.propertyRepository.create({
 				companyId: createdBy.companyId,
+				code: propertyCode,
 				ownerId: input.ownerId,
 				brokerId,
 				title: input.title.trim(),
@@ -145,18 +174,30 @@ export class CreatePropertyUseCase {
 				listingType: input.listingType,
 				status: PROPERTY_STATUS.AVAILABLE,
 				address: input.address?.trim() || null,
+				addressNumber: input.addressNumber?.trim() || null,
+				addressComplement: input.addressComplement?.trim() || null,
 				neighborhood: input.neighborhood?.trim() || null,
 				city: input.city?.trim() || null,
 				state: input.state?.toUpperCase().trim() || null,
 				zipCode: input.zipCode?.replace(/\D/g, '') || null,
 				bedrooms: input.bedrooms ?? 0,
 				bathrooms: input.bathrooms ?? 0,
+				suites: input.suites ?? 0,
 				parkingSpaces: input.parkingSpaces ?? 0,
 				area: input.area || null,
+				totalArea: input.totalArea || null,
+				builtArea: input.builtArea || null,
+				floor: input.floor || null,
+				totalFloors: input.totalFloors || null,
+				yearBuilt: input.yearBuilt || null,
 				rentalPrice: input.rentalPrice || null,
 				salePrice: input.salePrice || null,
 				iptuPrice: input.iptuPrice || null,
 				condoFee: input.condoFee || null,
+				commissionPercentage: input.commissionPercentage || null,
+				commissionValue: input.commissionValue || null,
+				isMarketplace: input.isMarketplace ?? false,
+				notes: input.notes?.trim() || null,
 				features: input.features || {},
 				createdBy: createdBy.id,
 			})
@@ -173,6 +214,7 @@ export class CreatePropertyUseCase {
 
 			return {
 				id: property.id,
+				code: property.code,
 				companyId: property.companyId,
 				ownerId: property.ownerId,
 				brokerId: property.brokerId,
@@ -182,18 +224,30 @@ export class CreatePropertyUseCase {
 				listingType: property.listingType,
 				status: property.status,
 				address: property.address,
+				addressNumber: property.addressNumber,
+				addressComplement: property.addressComplement,
 				neighborhood: property.neighborhood,
 				city: property.city,
 				state: property.state,
 				zipCode: property.zipCode,
 				bedrooms: property.bedrooms,
 				bathrooms: property.bathrooms,
+				suites: property.suites,
 				parkingSpaces: property.parkingSpaces,
 				area: property.area,
+				totalArea: property.totalArea,
+				builtArea: property.builtArea,
+				floor: property.floor,
+				totalFloors: property.totalFloors,
+				yearBuilt: property.yearBuilt,
 				rentalPrice: property.rentalPrice,
 				salePrice: property.salePrice,
 				iptuPrice: property.iptuPrice,
 				condoFee: property.condoFee,
+				commissionPercentage: property.commissionPercentage,
+				commissionValue: property.commissionValue,
+				isMarketplace: property.isMarketplace,
+				notes: property.notes,
 				features: property.features,
 				createdAt: property.createdAt,
 			}

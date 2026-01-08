@@ -22,18 +22,23 @@ export const stepsContainer = style({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
-	gap: vars.spacing.xs,
 })
 
 export const stepItem = style({
 	display: 'flex',
 	alignItems: 'center',
-	gap: vars.spacing.xs,
+})
+
+export const stepContent = style({
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'center',
+	gap: '4px',
 })
 
 export const stepCircle = style({
-	width: '32px',
-	height: '32px',
+	width: '36px',
+	height: '36px',
 	borderRadius: vars.borderRadius.full,
 	display: 'flex',
 	alignItems: 'center',
@@ -42,6 +47,14 @@ export const stepCircle = style({
 	fontWeight: vars.fontWeight.medium,
 	transition: `all ${vars.transitionDuration.base}`,
 	border: '2px solid transparent',
+	flexShrink: 0,
+
+	'@media': {
+		'(max-width: 768px)': {
+			width: '32px',
+			height: '32px',
+		},
+	},
 })
 
 export const stepCirclePending = style({
@@ -51,42 +64,53 @@ export const stepCirclePending = style({
 })
 
 export const stepCircleActive = style({
-	backgroundColor: vars.color.primary.main,
-	color: vars.color.text.inverse,
-	boxShadow: `0 0 0 4px rgba(239, 68, 68, 0.15)`,
+	backgroundColor: vars.color.primary.dark,
+	border: `2px solid ${vars.color.primary.dark}`,
+	color: '#FFFFFF',
+	boxShadow: '0 0 0 3px rgba(67, 77, 0, 0.15)',
 })
 
 export const stepCircleCompleted = style({
 	backgroundColor: vars.color.success.main,
-	color: vars.color.text.inverse,
+	border: `2px solid ${vars.color.success.main}`,
+	color: '#FFFFFF',
 })
 
 export const stepLabel = style({
-	fontSize: vars.fontSize.sm,
+	fontSize: vars.fontSize.xs,
 	fontWeight: vars.fontWeight.medium,
 	color: vars.color.text.secondary,
-	display: 'none',
+	textAlign: 'center',
+	whiteSpace: 'nowrap',
 
 	'@media': {
-		'(min-width: 768px)': {
-			display: 'block',
+		'(max-width: 900px)': {
+			display: 'none',
 		},
 	},
 })
 
 export const stepLabelActive = style({
 	color: vars.color.text.primary,
+	fontWeight: vars.fontWeight.bold,
 })
 
 export const stepConnector = style({
-	width: '24px',
+	width: '28px',
 	height: '2px',
 	backgroundColor: vars.color.border.primary,
 	transition: `background-color ${vars.transitionDuration.base}`,
+	margin: '0 4px',
+	marginBottom: '20px',
 
 	'@media': {
-		'(min-width: 768px)': {
-			width: '40px',
+		'(max-width: 900px)': {
+			width: '20px',
+			marginBottom: 0,
+		},
+		'(max-width: 768px)': {
+			width: '14px',
+			margin: '0 2px',
 		},
 	},
 })

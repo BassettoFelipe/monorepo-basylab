@@ -37,18 +37,30 @@ export interface Property {
 	listingType: ListingType
 	status: PropertyStatus
 	address: string | null
+	addressNumber: string | null
+	addressComplement: string | null
 	neighborhood: string | null
 	city: string | null
 	state: string | null
 	zipCode: string | null
 	bedrooms: number | null
 	bathrooms: number | null
+	suites: number | null
 	parkingSpaces: number | null
 	area: number | null
+	totalArea: number | null
+	builtArea: number | null
+	floor: number | null
+	totalFloors: number | null
+	yearBuilt: number | null
 	rentalPrice: number | null
 	salePrice: number | null
 	iptuPrice: number | null
 	condoFee: number | null
+	commissionPercentage: number | null
+	commissionValue: number | null
+	isMarketplace: boolean
+	notes: string | null
 	features: PropertyFeatures | null
 	createdAt?: string
 	updatedAt?: string
@@ -71,18 +83,30 @@ export interface CreatePropertyInput {
 	type: PropertyType
 	listingType: ListingType
 	address?: string
+	addressNumber?: string
+	addressComplement?: string
 	neighborhood?: string
 	city?: string
 	state?: string
 	zipCode?: string
 	bedrooms?: number
 	bathrooms?: number
+	suites?: number
 	parkingSpaces?: number
 	area?: number
+	totalArea?: number
+	builtArea?: number
+	floor?: number
+	totalFloors?: number
+	yearBuilt?: number
 	rentalPrice?: number
 	salePrice?: number
 	iptuPrice?: number
 	condoFee?: number
+	commissionPercentage?: number
+	commissionValue?: number
+	isMarketplace?: boolean
+	notes?: string
 	features?: PropertyFeatures
 }
 
@@ -95,18 +119,30 @@ export interface UpdatePropertyInput {
 	listingType?: ListingType
 	status?: PropertyStatus
 	address?: string | null
+	addressNumber?: string | null
+	addressComplement?: string | null
 	neighborhood?: string | null
 	city?: string | null
 	state?: string | null
 	zipCode?: string | null
 	bedrooms?: number
 	bathrooms?: number
+	suites?: number
 	parkingSpaces?: number
 	area?: number | null
+	totalArea?: number | null
+	builtArea?: number | null
+	floor?: number | null
+	totalFloors?: number | null
+	yearBuilt?: number | null
 	rentalPrice?: number | null
 	salePrice?: number | null
 	iptuPrice?: number | null
 	condoFee?: number | null
+	commissionPercentage?: number | null
+	commissionValue?: number | null
+	isMarketplace?: boolean
+	notes?: string | null
 	features?: PropertyFeatures
 }
 

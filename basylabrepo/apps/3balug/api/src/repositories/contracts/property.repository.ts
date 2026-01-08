@@ -52,6 +52,7 @@ export interface IPropertyRepository {
 	deleteWithPhotos(id: string): Promise<boolean>
 	countByCompanyId(companyId: string): Promise<number>
 	countByOwnerId(ownerId: string): Promise<number>
+	generateNextCode(companyId: string): Promise<string>
 	getStatsByCompanyId(companyId: string): Promise<PropertyStats>
 	getStatsByBrokerId(brokerId: string, companyId: string): Promise<PropertyStats>
 }

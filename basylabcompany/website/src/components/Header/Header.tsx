@@ -2,7 +2,10 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
+import { usePathname } from "next/navigation";
 import styles from "./Header.module.css";
+
+const LEGAL_PAGES = ["/privacidade", "/termos"];
 
 const navItems = [
   { id: "about", label: "Sobre", sectionId: "sobre" },
@@ -30,14 +33,19 @@ function smoothScrollTo(targetId: string) {
 }
 
 export function Header() {
+  const pathname = usePathname();
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showNav, setShowNav] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const collapseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const isLegalPage = LEGAL_PAGES.includes(pathname);
+
   // Single unified scroll handler for all scroll-related state
   useEffect(() => {
+    // Skip scroll handling on legal pages
+    if (isLegalPage) return;
     const handleScroll = () => {
       const scrollTop = window.scrollY;
       const docHeight =
@@ -75,7 +83,12 @@ export function Header() {
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isLegalPage]);
+
+  // Don't render on legal pages
+  if (isLegalPage) {
+    return null;
+  }
 
   const handleMouseEnter = () => {
     if (collapseTimeoutRef.current) {

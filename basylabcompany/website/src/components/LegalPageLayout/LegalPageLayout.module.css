@@ -1,0 +1,630 @@
+/* ============================================
+   LEGAL PAGE LAYOUT - TERMINAL DOCUMENT STYLE
+   ============================================ */
+
+.page {
+    min-height: 100vh;
+    background: var(--color-neutral-950);
+    position: relative;
+    overflow: hidden;
+}
+
+/* ----------------------------------------
+   BACKGROUND EFFECTS
+   ---------------------------------------- */
+
+.background {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.gradientOrb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.4;
+}
+
+.orbPrimary {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(231, 52, 58, 0.15) 0%, transparent 70%);
+    top: -200px;
+    right: -100px;
+}
+
+.orbSecondary {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+    bottom: 20%;
+    left: -100px;
+}
+
+.gridPattern {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: linear-gradient(
+        to bottom,
+        black 0%,
+        transparent 100%
+    );
+}
+
+/* ----------------------------------------
+   CONTAINER
+   ---------------------------------------- */
+
+.container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 8rem 2rem 6rem;
+}
+
+/* ----------------------------------------
+   HEADER SECTION
+   ---------------------------------------- */
+
+.header {
+    margin-bottom: 4rem;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+    font-size: 0.8rem;
+    color: var(--color-neutral-500);
+    margin-bottom: 2rem;
+}
+
+.breadcrumbLink {
+    color: var(--color-neutral-500);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.breadcrumbLink:hover {
+    color: var(--color-brand-primary);
+}
+
+.breadcrumbSeparator {
+    color: var(--color-neutral-700);
+}
+
+.breadcrumbCurrent {
+    color: var(--color-neutral-300);
+}
+
+.titleWrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.iconWrapper {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(231, 52, 58, 0.15) 0%, rgba(231, 52, 58, 0.05) 100%);
+    border: 1px solid rgba(231, 52, 58, 0.2);
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.icon {
+    width: 28px;
+    height: 28px;
+    color: var(--color-brand-primary);
+}
+
+.titleContent {
+    flex: 1;
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-neutral-50);
+    line-height: 1.2;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.02em;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: var(--color-neutral-400);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* ----------------------------------------
+   META INFO (Version, Date)
+   ---------------------------------------- */
+
+.metaBar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1rem 1.25rem;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+    font-size: 0.8rem;
+}
+
+.metaItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.metaLabel {
+    color: var(--color-neutral-600);
+}
+
+.metaValue {
+    color: var(--color-neutral-300);
+}
+
+.metaValueHighlight {
+    color: var(--color-brand-primary);
+}
+
+/* ----------------------------------------
+   DOCUMENT NAVIGATION (Table of Contents)
+   ---------------------------------------- */
+
+.tocWrapper {
+    margin-bottom: 3rem;
+}
+
+.tocToggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+}
+
+.tocToggle:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.tocIcon {
+    width: 18px;
+    height: 18px;
+    color: var(--color-brand-primary);
+}
+
+.tocLabel {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-neutral-300);
+}
+
+.tocCount {
+    font-size: 0.75rem;
+    color: var(--color-neutral-600);
+    margin-left: auto;
+}
+
+.tocChevron {
+    width: 16px;
+    height: 16px;
+    color: var(--color-neutral-500);
+    transition: transform 0.2s ease;
+}
+
+.tocChevronOpen {
+    transform: rotate(180deg);
+}
+
+.tocContent {
+    overflow: hidden;
+}
+
+.tocList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1rem 0 0 0;
+    margin: 0;
+    list-style: none;
+}
+
+.tocItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.tocNumber {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-neutral-500);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.tocLink {
+    font-size: 0.9rem;
+    color: var(--color-neutral-400);
+    text-decoration: none;
+    padding: 0.5rem 0;
+    transition: color 0.2s ease;
+}
+
+.tocLink:hover {
+    color: var(--color-neutral-100);
+}
+
+/* ----------------------------------------
+   MAIN CONTENT
+   ---------------------------------------- */
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+/* ----------------------------------------
+   SECTION STYLING
+   ---------------------------------------- */
+
+.section {
+    position: relative;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.section:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sectionNumber {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-brand-primary);
+    padding: 0.35rem 0.6rem;
+    background: rgba(231, 52, 58, 0.1);
+    border-radius: 6px;
+}
+
+.sectionTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-neutral-100);
+    margin: 0;
+}
+
+.sectionBody {
+    color: var(--color-neutral-400);
+    font-size: 0.95rem;
+    line-height: 1.75;
+}
+
+.sectionBody p {
+    margin: 0 0 1rem 0;
+}
+
+.sectionBody p:last-child {
+    margin-bottom: 0;
+}
+
+.sectionBody strong {
+    color: var(--color-neutral-200);
+    font-weight: 500;
+}
+
+.sectionBody a {
+    color: var(--color-brand-primary);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+}
+
+.sectionBody a:hover {
+    border-color: var(--color-brand-primary);
+}
+
+/* ----------------------------------------
+   LIST STYLING
+   ---------------------------------------- */
+
+.list {
+    margin: 1rem 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.listItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    border-left: 2px solid rgba(231, 52, 58, 0.3);
+}
+
+.listBullet {
+    width: 6px;
+    height: 6px;
+    background: var(--color-brand-primary);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 0.5rem;
+}
+
+.listContent {
+    flex: 1;
+}
+
+/* ----------------------------------------
+   HIGHLIGHT BOX
+   ---------------------------------------- */
+
+.highlight {
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, rgba(231, 52, 58, 0.08) 0%, rgba(231, 52, 58, 0.02) 100%);
+    border: 1px solid rgba(231, 52, 58, 0.15);
+    border-radius: 10px;
+    margin: 1.5rem 0;
+}
+
+.highlightTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-brand-primary);
+    margin-bottom: 0.75rem;
+}
+
+.highlightIcon {
+    width: 16px;
+    height: 16px;
+}
+
+.highlightContent {
+    color: var(--color-neutral-300);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* ----------------------------------------
+   INFO BOX (Neutral)
+   ---------------------------------------- */
+
+.infoBox {
+    padding: 1.25rem 1.5rem;
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    border-radius: 10px;
+    margin: 1.5rem 0;
+}
+
+.infoTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #3b82f6;
+    margin-bottom: 0.75rem;
+}
+
+.infoIcon {
+    width: 16px;
+    height: 16px;
+}
+
+.infoContent {
+    color: var(--color-neutral-300);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* ----------------------------------------
+   CONTACT CARD
+   ---------------------------------------- */
+
+.contactCard {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    margin-top: 1.5rem;
+}
+
+.contactRow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.contactIcon {
+    width: 18px;
+    height: 18px;
+    color: var(--color-brand-primary);
+    flex-shrink: 0;
+}
+
+.contactLink {
+    color: var(--color-neutral-300);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+.contactLink:hover {
+    color: var(--color-neutral-100);
+}
+
+/* ----------------------------------------
+   FOOTER
+   ---------------------------------------- */
+
+.pageFooter {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.backLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--color-neutral-300);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.backLink:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: var(--color-neutral-100);
+}
+
+.backIcon {
+    width: 16px;
+    height: 16px;
+}
+
+.footerNote {
+    font-size: 0.8rem;
+    color: var(--color-neutral-600);
+    text-align: center;
+}
+
+/* ----------------------------------------
+   RESPONSIVE
+   ---------------------------------------- */
+
+@media (max-width: 768px) {
+    .container {
+        padding: 6rem 1.25rem 4rem;
+    }
+
+    .titleWrapper {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .iconWrapper {
+        width: 48px;
+        height: 48px;
+    }
+
+    .icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .title {
+        font-size: 1.75rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    .metaBar {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .section {
+        padding: 1.5rem;
+    }
+
+    .sectionHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .listItem {
+        padding: 0.6rem 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 5rem 1rem 3rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .section {
+        padding: 1.25rem;
+    }
+
+    .sectionTitle {
+        font-size: 1.1rem;
+    }
+
+    .sectionBody {
+        font-size: 0.9rem;
+    }
+}

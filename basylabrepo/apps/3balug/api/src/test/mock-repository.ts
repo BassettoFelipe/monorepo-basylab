@@ -1372,19 +1372,31 @@ export class InMemoryPropertyRepository implements IPropertyRepository {
 			listingType: data.listingType ?? LISTING_TYPES.RENT,
 			status: data.status ?? PROPERTY_STATUS.AVAILABLE,
 			address: data.address ?? null,
+			addressNumber: data.addressNumber ?? null,
+			addressComplement: data.addressComplement ?? null,
 			neighborhood: data.neighborhood ?? null,
 			city: data.city ?? null,
 			state: data.state ?? null,
 			zipCode: data.zipCode ?? null,
 			bedrooms: data.bedrooms ?? 0,
 			bathrooms: data.bathrooms ?? 0,
+			suites: data.suites ?? 0,
 			parkingSpaces: data.parkingSpaces ?? 0,
 			area: data.area ?? null,
+			totalArea: data.totalArea ?? null,
+			builtArea: data.builtArea ?? null,
+			floor: data.floor ?? null,
+			totalFloors: data.totalFloors ?? null,
+			yearBuilt: data.yearBuilt ?? null,
 			rentalPrice: data.rentalPrice ?? null,
 			salePrice: data.salePrice ?? null,
 			iptuPrice: data.iptuPrice ?? null,
 			condoFee: data.condoFee ?? null,
+			commissionPercentage: data.commissionPercentage ?? null,
+			commissionValue: data.commissionValue ?? null,
+			isMarketplace: data.isMarketplace ?? false,
 			features: data.features ?? {},
+			notes: data.notes ?? null,
 			createdBy: data.createdBy ?? '',
 			createdAt: new Date(),
 			updatedAt: new Date(),
@@ -1469,6 +1481,21 @@ export class InMemoryPropertyRepository implements IPropertyRepository {
 			await this.photoRepository.deleteByPropertyId(id)
 		}
 		return this.properties.delete(id)
+	}
+
+	async generateNextCode(companyId: string): Promise<string> {
+		let maxCode = 0
+		for (const property of this.properties.values()) {
+			if (property.companyId === companyId && property.code) {
+				const match = property.code.match(/IMO-(\d+)/)
+				if (match) {
+					const num = Number.parseInt(match[1], 10)
+					if (num > maxCode) maxCode = num
+				}
+			}
+		}
+		const nextNumber = maxCode + 1
+		return `IMO-${nextNumber.toString().padStart(5, '0')}`
 	}
 
 	clear(): void {

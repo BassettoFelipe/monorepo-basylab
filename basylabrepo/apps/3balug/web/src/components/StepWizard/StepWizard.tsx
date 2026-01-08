@@ -24,6 +24,7 @@ interface StepWizardProps {
 	nextButtonText?: string
 	previousButtonText?: string
 	showProgressBar?: boolean
+	showStepTitleInBody?: boolean
 }
 
 export function StepWizard({
@@ -40,6 +41,7 @@ export function StepWizard({
 	nextButtonText = 'Proximo',
 	previousButtonText = 'Anterior',
 	showProgressBar = true,
+	showStepTitleInBody = true,
 }: StepWizardProps) {
 	const isFirstStep = currentStep === 0
 	const isLastStep = currentStep === steps.length - 1
@@ -78,21 +80,23 @@ export function StepWizard({
 									/>
 								)}
 
-								<div
-									className={`${styles.stepCircle} ${
-										isCompleted
-											? styles.stepCircleCompleted
-											: isActive
-												? styles.stepCircleActive
-												: styles.stepCirclePending
-									}`}
-								>
-									{isCompleted ? <Check size={16} /> : index + 1}
-								</div>
+								<div className={styles.stepContent}>
+									<div
+										className={`${styles.stepCircle} ${
+											isCompleted
+												? styles.stepCircleCompleted
+												: isActive
+													? styles.stepCircleActive
+													: styles.stepCirclePending
+										}`}
+									>
+										{isCompleted ? <Check size={16} /> : (step.icon || index + 1)}
+									</div>
 
-								<span className={`${styles.stepLabel} ${isActive ? styles.stepLabelActive : ''}`}>
-									{step.title}
-								</span>
+									<span className={`${styles.stepLabel} ${isActive ? styles.stepLabelActive : ''}`}>
+										{step.title}
+									</span>
+								</div>
 							</div>
 						)
 					})}
@@ -100,7 +104,7 @@ export function StepWizard({
 			</div>
 
 			<div className={styles.body}>
-				{currentStepData && (
+				{showStepTitleInBody && currentStepData && (
 					<>
 						<h3 className={styles.stepTitle}>{currentStepData.title}</h3>
 						{currentStepData.description && (

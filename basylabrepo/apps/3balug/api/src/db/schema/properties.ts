@@ -1,4 +1,13 @@
-import { index, integer, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import {
+	boolean,
+	index,
+	integer,
+	jsonb,
+	pgTable,
+	text,
+	timestamp,
+	uuid,
+} from 'drizzle-orm/pg-core'
 import { companies } from './companies'
 import { propertyOwners } from './property-owners'
 import { users } from './users'
@@ -67,18 +76,30 @@ export const properties = pgTable(
 		listingType: text('listing_type').notNull().default(LISTING_TYPES.RENT), // rent, sale, both
 		status: text('status').notNull().default(PROPERTY_STATUS.AVAILABLE), // available, rented, sold, maintenance, unavailable
 		address: text('address'),
+		addressNumber: text('address_number'), // Número do endereço
+		addressComplement: text('address_complement'), // Complemento (apto, bloco, etc.)
 		neighborhood: text('neighborhood'), // Bairro
 		city: text('city'),
 		state: text('state'),
 		zipCode: text('zip_code'),
 		bedrooms: integer('bedrooms').default(0),
 		bathrooms: integer('bathrooms').default(0),
+		suites: integer('suites').default(0), // Suítes
 		parkingSpaces: integer('parking_spaces').default(0),
-		area: integer('area'), // Área em metros quadrados
+		area: integer('area'), // Área útil em metros quadrados
+		totalArea: integer('total_area'), // Área total em metros quadrados
+		builtArea: integer('built_area'), // Área construída em metros quadrados
+		floor: integer('floor'), // Andar (para apartamentos)
+		totalFloors: integer('total_floors'), // Total de andares do prédio
+		yearBuilt: integer('year_built'), // Ano de construção
 		rentalPrice: integer('rental_price'), // Valor de locação em centavos
 		salePrice: integer('sale_price'), // Valor de venda em centavos
 		iptuPrice: integer('iptu_price'), // Valor do IPTU em centavos (mensal)
 		condoFee: integer('condo_fee'), // Taxa de condomínio em centavos
+		commissionPercentage: integer('commission_percentage'), // Percentual de comissão (ex: 500 = 5.00%)
+		commissionValue: integer('commission_value'), // Valor fixo de comissão em centavos
+		isMarketplace: boolean('is_marketplace').default(false).notNull(), // Disponível no marketplace
+		notes: text('notes'), // Observações internas
 		features: jsonb('features').$type<PropertyFeatures>().default({}),
 		createdBy: uuid('created_by')
 			.notNull()
@@ -103,6 +124,8 @@ export const properties = pgTable(
 			table.status,
 			table.createdAt,
 		),
+		index('properties_is_marketplace_idx').on(table.isMarketplace),
+		index('properties_code_idx').on(table.code),
 	],
 )
 

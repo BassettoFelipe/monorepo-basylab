@@ -23,6 +23,23 @@ export const listPropertyOwnersController = new Elysia().guard({ as: 'local' }, 
 			async ({ validatedUser, query }) => {
 				const result = await container.propertyOwners.list.execute({
 					search: query.search,
+					documentType: query.documentType,
+					state: query.state,
+					city: query.city,
+					hasProperties:
+						query.hasProperties === 'true'
+							? true
+							: query.hasProperties === 'false'
+								? false
+								: undefined,
+					hasEmail:
+						query.hasEmail === 'true' ? true : query.hasEmail === 'false' ? false : undefined,
+					hasPhone:
+						query.hasPhone === 'true' ? true : query.hasPhone === 'false' ? false : undefined,
+					createdAtStart: query.createdAtStart ? new Date(query.createdAtStart) : undefined,
+					createdAtEnd: query.createdAtEnd ? new Date(query.createdAtEnd) : undefined,
+					sortBy: query.sortBy,
+					sortOrder: query.sortOrder,
 					limit: query.limit ? Number(query.limit) : undefined,
 					offset: query.offset ? Number(query.offset) : undefined,
 					requestedBy: validatedUser,

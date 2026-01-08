@@ -1,12 +1,22 @@
 import type { NewPropertyOwner, PropertyOwner } from '@/db/schema/property-owners'
 
+export type PropertyOwnerSortBy = 'name' | 'createdAt' | 'propertiesCount' | 'city' | 'state'
+export type PropertyOwnerSortOrder = 'asc' | 'desc'
+
 export type PropertyOwnerFilters = {
-	search?: string // Busca por nome, email ou documento
+	search?: string // Busca por nome, email, documento, telefone ou cidade
 	companyId: string
 	createdBy?: string // Filtrar por quem criou
-	documentType?: string // Filtrar por tipo de documento (cpf ou cnpj)
+	documentType?: 'cpf' | 'cnpj' // Filtrar por tipo de documento
 	state?: string // Filtrar por estado
+	city?: string // Filtrar por cidade
 	hasProperties?: boolean // Filtrar por ter ou não imóveis
+	hasEmail?: boolean // Filtrar por ter ou não email
+	hasPhone?: boolean // Filtrar por ter ou não telefone
+	createdAtStart?: Date // Filtrar por data de criação (início)
+	createdAtEnd?: Date // Filtrar por data de criação (fim)
+	sortBy?: PropertyOwnerSortBy // Campo para ordenação
+	sortOrder?: PropertyOwnerSortOrder // Direção da ordenação
 	limit?: number
 	offset?: number
 }

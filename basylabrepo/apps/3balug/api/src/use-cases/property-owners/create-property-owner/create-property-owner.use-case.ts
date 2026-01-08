@@ -101,6 +101,11 @@ export class CreatePropertyOwnerUseCase {
 			? this.contactValidator.normalizeZipCode(input.zipCode)
 			: null
 
+		// Validar que se o estado for informado, a cidade também deve ser
+		if (input.state && !input.city) {
+			throw new BadRequestError('A cidade é obrigatória quando o estado é informado')
+		}
+
 		try {
 			const propertyOwner = await this.propertyOwnerRepository.create({
 				companyId: createdBy.companyId,

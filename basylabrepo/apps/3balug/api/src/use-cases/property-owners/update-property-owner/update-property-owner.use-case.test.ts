@@ -582,11 +582,30 @@ describe('UpdatePropertyOwnerUseCase', () => {
 		test('deve normalizar estado para uppercase', async () => {
 			const result = await useCase.execute({
 				id: existingOwner.id,
+				city: 'Rio de Janeiro',
 				state: 'rj',
 				updatedBy: ownerUser,
 			})
 
 			expect(result.state).toBe('RJ')
+		})
+
+		test('deve lançar erro quando estado é informado sem cidade', async () => {
+			// Primeiro garante que o owner não tem cidade
+			await useCase.execute({
+				id: existingOwner.id,
+				city: null,
+				state: null,
+				updatedBy: ownerUser,
+			})
+
+			await expect(
+				useCase.execute({
+					id: existingOwner.id,
+					state: 'SP',
+					updatedBy: ownerUser,
+				}),
+			).rejects.toThrow('A cidade é obrigatória quando o estado é informado')
 		})
 	})
 
@@ -601,14 +620,16 @@ describe('UpdatePropertyOwnerUseCase', () => {
 			expect(result.address).toBeNull()
 		})
 
-		test('deve converter string vazia em null para city', async () => {
+		test('deve converter string vazia em null para city e state juntos', async () => {
 			const result = await useCase.execute({
 				id: existingOwner.id,
 				city: '   ',
+				state: null,
 				updatedBy: ownerUser,
 			})
 
 			expect(result.city).toBeNull()
+			expect(result.state).toBeNull()
 		})
 
 		test('deve converter string vazia em null para state', async () => {

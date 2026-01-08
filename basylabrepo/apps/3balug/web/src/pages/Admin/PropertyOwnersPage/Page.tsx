@@ -1,26 +1,42 @@
 import {
+	ArrowDownAZ,
+	ArrowUpAZ,
 	Building2,
 	Calendar,
+	ChevronDown,
+	ChevronLeft,
+	ChevronRight,
+	ChevronUp,
 	Edit,
 	Eye,
+	Filter,
 	Mail,
 	MapPin,
 	Phone,
 	Plus,
+	RotateCcw,
 	Trash2,
 	Users,
 } from 'lucide-react'
+import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/Button/Button'
 import { ConfirmDialog } from '@/components/ConfirmDialog/ConfirmDialog'
 import { EmptyState } from '@/components/EmptyState/EmptyState'
 import { Input } from '@/components/Input/Input'
+import { Select } from '@/components/Select/Select'
 import { Skeleton } from '@/components/Skeleton/Skeleton'
 import { AdminLayout } from '@/layouts/AdminLayout/AdminLayout'
 import { useDeletePropertyOwnerMutation } from '@/queries/property-owners/useDeletePropertyOwnerMutation'
 import { usePropertyOwnerQuery } from '@/queries/property-owners/usePropertyOwnerQuery'
 import { usePropertyOwnersQuery } from '@/queries/property-owners/usePropertyOwnersQuery'
-import type { PropertyOwner } from '@/types/property-owner.types'
+import type {
+	DocumentType,
+	PropertyOwner,
+	PropertyOwnerSortBy,
+	PropertyOwnerSortOrder,
+} from '@/types/property-owner.types'
+import { BRAZILIAN_STATES } from '@/types/property-owner.types'
 import { CreatePropertyOwnerModal } from './components/CreatePropertyOwnerModal/CreatePropertyOwnerModal'
 import { EditPropertyOwnerModal } from './components/EditPropertyOwnerModal/EditPropertyOwnerModal'
 import { ViewPropertyOwnerModal } from './components/ViewPropertyOwnerModal/ViewPropertyOwnerModal'
@@ -28,12 +44,23 @@ import * as styles from './styles.css'
 
 export function PropertyOwnersPage() {
 	const [searchParams, setSearchParams] = useSearchParams()
+	const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
 
 	const limit = 20
 
 	// Extrair estados da URL
 	const search = searchParams.get('search') || ''
 	const page = Number(searchParams.get('page')) || 1
+	const documentType = (searchParams.get('documentType') as DocumentType) || undefined
+	const state = searchParams.get('state') || undefined
+	const city = searchParams.get('city') || undefined
+	const hasProperties = searchParams.get('hasProperties')
+	const hasEmail = searchParams.get('hasEmail')
+	const hasPhone = searchParams.get('hasPhone')
+	const createdAtStart = searchParams.get('createdAtStart') || undefined
+	const createdAtEnd = searchParams.get('createdAtEnd') || undefined
+	const sortBy = (searchParams.get('sortBy') as PropertyOwnerSortBy) || 'name'
+	const sortOrder = (searchParams.get('sortOrder') as PropertyOwnerSortOrder) || 'asc'
 
 	const modalAction = searchParams.get('modal')
 	const editId = searchParams.get('id')
@@ -43,8 +70,30 @@ export function PropertyOwnersPage() {
 	const isEditModalOpen = modalAction === 'edit' && !!editId
 	const isDeleteDialogOpen = modalAction === 'delete' && !!editId
 
+	// Conta quantos filtros avancados estao ativos
+	const activeFiltersCount = [
+		documentType,
+		state,
+		city,
+		hasProperties,
+		hasEmail,
+		hasPhone,
+		createdAtStart,
+		createdAtEnd,
+	].filter(Boolean).length
+
 	const { data, isLoading, error } = usePropertyOwnersQuery({
 		search: search || undefined,
+		documentType,
+		state,
+		city,
+		hasProperties: hasProperties === 'true' ? true : hasProperties === 'false' ? false : undefined,
+		hasEmail: hasEmail === 'true' ? true : hasEmail === 'false' ? false : undefined,
+		hasPhone: hasPhone === 'true' ? true : hasPhone === 'false' ? false : undefined,
+		createdAtStart,
+		createdAtEnd,
+		sortBy,
+		sortOrder,
 		page,
 		limit,
 	})
@@ -68,6 +117,44 @@ export function PropertyOwnersPage() {
 			}
 		}
 		setSearchParams(newParams)
+	}
+
+	const clearAllFilters = () => {
+		const newParams = new URLSearchParams()
+		if (searchParams.get('modal')) {
+			newParams.set('modal', searchParams.get('modal')!)
+		}
+		if (searchParams.get('id')) {
+			newParams.set('id', searchParams.get('id')!)
+		}
+		setSearchParams(newParams)
+	}
+
+	const handleSort = (field: PropertyOwnerSortBy) => {
+		if (sortBy === field) {
+			updateSearchParams({
+				sortOrder: sortOrder === 'asc' ? 'desc' : 'asc',
+				page: '1',
+			})
+		} else {
+			updateSearchParams({
+				sortBy: field,
+				sortOrder: 'asc',
+				page: '1',
+			})
+		}
+	}
+
+	const getSortIcon = (field: PropertyOwnerSortBy) => {
+		const isActive = sortBy === field
+		if (isActive) {
+			return sortOrder === 'asc' ? (
+				<ArrowUpAZ size={14} className={styles.sortIconActive} />
+			) : (
+				<ArrowDownAZ size={14} className={styles.sortIconActive} />
+			)
+		}
+		return <ArrowUpAZ size={14} className={styles.sortIcon} />
 	}
 
 	const openCreateModal = () => {
@@ -160,6 +247,44 @@ export function PropertyOwnersPage() {
 		return colors[index]
 	}
 
+	const getPaginationPages = (currentPage: number, totalPages: number): (number | 'ellipsis')[] => {
+		const pages: (number | 'ellipsis')[] = []
+		const showEllipsisThreshold = 7
+
+		if (totalPages <= showEllipsisThreshold) {
+			for (let i = 1; i <= totalPages; i++) {
+				pages.push(i)
+			}
+			return pages
+		}
+
+		// Always show first page
+		pages.push(1)
+
+		if (currentPage > 3) {
+			pages.push('ellipsis')
+		}
+
+		// Pages around current
+		const start = Math.max(2, currentPage - 1)
+		const end = Math.min(totalPages - 1, currentPage + 1)
+
+		for (let i = start; i <= end; i++) {
+			pages.push(i)
+		}
+
+		if (currentPage < totalPages - 2) {
+			pages.push('ellipsis')
+		}
+
+		// Always show last page
+		if (totalPages > 1) {
+			pages.push(totalPages)
+		}
+
+		return pages
+	}
+
 	return (
 		<AdminLayout>
 			<div className={styles.sectionHeader}>
@@ -178,7 +303,7 @@ export function PropertyOwnersPage() {
 
 			<div className={styles.filtersCard}>
 				<div className={styles.filterRow}>
-					<div className={styles.filterItem}>
+					<div className={styles.filterItem} style={{ flex: 2 }}>
 						<label className={styles.filterLabel} htmlFor="search-filter">
 							Buscar
 						</label>
@@ -188,11 +313,216 @@ export function PropertyOwnersPage() {
 							onChange={(e) => {
 								updateSearchParams({ search: e.target.value, page: '1' })
 							}}
-							placeholder="Buscar por nome, documento ou email..."
+							placeholder="Buscar por nome, documento, email, telefone ou cidade..."
 							fullWidth
 						/>
 					</div>
+					<div className={styles.filterItem}>
+						<label className={styles.filterLabel} htmlFor="documentType-filter">
+							Tipo de Documento
+						</label>
+						<Select
+							id="documentType-filter"
+							value={documentType || ''}
+							onChange={(e) => {
+								updateSearchParams({ documentType: e.target.value, page: '1' })
+							}}
+							options={[
+								{ value: '', label: 'Todos' },
+								{ value: 'cpf', label: 'CPF' },
+								{ value: 'cnpj', label: 'CNPJ' },
+							]}
+							fullWidth
+						/>
+					</div>
+					<div className={styles.filterItem}>
+						<label className={styles.filterLabel} htmlFor="state-filter">
+							Estado
+						</label>
+						<Select
+							id="state-filter"
+							value={state || ''}
+							onChange={(e) => {
+								updateSearchParams({ state: e.target.value, page: '1' })
+							}}
+							options={[
+								{ value: '', label: 'Todos' },
+								...BRAZILIAN_STATES.map((s) => ({ value: s.value, label: s.label })),
+							]}
+							fullWidth
+						/>
+					</div>
+					<div className={styles.filterActions}>
+						<Button
+							variant="outline"
+							size="small"
+							onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+							title={showAdvancedFilters ? 'Ocultar filtros avancados' : 'Mostrar filtros avancados'}
+						>
+							<Filter size={16} />
+							Filtros
+							{activeFiltersCount > 0 && (
+								<span className={styles.filterBadge}>{activeFiltersCount}</span>
+							)}
+							{showAdvancedFilters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+						</Button>
+						{(search || activeFiltersCount > 0 || sortBy !== 'name' || sortOrder !== 'asc') && (
+							<Button variant="outline" size="small" onClick={clearAllFilters} title="Limpar filtros">
+								<RotateCcw size={16} />
+								Resetar
+							</Button>
+						)}
+					</div>
 				</div>
+
+				{showAdvancedFilters && (
+					<>
+						<div className={styles.filterDivider} />
+						<div className={styles.filterRow}>
+							<div className={styles.filterItem}>
+								<label className={styles.filterLabel} htmlFor="city-filter">
+									Cidade
+								</label>
+								<Input
+									id="city-filter"
+									value={city || ''}
+									onChange={(e) => {
+										updateSearchParams({ city: e.target.value, page: '1' })
+									}}
+									placeholder="Filtrar por cidade..."
+									fullWidth
+								/>
+							</div>
+							<div className={styles.filterItem}>
+								<label className={styles.filterLabel} htmlFor="hasEmail-filter">
+									Email
+								</label>
+								<Select
+									id="hasEmail-filter"
+									value={hasEmail || ''}
+									onChange={(e) => {
+										updateSearchParams({ hasEmail: e.target.value, page: '1' })
+									}}
+									options={[
+										{ value: '', label: 'Todos' },
+										{ value: 'true', label: 'Com email' },
+										{ value: 'false', label: 'Sem email' },
+									]}
+									fullWidth
+								/>
+							</div>
+							<div className={styles.filterItem}>
+								<label className={styles.filterLabel} htmlFor="hasPhone-filter">
+									Telefone
+								</label>
+								<Select
+									id="hasPhone-filter"
+									value={hasPhone || ''}
+									onChange={(e) => {
+										updateSearchParams({ hasPhone: e.target.value, page: '1' })
+									}}
+									options={[
+										{ value: '', label: 'Todos' },
+										{ value: 'true', label: 'Com telefone' },
+										{ value: 'false', label: 'Sem telefone' },
+									]}
+									fullWidth
+								/>
+							</div>
+							<div className={styles.filterItem}>
+								<label className={styles.filterLabel} htmlFor="hasProperties-filter">
+									Imoveis
+								</label>
+								<Select
+									id="hasProperties-filter"
+									value={hasProperties || ''}
+									onChange={(e) => {
+										updateSearchParams({ hasProperties: e.target.value, page: '1' })
+									}}
+									options={[
+										{ value: '', label: 'Todos' },
+										{ value: 'true', label: 'Com imoveis' },
+										{ value: 'false', label: 'Sem imoveis' },
+									]}
+									fullWidth
+								/>
+							</div>
+						</div>
+						<div className={styles.filterRow} style={{ marginTop: '16px' }}>
+							<div className={styles.filterItem}>
+								<label className={styles.filterLabel} htmlFor="createdAtStart-filter">
+									Cadastrado a partir de
+								</label>
+								<Input
+									id="createdAtStart-filter"
+									type="date"
+									value={createdAtStart || ''}
+									onChange={(e) => {
+										updateSearchParams({
+											createdAtStart: e.target.value ? new Date(e.target.value).toISOString() : '',
+											page: '1',
+										})
+									}}
+									fullWidth
+								/>
+							</div>
+							<div className={styles.filterItem}>
+								<label className={styles.filterLabel} htmlFor="createdAtEnd-filter">
+									Cadastrado ate
+								</label>
+								<Input
+									id="createdAtEnd-filter"
+									type="date"
+									value={createdAtEnd ? createdAtEnd.split('T')[0] : ''}
+									onChange={(e) => {
+										updateSearchParams({
+											createdAtEnd: e.target.value ? new Date(e.target.value).toISOString() : '',
+											page: '1',
+										})
+									}}
+									fullWidth
+								/>
+							</div>
+							<div className={styles.filterItem}>
+								<label className={styles.filterLabel} htmlFor="sortBy-filter">
+									Ordenar por
+								</label>
+								<Select
+									id="sortBy-filter"
+									value={sortBy}
+									onChange={(e) => {
+										updateSearchParams({ sortBy: e.target.value, page: '1' })
+									}}
+									options={[
+										{ value: 'name', label: 'Nome' },
+										{ value: 'createdAt', label: 'Data de cadastro' },
+										{ value: 'propertiesCount', label: 'Quantidade de imoveis' },
+										{ value: 'city', label: 'Cidade' },
+										{ value: 'state', label: 'Estado' },
+									]}
+									fullWidth
+								/>
+							</div>
+							<div className={styles.filterItem}>
+								<label className={styles.filterLabel} htmlFor="sortOrder-filter">
+									Ordem
+								</label>
+								<Select
+									id="sortOrder-filter"
+									value={sortOrder}
+									onChange={(e) => {
+										updateSearchParams({ sortOrder: e.target.value, page: '1' })
+									}}
+									options={[
+										{ value: 'asc', label: 'Crescente' },
+										{ value: 'desc', label: 'Decrescente' },
+									]}
+									fullWidth
+								/>
+							</div>
+						</div>
+					</>
+				)}
 			</div>
 
 			{isLoading && (
@@ -218,12 +548,27 @@ export function PropertyOwnersPage() {
 			{!isLoading && !error && data && data.data.length === 0 && (
 				<EmptyState
 					icon={Users}
-					title="Nenhum proprietario cadastrado"
-					description="Adicione proprietarios para gerenciar seus imoveis."
-					action={{
-						label: 'Adicionar Primeiro Proprietario',
-						onClick: openCreateModal,
-					}}
+					title={
+						search || activeFiltersCount > 0
+							? 'Nenhum proprietario encontrado'
+							: 'Nenhum proprietario cadastrado'
+					}
+					description={
+						search || activeFiltersCount > 0
+							? 'Nenhum proprietario corresponde aos filtros aplicados. Tente ajustar os criterios de busca.'
+							: 'Adicione proprietarios para gerenciar seus imoveis.'
+					}
+					action={
+						search || activeFiltersCount > 0
+							? {
+									label: 'Limpar Filtros',
+									onClick: clearAllFilters,
+								}
+							: {
+									label: 'Adicionar Primeiro Proprietario',
+									onClick: openCreateModal,
+								}
+					}
 				/>
 			)}
 
@@ -233,11 +578,39 @@ export function PropertyOwnersPage() {
 						<table className={styles.table}>
 							<thead className={styles.tableHeader}>
 								<tr>
-									<th className={styles.tableHeaderCell}>Proprietario</th>
+									<th
+										className={`${styles.tableHeaderCell} ${styles.sortableHeader}`}
+										onClick={() => handleSort('name')}
+									>
+										<span className={styles.sortableHeaderContent}>
+											Proprietario {getSortIcon('name')}
+										</span>
+									</th>
 									<th className={styles.tableHeaderCell}>Contato</th>
-									<th className={styles.tableHeaderCell}>Localizacao</th>
-									<th className={styles.tableHeaderCell}>Imoveis</th>
-									<th className={styles.tableHeaderCell}>Cadastro</th>
+									<th
+										className={`${styles.tableHeaderCell} ${styles.sortableHeader}`}
+										onClick={() => handleSort('city')}
+									>
+										<span className={styles.sortableHeaderContent}>
+											Localizacao {getSortIcon('city')}
+										</span>
+									</th>
+									<th
+										className={`${styles.tableHeaderCell} ${styles.sortableHeader}`}
+										onClick={() => handleSort('propertiesCount')}
+									>
+										<span className={styles.sortableHeaderContent}>
+											Imoveis {getSortIcon('propertiesCount')}
+										</span>
+									</th>
+									<th
+										className={`${styles.tableHeaderCell} ${styles.sortableHeader}`}
+										onClick={() => handleSort('createdAt')}
+									>
+										<span className={styles.sortableHeaderContent}>
+											Cadastro {getSortIcon('createdAt')}
+										</span>
+									</th>
 									<th className={styles.tableHeaderCell}>Acoes</th>
 								</tr>
 							</thead>
@@ -389,26 +762,46 @@ export function PropertyOwnersPage() {
 								{data.total} proprietarios
 							</div>
 							<div className={styles.paginationButtons}>
-								<Button
-									variant="outline"
-									size="small"
+								<button
+									type="button"
+									className={styles.paginationButton}
 									onClick={() => updateSearchParams({ page: String(Math.max(1, page - 1)) })}
 									disabled={page === 1}
+									title="Pagina anterior"
 								>
-									Anterior
-								</Button>
-								<Button
-									variant="outline"
-									size="small"
+									<ChevronLeft size={16} />
+								</button>
+
+								{getPaginationPages(page, data.totalPages).map((pageNum, index) =>
+									pageNum === 'ellipsis' ? (
+										<span key={`ellipsis-${index}`} className={styles.paginationEllipsis}>
+											...
+										</span>
+									) : (
+										<button
+											key={pageNum}
+											type="button"
+											className={`${styles.paginationButton} ${
+												page === pageNum ? styles.paginationButtonActive : ''
+											}`}
+											onClick={() => updateSearchParams({ page: String(pageNum) })}
+										>
+											{pageNum}
+										</button>
+									),
+								)}
+
+								<button
+									type="button"
+									className={styles.paginationButton}
 									onClick={() =>
-										updateSearchParams({
-											page: String(Math.min(data.totalPages, page + 1)),
-										})
+										updateSearchParams({ page: String(Math.min(data.totalPages, page + 1)) })
 									}
 									disabled={page === data.totalPages}
+									title="Proxima pagina"
 								>
-									Proxima
-								</Button>
+									<ChevronRight size={16} />
+								</button>
 							</div>
 						</div>
 					)}

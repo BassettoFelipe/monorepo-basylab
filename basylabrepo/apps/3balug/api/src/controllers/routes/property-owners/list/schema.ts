@@ -2,6 +2,24 @@ import { t } from 'elysia'
 
 export const listPropertyOwnersQuerySchema = t.Object({
 	search: t.Optional(t.String()),
+	documentType: t.Optional(t.Union([t.Literal('cpf'), t.Literal('cnpj')])),
+	state: t.Optional(t.String()),
+	city: t.Optional(t.String()),
+	hasProperties: t.Optional(t.Union([t.Literal('true'), t.Literal('false')])),
+	hasEmail: t.Optional(t.Union([t.Literal('true'), t.Literal('false')])),
+	hasPhone: t.Optional(t.Union([t.Literal('true'), t.Literal('false')])),
+	createdAtStart: t.Optional(t.String()),
+	createdAtEnd: t.Optional(t.String()),
+	sortBy: t.Optional(
+		t.Union([
+			t.Literal('name'),
+			t.Literal('createdAt'),
+			t.Literal('propertiesCount'),
+			t.Literal('city'),
+			t.Literal('state'),
+		]),
+	),
+	sortOrder: t.Optional(t.Union([t.Literal('asc'), t.Literal('desc')])),
 	limit: t.Optional(t.Numeric({ minimum: 1, maximum: 100 })),
 	offset: t.Optional(t.Numeric({ minimum: 0 })),
 })

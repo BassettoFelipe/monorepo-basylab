@@ -156,7 +156,7 @@ export function CasesSection() {
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   return (
-    <section ref={sectionRef} className={styles.section}>
+    <section ref={sectionRef} className={styles.section} id="cases">
       <div className={styles.background}>
         <div className={styles.gradientOrb} />
       </div>

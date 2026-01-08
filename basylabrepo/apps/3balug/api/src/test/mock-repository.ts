@@ -989,16 +989,31 @@ export class InMemoryPropertyOwnerRepository implements IPropertyOwnerRepository
 	}
 
 	async list(filters: PropertyOwnerFilters): Promise<PropertyOwnerListResult> {
-		const result: PropertyOwner[] = []
+		let result: PropertyOwner[] = []
 		for (const owner of this.owners.values()) {
 			if (owner.companyId === filters.companyId) {
 				if (filters.createdBy && owner.createdBy !== filters.createdBy) continue
+				if (filters.documentType && owner.documentType !== filters.documentType) continue
+				if (filters.state && owner.state !== filters.state) continue
+				if (filters.city && owner.city?.toLowerCase() !== filters.city.toLowerCase()) continue
+				if (filters.hasEmail !== undefined) {
+					const hasEmail = !!owner.email && owner.email.trim() !== ''
+					if (filters.hasEmail !== hasEmail) continue
+				}
+				if (filters.hasPhone !== undefined) {
+					const hasPhone = !!owner.phone && owner.phone.trim() !== ''
+					if (filters.hasPhone !== hasPhone) continue
+				}
+				if (filters.createdAtStart && owner.createdAt < filters.createdAtStart) continue
+				if (filters.createdAtEnd && owner.createdAt > filters.createdAtEnd) continue
 				if (filters.search) {
 					const search = filters.search.toLowerCase()
 					if (
 						!owner.name.toLowerCase().includes(search) &&
 						!owner.email?.toLowerCase().includes(search) &&
-						!owner.document.toLowerCase().includes(search)
+						!owner.document.toLowerCase().includes(search) &&
+						!owner.phone?.toLowerCase().includes(search) &&
+						!owner.city?.toLowerCase().includes(search)
 					) {
 						continue
 					}
@@ -1006,6 +1021,34 @@ export class InMemoryPropertyOwnerRepository implements IPropertyOwnerRepository
 				result.push(owner)
 			}
 		}
+
+		// Ordenação
+		const sortBy = filters.sortBy ?? 'name'
+		const sortOrder = filters.sortOrder ?? 'asc'
+		result.sort((a, b) => {
+			let comparison = 0
+			switch (sortBy) {
+				case 'createdAt':
+					comparison = a.createdAt.getTime() - b.createdAt.getTime()
+					break
+				case 'city':
+					comparison = (a.city ?? '').localeCompare(b.city ?? '')
+					break
+				case 'state':
+					comparison = (a.state ?? '').localeCompare(b.state ?? '')
+					break
+				case 'propertiesCount':
+					// Para testes mock, sempre 0
+					comparison = 0
+					break
+				case 'name':
+				default:
+					comparison = a.name.localeCompare(b.name)
+					break
+			}
+			return sortOrder === 'desc' ? -comparison : comparison
+		})
+
 		const limit = filters.limit ?? 10
 		const offset = filters.offset ?? 0
 		const paginatedData = result.slice(offset, offset + limit)

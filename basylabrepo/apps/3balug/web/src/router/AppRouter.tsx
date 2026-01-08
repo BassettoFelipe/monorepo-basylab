@@ -11,6 +11,7 @@ import { PropertiesPage } from '@/pages/Admin/PropertiesPage/Page'
 import { PropertyDetailsPage } from '@/pages/Admin/PropertyDetailsPage/Page'
 
 import { PropertyOwnersPage } from '@/pages/Admin/PropertyOwnersPage/Page'
+import { PropertyOwnerProfilePage } from '@/pages/Admin/PropertyOwnerProfilePage/Page'
 import { SchedulePage } from '@/pages/Admin/SchedulePage/Page'
 import { SettingsPage } from '@/pages/Admin/SettingsPage/Page'
 import { TeamPage } from '@/pages/Admin/TeamPage/Page'
@@ -93,6 +94,7 @@ export const AppRouter = () => {
 				<Route path="/properties" element={<PropertiesPage />} />
 				<Route path="/properties/:id" element={<PropertyDetailsPage />} />
 				<Route path="/property-owners" element={<PropertyOwnersPage />} />
+				<Route path="/property-owners/:id" element={<PropertyOwnerProfilePage />} />
 
 				<Route path="/tenants" element={<TenantsPage />} />
 				<Route path="/clients" element={<CustomersPage />} />

@@ -257,7 +257,7 @@ export function TechSection() {
     BENEFITS.find((b) => b.id === activeBenefit) || null;
 
   return (
-    <section ref={sectionRef} className={styles.section}>
+    <section ref={sectionRef} className={styles.section} id="tecnologia">
       {/* Background */}
       <div className={styles.background}>
         <div className={styles.gradientOrb} />

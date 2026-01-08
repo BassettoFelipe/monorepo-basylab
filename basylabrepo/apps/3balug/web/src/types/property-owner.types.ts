@@ -142,8 +142,21 @@ export interface UpdatePropertyOwnerInput {
 	notes?: string | null
 }
 
+export type PropertyOwnerSortBy = 'name' | 'createdAt' | 'propertiesCount' | 'city' | 'state'
+export type PropertyOwnerSortOrder = 'asc' | 'desc'
+
 export interface ListPropertyOwnersParams {
 	search?: string
+	documentType?: DocumentType
+	state?: string
+	city?: string
+	hasProperties?: boolean
+	hasEmail?: boolean
+	hasPhone?: boolean
+	createdAtStart?: string
+	createdAtEnd?: string
+	sortBy?: PropertyOwnerSortBy
+	sortOrder?: PropertyOwnerSortOrder
 	page?: number
 	limit?: number
 }

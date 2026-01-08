@@ -1,12 +1,26 @@
 import { ForbiddenError, InternalServerError } from '@basylab/core/errors'
 import type { PropertyOwner } from '@/db/schema/property-owners'
 import type { User } from '@/db/schema/users'
-import type { IPropertyOwnerRepository } from '@/repositories/contracts/property-owner.repository'
+import type {
+	IPropertyOwnerRepository,
+	PropertyOwnerSortBy,
+	PropertyOwnerSortOrder,
+} from '@/repositories/contracts/property-owner.repository'
 import type { UserRole } from '@/types/roles'
 import { USER_ROLES } from '@/types/roles'
 
 type ListPropertyOwnersInput = {
 	search?: string
+	documentType?: 'cpf' | 'cnpj'
+	state?: string
+	city?: string
+	hasProperties?: boolean
+	hasEmail?: boolean
+	hasPhone?: boolean
+	createdAtStart?: Date
+	createdAtEnd?: Date
+	sortBy?: PropertyOwnerSortBy
+	sortOrder?: PropertyOwnerSortOrder
 	limit?: number
 	offset?: number
 	requestedBy: User
@@ -53,6 +67,16 @@ export class ListPropertyOwnersUseCase {
 			companyId: currentUser.companyId,
 			search: input.search,
 			createdBy,
+			documentType: input.documentType,
+			state: input.state,
+			city: input.city,
+			hasProperties: input.hasProperties,
+			hasEmail: input.hasEmail,
+			hasPhone: input.hasPhone,
+			createdAtStart: input.createdAtStart,
+			createdAtEnd: input.createdAtEnd,
+			sortBy: input.sortBy ?? 'name',
+			sortOrder: input.sortOrder ?? 'asc',
 			limit: input.limit ?? 20,
 			offset: input.offset ?? 0,
 		})

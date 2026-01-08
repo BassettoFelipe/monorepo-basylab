@@ -463,11 +463,24 @@ describe('CreatePropertyOwnerUseCase', () => {
 				name: 'Test Owner',
 				documentType: 'cpf',
 				document: '811.058.504-39',
+				city: 'São Paulo',
 				state: 'sp',
 				createdBy: ownerUser,
 			})
 
 			expect(result.state).toBe('SP')
+		})
+
+		test('deve lançar erro quando estado é informado sem cidade', async () => {
+			await expect(
+				useCase.execute({
+					name: 'Test Owner',
+					documentType: 'cpf',
+					document: '529.982.247-25',
+					state: 'SP',
+					createdBy: ownerUser,
+				}),
+			).rejects.toThrow('A cidade é obrigatória quando o estado é informado')
 		})
 	})
 

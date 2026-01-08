@@ -180,6 +180,13 @@ export class UpdatePropertyOwnerUseCase {
 			return propertyOwner
 		}
 
+		// Validar que se o estado for informado, a cidade também deve ser
+		const finalState = updateData.state !== undefined ? updateData.state : propertyOwner.state
+		const finalCity = updateData.city !== undefined ? updateData.city : propertyOwner.city
+		if (finalState && !finalCity) {
+			throw new BadRequestError('A cidade é obrigatória quando o estado é informado')
+		}
+
 		try {
 			const updatedPropertyOwner = await this.propertyOwnerRepository.update(input.id, updateData)
 

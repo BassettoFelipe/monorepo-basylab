@@ -16,7 +16,18 @@ export const listPropertyOwners = async (
 		'/api/property-owners',
 		{
 			params: {
-				search: params?.search,
+				search: params?.search || undefined,
+				documentType: params?.documentType || undefined,
+				state: params?.state || undefined,
+				city: params?.city || undefined,
+				hasProperties:
+					params?.hasProperties !== undefined ? String(params.hasProperties) : undefined,
+				hasEmail: params?.hasEmail !== undefined ? String(params.hasEmail) : undefined,
+				hasPhone: params?.hasPhone !== undefined ? String(params.hasPhone) : undefined,
+				createdAtStart: params?.createdAtStart || undefined,
+				createdAtEnd: params?.createdAtEnd || undefined,
+				sortBy: params?.sortBy || undefined,
+				sortOrder: params?.sortOrder || undefined,
 				limit,
 				offset,
 			},

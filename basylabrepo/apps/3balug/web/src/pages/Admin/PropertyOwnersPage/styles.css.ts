@@ -38,15 +38,54 @@ export const filtersCard = style({
 })
 
 export const filterRow = style({
-	display: 'grid',
-	gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+	display: 'flex',
+	flexWrap: 'wrap',
 	gap: vars.spacing.md,
+	rowGap: vars.spacing.lg,
+	alignItems: 'flex-end',
+})
+
+export const filterActions = style({
+	display: 'flex',
+	gap: vars.spacing.sm,
+	alignItems: 'flex-end',
+	marginLeft: 'auto',
+})
+
+export const filterBadge = style({
+	display: 'inline-flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	minWidth: '18px',
+	height: '18px',
+	padding: '0 6px',
+	fontSize: '11px',
+	fontWeight: vars.fontWeight.bold,
+	borderRadius: vars.borderRadius.full,
+	backgroundColor: vars.color.primary.main,
+	color: vars.color.primary.dark,
+	transition: `all ${vars.transitionDuration.base}`,
+	selectors: {
+		'button:hover &': {
+			backgroundColor: vars.color.primary.main,
+			color: vars.color.primary.dark,
+		},
+	},
+})
+
+export const filterDivider = style({
+	height: '1px',
+	backgroundColor: vars.color.border.primary,
+	margin: `${vars.spacing.lg} 0`,
 })
 
 export const filterItem = style({
 	display: 'flex',
 	flexDirection: 'column',
 	gap: vars.spacing.xs,
+	flex: 1,
+	minWidth: '150px',
+	maxWidth: '250px',
 })
 
 export const filterLabel = style({
@@ -87,6 +126,38 @@ export const tableHeaderCell = style({
 	textTransform: 'uppercase',
 	letterSpacing: '0.5px',
 	whiteSpace: 'nowrap',
+})
+
+export const sortableHeader = style({
+	cursor: 'pointer',
+	userSelect: 'none',
+	transition: `color ${vars.transitionDuration.base}`,
+	':hover': {
+		color: vars.color.text.primary,
+	},
+})
+
+export const sortableHeaderContent = style({
+	display: 'inline-flex',
+	alignItems: 'center',
+	gap: '4px',
+})
+
+export const sortIcon = style({
+	opacity: 0.3,
+	transition: `opacity ${vars.transitionDuration.base}`,
+	flexShrink: 0,
+	selectors: {
+		'th:hover &': {
+			opacity: 0.6,
+		},
+	},
+})
+
+export const sortIconActive = style({
+	opacity: 1,
+	color: vars.color.primary.dark,
+	flexShrink: 0,
 })
 
 export const tableRow = style({
@@ -299,5 +370,55 @@ export const paginationInfo = style({
 
 export const paginationButtons = style({
 	display: 'flex',
-	gap: vars.spacing.sm,
+	gap: vars.spacing.xs,
+	alignItems: 'center',
+})
+
+export const paginationButton = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	minWidth: '36px',
+	height: '36px',
+	padding: '0 12px',
+	fontSize: vars.fontSize.sm,
+	fontWeight: vars.fontWeight.medium,
+	color: vars.color.text.primary,
+	backgroundColor: vars.color.bg.primary,
+	border: `1px solid ${vars.color.border.primary}`,
+	borderRadius: vars.borderRadius.md,
+	cursor: 'pointer',
+	transition: `all ${vars.transitionDuration.base}`,
+	':hover': {
+		backgroundColor: vars.color.bg.secondary,
+		borderColor: vars.color.primary.dark,
+	},
+	':disabled': {
+		opacity: 0.5,
+		cursor: 'not-allowed',
+		backgroundColor: vars.color.bg.primary,
+		borderColor: vars.color.border.primary,
+	},
+})
+
+export const paginationButtonActive = style({
+	backgroundColor: vars.color.primary.dark,
+	borderColor: vars.color.primary.dark,
+	color: vars.color.primary.main,
+	fontWeight: vars.fontWeight.bold,
+	':hover': {
+		backgroundColor: vars.color.primary.dark,
+		borderColor: vars.color.primary.dark,
+	},
+})
+
+export const paginationEllipsis = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	minWidth: '36px',
+	height: '36px',
+	fontSize: vars.fontSize.sm,
+	color: vars.color.text.secondary,
+	userSelect: 'none',
 })

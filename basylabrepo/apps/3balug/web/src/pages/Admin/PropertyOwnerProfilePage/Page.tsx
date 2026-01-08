@@ -146,9 +146,9 @@ export function PropertyOwnerProfilePage() {
 					<div className={styles.pageHeader}>
 						<div className={styles.pageHeaderLeft}>
 							<Link to="/property-owners" className={styles.backButton}>
-								<ArrowLeft size={18} />
-							</Link>
-							<h1 className={styles.pageTitle}>Proprietario</h1>
+							<ArrowLeft size={16} />
+							Voltar
+						</Link>
 						</div>
 					</div>
 					<div className={styles.errorContainer}>
@@ -180,9 +180,9 @@ export function PropertyOwnerProfilePage() {
 				<div className={styles.pageHeader}>
 					<div className={styles.pageHeaderLeft}>
 						<Link to="/property-owners" className={styles.backButton}>
-							<ArrowLeft size={18} />
+							<ArrowLeft size={16} />
+							Voltar
 						</Link>
-						<h1 className={styles.pageTitle}>Perfil do Proprietario</h1>
 					</div>
 					<div className={styles.pageHeaderRight}>
 						<Button variant="outline" size="small" onClick={handleEdit}>

@@ -14,6 +14,7 @@ interface TrueFocusProps {
   animationDuration?: number;
   pauseBetweenAnimations?: number;
   className?: string;
+  activeGradient?: string;
 }
 
 export const TrueFocus = ({
@@ -26,6 +27,7 @@ export const TrueFocus = ({
   animationDuration = 0.5,
   pauseBetweenAnimations = 1,
   className,
+  activeGradient,
 }: TrueFocusProps) => {
   const words = useMemo(() => sentence.split(separator), [sentence, separator]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -94,9 +96,16 @@ export const TrueFocus = ({
             style={
               {
                 filter: isActive ? "blur(0px)" : `blur(${blurAmount}px)`,
+                background:
+                  isActive && activeGradient ? activeGradient : undefined,
+                WebkitBackgroundClip:
+                  isActive && activeGradient ? "text" : undefined,
+                WebkitTextFillColor:
+                  isActive && activeGradient ? "transparent" : undefined,
+                backgroundClip: isActive && activeGradient ? "text" : undefined,
                 "--border-color": borderColor,
                 "--glow-color": glowColor,
-                transition: `filter ${animationDuration}s ease`,
+                transition: `filter ${animationDuration}s ease, background ${animationDuration}s ease`,
               } as React.CSSProperties
             }
             onMouseEnter={() => handleMouseEnter(index)}

@@ -23,9 +23,8 @@ export function JsonLd() {
       addressLocality: "Brasil",
     },
     sameAs: [
-      "https://www.linkedin.com/company/basylab",
       "https://github.com/basylab",
-      "https://instagram.com/basylab",
+      "https://www.instagram.com/basy.lab/",
     ],
     foundingDate: "2023",
     numberOfEmployees: {

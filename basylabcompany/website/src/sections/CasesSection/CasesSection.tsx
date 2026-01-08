@@ -198,6 +198,7 @@ export function CasesSection() {
                 blurAmount={4}
                 borderColor="#E7343A"
                 glowColor="rgba(231, 52, 58, 0.5)"
+                activeGradient="linear-gradient(135deg, #E7343A 0%, #FF6B6B 50%, #E7343A 100%)"
                 animationDuration={0.6}
                 pauseBetweenAnimations={1.5}
                 className={styles.trueFocus}

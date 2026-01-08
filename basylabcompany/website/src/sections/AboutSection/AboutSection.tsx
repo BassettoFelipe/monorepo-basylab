@@ -135,6 +135,7 @@ export function AboutSection() {
           height={900}
           className={styles.backgroundLogo}
           aria-hidden="true"
+          loading="lazy"
         />
         <div className={styles.gridPattern} />
       </div>
@@ -180,6 +181,7 @@ export function AboutSection() {
                   width={20}
                   height={20}
                   className={styles.quoteIcon}
+                  loading="lazy"
                 />
                 <span className={styles.quoteBrand}>Basylab</span>
               </div>

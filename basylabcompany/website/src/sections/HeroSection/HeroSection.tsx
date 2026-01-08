@@ -7,17 +7,13 @@ import { CountUp } from "@/components/CountUp/CountUp";
 import { GlowButton } from "@/components/GlowButton/GlowButton";
 import styles from "./HeroSection.module.css";
 
-// Hook to detect mobile/tablet devices
+// Hook to detect mobile/tablet devices - checks once on mount for performance
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    // Check once on mount - no resize listener for performance
+    setIsMobile(window.innerWidth < 768);
   }, []);
 
   return isMobile;
@@ -485,39 +481,29 @@ export function HeroSection() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [mouseX, mouseY, isMobile]);
 
-  // Memoize orb animations - full animation on desktop, light animation on mobile
+  // Memoize orb animations - only animate on desktop, static on mobile for performance
   const orbPrimaryAnimation = useMemo(
     () =>
-      prefersReducedMotion
+      prefersReducedMotion || isMobile
         ? {}
-        : shouldAnimate
-          ? {
-              scale: [1, 1.2, 1],
-              x: [0, 30, -20, 0],
-              y: [0, -20, 30, 0],
-            }
-          : {
-              // Light animation for mobile - just subtle opacity pulse
-              opacity: [1, 0.7, 1],
-            },
-    [shouldAnimate, prefersReducedMotion],
+        : {
+            scale: [1, 1.2, 1],
+            x: [0, 30, -20, 0],
+            y: [0, -20, 30, 0],
+          },
+    [isMobile, prefersReducedMotion],
   );
 
   const orbSecondaryAnimation = useMemo(
     () =>
-      prefersReducedMotion
+      prefersReducedMotion || isMobile
         ? {}
-        : shouldAnimate
-          ? {
-              scale: [1, 1.3, 1],
-              x: [0, -40, 20, 0],
-              y: [0, 40, -30, 0],
-            }
-          : {
-              // Light animation for mobile - just subtle opacity pulse
-              opacity: [1, 0.6, 1],
-            },
-    [shouldAnimate, prefersReducedMotion],
+        : {
+            scale: [1, 1.3, 1],
+            x: [0, -40, 20, 0],
+            y: [0, 40, -30, 0],
+          },
+    [isMobile, prefersReducedMotion],
   );
 
   return (
@@ -541,15 +527,15 @@ export function HeroSection() {
         {/* Only render particles on desktop */}
         {!isMobile && <FloatingParticles />}
 
-        {/* Gradient orbs - full animation on desktop, light pulse on mobile */}
+        {/* Gradient orbs - animated on desktop, static on mobile for performance */}
         <motion.div
           className={styles.orbPrimary}
           animate={orbPrimaryAnimation}
           transition={
-            prefersReducedMotion
+            prefersReducedMotion || isMobile
               ? undefined
               : {
-                  duration: shouldAnimate ? 10 : 6,
+                  duration: 10,
                   repeat: Number.POSITIVE_INFINITY,
                   ease: "easeInOut",
                 }
@@ -559,10 +545,10 @@ export function HeroSection() {
           className={styles.orbSecondary}
           animate={orbSecondaryAnimation}
           transition={
-            prefersReducedMotion
+            prefersReducedMotion || isMobile
               ? undefined
               : {
-                  duration: shouldAnimate ? 12 : 8,
+                  duration: 12,
                   repeat: Number.POSITIVE_INFINITY,
                   ease: "easeInOut",
                 }

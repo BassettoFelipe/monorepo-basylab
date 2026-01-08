@@ -30,13 +30,13 @@ export const dropZone = style({
 
 	':hover': {
 		borderColor: vars.color.primary.dark,
-		backgroundColor: '#fafff0',
+		backgroundColor: vars.color.bg.secondary,
 	},
 })
 
 export const dropZoneDragging = style({
 	borderColor: vars.color.primary.dark,
-	backgroundColor: '#fafff0',
+	backgroundColor: vars.color.bg.secondary,
 	transform: 'scale(1.01)',
 })
 

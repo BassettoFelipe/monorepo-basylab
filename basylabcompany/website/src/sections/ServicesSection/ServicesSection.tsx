@@ -38,6 +38,7 @@ export function ServicesSection() {
             height={200}
             className={styles.bgSymbolImage}
             aria-hidden="true"
+            loading="lazy"
           />
         </motion.div>
 

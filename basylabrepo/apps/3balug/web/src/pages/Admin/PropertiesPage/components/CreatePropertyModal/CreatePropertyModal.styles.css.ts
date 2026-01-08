@@ -680,7 +680,7 @@ export const photosHeaderIcon = style({
 	justifyContent: 'center',
 	width: '48px',
 	height: '48px',
-	backgroundColor: '#fafff0',
+	backgroundColor: vars.color.bg.secondary,
 	color: vars.color.primary.dark,
 	borderRadius: vars.borderRadius.md,
 })
@@ -721,8 +721,8 @@ export const photosTips = style({
 	flexDirection: 'column',
 	gap: vars.spacing.sm,
 	padding: vars.spacing.md,
-	backgroundColor: '#F0FDF4',
-	border: '1px solid #BBF7D0',
+	backgroundColor: vars.color.bg.secondary,
+	border: `1px solid ${vars.color.border.primary}`,
 	borderRadius: vars.borderRadius.md,
 })
 
@@ -731,11 +731,11 @@ export const photosTipItem = style({
 	alignItems: 'center',
 	gap: vars.spacing.sm,
 	fontSize: vars.fontSize.sm,
-	color: '#166534',
+	color: vars.color.text.primary,
 })
 
 export const photosTipIcon = style({
-	color: '#22C55E',
+	color: vars.color.success.main,
 	flexShrink: 0,
 })
 
@@ -774,13 +774,13 @@ export const publishHeader = style({
 	alignItems: 'center',
 	textAlign: 'center',
 	padding: vars.spacing.lg,
-	backgroundColor: 'linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%)',
+	backgroundColor: vars.color.bg.secondary,
 	borderRadius: vars.borderRadius.lg,
-	border: '1px solid #BBF7D0',
+	border: `1px solid ${vars.color.border.primary}`,
 })
 
 export const publishHeaderIcon = style({
-	color: '#22C55E',
+	color: vars.color.success.main,
 	marginBottom: vars.spacing.sm,
 })
 

@@ -24,7 +24,7 @@ const CASES: CaseStudy[] = [
     segment: "Alimentação",
     challenge: "Restaurantes sem presença digital e cardápios desatualizados",
     result: "Cardápio online e app personalizado para cada restaurante",
-    image: "/images/cases/dinefy.png",
+    image: "/images/cases/dinefy.webp",
     accentColor: "#3B9EFF",
   },
   {
@@ -33,7 +33,7 @@ const CASES: CaseStudy[] = [
     segment: "Educação",
     challenge: "Organização manual de cronogramas, salas e horários de aulas",
     result: "Sistema que gera automaticamente grades horárias otimizadas",
-    image: "/images/cases/gradely.png",
+    image: "/images/cases/gradely.webp",
     accentColor: "#22C55E",
   },
   {
@@ -44,7 +44,7 @@ const CASES: CaseStudy[] = [
       "Fluxos operacionais desorganizados e sem visibilidade em tempo real",
     result:
       "Sistema de logística interna com rastreabilidade e controle de rotas",
-    image: "/images/cases/intralog.png",
+    image: "/images/cases/intralog.webp",
     accentColor: "#F97316",
   },
 ];
@@ -91,6 +91,7 @@ function CaseCardImage({
       fill
       className={styles.cardImage}
       sizes="340px"
+      loading="lazy"
       onError={() => setHasError(true)}
     />
   );

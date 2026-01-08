@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Loader2, MapPin, Search, User } from 'lucide-react'
+import { Building2, Check, ChevronDown, Loader2, Mail, MapPin, Phone, Search, User } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Avatar } from '@/components/Avatar/Avatar'
@@ -239,79 +239,33 @@ export function OwnerSelect({
 
 			{error && <span className={styles.errorMessage}>{error}</span>}
 
-			{/* Preview Card */}
+			{/* Preview Card - Dados complementares */}
 			{selectedOwner && (
 				<div className={styles.previewCard}>
-					<div className={styles.previewTitle}>
-						<Check size={14} />
-						Proprietario selecionado
-					</div>
-					<div className={styles.previewHeader}>
-						<div className={styles.previewAvatarWrapper}>
-							<Avatar src={selectedOwner.photoUrl} name={selectedOwner.name} size="large" />
+					{selectedOwner.email && (
+						<div className={styles.previewMetaItem}>
+							<Mail size={14} className={styles.previewMetaIcon} />
+							<span>{selectedOwner.email}</span>
 						</div>
-						<div className={styles.previewInfo}>
-							<h3 className={styles.previewName}>{selectedOwner.name}</h3>
-							<div className={styles.previewDocument}>
-								<span className={styles.documentBadge}>
-									{selectedOwner.documentType.toUpperCase()}
-								</span>
-								{formatDocument(selectedOwner)}
-							</div>
+					)}
+					{selectedOwner.phone && (
+						<div className={styles.previewMetaItem}>
+							<Phone size={14} className={styles.previewMetaIcon} />
+							<span>{applyMask(selectedOwner.phone, 'phone')}</span>
 						</div>
-					</div>
-
-					<div className={styles.previewGrid}>
-						<div className={styles.previewItem}>
-							<span className={styles.previewLabel}>Email</span>
-							<span
-								className={`${styles.previewValue} ${!selectedOwner.email ? styles.previewValueEmpty : ''}`}
-							>
-								{selectedOwner.email || 'Nao informado'}
-							</span>
+					)}
+					{selectedOwner.city && (
+						<div className={styles.previewMetaItem}>
+							<MapPin size={14} className={styles.previewMetaIcon} />
+							<span>{selectedOwner.city}{selectedOwner.state ? ` - ${selectedOwner.state}` : ''}</span>
 						</div>
-						<div className={styles.previewItem}>
-							<span className={styles.previewLabel}>Telefone</span>
-							<span
-								className={`${styles.previewValue} ${!selectedOwner.phone ? styles.previewValueEmpty : ''}`}
-							>
-								{selectedOwner.phone ? applyMask(selectedOwner.phone, 'phone') : 'Nao informado'}
-							</span>
+					)}
+					{selectedOwner.propertiesCount !== undefined && (
+						<div className={styles.previewMetaItem}>
+							<Building2 size={14} className={styles.previewMetaIcon} />
+							<span>{selectedOwner.propertiesCount} {selectedOwner.propertiesCount === 1 ? 'imovel' : 'imoveis'}</span>
 						</div>
-						<div className={styles.previewItem}>
-							<span className={styles.previewLabel}>Cidade</span>
-							<span
-								className={`${styles.previewValue} ${!selectedOwner.city ? styles.previewValueEmpty : ''}`}
-							>
-								{selectedOwner.city && selectedOwner.state
-									? `${selectedOwner.city} - ${selectedOwner.state}`
-									: selectedOwner.city || 'Nao informado'}
-							</span>
-						</div>
-						<div className={styles.previewItem}>
-							<span className={styles.previewLabel}>Bairro</span>
-							<span
-								className={`${styles.previewValue} ${!selectedOwner.neighborhood ? styles.previewValueEmpty : ''}`}
-							>
-								{selectedOwner.neighborhood || 'Nao informado'}
-							</span>
-						</div>
-						{selectedOwner.propertiesCount !== undefined && (
-							<div className={styles.previewItem}>
-								<span className={styles.previewLabel}>Imoveis cadastrados</span>
-								<span className={styles.previewValue}>
-									{selectedOwner.propertiesCount}{' '}
-									{selectedOwner.propertiesCount === 1 ? 'imovel' : 'imoveis'}
-								</span>
-							</div>
-						)}
-						{selectedOwner.profession && (
-							<div className={styles.previewItem}>
-								<span className={styles.previewLabel}>Profissao</span>
-								<span className={styles.previewValue}>{selectedOwner.profession}</span>
-							</div>
-						)}
-					</div>
+					)}
 				</div>
 			)}
 		</div>

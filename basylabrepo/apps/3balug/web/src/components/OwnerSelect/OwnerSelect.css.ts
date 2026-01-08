@@ -41,8 +41,8 @@ export const selectTrigger = style({
 	},
 	':focus': {
 		outline: 'none',
-		borderColor: vars.color.primary.main,
-		boxShadow: '0 0 0 2px rgba(230, 255, 75, 0.3)',
+		borderColor: vars.color.primary.dark,
+		boxShadow: '0 0 0 2px rgba(67, 77, 0, 0.15)',
 	},
 })
 
@@ -66,8 +66,8 @@ export const selectTriggerDisabled = style({
 })
 
 export const selectTriggerOpen = style({
-	borderColor: vars.color.primary.main,
-	boxShadow: '0 0 0 2px rgba(230, 255, 75, 0.3)',
+	borderColor: vars.color.primary.dark,
+	boxShadow: '0 0 0 2px rgba(67, 77, 0, 0.15)',
 })
 
 export const placeholder = style({
@@ -155,7 +155,7 @@ export const searchInput = style({
 	transition: `all ${vars.transitionDuration.base}`,
 	':focus': {
 		outline: 'none',
-		borderColor: vars.color.primary.main,
+		borderColor: vars.color.primary.dark,
 		backgroundColor: vars.color.bg.primary,
 	},
 	'::placeholder': {
@@ -200,9 +200,9 @@ export const optionItem = style({
 })
 
 export const optionItemSelected = style({
-	backgroundColor: 'rgba(230, 255, 75, 0.2)',
+	backgroundColor: vars.color.bg.secondary,
 	':hover': {
-		backgroundColor: 'rgba(230, 255, 75, 0.2)',
+		backgroundColor: vars.color.bg.secondary,
 	},
 })
 
@@ -238,7 +238,7 @@ export const optionMetaItem = style({
 })
 
 export const checkIcon = style({
-	color: vars.color.primary.main,
+	color: vars.color.primary.dark,
 	flexShrink: 0,
 })
 
@@ -249,22 +249,24 @@ export const noResults = style({
 	fontSize: vars.fontSize.sm,
 })
 
-// Preview card
+// Preview card - Compact inline design
 export const previewCard = style({
-	marginTop: vars.spacing.md,
-	padding: vars.spacing.lg,
+	marginTop: vars.spacing.xs,
+	padding: `${vars.spacing.sm} ${vars.spacing.md}`,
 	backgroundColor: vars.color.bg.secondary,
-	border: `1px solid ${vars.color.border.primary}`,
-	borderRadius: vars.borderRadius.lg,
+	borderRadius: vars.borderRadius.md,
+	display: 'flex',
+	alignItems: 'center',
+	flexWrap: 'wrap',
+	gap: vars.spacing.md,
 })
 
 export const previewHeader = style({
 	display: 'flex',
-	alignItems: 'flex-start',
-	gap: vars.spacing.lg,
-	marginBottom: vars.spacing.lg,
-	paddingBottom: vars.spacing.md,
-	borderBottom: `1px solid ${vars.color.border.primary}`,
+	alignItems: 'center',
+	gap: vars.spacing.md,
+	flex: 1,
+	minWidth: 0,
 })
 
 export const previewAvatarWrapper = style({
@@ -274,20 +276,23 @@ export const previewAvatarWrapper = style({
 export const previewInfo = style({
 	display: 'flex',
 	flexDirection: 'column',
-	gap: vars.spacing.xs,
+	gap: '2px',
 	flex: 1,
 	minWidth: 0,
 })
 
 export const previewName = style({
-	fontSize: vars.fontSize.lg,
+	fontSize: vars.fontSize.sm,
 	fontWeight: vars.fontWeight.bold,
 	color: vars.color.text.primary,
 	margin: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
 })
 
 export const previewDocument = style({
-	fontSize: vars.fontSize.sm,
+	fontSize: vars.fontSize.xs,
 	color: vars.color.text.secondary,
 	display: 'flex',
 	alignItems: 'center',
@@ -297,13 +302,39 @@ export const previewDocument = style({
 export const documentBadge = style({
 	display: 'inline-flex',
 	alignItems: 'center',
-	padding: `2px ${vars.spacing.sm}`,
-	backgroundColor: 'rgba(230, 255, 75, 0.3)',
-	color: vars.color.primary.dark,
-	fontSize: vars.fontSize.xs,
+	padding: `1px ${vars.spacing.xs}`,
+	backgroundColor: vars.color.bg.secondary,
+	color: vars.color.text.secondary,
+	fontSize: '10px',
 	fontWeight: vars.fontWeight.medium,
 	borderRadius: vars.borderRadius.sm,
 	textTransform: 'uppercase',
+})
+
+export const previewMeta = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: vars.spacing.md,
+	flexShrink: 0,
+
+	'@media': {
+		'(max-width: 600px)': {
+			display: 'none',
+		},
+	},
+})
+
+export const previewMetaItem = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: vars.spacing.xs,
+	fontSize: vars.fontSize.xs,
+	color: vars.color.text.secondary,
+})
+
+export const previewMetaIcon = style({
+	color: vars.color.primary.dark,
+	flexShrink: 0,
 })
 
 export const previewGrid = style({
@@ -353,6 +384,18 @@ export const previewTitle = style({
 	display: 'flex',
 	alignItems: 'center',
 	gap: vars.spacing.xs,
+})
+
+export const previewCheckBadge = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	width: '20px',
+	height: '20px',
+	backgroundColor: vars.color.success.main,
+	color: vars.color.neutral.white,
+	borderRadius: vars.borderRadius.full,
+	flexShrink: 0,
 })
 
 // Error message

@@ -367,6 +367,7 @@ export function TechSection() {
                     width={36}
                     height={36}
                     className={styles.orbitCenterLogo}
+                    loading="lazy"
                   />
                 </motion.div>
               </div>

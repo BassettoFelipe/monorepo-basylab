@@ -24,14 +24,14 @@ const processSteps = [
     id: "build",
     number: "03",
     title: "Construção",
-    description: "Desenvolvimento iterativo com entregas constantes",
+    description: "Desenvolvimento iterativo com\nentregas constantes",
     detail: "Sprints semanais, demos, ajustes",
   },
   {
     id: "launch",
     number: "04",
     title: "Lançamento",
-    description: "Deploy, monitoramento e suporte pós-entrega",
+    description: "Deploy, monitoramento e\nsuporte pós-entrega",
     detail: "CI/CD, observabilidade, manutenção",
   },
 ];
@@ -182,7 +182,7 @@ export function ProcessSection() {
         >
           <div className={styles.ctaLine} />
           <p className={styles.ctaText}>
-            Tempo médio de entrega: <strong>4-12 semanas</strong>
+            Tempo médio de entrega: <strong>4-16 semanas</strong>
           </p>
           <div className={styles.ctaLine} />
         </motion.div>

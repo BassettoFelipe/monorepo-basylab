@@ -1,167 +1,127 @@
 .wrapper {
-  display: inline-block;
-  position: relative;
+    display: inline-block;
+    position: relative;
 }
 
 .button {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 1rem 2rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  text-decoration: none;
-  border-radius: 14px;
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    padding: 0.875rem 1.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    border-radius: 4px;
+    overflow: hidden;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    font-family: var(--font-mono), ui-monospace, monospace;
+    text-transform: lowercase;
 }
 
 /* Primary Button */
 .primary {
-  background: linear-gradient(135deg, var(--color-brand-primary) 0%, #c41e24 100%);
-  color: white;
-  border: none;
-  box-shadow:
-    0 4px 15px rgba(231, 52, 58, 0.3),
-    0 1px 3px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    background: var(--color-brand-primary);
+    color: white;
+    border: 1px solid var(--color-brand-primary);
 }
 
 .primary::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
-  border-radius: inherit;
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to right,
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 100%
+    );
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
 }
 
 .primary:hover {
-  background: linear-gradient(135deg, #f04048 0%, var(--color-brand-primary) 100%);
-  box-shadow:
-    0 8px 30px rgba(231, 52, 58, 0.5),
-    0 4px 12px rgba(231, 52, 58, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
+    background: transparent;
+    color: var(--color-brand-primary);
+    box-shadow: 0 0 20px rgba(231, 52, 58, 0.3);
+}
+
+.primary:hover::before {
+    transform: translateX(100%);
 }
 
 .primary:active {
-  transform: translateY(0);
-  box-shadow:
-    0 2px 10px rgba(231, 52, 58, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: scale(0.98);
 }
 
 .glow {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.4) 50%,
-    transparent 100%
-  );
-  transform: translateX(-100%) skewX(-15deg);
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.primary:hover .glow {
-  transform: translateX(100%) skewX(-15deg);
+    display: none;
 }
 
 /* Secondary Button */
 .secondary {
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--color-neutral-300);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(12px);
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .secondary::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: white;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
 }
 
 .secondary:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.06);
-  color: white;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.4);
 }
 
 .secondary:hover::before {
-  opacity: 1;
+    transform: scaleX(1);
+    transform-origin: left;
 }
 
 .secondary:active {
-  transform: translateY(0);
-  background: rgba(255, 255, 255, 0.08);
+    transform: scale(0.98);
 }
 
-/* Animated border for secondary */
 .secondary::after {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.2) 0%,
-    transparent 40%,
-    transparent 60%,
-    rgba(255, 255, 255, 0.1) 100%
-  );
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-
-.secondary:hover::after {
-  opacity: 1;
+    display: none;
 }
 
 .text {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 /* Icon animation */
 .icon {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .button:hover .icon {
-  transform: translateX(3px);
+    transform: translateX(3px);
 }
 
 /* Focus states for accessibility */
 .button:focus-visible {
-  outline: 2px solid var(--color-brand-primary);
-  outline-offset: 3px;
+    outline: 2px solid var(--color-brand-primary);
+    outline-offset: 3px;
 }
 
 .secondary:focus-visible {
-  outline-color: rgba(255, 255, 255, 0.5);
+    outline-color: rgba(255, 255, 255, 0.5);
 }

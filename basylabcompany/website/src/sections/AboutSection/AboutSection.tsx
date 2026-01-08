@@ -143,7 +143,7 @@ export function AboutSection() {
 
             <p className={styles.description}>
               A Basylab nasceu da frustração com software mal feito. Escolhemos
-              qualidade técnica ao invés de escala — cada projeto recebe
+              qualidade técnica ao invés de escala. Cada projeto recebe
               dedicação total, do início ao deploy.
             </p>
 

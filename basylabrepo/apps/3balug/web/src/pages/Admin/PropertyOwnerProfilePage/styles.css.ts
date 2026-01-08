@@ -2,51 +2,71 @@ import { style } from '@vanilla-extract/css'
 import { vars } from '@/design-system/theme.css'
 
 export const container = style({
-	maxWidth: '1200px',
+	maxWidth: '1000px',
 	margin: '0 auto',
 })
 
-export const backLink = style({
+// Page Header
+export const pageHeader = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'space-between',
+	marginBottom: vars.spacing.lg,
+	gap: vars.spacing.md,
+})
+
+export const pageHeaderLeft = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: vars.spacing.sm,
+})
+
+export const backButton = style({
 	display: 'inline-flex',
 	alignItems: 'center',
-	gap: vars.spacing.xs,
+	justifyContent: 'center',
+	width: '32px',
+	height: '32px',
+	borderRadius: vars.borderRadius.md,
+	backgroundColor: 'transparent',
 	color: vars.color.text.secondary,
-	fontSize: vars.fontSize.sm,
+	border: 'none',
+	cursor: 'pointer',
+	transition: `all ${vars.transitionDuration.fast}`,
 	textDecoration: 'none',
-	marginBottom: vars.spacing.lg,
-	transition: `color ${vars.transitionDuration.base}`,
 
 	':hover': {
+		backgroundColor: vars.color.bg.secondary,
 		color: vars.color.text.primary,
 	},
 })
 
-export const header = style({
-	display: 'flex',
-	justifyContent: 'space-between',
-	alignItems: 'flex-start',
-	marginBottom: vars.spacing.xl,
-	gap: vars.spacing.xl,
-	flexWrap: 'wrap',
-
-	'@media': {
-		'(max-width: 768px)': {
-			flexDirection: 'column',
-		},
-	},
+export const pageTitle = style({
+	fontSize: vars.fontSize.sm,
+	fontWeight: vars.fontWeight.medium,
+	color: vars.color.text.secondary,
+	margin: 0,
 })
 
-export const headerMain = style({
+export const pageHeaderRight = style({
 	display: 'flex',
 	alignItems: 'center',
-	gap: vars.spacing.xl,
-	flex: 1,
+	gap: vars.spacing.xs,
+})
+
+// Profile Header
+export const profileHeader = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: vars.spacing.lg,
+	marginBottom: vars.spacing.xl,
+	paddingBottom: vars.spacing.lg,
+	borderBottom: `1px solid ${vars.color.border.primary}`,
 
 	'@media': {
 		'(max-width: 640px)': {
 			flexDirection: 'column',
 			alignItems: 'flex-start',
-			gap: vars.spacing.lg,
 		},
 	},
 })
@@ -57,54 +77,24 @@ export const avatarContainer = style({
 })
 
 export const avatar = style({
-	width: '120px',
-	height: '120px',
+	width: '72px',
+	height: '72px',
 	borderRadius: vars.borderRadius.full,
 	objectFit: 'cover',
-	border: `4px solid ${vars.color.bg.primary}`,
-	boxShadow: vars.shadow.lg,
-
-	'@media': {
-		'(max-width: 640px)': {
-			width: '100px',
-			height: '100px',
-		},
-	},
 })
 
 export const avatarFallback = style({
-	width: '120px',
-	height: '120px',
+	width: '72px',
+	height: '72px',
 	borderRadius: vars.borderRadius.full,
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
-	fontSize: '40px',
+	fontSize: '24px',
 	fontWeight: vars.fontWeight.bold,
-	border: `4px solid ${vars.color.bg.primary}`,
-	boxShadow: vars.shadow.lg,
-
-	'@media': {
-		'(max-width: 640px)': {
-			width: '100px',
-			height: '100px',
-			fontSize: '32px',
-		},
-	},
 })
 
-export const statusIndicator = style({
-	position: 'absolute',
-	bottom: '8px',
-	right: '8px',
-	width: '24px',
-	height: '24px',
-	borderRadius: vars.borderRadius.full,
-	backgroundColor: '#22C55E',
-	border: `3px solid ${vars.color.bg.primary}`,
-})
-
-export const headerInfo = style({
+export const profileInfo = style({
 	flex: 1,
 	minWidth: 0,
 })
@@ -112,31 +102,23 @@ export const headerInfo = style({
 export const nameRow = style({
 	display: 'flex',
 	alignItems: 'center',
-	gap: vars.spacing.md,
-	flexWrap: 'wrap',
-	marginBottom: vars.spacing.sm,
+	gap: vars.spacing.sm,
+	marginBottom: vars.spacing.xs,
 })
 
 export const name = style({
-	fontSize: '28px',
+	fontSize: vars.fontSize.xl,
 	fontWeight: vars.fontWeight.bold,
 	color: vars.color.text.primary,
 	margin: 0,
-	lineHeight: 1.2,
-
-	'@media': {
-		'(max-width: 640px)': {
-			fontSize: '24px',
-		},
-	},
 })
 
 export const badge = style({
 	display: 'inline-flex',
 	alignItems: 'center',
-	padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
-	borderRadius: vars.borderRadius.full,
-	fontSize: vars.fontSize.xs,
+	padding: `2px ${vars.spacing.xs}`,
+	borderRadius: vars.borderRadius.sm,
+	fontSize: '10px',
 	fontWeight: vars.fontWeight.bold,
 	textTransform: 'uppercase',
 	letterSpacing: '0.5px',
@@ -152,55 +134,32 @@ export const badgeCnpj = style({
 	color: '#92400E',
 })
 
-export const document = style({
-	fontSize: vars.fontSize.base,
-	color: vars.color.text.secondary,
-	fontFamily: vars.fontFamily.mono,
-	marginBottom: vars.spacing.md,
-})
-
-export const quickStats = style({
-	display: 'flex',
-	gap: vars.spacing.xl,
-	flexWrap: 'wrap',
-})
-
-export const statItem = style({
+export const profileMeta = style({
 	display: 'flex',
 	alignItems: 'center',
-	gap: vars.spacing.sm,
-	color: vars.color.text.secondary,
+	gap: vars.spacing.lg,
 	fontSize: vars.fontSize.sm,
-})
-
-export const statIcon = style({
 	color: vars.color.text.secondary,
 })
 
-export const statValue = style({
-	fontWeight: vars.fontWeight.medium,
-	color: vars.color.text.primary,
-})
-
-export const headerActions = style({
+export const metaItem = style({
 	display: 'flex',
-	gap: vars.spacing.sm,
-	flexShrink: 0,
-
-	'@media': {
-		'(max-width: 768px)': {
-			width: '100%',
-		},
-	},
+	alignItems: 'center',
+	gap: vars.spacing.xs,
 })
 
+export const metaIcon = style({
+	color: vars.color.text.disabled,
+})
+
+// Content Layout
 export const content = style({
 	display: 'grid',
-	gridTemplateColumns: '1fr 380px',
+	gridTemplateColumns: '1fr 320px',
 	gap: vars.spacing.xl,
 
 	'@media': {
-		'(max-width: 968px)': {
+		'(max-width: 900px)': {
 			gridTemplateColumns: '1fr',
 		},
 	},
@@ -209,7 +168,7 @@ export const content = style({
 export const mainColumn = style({
 	display: 'flex',
 	flexDirection: 'column',
-	gap: vars.spacing.xl,
+	gap: vars.spacing.lg,
 })
 
 export const sideColumn = style({
@@ -218,259 +177,151 @@ export const sideColumn = style({
 	gap: vars.spacing.lg,
 })
 
+// Section
+export const section = style({
+	marginBottom: vars.spacing.xs,
+})
+
+export const sectionTitle = style({
+	fontSize: vars.fontSize.xs,
+	fontWeight: vars.fontWeight.medium,
+	color: vars.color.text.secondary,
+	textTransform: 'uppercase',
+	letterSpacing: '0.5px',
+	marginBottom: vars.spacing.sm,
+})
+
+// Info Grid
+export const infoGrid = style({
+	display: 'grid',
+	gridTemplateColumns: 'repeat(2, 1fr)',
+	gap: vars.spacing.sm,
+
+	'@media': {
+		'(max-width: 500px)': {
+			gridTemplateColumns: '1fr',
+		},
+	},
+})
+
+export const infoGridThree = style({
+	display: 'grid',
+	gridTemplateColumns: 'repeat(3, 1fr)',
+	gap: vars.spacing.sm,
+
+	'@media': {
+		'(max-width: 500px)': {
+			gridTemplateColumns: '1fr',
+		},
+	},
+})
+
+export const infoItem = style({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: '2px',
+	padding: vars.spacing.sm,
+	backgroundColor: vars.color.bg.secondary,
+	borderRadius: vars.borderRadius.md,
+})
+
+export const infoItemClickable = style({
+	cursor: 'pointer',
+	transition: `background-color ${vars.transitionDuration.fast}`,
+
+	':hover': {
+		backgroundColor: vars.color.bg.tertiary,
+	},
+})
+
+export const infoLabel = style({
+	fontSize: '11px',
+	color: vars.color.text.secondary,
+	textTransform: 'uppercase',
+	letterSpacing: '0.3px',
+})
+
+export const infoValue = style({
+	fontSize: vars.fontSize.sm,
+	fontWeight: vars.fontWeight.medium,
+	color: vars.color.text.primary,
+})
+
+export const infoValueMuted = style({
+	fontSize: vars.fontSize.sm,
+	color: vars.color.text.disabled,
+})
+
+export const infoValueLink = style({
+	fontSize: vars.fontSize.sm,
+	fontWeight: vars.fontWeight.medium,
+	color: vars.color.text.primary,
+	textDecoration: 'none',
+
+	':hover': {
+		color: vars.color.primary.dark,
+	},
+})
+
+// Card
 export const card = style({
 	backgroundColor: vars.color.bg.primary,
-	borderRadius: vars.borderRadius.xl,
+	borderRadius: vars.borderRadius.lg,
 	border: `1px solid ${vars.color.border.primary}`,
-	padding: vars.spacing.xl,
-	boxShadow: vars.shadow.sm,
+	padding: vars.spacing.md,
 })
 
 export const cardHeader = style({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'space-between',
-	marginBottom: vars.spacing.lg,
-	paddingBottom: vars.spacing.md,
-	borderBottom: `1px solid ${vars.color.border.primary}`,
+	marginBottom: vars.spacing.sm,
 })
 
 export const cardTitle = style({
-	display: 'flex',
-	alignItems: 'center',
-	gap: vars.spacing.sm,
-	fontSize: vars.fontSize.lg,
-	fontWeight: vars.fontWeight.bold,
-	color: vars.color.text.primary,
+	fontSize: vars.fontSize.xs,
+	fontWeight: vars.fontWeight.medium,
+	color: vars.color.text.secondary,
+	textTransform: 'uppercase',
+	letterSpacing: '0.5px',
 	margin: 0,
-})
-
-export const cardTitleIcon = style({
-	color: vars.color.primary.dark,
 })
 
 export const cardCount = style({
+	fontSize: '11px',
+	fontWeight: vars.fontWeight.bold,
+	color: vars.color.text.secondary,
 	backgroundColor: vars.color.bg.secondary,
-	color: vars.color.text.secondary,
-	fontSize: vars.fontSize.xs,
-	fontWeight: vars.fontWeight.medium,
-	padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
-	borderRadius: vars.borderRadius.full,
+	padding: `2px 6px`,
+	borderRadius: vars.borderRadius.sm,
 })
 
-// Contact Info Styles
-export const contactGrid = style({
-	display: 'grid',
-	gridTemplateColumns: 'repeat(2, 1fr)',
-	gap: vars.spacing.lg,
-
-	'@media': {
-		'(max-width: 640px)': {
-			gridTemplateColumns: '1fr',
-		},
-	},
-})
-
-export const contactItem = style({
-	display: 'flex',
-	alignItems: 'flex-start',
-	gap: vars.spacing.md,
-	padding: vars.spacing.md,
-	backgroundColor: vars.color.bg.secondary,
-	borderRadius: vars.borderRadius.lg,
-	transition: `all ${vars.transitionDuration.base}`,
-
-	':hover': {
-		backgroundColor: '#f0fdf4',
-	},
-})
-
-export const contactItemClickable = style({
-	cursor: 'pointer',
-	textDecoration: 'none',
-	color: 'inherit',
-
-	':hover': {
-		backgroundColor: '#f0fdf4',
-	},
-})
-
-export const contactIconWrapper = style({
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'center',
-	width: '44px',
-	height: '44px',
-	borderRadius: vars.borderRadius.lg,
-	backgroundColor: vars.color.bg.primary,
-	color: vars.color.primary.dark,
-	flexShrink: 0,
-	boxShadow: vars.shadow.xs,
-})
-
-export const contactInfo = style({
-	flex: 1,
-	minWidth: 0,
-})
-
-export const contactLabel = style({
-	fontSize: vars.fontSize.xs,
-	color: vars.color.text.secondary,
-	textTransform: 'uppercase',
-	letterSpacing: '0.5px',
-	marginBottom: vars.spacing.xs,
-})
-
-export const contactValue = style({
-	fontSize: vars.fontSize.base,
-	fontWeight: vars.fontWeight.medium,
-	color: vars.color.text.primary,
-	wordBreak: 'break-word',
-})
-
-export const contactValueMuted = style({
-	fontSize: vars.fontSize.base,
-	color: vars.color.text.secondary,
-	fontStyle: 'italic',
-})
-
-// Address Card Styles
-export const addressContent = style({
-	display: 'flex',
-	flexDirection: 'column',
-	gap: vars.spacing.lg,
-})
-
-export const addressMain = style({
-	display: 'flex',
-	alignItems: 'flex-start',
-	gap: vars.spacing.md,
-})
-
-export const addressIconWrapper = style({
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'center',
-	width: '48px',
-	height: '48px',
-	borderRadius: vars.borderRadius.lg,
-	backgroundColor: '#FEF3C7',
-	color: '#92400E',
-	flexShrink: 0,
-})
-
-export const addressInfo = style({
-	flex: 1,
-})
-
-export const addressLine = style({
-	fontSize: vars.fontSize.base,
-	color: vars.color.text.primary,
-	lineHeight: 1.6,
-	margin: 0,
-})
-
-export const addressSecondary = style({
-	fontSize: vars.fontSize.sm,
-	color: vars.color.text.secondary,
-	marginTop: vars.spacing.xs,
-})
-
-export const addressGrid = style({
-	display: 'grid',
-	gridTemplateColumns: 'repeat(3, 1fr)',
-	gap: vars.spacing.md,
-	paddingTop: vars.spacing.md,
-	borderTop: `1px solid ${vars.color.border.primary}`,
-
-	'@media': {
-		'(max-width: 640px)': {
-			gridTemplateColumns: 'repeat(2, 1fr)',
-		},
-	},
-})
-
-export const addressGridItem = style({
-	display: 'flex',
-	flexDirection: 'column',
-	gap: vars.spacing.xs,
-})
-
-export const addressGridLabel = style({
-	fontSize: vars.fontSize.xs,
-	color: vars.color.text.secondary,
-	textTransform: 'uppercase',
-	letterSpacing: '0.5px',
-})
-
-export const addressGridValue = style({
-	fontSize: vars.fontSize.sm,
-	fontWeight: vars.fontWeight.medium,
-	color: vars.color.text.primary,
-})
-
-// Personal Info Styles (for CPF only)
-export const personalGrid = style({
-	display: 'grid',
-	gridTemplateColumns: 'repeat(2, 1fr)',
-	gap: vars.spacing.lg,
-
-	'@media': {
-		'(max-width: 640px)': {
-			gridTemplateColumns: '1fr',
-		},
-	},
-})
-
-export const personalItem = style({
-	display: 'flex',
-	flexDirection: 'column',
-	gap: vars.spacing.xs,
-	padding: vars.spacing.md,
-	backgroundColor: vars.color.bg.secondary,
-	borderRadius: vars.borderRadius.lg,
-})
-
-export const personalLabel = style({
-	fontSize: vars.fontSize.xs,
-	color: vars.color.text.secondary,
-	textTransform: 'uppercase',
-	letterSpacing: '0.5px',
-})
-
-export const personalValue = style({
-	fontSize: vars.fontSize.base,
-	fontWeight: vars.fontWeight.medium,
-	color: vars.color.text.primary,
-})
-
-// Documents Grid Styles
+// Documents
 export const documentsGrid = style({
 	display: 'grid',
-	gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-	gap: vars.spacing.md,
+	gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+	gap: vars.spacing.sm,
 })
 
 export const documentCard = style({
 	display: 'flex',
 	flexDirection: 'column',
-	borderRadius: vars.borderRadius.lg,
+	borderRadius: vars.borderRadius.md,
 	border: `1px solid ${vars.color.border.primary}`,
 	overflow: 'hidden',
 	backgroundColor: vars.color.bg.primary,
-	transition: `all ${vars.transitionDuration.base}`,
+	transition: `all ${vars.transitionDuration.fast}`,
 
 	':hover': {
 		borderColor: vars.color.primary.main,
-		boxShadow: vars.shadow.md,
-		transform: 'translateY(-2px)',
+		boxShadow: vars.shadow.sm,
 	},
 })
 
 export const documentPreview = style({
 	position: 'relative',
 	width: '100%',
-	height: '140px',
+	height: '80px',
 	backgroundColor: vars.color.bg.secondary,
 	overflow: 'hidden',
 })
@@ -487,20 +338,20 @@ export const documentIconWrapper = style({
 	justifyContent: 'center',
 	width: '100%',
 	height: '100%',
-	backgroundColor: '#FEE2E2',
-	color: '#DC2626',
+	backgroundColor: vars.color.bg.secondary,
+	color: vars.color.text.disabled,
 })
 
 export const documentOverlay = style({
 	position: 'absolute',
 	inset: 0,
-	backgroundColor: 'rgba(0, 0, 0, 0.5)',
+	backgroundColor: 'rgba(0, 0, 0, 0.6)',
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
-	gap: vars.spacing.sm,
+	gap: vars.spacing.xs,
 	opacity: 0,
-	transition: `opacity ${vars.transitionDuration.base}`,
+	transition: `opacity ${vars.transitionDuration.fast}`,
 
 	selectors: {
 		[`${documentCard}:hover &`]: {
@@ -513,165 +364,77 @@ export const documentAction = style({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
-	width: '40px',
-	height: '40px',
+	width: '28px',
+	height: '28px',
 	borderRadius: vars.borderRadius.full,
 	backgroundColor: vars.color.bg.primary,
 	color: vars.color.text.primary,
 	border: 'none',
 	cursor: 'pointer',
-	transition: `all ${vars.transitionDuration.base}`,
+	transition: `transform ${vars.transitionDuration.fast}`,
 	textDecoration: 'none',
 
 	':hover': {
-		backgroundColor: vars.color.primary.main,
-		color: vars.color.primary.dark,
 		transform: 'scale(1.1)',
 	},
 })
 
 export const documentInfo = style({
-	padding: vars.spacing.md,
-	borderTop: `1px solid ${vars.color.border.primary}`,
+	padding: vars.spacing.xs,
 })
 
 export const documentName = style({
-	fontSize: vars.fontSize.sm,
+	fontSize: '11px',
 	fontWeight: vars.fontWeight.medium,
 	color: vars.color.text.primary,
-	marginBottom: vars.spacing.xs,
 	whiteSpace: 'nowrap',
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
 })
 
 export const documentType = style({
-	fontSize: vars.fontSize.xs,
+	fontSize: '10px',
 	color: vars.color.text.secondary,
 })
 
-export const emptyDocuments = style({
+export const emptyState = style({
 	display: 'flex',
 	flexDirection: 'column',
 	alignItems: 'center',
 	justifyContent: 'center',
-	padding: vars.spacing['2xl'],
-	backgroundColor: vars.color.bg.secondary,
-	borderRadius: vars.borderRadius.lg,
-	color: vars.color.text.secondary,
-	gap: vars.spacing.md,
+	padding: vars.spacing.lg,
+	color: vars.color.text.disabled,
+	gap: vars.spacing.xs,
 	textAlign: 'center',
 })
 
-export const emptyDocumentsIcon = style({
-	color: vars.color.text.disabled,
-})
-
-export const emptyDocumentsText = style({
-	fontSize: vars.fontSize.sm,
+export const emptyStateText = style({
+	fontSize: vars.fontSize.xs,
 	margin: 0,
 })
 
-// Notes Card Styles
+// Notes
 export const notesContent = style({
-	fontSize: vars.fontSize.base,
-	color: vars.color.text.primary,
-	lineHeight: 1.7,
-	whiteSpace: 'pre-wrap',
-	padding: vars.spacing.lg,
-	backgroundColor: vars.color.bg.secondary,
-	borderRadius: vars.borderRadius.lg,
-	borderLeft: `4px solid ${vars.color.primary.main}`,
-})
-
-export const emptyNotes = style({
 	fontSize: vars.fontSize.sm,
-	color: vars.color.text.secondary,
-	fontStyle: 'italic',
-	textAlign: 'center',
-	padding: vars.spacing.xl,
+	color: vars.color.text.primary,
+	lineHeight: 1.6,
+	whiteSpace: 'pre-wrap',
+	padding: vars.spacing.sm,
+	backgroundColor: vars.color.bg.secondary,
+	borderRadius: vars.borderRadius.md,
 })
 
-// Properties Card Styles
-export const propertiesList = style({
-	display: 'flex',
-	flexDirection: 'column',
-	gap: vars.spacing.md,
-})
-
-export const propertyItem = style({
+// Properties
+export const propertiesEmpty = style({
 	display: 'flex',
 	alignItems: 'center',
-	gap: vars.spacing.md,
+	justifyContent: 'center',
 	padding: vars.spacing.md,
 	backgroundColor: vars.color.bg.secondary,
-	borderRadius: vars.borderRadius.lg,
-	textDecoration: 'none',
-	color: 'inherit',
-	transition: `all ${vars.transitionDuration.base}`,
-
-	':hover': {
-		backgroundColor: '#f0fdf4',
-		transform: 'translateX(4px)',
-	},
-})
-
-export const propertyImage = style({
-	width: '60px',
-	height: '60px',
 	borderRadius: vars.borderRadius.md,
-	objectFit: 'cover',
-	flexShrink: 0,
-})
-
-export const propertyImageFallback = style({
-	width: '60px',
-	height: '60px',
-	borderRadius: vars.borderRadius.md,
-	backgroundColor: vars.color.bg.tertiary,
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'center',
 	color: vars.color.text.secondary,
-	flexShrink: 0,
-})
-
-export const propertyInfo = style({
-	flex: 1,
-	minWidth: 0,
-})
-
-export const propertyTitle = style({
 	fontSize: vars.fontSize.sm,
-	fontWeight: vars.fontWeight.medium,
-	color: vars.color.text.primary,
-	marginBottom: vars.spacing.xs,
-	whiteSpace: 'nowrap',
-	overflow: 'hidden',
-	textOverflow: 'ellipsis',
-})
-
-export const propertyAddress = style({
-	fontSize: vars.fontSize.xs,
-	color: vars.color.text.secondary,
-})
-
-export const propertyArrow = style({
-	color: vars.color.text.secondary,
-	flexShrink: 0,
-})
-
-export const emptyProperties = style({
-	display: 'flex',
-	flexDirection: 'column',
-	alignItems: 'center',
-	justifyContent: 'center',
-	padding: vars.spacing.xl,
-	backgroundColor: vars.color.bg.secondary,
-	borderRadius: vars.borderRadius.lg,
-	color: vars.color.text.secondary,
 	gap: vars.spacing.sm,
-	textAlign: 'center',
 })
 
 export const viewAllLink = style({
@@ -679,63 +442,37 @@ export const viewAllLink = style({
 	alignItems: 'center',
 	justifyContent: 'center',
 	gap: vars.spacing.xs,
-	padding: vars.spacing.md,
-	marginTop: vars.spacing.md,
-	borderRadius: vars.borderRadius.lg,
+	padding: vars.spacing.sm,
+	marginTop: vars.spacing.sm,
+	borderRadius: vars.borderRadius.md,
 	backgroundColor: vars.color.bg.secondary,
 	color: vars.color.primary.dark,
-	fontSize: vars.fontSize.sm,
+	fontSize: vars.fontSize.xs,
 	fontWeight: vars.fontWeight.medium,
 	textDecoration: 'none',
-	transition: `all ${vars.transitionDuration.base}`,
+	transition: `background-color ${vars.transitionDuration.fast}`,
 
 	':hover': {
-		backgroundColor: '#f0fdf4',
+		backgroundColor: vars.color.bg.tertiary,
 	},
 })
 
-// Metadata Styles
-export const metadataCard = style({
-	backgroundColor: vars.color.bg.secondary,
-	borderRadius: vars.borderRadius.lg,
-	padding: vars.spacing.lg,
-	border: `1px solid ${vars.color.border.primary}`,
-})
-
-export const metadataGrid = style({
-	display: 'grid',
-	gridTemplateColumns: 'repeat(2, 1fr)',
-	gap: vars.spacing.lg,
-
-	'@media': {
-		'(max-width: 400px)': {
-			gridTemplateColumns: '1fr',
-		},
-	},
+// Metadata
+export const metadataList = style({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: vars.spacing.xs,
 })
 
 export const metadataItem = style({
 	display: 'flex',
 	alignItems: 'center',
-	gap: vars.spacing.sm,
-})
-
-export const metadataIcon = style({
-	color: vars.color.text.secondary,
-})
-
-export const metadataInfo = style({
-	display: 'flex',
-	flexDirection: 'column',
-})
-
-export const metadataLabel = style({
+	justifyContent: 'space-between',
 	fontSize: vars.fontSize.xs,
 	color: vars.color.text.secondary,
 })
 
 export const metadataValue = style({
-	fontSize: vars.fontSize.sm,
 	fontWeight: vars.fontWeight.medium,
 	color: vars.color.text.primary,
 })
@@ -744,7 +481,7 @@ export const metadataValue = style({
 export const loadingContainer = style({
 	display: 'flex',
 	flexDirection: 'column',
-	gap: vars.spacing.xl,
+	gap: vars.spacing.lg,
 })
 
 export const errorContainer = style({
@@ -752,8 +489,8 @@ export const errorContainer = style({
 	flexDirection: 'column',
 	alignItems: 'center',
 	justifyContent: 'center',
-	minHeight: '400px',
-	gap: vars.spacing.lg,
+	minHeight: '300px',
+	gap: vars.spacing.md,
 	color: vars.color.text.secondary,
 	textAlign: 'center',
 })
@@ -763,15 +500,14 @@ export const errorIcon = style({
 })
 
 export const errorTitle = style({
-	fontSize: vars.fontSize.xl,
+	fontSize: vars.fontSize.lg,
 	fontWeight: vars.fontWeight.bold,
 	color: vars.color.text.primary,
 	margin: 0,
 })
 
 export const errorDescription = style({
-	fontSize: vars.fontSize.base,
+	fontSize: vars.fontSize.sm,
 	color: vars.color.text.secondary,
 	margin: 0,
-	maxWidth: '400px',
 })

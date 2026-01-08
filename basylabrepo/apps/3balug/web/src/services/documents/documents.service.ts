@@ -3,6 +3,7 @@ import type {
 	DeleteDocumentResponse,
 	DocumentEntityType,
 	DocumentType,
+	ListDeletedDocumentsResponse,
 	ListDocumentsResponse,
 	UploadDocumentResponse,
 } from '@/types/document.types'
@@ -12,6 +13,16 @@ export async function listDocuments(
 	entityId: string,
 ): Promise<ListDocumentsResponse> {
 	const response = await api.get<ListDocumentsResponse>(`/api/documents/${entityType}/${entityId}`)
+	return response.data
+}
+
+export async function listDeletedDocuments(
+	entityType: DocumentEntityType,
+	entityId: string,
+): Promise<ListDeletedDocumentsResponse> {
+	const response = await api.get<ListDeletedDocumentsResponse>(
+		`/api/documents/${entityType}/${entityId}/deleted`,
+	)
 	return response.data
 }
 

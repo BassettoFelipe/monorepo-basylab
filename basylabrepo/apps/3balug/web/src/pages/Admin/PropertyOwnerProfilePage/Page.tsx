@@ -27,15 +27,21 @@ import { Button } from '@/components/Button/Button'
 import { ConfirmDialog } from '@/components/ConfirmDialog/ConfirmDialog'
 import { Skeleton } from '@/components/Skeleton/Skeleton'
 import { AdminLayout } from '@/layouts/AdminLayout/AdminLayout'
-import { useDocumentsQuery } from '@/queries/documents/documents.queries'
+import { useDeletedDocumentsQuery, useDocumentsQuery } from '@/queries/documents/documents.queries'
+import { usePropertiesQuery } from '@/queries/properties/usePropertiesQuery'
 import { useDeletePropertyOwnerMutation } from '@/queries/property-owners/useDeletePropertyOwnerMutation'
 import { usePropertyOwnerQuery } from '@/queries/property-owners/usePropertyOwnerQuery'
-import { usePropertiesQuery } from '@/queries/properties/usePropertiesQuery'
 import { DOCUMENT_ENTITY_TYPES, DOCUMENT_TYPE_LABELS } from '@/types/document.types'
-import { MARITAL_STATUS_LABELS } from '@/types/property-owner.types'
 import type { Property, PropertyStatus } from '@/types/property.types'
+import { MARITAL_STATUS_LABELS } from '@/types/property-owner.types'
 import { getAvatarColor, getInitials } from '@/utils/avatar'
-import { formatCep, formatCurrencyFromCents, formatDateOrNull, formatDocument, formatPhone } from '@/utils/format'
+import {
+	formatCep,
+	formatCurrencyFromCents,
+	formatDateOrNull,
+	formatDocument,
+	formatPhone,
+} from '@/utils/format'
 import * as styles from './styles.css'
 
 // Alias para uso no componente onde esperamos null em vez de '-'
@@ -64,6 +70,7 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 type StatusFilter = 'all' | PropertyStatus
+type DocumentsFilter = 'active' | 'deleted'
 
 export function PropertyOwnerProfilePage() {
 	const { id } = useParams<{ id: string }>()
@@ -71,9 +78,15 @@ export function PropertyOwnerProfilePage() {
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
 	const [propertiesLimit, setPropertiesLimit] = useState(5)
+	const [documentsFilter, setDocumentsFilter] = useState<DocumentsFilter>('active')
 
 	const { data: owner, isLoading, error } = usePropertyOwnerQuery(id || '')
 	const { data: documentsData, isLoading: isLoadingDocs } = useDocumentsQuery(
+		DOCUMENT_ENTITY_TYPES.PROPERTY_OWNER,
+		id || '',
+		{ enabled: !!id },
+	)
+	const { data: deletedDocumentsData, isLoading: isLoadingDeletedDocs } = useDeletedDocumentsQuery(
 		DOCUMENT_ENTITY_TYPES.PROPERTY_OWNER,
 		id || '',
 		{ enabled: !!id },
@@ -165,17 +178,15 @@ export function PropertyOwnerProfilePage() {
 					<div className={styles.pageHeader}>
 						<div className={styles.pageHeaderLeft}>
 							<Link to="/property-owners" className={styles.backButton}>
-							<ArrowLeft size={16} />
-							Voltar
-						</Link>
+								<ArrowLeft size={16} />
+								Voltar
+							</Link>
 						</div>
 					</div>
 					<div className={styles.errorContainer}>
 						<UserX size={48} className={styles.errorIcon} />
 						<h2 className={styles.errorTitle}>Proprietario nao encontrado</h2>
-						<p className={styles.errorDescription}>
-							Este proprietario nao existe ou foi removido.
-						</p>
+						<p className={styles.errorDescription}>Este proprietario nao existe ou foi removido.</p>
 						<Button variant="outline" size="small" onClick={() => navigate('/property-owners')}>
 							Voltar para lista
 						</Button>
@@ -187,10 +198,11 @@ export function PropertyOwnerProfilePage() {
 
 	const avatarColor = getAvatarColor(owner.name)
 	const documents = documentsData?.data || []
+	const deletedDocuments = deletedDocumentsData?.data || []
 	const hasAddress = owner.address || owner.city || owner.state || owner.zipCode
-	const hasPersonalInfo = owner.documentType === 'cpf' && (
-		owner.rg || owner.nationality || owner.maritalStatus || owner.profession || owner.birthDate
-	)
+	const hasPersonalInfo =
+		owner.documentType === 'cpf' &&
+		(owner.rg || owner.nationality || owner.maritalStatus || owner.profession || owner.birthDate)
 
 	return (
 		<AdminLayout>
@@ -234,11 +246,15 @@ export function PropertyOwnerProfilePage() {
 						<div className={styles.profileInfo}>
 							<div className={styles.nameRow}>
 								<h2 className={styles.name}>{owner.name}</h2>
-								<span className={`${styles.badge} ${owner.documentType === 'cpf' ? styles.badgeCpf : styles.badgeCnpj}`}>
+								<span
+									className={`${styles.badge} ${owner.documentType === 'cpf' ? styles.badgeCpf : styles.badgeCnpj}`}
+								>
 									{owner.documentType.toUpperCase()}
 								</span>
 							</div>
-							<p className={styles.document}>{formatDocument(owner.document, owner.documentType)}</p>
+							<p className={styles.document}>
+								{formatDocument(owner.document, owner.documentType)}
+							</p>
 							<div className={styles.quickStats}>
 								<div className={styles.statItem}>
 									<Building2 size={14} className={styles.statIcon} />
@@ -512,7 +528,9 @@ export function PropertyOwnerProfilePage() {
 														<span className={styles.listingTypeBadge}>
 															{LISTING_TYPE_LABELS[property.listingType] || property.listingType}
 														</span>
-														<span className={`${styles.statusBadge} ${getStatusStyle(property.status)}`}>
+														<span
+															className={`${styles.statusBadge} ${getStatusStyle(property.status)}`}
+														>
 															{STATUS_LABELS[property.status] || property.status}
 														</span>
 													</div>
@@ -524,21 +542,27 @@ export function PropertyOwnerProfilePage() {
 														{property.bedrooms !== null && property.bedrooms > 0 && (
 															<div className={styles.propertyMetaItem}>
 																<Bed size={12} className={styles.propertyMetaIcon} />
-																<span className={styles.propertyMetaValue}>{property.bedrooms}</span>
+																<span className={styles.propertyMetaValue}>
+																	{property.bedrooms}
+																</span>
 																<span>quartos</span>
 															</div>
 														)}
 														{property.bathrooms !== null && property.bathrooms > 0 && (
 															<div className={styles.propertyMetaItem}>
 																<Bath size={12} className={styles.propertyMetaIcon} />
-																<span className={styles.propertyMetaValue}>{property.bathrooms}</span>
+																<span className={styles.propertyMetaValue}>
+																	{property.bathrooms}
+																</span>
 																<span>banheiros</span>
 															</div>
 														)}
 														{property.parkingSpaces !== null && property.parkingSpaces > 0 && (
 															<div className={styles.propertyMetaItem}>
 																<Car size={12} className={styles.propertyMetaIcon} />
-																<span className={styles.propertyMetaValue}>{property.parkingSpaces}</span>
+																<span className={styles.propertyMetaValue}>
+																	{property.parkingSpaces}
+																</span>
 																<span>vagas</span>
 															</div>
 														)}
@@ -591,12 +615,10 @@ export function PropertyOwnerProfilePage() {
 									</div>
 									{statusFilter === 'all' ? (
 										<>
-											<h4 className={styles.propertiesEmptyTitle}>
-												Nenhum imovel cadastrado
-											</h4>
+											<h4 className={styles.propertiesEmptyTitle}>Nenhum imovel cadastrado</h4>
 											<p className={styles.propertiesEmptyDescription}>
-												Este proprietario ainda nao possui imoveis vinculados.
-												Cadastre um novo imovel e vincule a este proprietario.
+												Este proprietario ainda nao possui imoveis vinculados. Cadastre um novo
+												imovel e vincule a este proprietario.
 											</p>
 										</>
 									) : (
@@ -605,8 +627,8 @@ export function PropertyOwnerProfilePage() {
 												Nenhum imovel {STATUS_LABELS[statusFilter]?.toLowerCase()}
 											</h4>
 											<p className={styles.propertiesEmptyDescription}>
-												Nao ha imoveis com o status "{STATUS_LABELS[statusFilter]}" para este proprietario.
-												Tente selecionar outro filtro.
+												Nao ha imoveis com o status "{STATUS_LABELS[statusFilter]}" para este
+												proprietario. Tente selecionar outro filtro.
 											</p>
 										</>
 									)}
@@ -617,64 +639,166 @@ export function PropertyOwnerProfilePage() {
 						{/* Documents Card */}
 						<div className={styles.card}>
 							<div className={styles.cardHeader}>
-								<h3 className={styles.cardTitle}>
-									<FolderOpen size={16} className={styles.cardTitleIcon} />
-									Documentos
-								</h3>
-								<span className={styles.cardCount}>{documents.length}</span>
-							</div>
-							{isLoadingDocs ? (
-								<div className={styles.documentsGrid}>
-									<Skeleton width="100%" height="100px" borderRadius="8px" />
-									<Skeleton width="100%" height="100px" borderRadius="8px" />
+								<div className={styles.documentsHistoryHeader}>
+									<h3 className={styles.cardTitle}>
+										<FolderOpen size={16} className={styles.cardTitleIcon} />
+										Documentos
+									</h3>
+									<div className={styles.documentsHistoryFilters}>
+										<button
+											type="button"
+											className={`${styles.filterButton} ${documentsFilter === 'active' ? styles.filterButtonActive : ''}`}
+											onClick={() => setDocumentsFilter('active')}
+										>
+											Ativos ({documents.length})
+										</button>
+										<button
+											type="button"
+											className={`${styles.filterButton} ${documentsFilter === 'deleted' ? styles.filterButtonActive : ''}`}
+											onClick={() => setDocumentsFilter('deleted')}
+										>
+											Excluidos ({deletedDocuments.length})
+										</button>
+									</div>
 								</div>
-							) : documents.length > 0 ? (
-								<div className={styles.documentsGrid}>
-									{documents.map((doc) => (
-										<div key={doc.id} className={styles.documentCard}>
-											<div className={styles.documentPreview}>
-												{isImageFile(doc.mimeType) ? (
-													<img src={doc.url} alt={doc.originalName} className={styles.documentImage} />
-												) : (
-													<div className={styles.documentIconWrapper}>
-														<FileText size={20} />
+								<span className={styles.cardCount}>
+									{documentsFilter === 'active' ? documents.length : deletedDocuments.length}
+								</span>
+							</div>
+
+							{/* Active Documents */}
+							{documentsFilter === 'active' &&
+								(isLoadingDocs ? (
+									<div className={styles.documentsGrid}>
+										<Skeleton width="100%" height="100px" borderRadius="8px" />
+										<Skeleton width="100%" height="100px" borderRadius="8px" />
+									</div>
+								) : documents.length > 0 ? (
+									<div className={styles.documentsGrid}>
+										{documents.map((doc) => (
+											<div key={doc.id} className={styles.documentCard}>
+												<div className={styles.documentPreview}>
+													{isImageFile(doc.mimeType) ? (
+														<img
+															src={doc.url}
+															alt={doc.originalName}
+															className={styles.documentImage}
+														/>
+													) : (
+														<div className={styles.documentIconWrapper}>
+															<FileText size={20} />
+														</div>
+													)}
+													<div className={styles.documentOverlay}>
+														<a
+															href={doc.url}
+															target="_blank"
+															rel="noopener noreferrer"
+															className={styles.documentAction}
+														>
+															<ExternalLink size={12} />
+														</a>
+														<a
+															href={doc.url}
+															download={doc.originalName}
+															className={styles.documentAction}
+														>
+															<Download size={12} />
+														</a>
 													</div>
-												)}
-												<div className={styles.documentOverlay}>
-													<a
-														href={doc.url}
-														target="_blank"
-														rel="noopener noreferrer"
-														className={styles.documentAction}
-													>
-														<ExternalLink size={12} />
-													</a>
-													<a
-														href={doc.url}
-														download={doc.originalName}
-														className={styles.documentAction}
-													>
-														<Download size={12} />
-													</a>
+												</div>
+												<div className={styles.documentInfo}>
+													<p className={styles.documentName} title={doc.originalName}>
+														{doc.originalName}
+													</p>
+													<p className={styles.documentType}>
+														{DOCUMENT_TYPE_LABELS[
+															doc.documentType as keyof typeof DOCUMENT_TYPE_LABELS
+														] || doc.documentType}
+													</p>
 												</div>
 											</div>
-											<div className={styles.documentInfo}>
-												<p className={styles.documentName} title={doc.originalName}>
-													{doc.originalName}
-												</p>
-												<p className={styles.documentType}>
-													{DOCUMENT_TYPE_LABELS[doc.documentType as keyof typeof DOCUMENT_TYPE_LABELS] || doc.documentType}
-												</p>
+										))}
+									</div>
+								) : (
+									<div className={styles.emptyState}>
+										<FolderOpen size={20} />
+										<p className={styles.emptyStateText}>Nenhum documento</p>
+									</div>
+								))}
+
+							{/* Deleted Documents */}
+							{documentsFilter === 'deleted' &&
+								(isLoadingDeletedDocs ? (
+									<div className={styles.documentsGrid}>
+										<Skeleton width="100%" height="100px" borderRadius="8px" />
+										<Skeleton width="100%" height="100px" borderRadius="8px" />
+									</div>
+								) : deletedDocuments.length > 0 ? (
+									<div className={styles.documentsGrid}>
+										{deletedDocuments.map((doc) => (
+											<div key={doc.id} className={styles.deletedDocumentCard}>
+												<div className={styles.deletedBadge}>
+													<Trash2 size={10} />
+													Excluido
+												</div>
+												<div className={styles.documentPreview}>
+													{isImageFile(doc.mimeType) ? (
+														<img
+															src={doc.url}
+															alt={doc.originalName}
+															className={styles.documentImage}
+														/>
+													) : (
+														<div className={styles.documentIconWrapper}>
+															<FileText size={20} />
+														</div>
+													)}
+													<div className={styles.documentOverlay}>
+														<a
+															href={doc.url}
+															target="_blank"
+															rel="noopener noreferrer"
+															className={styles.documentAction}
+														>
+															<ExternalLink size={12} />
+														</a>
+														<a
+															href={doc.url}
+															download={doc.originalName}
+															className={styles.documentAction}
+														>
+															<Download size={12} />
+														</a>
+													</div>
+												</div>
+												<div className={styles.documentInfo}>
+													<p className={styles.documentName} title={doc.originalName}>
+														{doc.originalName}
+													</p>
+													<p className={styles.documentType}>
+														{DOCUMENT_TYPE_LABELS[
+															doc.documentType as keyof typeof DOCUMENT_TYPE_LABELS
+														] || doc.documentType}
+													</p>
+												</div>
+												{doc.deletedAt && (
+													<div className={styles.deletedDocumentInfo}>
+														<div className={styles.deletedDocumentMeta}>
+															<Clock size={10} />
+															<span>Excluido em {formatDate(doc.deletedAt)}</span>
+														</div>
+													</div>
+												)}
 											</div>
-										</div>
-									))}
-								</div>
-							) : (
-								<div className={styles.emptyState}>
-									<FolderOpen size={20} />
-									<p className={styles.emptyStateText}>Nenhum documento</p>
-								</div>
-							)}
+										))}
+									</div>
+								) : (
+									<div className={styles.emptyState}>
+										<Trash2 size={20} />
+										<p className={styles.emptyStateText}>Nenhum documento excluido</p>
+									</div>
+								))}
 						</div>
 					</div>
 

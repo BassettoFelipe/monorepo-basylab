@@ -65,7 +65,14 @@ export class DocumentValidator {
 	): Promise<string> {
 		const normalized = this.validateDocument(value, type)
 
-		await this.validateDocumentUniqueness(normalized, companyId, repository, entityType, type, excludeId)
+		await this.validateDocumentUniqueness(
+			normalized,
+			companyId,
+			repository,
+			entityType,
+			type,
+			excludeId,
+		)
 
 		return normalized
 	}

@@ -1,5 +1,5 @@
-import { getStorageService } from '@/services/storage'
 import { AddDocumentUseCase } from '@/use-cases/documents/add-document/add-document.use-case'
+import { ListDeletedDocumentsUseCase } from '@/use-cases/documents/list-deleted-documents/list-deleted-documents.use-case'
 import { ListDocumentsUseCase } from '@/use-cases/documents/list-documents/list-documents.use-case'
 import { RemoveDocumentUseCase } from '@/use-cases/documents/remove-document/remove-document.use-case'
 import { repositories } from './repositories'
@@ -15,9 +15,13 @@ export function createDocumentUseCases() {
 			repositories.documentRepository,
 			repositories.propertyOwnerRepository,
 			repositories.tenantRepository,
-			getStorageService(),
 		),
 		list: new ListDocumentsUseCase(
+			repositories.documentRepository,
+			repositories.propertyOwnerRepository,
+			repositories.tenantRepository,
+		),
+		listDeleted: new ListDeletedDocumentsUseCase(
 			repositories.documentRepository,
 			repositories.propertyOwnerRepository,
 			repositories.tenantRepository,

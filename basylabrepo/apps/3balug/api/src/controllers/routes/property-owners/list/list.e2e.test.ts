@@ -596,7 +596,7 @@ describe('GET /property-owners - List Property Owners E2E', () => {
 			expect(status).toBe(200)
 			expect(data?.data.length).toBe(3)
 			// Verifica que os dados estao ordenados por createdAt descendente
-			const dates = data?.data.map((d: { createdAt: string }) => new Date(d.createdAt).getTime())
+			const dates = data?.data.map((d) => new Date(d.createdAt).getTime())
 			for (let i = 1; i < dates!.length; i++) {
 				expect(dates![i]).toBeLessThanOrEqual(dates![i - 1])
 			}

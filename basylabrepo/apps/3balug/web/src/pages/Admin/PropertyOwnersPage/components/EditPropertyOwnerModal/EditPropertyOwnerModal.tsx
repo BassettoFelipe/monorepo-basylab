@@ -29,9 +29,9 @@ import { Select } from '@/components/Select/Select'
 import { Skeleton } from '@/components/Skeleton/Skeleton'
 import { Textarea } from '@/components/Textarea/Textarea'
 import {
+	useDeleteDocumentMutation,
 	useDocumentsQuery,
 	useUploadDocumentMutation,
-	useDeleteDocumentMutation,
 } from '@/queries/documents/documents.queries'
 import { useUpdatePropertyOwnerMutation } from '@/queries/property-owners/useUpdatePropertyOwnerMutation'
 import { uploadWithPresignedUrl } from '@/services/files/upload'
@@ -314,7 +314,7 @@ export function EditPropertyOwnerModal({
 				}
 			}
 			// Nao revogar photoPreview se for URL existente (nao blob)
-			if (photoPreview && photoPreview.startsWith('blob:')) {
+			if (photoPreview?.startsWith('blob:')) {
 				URL.revokeObjectURL(photoPreview)
 			}
 			reset()
@@ -350,7 +350,7 @@ export function EditPropertyOwnerModal({
 			}
 
 			// Revogar preview anterior apenas se for blob
-			if (photoPreview && photoPreview.startsWith('blob:')) {
+			if (photoPreview?.startsWith('blob:')) {
 				URL.revokeObjectURL(photoPreview)
 			}
 
@@ -405,7 +405,7 @@ export function EditPropertyOwnerModal({
 	}, [])
 
 	const handleRemovePhoto = useCallback(() => {
-		if (photoPreview && photoPreview.startsWith('blob:')) {
+		if (photoPreview?.startsWith('blob:')) {
 			URL.revokeObjectURL(photoPreview)
 		}
 		setPhotoFile(null)
@@ -935,9 +935,7 @@ export function EditPropertyOwnerModal({
 			<div className={styles.documentsGrid}>
 				{[1, 2, 3, 4].map((i) => (
 					<div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-						<div
-							style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-						>
+						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 							<Skeleton width="80px" height="16px" />
 							<Skeleton width="100px" height="14px" />
 						</div>

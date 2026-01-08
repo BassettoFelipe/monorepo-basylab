@@ -5,7 +5,6 @@ import type { User } from '@/db/schema/users'
 import type { IDocumentRepository } from '@/repositories/contracts/document.repository'
 import type { IPropertyOwnerRepository } from '@/repositories/contracts/property-owner.repository'
 import type { ITenantRepository } from '@/repositories/contracts/tenant.repository'
-import type { IStorageService } from '@/services/storage'
 import type { UserRole } from '@/types/roles'
 import { USER_ROLES } from '@/types/roles'
 
@@ -26,7 +25,6 @@ export class RemoveDocumentUseCase {
 		private readonly documentRepository: IDocumentRepository,
 		private readonly propertyOwnerRepository: IPropertyOwnerRepository,
 		private readonly tenantRepository: ITenantRepository,
-		private readonly storageService: IStorageService,
 	) {}
 
 	async execute(input: RemoveDocumentInput): Promise<RemoveDocumentOutput> {
@@ -42,6 +40,11 @@ export class RemoveDocumentUseCase {
 
 		const document = await this.documentRepository.findById(documentId)
 		if (!document) {
+			throw new NotFoundError('Documento nao encontrado.')
+		}
+
+		// Verificar se documento ja foi excluido
+		if (document.deletedAt) {
 			throw new NotFoundError('Documento nao encontrado.')
 		}
 
@@ -68,16 +71,8 @@ export class RemoveDocumentUseCase {
 		}
 
 		try {
-			try {
-				await this.storageService.delete(document.filename)
-			} catch (storageError) {
-				logger.warn(
-					{ err: storageError, filename: document.filename },
-					'Erro ao remover arquivo do storage (continuando com remocao do registro)',
-				)
-			}
-
-			await this.documentRepository.delete(documentId)
+			// Soft delete - mantem o arquivo no storage para historico
+			await this.documentRepository.softDelete(documentId, { deletedBy: user.id })
 
 			logger.info(
 				{
@@ -86,7 +81,7 @@ export class RemoveDocumentUseCase {
 					entityId: document.entityId,
 					removedBy: user.id,
 				},
-				'Documento removido',
+				'Documento removido (soft delete)',
 			)
 
 			return {

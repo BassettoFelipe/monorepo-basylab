@@ -72,6 +72,7 @@ export class UpdateTenantUseCase {
 					updatedBy.companyId,
 					this.tenantRepository,
 					'um locatário',
+					'cpf',
 					input.id,
 				)
 			}

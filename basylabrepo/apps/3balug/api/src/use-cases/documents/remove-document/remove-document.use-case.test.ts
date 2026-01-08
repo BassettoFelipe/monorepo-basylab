@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, mock, test } from 'bun:test'
+import { beforeEach, describe, expect, test } from 'bun:test'
 import { ForbiddenError, InternalServerError, NotFoundError } from '@basylab/core/errors'
 import type { Company } from '@/db/schema/companies'
 import type { Document } from '@/db/schema/documents'
@@ -6,7 +6,6 @@ import { DOCUMENT_ENTITY_TYPES, DOCUMENT_TYPES } from '@/db/schema/documents'
 import type { PropertyOwner } from '@/db/schema/property-owners'
 import type { Tenant } from '@/db/schema/tenants'
 import type { User } from '@/db/schema/users'
-import type { IStorageService } from '@/services/storage'
 import {
 	InMemoryCompanyRepository,
 	InMemoryDocumentRepository,
@@ -24,7 +23,6 @@ describe('RemoveDocumentUseCase', () => {
 	let tenantRepository: InMemoryTenantRepository
 	let userRepository: InMemoryUserRepository
 	let companyRepository: InMemoryCompanyRepository
-	let mockStorageService: IStorageService
 
 	let company: Company
 	let ownerUser: User
@@ -42,41 +40,10 @@ describe('RemoveDocumentUseCase', () => {
 		userRepository = new InMemoryUserRepository()
 		companyRepository = new InMemoryCompanyRepository()
 
-		// Mock storage service
-		mockStorageService = {
-			upload: mock(() =>
-				Promise.resolve({
-					url: 'https://storage.example.com/file.pdf',
-					key: 'file.pdf',
-					size: 1024,
-					contentType: 'application/pdf',
-					bucket: 'test-bucket',
-				}),
-			),
-			delete: mock(() => Promise.resolve()),
-			getPublicUrl: mock(() => 'https://storage.example.com/public/file.pdf'),
-			exists: mock(() => Promise.resolve(true)),
-			getPresignedUploadUrl: mock(() =>
-				Promise.resolve({
-					url: 'https://storage.example.com/presigned/upload/file.pdf',
-					key: 'file.pdf',
-					expiresAt: new Date(),
-				}),
-			),
-			getPresignedDownloadUrl: mock(() =>
-				Promise.resolve({
-					url: 'https://storage.example.com/presigned/download/file.pdf',
-					key: 'file.pdf',
-					expiresAt: new Date(),
-				}),
-			),
-		}
-
 		useCase = new RemoveDocumentUseCase(
 			documentRepository,
 			propertyOwnerRepository,
 			tenantRepository,
-			mockStorageService,
 		)
 
 		// Create test data
@@ -148,7 +115,7 @@ describe('RemoveDocumentUseCase', () => {
 	})
 
 	describe('Casos de Sucesso', () => {
-		test('deve remover documento com sucesso', async () => {
+		test('deve remover documento com sucesso (soft delete)', async () => {
 			const result = await useCase.execute({
 				documentId: document.id,
 				user: ownerUser,
@@ -157,12 +124,18 @@ describe('RemoveDocumentUseCase', () => {
 			expect(result.success).toBe(true)
 			expect(result.message).toBe('Documento removido com sucesso.')
 
-			// Verify document was deleted
-			const deletedDoc = await documentRepository.findById(document.id)
-			expect(deletedDoc).toBe(null)
+			// Verify document was soft deleted (not visible in findById active filter)
+			const docs = await documentRepository.findByEntity(
+				DOCUMENT_ENTITY_TYPES.PROPERTY_OWNER,
+				propertyOwner.id,
+			)
+			expect(docs.find((d) => d.id === document.id)).toBeUndefined()
 
-			// Verify storage service was called
-			expect(mockStorageService.delete).toHaveBeenCalledWith('rg-123.pdf')
+			// Verify document still exists but with deletedAt set
+			const rawDoc = documentRepository.documents.get(document.id)
+			expect(rawDoc).toBeDefined()
+			expect(rawDoc?.deletedAt).not.toBeNull()
+			expect(rawDoc?.deletedBy).toBe(ownerUser.id)
 		})
 
 		test('deve permitir MANAGER remover documento', async () => {
@@ -173,8 +146,10 @@ describe('RemoveDocumentUseCase', () => {
 
 			expect(result.success).toBe(true)
 
-			const deletedDoc = await documentRepository.findById(document.id)
-			expect(deletedDoc).toBe(null)
+			// Verify soft delete
+			const rawDoc = documentRepository.documents.get(document.id)
+			expect(rawDoc?.deletedAt).not.toBeNull()
+			expect(rawDoc?.deletedBy).toBe(managerUser.id)
 		})
 
 		test('deve permitir BROKER remover documento de property owner criado por ele', async () => {
@@ -240,22 +215,6 @@ describe('RemoveDocumentUseCase', () => {
 			expect(result.success).toBe(true)
 		})
 
-		test('deve continuar a remoção mesmo se falhar ao remover do storage', async () => {
-			// Mock storage to fail
-			mockStorageService.delete = mock(() => Promise.reject(new Error('Storage error')))
-
-			const result = await useCase.execute({
-				documentId: document.id,
-				user: ownerUser,
-			})
-
-			expect(result.success).toBe(true)
-
-			// Document should still be deleted from database
-			const deletedDoc = await documentRepository.findById(document.id)
-			expect(deletedDoc).toBe(null)
-		})
-
 		test('deve remover múltiplos documentos sequencialmente', async () => {
 			const doc2 = await documentRepository.create({
 				companyId: company.id,
@@ -284,8 +243,11 @@ describe('RemoveDocumentUseCase', () => {
 			expect(result1.success).toBe(true)
 			expect(result2.success).toBe(true)
 
-			expect(await documentRepository.findById(document.id)).toBe(null)
-			expect(await documentRepository.findById(doc2.id)).toBe(null)
+			// Both should be soft deleted
+			const rawDoc1 = documentRepository.documents.get(document.id)
+			const rawDoc2 = documentRepository.documents.get(doc2.id)
+			expect(rawDoc1?.deletedAt).not.toBeNull()
+			expect(rawDoc2?.deletedAt).not.toBeNull()
 		})
 	})
 
@@ -444,11 +406,20 @@ describe('RemoveDocumentUseCase', () => {
 				user: ownerUser,
 			})
 
-			// Doc 1 should be deleted
-			expect(await documentRepository.findById(document.id)).toBe(null)
+			// Doc 1 should be soft deleted
+			const rawDoc1 = documentRepository.documents.get(document.id)
+			expect(rawDoc1?.deletedAt).not.toBeNull()
 
-			// Doc 2 should still exist
-			expect(await documentRepository.findById(doc2.id)).toBeDefined()
+			// Doc 2 should still be active (not deleted)
+			const rawDoc2 = documentRepository.documents.get(doc2.id)
+			expect(rawDoc2?.deletedAt).toBeNull()
+
+			// Doc 2 should still be visible in active documents
+			const activeDocs = await documentRepository.findByEntity(
+				DOCUMENT_ENTITY_TYPES.PROPERTY_OWNER,
+				propertyOwner.id,
+			)
+			expect(activeDocs.find((d) => d.id === doc2.id)).toBeDefined()
 		})
 	})
 })

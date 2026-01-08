@@ -84,6 +84,7 @@ export class UpdatePropertyOwnerUseCase {
 					updatedBy.companyId,
 					this.propertyOwnerRepository,
 					'um proprietário',
+					newDocumentType as 'cpf' | 'cnpj',
 					input.id,
 				)
 			}

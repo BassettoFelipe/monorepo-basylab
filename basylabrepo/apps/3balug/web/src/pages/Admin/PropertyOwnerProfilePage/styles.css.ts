@@ -997,6 +997,70 @@ export const propertyBadges = style({
 	flexWrap: 'wrap',
 })
 
+// Documents History Section
+export const documentsHistoryHeader = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'space-between',
+	gap: vars.spacing.md,
+	flexWrap: 'wrap',
+})
+
+export const documentsHistoryFilters = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: vars.spacing.xs,
+})
+
+export const deletedDocumentCard = style({
+	display: 'flex',
+	flexDirection: 'column',
+	borderRadius: vars.borderRadius.lg,
+	border: `1px solid ${vars.color.border.primary}`,
+	overflow: 'hidden',
+	backgroundColor: vars.color.bg.primary,
+	transition: `all ${vars.transitionDuration.fast}`,
+	opacity: 0.7,
+	position: 'relative',
+
+	':hover': {
+		opacity: 1,
+		borderColor: vars.color.error.main,
+		boxShadow: vars.shadow.md,
+	},
+})
+
+export const deletedBadge = style({
+	position: 'absolute',
+	top: vars.spacing.xs,
+	right: vars.spacing.xs,
+	display: 'flex',
+	alignItems: 'center',
+	gap: '4px',
+	padding: `2px ${vars.spacing.xs}`,
+	borderRadius: vars.borderRadius.sm,
+	backgroundColor: 'rgba(239, 68, 68, 0.9)',
+	color: '#fff',
+	fontSize: '9px',
+	fontWeight: vars.fontWeight.bold,
+	textTransform: 'uppercase',
+	zIndex: 1,
+})
+
+export const deletedDocumentInfo = style({
+	padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
+	borderTop: `1px dashed ${vars.color.border.primary}`,
+})
+
+export const deletedDocumentMeta = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: '4px',
+	fontSize: '9px',
+	color: vars.color.text.disabled,
+	marginTop: '4px',
+})
+
 // Empty State for Properties History
 export const propertiesEmptyState = style({
 	display: 'flex',

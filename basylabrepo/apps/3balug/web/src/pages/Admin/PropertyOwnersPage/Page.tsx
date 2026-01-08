@@ -304,7 +304,9 @@ export function PropertyOwnersPage() {
 							variant="outline"
 							size="small"
 							onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-							title={showAdvancedFilters ? 'Ocultar filtros avancados' : 'Mostrar filtros avancados'}
+							title={
+								showAdvancedFilters ? 'Ocultar filtros avancados' : 'Mostrar filtros avancados'
+							}
 						>
 							<Filter size={16} />
 							Filtros
@@ -314,7 +316,12 @@ export function PropertyOwnersPage() {
 							{showAdvancedFilters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
 						</Button>
 						{(search || activeFiltersCount > 0 || sortBy !== 'name' || sortOrder !== 'asc') && (
-							<Button variant="outline" size="small" onClick={clearAllFilters} title="Limpar filtros">
+							<Button
+								variant="outline"
+								size="small"
+								onClick={clearAllFilters}
+								title="Limpar filtros"
+							>
 								<RotateCcw size={16} />
 								Resetar
 							</Button>
@@ -487,14 +494,11 @@ export function PropertyOwnersPage() {
 						</thead>
 						<tbody>
 							{Array.from({ length: 5 }).map((_, index) => (
+								// biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton list with fixed order
 								<tr key={index} className={styles.tableRow}>
 									<td className={`${styles.tableCell} ${styles.colOwner}`}>
 										<div className={styles.ownerMainInfo}>
-											<Skeleton
-												width={40}
-												height={40}
-												variant="circular"
-											/>
+											<Skeleton width={40} height={40} variant="circular" />
 											<div className={styles.ownerInfo}>
 												<Skeleton width={140} height={14} variant="rounded" />
 												<div className={styles.ownerMeta}>
@@ -633,11 +637,7 @@ export function PropertyOwnersPage() {
 											<td className={`${styles.tableCell} ${styles.colOwner}`}>
 												<div className={styles.ownerMainInfo}>
 													{owner.photoUrl ? (
-														<img
-															src={owner.photoUrl}
-															alt={owner.name}
-															className={styles.avatar}
-														/>
+														<img src={owner.photoUrl} alt={owner.name} className={styles.avatar} />
 													) : (
 														<div
 															className={styles.avatarFallback}
@@ -654,9 +654,7 @@ export function PropertyOwnersPage() {
 														<div className={styles.ownerMeta}>
 															<span
 																className={`${styles.badge} ${
-																	owner.documentType === 'cpf'
-																		? styles.badgeCpf
-																		: styles.badgeCnpj
+																	owner.documentType === 'cpf' ? styles.badgeCpf : styles.badgeCnpj
 																}`}
 															>
 																{owner.documentType.toUpperCase()}
@@ -684,9 +682,7 @@ export function PropertyOwnersPage() {
 													{owner.phone ? (
 														<div className={styles.contactRow}>
 															<Phone size={14} className={styles.contactIcon} />
-															<span className={styles.contactText}>
-																{formatPhone(owner.phone)}
-															</span>
+															<span className={styles.contactText}>{formatPhone(owner.phone)}</span>
 														</div>
 													) : (
 														<div className={styles.contactRow}>
@@ -785,6 +781,7 @@ export function PropertyOwnersPage() {
 
 								{getPaginationPages(page, data.totalPages).map((pageNum, index) =>
 									pageNum === 'ellipsis' ? (
+										// biome-ignore lint/suspicious/noArrayIndexKey: Ellipsis items have no unique identifier
 										<span key={`ellipsis-${index}`} className={styles.paginationEllipsis}>
 											...
 										</span>

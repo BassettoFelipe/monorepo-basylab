@@ -80,11 +80,15 @@ export const documents = pgTable(
 			.notNull()
 			.references(() => users.id, { onDelete: 'restrict' }),
 		createdAt: timestamp('created_at').defaultNow().notNull(),
+		// Soft delete fields
+		deletedAt: timestamp('deleted_at'), // Data de exclusao (null = ativo)
+		deletedBy: uuid('deleted_by').references(() => users.id, { onDelete: 'set null' }), // Quem excluiu
 	},
 	(table) => [
 		index('documents_company_id_idx').on(table.companyId),
 		index('documents_entity_type_entity_id_idx').on(table.entityType, table.entityId),
 		index('documents_document_type_idx').on(table.documentType),
+		index('documents_deleted_at_idx').on(table.deletedAt),
 	],
 )
 

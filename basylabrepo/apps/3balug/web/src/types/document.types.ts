@@ -115,6 +115,11 @@ export interface Document {
 	createdAt: string
 }
 
+export interface DeletedDocument extends Document {
+	deletedAt: string | null
+	deletedBy: string | null
+}
+
 export interface UploadedFile {
 	url: string
 	key: string
@@ -126,6 +131,12 @@ export interface UploadedFile {
 export interface ListDocumentsResponse {
 	success: boolean
 	data: Document[]
+	total: number
+}
+
+export interface ListDeletedDocumentsResponse {
+	success: boolean
+	data: DeletedDocument[]
 	total: number
 }
 

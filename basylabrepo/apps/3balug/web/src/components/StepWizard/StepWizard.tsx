@@ -90,9 +90,7 @@ export function StepWizard({
 									{isCompleted ? <Check size={16} /> : index + 1}
 								</div>
 
-								<span
-									className={`${styles.stepLabel} ${isActive ? styles.stepLabelActive : ''}`}
-								>
+								<span className={`${styles.stepLabel} ${isActive ? styles.stepLabelActive : ''}`}>
 									{step.title}
 								</span>
 							</div>
@@ -121,10 +119,7 @@ export function StepWizard({
 								Passo {currentStep + 1} de {steps.length}
 							</span>
 							<div className={styles.progressBar}>
-								<div
-									className={styles.progressBarFill}
-									style={{ width: `${progress}%` }}
-								/>
+								<div className={styles.progressBarFill} style={{ width: `${progress}%` }} />
 							</div>
 						</>
 					)}

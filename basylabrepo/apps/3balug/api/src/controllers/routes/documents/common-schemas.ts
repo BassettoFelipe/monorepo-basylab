@@ -33,3 +33,19 @@ export const documentResponseSchema = t.Object({
 	description: t.Nullable(t.String()),
 	createdAt: t.Date(),
 })
+
+export const deletedDocumentResponseSchema = t.Object({
+	id: t.String(),
+	entityType: t.String(),
+	entityId: t.String(),
+	documentType: t.String(),
+	filename: t.String(),
+	originalName: t.String(),
+	mimeType: t.String(),
+	size: t.Number(),
+	url: t.String(),
+	description: t.Nullable(t.String()),
+	createdAt: t.Date(),
+	deletedAt: t.Nullable(t.Date()),
+	deletedBy: t.Nullable(t.String()),
+})

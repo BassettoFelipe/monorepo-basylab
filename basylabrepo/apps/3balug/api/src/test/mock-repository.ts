@@ -989,7 +989,7 @@ export class InMemoryPropertyOwnerRepository implements IPropertyOwnerRepository
 	}
 
 	async list(filters: PropertyOwnerFilters): Promise<PropertyOwnerListResult> {
-		let result: PropertyOwner[] = []
+		const result: PropertyOwner[] = []
 		for (const owner of this.owners.values()) {
 			if (owner.companyId === filters.companyId) {
 				if (filters.createdBy && owner.createdBy !== filters.createdBy) continue
@@ -1041,7 +1041,6 @@ export class InMemoryPropertyOwnerRepository implements IPropertyOwnerRepository
 					// Para testes mock, sempre 0
 					comparison = 0
 					break
-				case 'name':
 				default:
 					comparison = a.name.localeCompare(b.name)
 					break
@@ -1915,7 +1914,7 @@ export class InMemoryDocumentRepository implements IDocumentRepository {
 		const result: Document[] = []
 		for (const id of ids) {
 			const doc = this.documents.get(id)
-			if (doc) result.push(doc)
+			if (doc && doc.deletedAt === null) result.push(doc)
 		}
 		return result
 	}
@@ -1927,7 +1926,7 @@ export class InMemoryDocumentRepository implements IDocumentRepository {
 	): Promise<Document[]> {
 		const result: Document[] = []
 		for (const doc of this.documents.values()) {
-			if (doc.entityType === entityType && doc.entityId === entityId) {
+			if (doc.entityType === entityType && doc.entityId === entityId && doc.deletedAt === null) {
 				result.push(doc)
 			}
 		}
@@ -1952,7 +1951,8 @@ export class InMemoryDocumentRepository implements IDocumentRepository {
 			if (
 				doc.entityType === entityType &&
 				doc.entityId === entityId &&
-				doc.documentType === documentType
+				doc.documentType === documentType &&
+				doc.deletedAt === null
 			) {
 				result.push(doc)
 			}
@@ -1970,7 +1970,8 @@ export class InMemoryDocumentRepository implements IDocumentRepository {
 			if (
 				doc.entityType === entityType &&
 				entityIds.includes(doc.entityId) &&
-				doc.documentType === documentType
+				doc.documentType === documentType &&
+				doc.deletedAt === null
 			) {
 				if (!result.has(doc.entityId)) {
 					result.set(doc.entityId, [])
@@ -1979,6 +1980,41 @@ export class InMemoryDocumentRepository implements IDocumentRepository {
 			}
 		}
 		return result
+	}
+
+	async findDeletedByEntity(
+		entityType: DocumentEntityType,
+		entityId: string,
+		options?: { limit?: number; offset?: number },
+	): Promise<Document[]> {
+		const result: Document[] = []
+		for (const doc of this.documents.values()) {
+			if (doc.entityType === entityType && doc.entityId === entityId && doc.deletedAt !== null) {
+				result.push(doc)
+			}
+		}
+		const sorted = result.sort((a, b) => {
+			if (!a.deletedAt || !b.deletedAt) return 0
+			return b.deletedAt.getTime() - a.deletedAt.getTime()
+		})
+
+		if (options) {
+			const offset = options.offset ?? 0
+			const limit = options.limit
+			return limit ? sorted.slice(offset, offset + limit) : sorted.slice(offset)
+		}
+
+		return sorted
+	}
+
+	async countDeletedByEntity(entityType: DocumentEntityType, entityId: string): Promise<number> {
+		let count = 0
+		for (const doc of this.documents.values()) {
+			if (doc.entityType === entityType && doc.entityId === entityId && doc.deletedAt !== null) {
+				count++
+			}
+		}
+		return count
 	}
 
 	async create(data: NewDocument): Promise<Document> {
@@ -1996,6 +2032,8 @@ export class InMemoryDocumentRepository implements IDocumentRepository {
 			description: data.description ?? null,
 			uploadedBy: data.uploadedBy,
 			createdAt: new Date(),
+			deletedAt: null,
+			deletedBy: null,
 		}
 		this.documents.set(doc.id, doc)
 		return doc
@@ -2026,6 +2064,19 @@ export class InMemoryDocumentRepository implements IDocumentRepository {
 		return this.documents.delete(id)
 	}
 
+	async softDelete(id: string, input: { deletedBy: string }): Promise<Document | null> {
+		const existing = this.documents.get(id)
+		if (!existing) return null
+
+		const updated: Document = {
+			...existing,
+			deletedAt: new Date(),
+			deletedBy: input.deletedBy,
+		}
+		this.documents.set(id, updated)
+		return updated
+	}
+
 	async deleteMany(ids: string[]): Promise<string[]> {
 		const deleted: string[] = []
 		for (const id of ids) {
@@ -2050,7 +2101,7 @@ export class InMemoryDocumentRepository implements IDocumentRepository {
 	async countByEntity(entityType: DocumentEntityType, entityId: string): Promise<number> {
 		let count = 0
 		for (const doc of this.documents.values()) {
-			if (doc.entityType === entityType && doc.entityId === entityId) {
+			if (doc.entityType === entityType && doc.entityId === entityId && doc.deletedAt === null) {
 				count++
 			}
 		}
@@ -2067,7 +2118,8 @@ export class InMemoryDocumentRepository implements IDocumentRepository {
 			if (
 				doc.entityType === entityType &&
 				doc.entityId === entityId &&
-				doc.documentType === documentType
+				doc.documentType === documentType &&
+				doc.deletedAt === null
 			) {
 				count++
 			}

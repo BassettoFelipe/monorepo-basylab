@@ -28,7 +28,7 @@ describe('POST /files/presigned-url', () => {
 
 	describe('Authentication', () => {
 		it('should return 401 when no auth token provided', async () => {
-			const { status } = await client.files['presigned-url'].post({
+			const { status } = await client.api.files['presigned-url'].post({
 				fileName: 'test.pdf',
 				contentType: 'application/pdf',
 			})
@@ -37,7 +37,7 @@ describe('POST /files/presigned-url', () => {
 		})
 
 		it('should return 401 with invalid token', async () => {
-			const { status } = await client.files['presigned-url'].post(
+			const { status } = await client.api.files['presigned-url'].post(
 				{
 					fileName: 'test.pdf',
 					contentType: 'application/pdf',
@@ -57,7 +57,7 @@ describe('POST /files/presigned-url', () => {
 		it('should return 422 when fileName is missing', async () => {
 			const { token } = await createAuthenticatedUser()
 
-			const { status } = await client.files['presigned-url'].post(
+			const { status } = await client.api.files['presigned-url'].post(
 				{
 					contentType: 'application/pdf',
 				} as { fileName: string; contentType: string },
@@ -74,7 +74,7 @@ describe('POST /files/presigned-url', () => {
 		it('should return 422 when contentType is missing', async () => {
 			const { token } = await createAuthenticatedUser()
 
-			const { status } = await client.files['presigned-url'].post(
+			const { status } = await client.api.files['presigned-url'].post(
 				{
 					fileName: 'test.pdf',
 				} as { fileName: string; contentType: string },
@@ -93,7 +93,7 @@ describe('POST /files/presigned-url', () => {
 		it('should accept fieldId parameter', async () => {
 			const { token } = await createAuthenticatedUser()
 
-			const { status } = await client.files['presigned-url'].post(
+			const { status } = await client.api.files['presigned-url'].post(
 				{
 					fileName: 'test.pdf',
 					contentType: 'application/pdf',
@@ -112,7 +112,7 @@ describe('POST /files/presigned-url', () => {
 		it('should accept allowedTypes parameter', async () => {
 			const { token } = await createAuthenticatedUser()
 
-			const { status } = await client.files['presigned-url'].post(
+			const { status } = await client.api.files['presigned-url'].post(
 				{
 					fileName: 'test.pdf',
 					contentType: 'application/pdf',
@@ -133,7 +133,7 @@ describe('POST /files/presigned-url', () => {
 		it('should accept PDF content type', async () => {
 			const { token } = await createAuthenticatedUser()
 
-			const { status } = await client.files['presigned-url'].post(
+			const { status } = await client.api.files['presigned-url'].post(
 				{
 					fileName: 'document.pdf',
 					contentType: 'application/pdf',
@@ -154,7 +154,7 @@ describe('POST /files/presigned-url', () => {
 			const imageTypes = ['image/png', 'image/jpeg', 'image/webp']
 
 			for (const contentType of imageTypes) {
-				const { status } = await client.files['presigned-url'].post(
+				const { status } = await client.api.files['presigned-url'].post(
 					{
 						fileName: 'image.png',
 						contentType,

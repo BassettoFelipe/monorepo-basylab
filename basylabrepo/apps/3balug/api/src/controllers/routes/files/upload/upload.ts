@@ -6,7 +6,7 @@ import { UploadFileUseCase } from '@/use-cases/files/upload-file/upload-file.use
 import { uploadFileBodySchema, uploadFileResponseSchema } from './schema'
 
 export const uploadFileController = new Elysia().use(requireAuth).post(
-	'/upload',
+	'/files/upload',
 	async ({ userId, body }) => {
 		const { file, fieldId, maxFileSize, allowedTypes } = body
 

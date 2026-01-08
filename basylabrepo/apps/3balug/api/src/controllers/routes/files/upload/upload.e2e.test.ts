@@ -32,7 +32,7 @@ describe('POST /files/upload', () => {
 				type: 'text/plain',
 			})
 
-			const { status } = await client.files.upload.post({
+			const { status } = await client.api.files.upload.post({
 				file,
 			})
 
@@ -44,7 +44,7 @@ describe('POST /files/upload', () => {
 				type: 'text/plain',
 			})
 
-			const { status } = await client.files.upload.post(
+			const { status } = await client.api.files.upload.post(
 				{
 					file,
 				},
@@ -63,7 +63,7 @@ describe('POST /files/upload', () => {
 		it('should return 422 when no file provided', async () => {
 			const { token } = await createAuthenticatedUser()
 
-			const { status } = await client.files.upload.post({} as { file: File }, {
+			const { status } = await client.api.files.upload.post({} as { file: File }, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
@@ -80,7 +80,7 @@ describe('POST /files/upload', () => {
 				type: 'text/plain',
 			})
 
-			const { status } = await client.files.upload.post(
+			const { status } = await client.api.files.upload.post(
 				{
 					file,
 					fieldId: 'custom-field-id',
@@ -101,7 +101,7 @@ describe('POST /files/upload', () => {
 				type: 'text/plain',
 			})
 
-			const { status } = await client.files.upload.post(
+			const { status } = await client.api.files.upload.post(
 				{
 					file,
 					maxFileSize: 5,
@@ -122,7 +122,7 @@ describe('POST /files/upload', () => {
 				type: 'text/plain',
 			})
 
-			const { status } = await client.files.upload.post(
+			const { status } = await client.api.files.upload.post(
 				{
 					file,
 					allowedTypes: 'text/plain,application/pdf',

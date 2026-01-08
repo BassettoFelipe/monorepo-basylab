@@ -178,7 +178,7 @@ describe('CreatePropertyOwnerUseCase', () => {
 					document: '811.058.504-39',
 					createdBy: ownerUser,
 				}),
-			).rejects.toThrow('Já existe um proprietário cadastrado com este documento')
+			).rejects.toThrow('Já existe um proprietário cadastrado com este CPF na sua empresa.')
 		})
 
 		test('deve lançar erro quando CNPJ já existe na mesma empresa', async () => {
@@ -197,7 +197,7 @@ describe('CreatePropertyOwnerUseCase', () => {
 					document: '11.222.333/0001-81',
 					createdBy: ownerUser,
 				}),
-			).rejects.toThrow('Já existe um proprietário cadastrado com este documento')
+			).rejects.toThrow('Já existe um proprietário cadastrado com este CNPJ na sua empresa.')
 		})
 
 		test('deve permitir mesmo CPF em empresas diferentes', async () => {

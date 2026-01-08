@@ -326,7 +326,7 @@ describe('UpdatePropertyOwnerUseCase', () => {
 					document: '788.647.067-20',
 					updatedBy: ownerUser,
 				}),
-			).rejects.toThrow('Já existe um proprietário cadastrado com este documento')
+			).rejects.toThrow('Já existe um proprietário cadastrado com este CPF na sua empresa.')
 		})
 
 		test('deve lançar erro quando CNPJ já existe em outro proprietário', async () => {
@@ -345,7 +345,7 @@ describe('UpdatePropertyOwnerUseCase', () => {
 					document: '11.222.333/0001-81',
 					updatedBy: ownerUser,
 				}),
-			).rejects.toThrow('Já existe um proprietário cadastrado com este documento')
+			).rejects.toThrow('Já existe um proprietário cadastrado com este CNPJ na sua empresa.')
 		})
 
 		test('deve permitir manter o mesmo documento', async () => {

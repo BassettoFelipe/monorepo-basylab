@@ -6,7 +6,7 @@ import { GetPresignedUrlUseCase } from '@/use-cases/files/get-presigned-url/get-
 import { presignedUrlBodySchema, presignedUrlResponseSchema } from './schema'
 
 export const presignedUrlController = new Elysia().use(requireAuth).post(
-	'/presigned-url',
+	'/files/presigned-url',
 	async ({ userId, body }) => {
 		const { fileName, contentType, fieldId, allowedTypes } = body
 

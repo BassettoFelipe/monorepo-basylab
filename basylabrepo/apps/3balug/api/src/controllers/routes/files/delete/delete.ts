@@ -6,7 +6,7 @@ import { DeleteFileUseCase } from '@/use-cases/files/delete-file/delete-file.use
 import { deleteFileParamsSchema, deleteFileResponseSchema } from './schema'
 
 export const deleteFileController = new Elysia().use(requireAuth).delete(
-	'/:key',
+	'/files/:key',
 	async ({ userId, params }) => {
 		const key = decodeURIComponent(params.key)
 

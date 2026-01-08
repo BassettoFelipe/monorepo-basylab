@@ -28,14 +28,14 @@ describe('DELETE /files/:key', () => {
 
 	describe('Authentication', () => {
 		it('should return 401 when no auth token provided', async () => {
-			const { status } = await client.files({ key: 'test-file-key' }).delete()
+			const { status } = await client.api.files({ key: 'test-file-key' }).delete()
 
 			expect(status).toBe(401)
 		})
 
 		it('should return 401 with invalid token', async () => {
 			const authClient = createAuthenticatedClient('invalid-token')
-			const { status } = await authClient.files({ key: 'test-file-key' }).delete()
+			const { status } = await authClient.api.files({ key: 'test-file-key' }).delete()
 
 			expect(status).toBe(401)
 		})
@@ -46,7 +46,7 @@ describe('DELETE /files/:key', () => {
 			const { token } = await createAuthenticatedUser()
 
 			const authClient = createAuthenticatedClient(token)
-			const { status } = await authClient.files({ key: 'non-existent-file-key' }).delete()
+			const { status } = await authClient.api.files({ key: 'non-existent-file-key' }).delete()
 
 			expect([404, 500]).toContain(status)
 		})
@@ -56,7 +56,7 @@ describe('DELETE /files/:key', () => {
 			const encodedKey = encodeURIComponent('folder/subfolder/file.pdf')
 
 			const authClient = createAuthenticatedClient(token)
-			const { status } = await authClient.files({ key: encodedKey }).delete()
+			const { status } = await authClient.api.files({ key: encodedKey }).delete()
 
 			expect([200, 404, 500]).toContain(status)
 		})
@@ -67,7 +67,7 @@ describe('DELETE /files/:key', () => {
 			const { token } = await createAuthenticatedUser()
 
 			const authClient = createAuthenticatedClient(token)
-			const { error, status } = await authClient.files({ key: 'non-existent-key' }).delete()
+			const { error, status } = await authClient.api.files({ key: 'non-existent-key' }).delete()
 
 			if (status === 404 && error) {
 				expect(error.value).toHaveProperty('type')

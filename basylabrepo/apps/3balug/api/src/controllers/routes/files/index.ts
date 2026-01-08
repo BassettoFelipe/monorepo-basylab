@@ -3,7 +3,7 @@ import { deleteFileController } from './delete/delete'
 import { presignedUrlController } from './presigned-url/presigned-url'
 import { uploadFileController } from './upload/upload'
 
-export const filesController = new Elysia({ prefix: '/api/files' })
+export const filesController = new Elysia({ prefix: '/api' })
 	.use(uploadFileController)
 	.use(presignedUrlController)
 	.use(deleteFileController)

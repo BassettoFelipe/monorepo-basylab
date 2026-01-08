@@ -1,13 +1,4 @@
-import {
-	boolean,
-	index,
-	integer,
-	jsonb,
-	pgTable,
-	text,
-	timestamp,
-	uuid,
-} from 'drizzle-orm/pg-core'
+import { boolean, index, integer, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
 import { companies } from './companies'
 import { propertyOwners } from './property-owners'
 import { users } from './users'

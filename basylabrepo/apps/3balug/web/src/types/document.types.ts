@@ -36,6 +36,36 @@ export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
 	outros: 'Outros',
 }
 
+/**
+ * Limites de tamanho de arquivo por tipo de documento (em bytes)
+ * - Documentos de identidade (RG, CPF, CNPJ): 2MB - sao geralmente fotos/scans simples
+ * - Comprovantes (residencia, renda): 5MB - podem ter multiplas paginas
+ * - Contratos e documentos juridicos: 10MB - podem ser extensos
+ * - Outros: 5MB - limite padrao
+ */
+export const DOCUMENT_SIZE_LIMITS: Record<DocumentType, number> = {
+	rg: 2 * 1024 * 1024, // 2MB
+	cpf: 2 * 1024 * 1024, // 2MB
+	cnpj: 2 * 1024 * 1024, // 2MB
+	comprovante_residencia: 5 * 1024 * 1024, // 5MB
+	comprovante_renda: 5 * 1024 * 1024, // 5MB
+	contrato_social: 10 * 1024 * 1024, // 10MB
+	procuracao: 5 * 1024 * 1024, // 5MB
+	contrato_locacao: 10 * 1024 * 1024, // 10MB
+	termo_vistoria: 10 * 1024 * 1024, // 10MB
+	laudo_avaliacao: 10 * 1024 * 1024, // 10MB
+	outros: 5 * 1024 * 1024, // 5MB
+}
+
+/**
+ * Retorna o limite de tamanho formatado para exibicao
+ */
+export function getDocumentSizeLimitLabel(documentType: DocumentType): string {
+	const sizeInBytes = DOCUMENT_SIZE_LIMITS[documentType]
+	const sizeInMB = sizeInBytes / (1024 * 1024)
+	return `${sizeInMB}MB`
+}
+
 export interface Document {
 	id: string
 	entityType: DocumentEntityType

@@ -6,7 +6,12 @@ import {
 } from '@basylab/core/errors'
 import { logger } from '@/config/logger'
 import type { DocumentEntityType, DocumentType } from '@/db/schema/documents'
-import { DOCUMENT_ENTITY_TYPES, DOCUMENT_TYPES } from '@/db/schema/documents'
+import {
+	DOCUMENT_ENTITY_TYPES,
+	DOCUMENT_SIZE_LIMITS,
+	DOCUMENT_TYPES,
+	getDocumentSizeLimitMB,
+} from '@/db/schema/documents'
 import type { User } from '@/db/schema/users'
 import type { IDocumentRepository } from '@/repositories/contracts/document.repository'
 import type { IPropertyOwnerRepository } from '@/repositories/contracts/property-owner.repository'
@@ -47,7 +52,7 @@ const MAX_DOCUMENTS_PER_ENTITY = 20
 
 const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+const MAX_FILE_SIZE_FALLBACK = 10 * 1024 * 1024 // 10MB - fallback se tipo nao encontrado
 
 export class AddDocumentUseCase {
 	constructor(
@@ -96,8 +101,12 @@ export class AddDocumentUseCase {
 			)
 		}
 
-		if (size > MAX_FILE_SIZE) {
-			throw new BadRequestError('Arquivo muito grande. Tamanho maximo: 10MB.')
+		const maxSizeForType = DOCUMENT_SIZE_LIMITS[documentType] || MAX_FILE_SIZE_FALLBACK
+		const maxSizeInMB = getDocumentSizeLimitMB(documentType)
+		if (size > maxSizeForType) {
+			throw new BadRequestError(
+				`Arquivo muito grande para este tipo de documento. Tamanho maximo: ${maxSizeInMB}MB.`,
+			)
 		}
 
 		if (entityType === DOCUMENT_ENTITY_TYPES.PROPERTY_OWNER) {

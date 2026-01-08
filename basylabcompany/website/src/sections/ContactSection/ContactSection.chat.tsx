@@ -302,10 +302,13 @@ export function ContactSection() {
       setCurrentStepIndex((prev) => prev + 1);
       setShowOptions(true);
 
-      // Scroll to bottom
+      // Scroll to bottom with smooth behavior
       setTimeout(() => {
         if (chatRef.current) {
-          chatRef.current.scrollTop = chatRef.current.scrollHeight;
+          chatRef.current.scrollTo({
+            top: chatRef.current.scrollHeight,
+            behavior: "smooth",
+          });
         }
       }, 100);
     }, 600);

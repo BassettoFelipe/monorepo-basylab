@@ -3,22 +3,28 @@
    Global element styles and resets
    ============================================ */
 
+/* Smooth scroll for all anchor navigation */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 20px;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* Focus ring for accessibility */
 :focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
 }
 
 /* Selection color */
 ::selection {
-  background-color: var(--color-brand-primary);
-  color: white;
+    background-color: var(--color-brand-primary);
+    color: white;
 }

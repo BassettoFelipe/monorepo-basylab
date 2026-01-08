@@ -28,6 +28,7 @@ export const imageProcessor = new Proxy({} as IImageProcessorService, {
 })
 
 export type {
+	DocumentImageOptions,
 	IImageProcessorService,
 	ImageProcessorOptions,
 	ImageValidationResult,

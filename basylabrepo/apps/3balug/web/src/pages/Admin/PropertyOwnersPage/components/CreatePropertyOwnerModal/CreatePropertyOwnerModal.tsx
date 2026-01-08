@@ -30,7 +30,13 @@ import { Textarea } from '@/components/Textarea/Textarea'
 import { useUploadDocumentMutation } from '@/queries/documents/documents.queries'
 import { useCreatePropertyOwnerMutation } from '@/queries/property-owners/useCreatePropertyOwnerMutation'
 import { uploadWithPresignedUrl } from '@/services/files/upload'
-import { DOCUMENT_ENTITY_TYPES, DOCUMENT_TYPES, type DocumentType } from '@/types/document.types'
+import {
+	DOCUMENT_ENTITY_TYPES,
+	DOCUMENT_SIZE_LIMITS,
+	DOCUMENT_TYPES,
+	type DocumentType,
+	getDocumentSizeLimitLabel,
+} from '@/types/document.types'
 import { BRAZILIAN_STATES, MARITAL_STATUS_LABELS } from '@/types/property-owner.types'
 import { applyMask } from '@/utils/masks'
 import * as styles from './CreatePropertyOwnerModal.styles.css'
@@ -306,8 +312,11 @@ export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwne
 			return
 		}
 
-		if (file.size > MAX_FILE_SIZE) {
-			toast.error(`Arquivo muito grande (max 10MB)`)
+		const maxSizeForType = DOCUMENT_SIZE_LIMITS[slotType]
+		if (file.size > maxSizeForType) {
+			toast.error(
+				`Arquivo muito grande para este tipo de documento (max ${getDocumentSizeLimitLabel(slotType)})`,
+			)
 			return
 		}
 
@@ -975,7 +984,8 @@ export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwne
 							<Info size={18} className={styles.documentsInfoIcon} />
 							<p className={styles.documentsInfoText}>
 								Anexe os documentos do proprietario. Todos os campos sao opcionais. Formatos
-								aceitos: PDF, JPG, PNG ou WebP (max 10MB).
+								aceitos: PDF, JPG, PNG ou WebP. Limites: RG/CPF (2MB), Comprovantes (5MB), Contratos
+								(10MB).
 							</p>
 						</div>
 
@@ -988,9 +998,11 @@ export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwne
 									}`}
 								>
 									<div className={styles.documentCardHeader}>
-										<h4 className={styles.documentCardTitle}>{slot.label}</h4>
-										<span className={styles.documentCardOptional}>Opcional</span>
-									</div>
+									<h4 className={styles.documentCardTitle}>{slot.label}</h4>
+									<span className={styles.documentCardOptional}>
+										Max {getDocumentSizeLimitLabel(slot.type)}
+									</span>
+								</div>
 
 									{slot.file ? (
 										<div className={styles.documentFilePreview}>

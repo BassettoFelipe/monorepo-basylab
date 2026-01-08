@@ -23,7 +23,14 @@ export interface ImageValidationResult {
 	error?: string
 }
 
+export interface DocumentImageOptions {
+	maxWidth?: number
+	maxHeight?: number
+	quality?: number
+}
+
 export interface IImageProcessorService {
 	processAvatar(buffer: Buffer, options?: ImageProcessorOptions): Promise<ProcessedImage>
+	processDocumentImage(buffer: Buffer, options?: DocumentImageOptions): Promise<ProcessedImage>
 	validateImage(buffer: Buffer): Promise<ImageValidationResult>
 }

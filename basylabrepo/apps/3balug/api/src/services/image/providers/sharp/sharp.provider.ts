@@ -1,6 +1,7 @@
 import sharp from 'sharp'
 import { logger } from '@/config/logger'
 import type {
+	DocumentImageOptions,
 	IImageProcessorService,
 	ImageProcessorOptions,
 	ImageValidationResult,
@@ -12,6 +13,12 @@ const DEFAULT_AVATAR_OPTIONS: ImageProcessorOptions = {
 	maxHeight: 256,
 	quality: 80,
 	format: 'webp',
+}
+
+const DEFAULT_DOCUMENT_OPTIONS: DocumentImageOptions = {
+	maxWidth: 1920,
+	maxHeight: 2560,
+	quality: 75,
 }
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024 // 10MB
@@ -104,6 +111,78 @@ export class SharpImageProcessor implements IImageProcessorService {
 			}
 		} catch (error) {
 			logger.error({ err: error }, 'Erro ao processar imagem')
+			throw error
+		}
+	}
+
+	/**
+	 * Processa uma imagem de documento: comprime mantendo boa qualidade para leitura
+	 * Documentos precisam manter legibilidade, entao usamos configuracoes mais conservadoras
+	 */
+	async processDocumentImage(
+		buffer: Buffer,
+		options: DocumentImageOptions = {},
+	): Promise<ProcessedImage> {
+		const opts = { ...DEFAULT_DOCUMENT_OPTIONS, ...options }
+		const originalSize = buffer.length
+
+		if (originalSize > MAX_IMAGE_SIZE) {
+			const sizeMB = (originalSize / 1024 / 1024).toFixed(2)
+			const maxMB = (MAX_IMAGE_SIZE / 1024 / 1024).toFixed(0)
+			throw new Error(`Imagem muito grande (${sizeMB}MB). Tamanho maximo permitido: ${maxMB}MB`)
+		}
+
+		try {
+			const image = sharp(buffer).rotate()
+			const metadata = await sharp(buffer).metadata()
+
+			if (!metadata.width || !metadata.height) {
+				throw new Error('Nao foi possivel obter as dimensoes da imagem')
+			}
+
+			// Redimensionar apenas se necessario (manter dentro dos limites)
+			let processedImage = image.resize(opts.maxWidth, opts.maxHeight, {
+				fit: 'inside',
+				withoutEnlargement: true,
+			})
+
+			// Converter para WebP com boa qualidade para documentos
+			processedImage = processedImage.webp({
+				quality: opts.quality,
+				effort: 4,
+				lossless: false,
+			})
+
+			const outputBuffer = await processedImage.toBuffer()
+			const outputMetadata = await sharp(outputBuffer).metadata()
+
+			const processedSize = outputBuffer.length
+			const compressionRatio =
+				originalSize > 0 ? Math.round((1 - processedSize / originalSize) * 100) : 0
+
+			logger.info(
+				{
+					originalSize: `${(originalSize / 1024).toFixed(2)}KB`,
+					processedSize: `${(processedSize / 1024).toFixed(2)}KB`,
+					compressionRatio: `${compressionRatio}%`,
+					originalFormat: metadata.format,
+					outputFormat: 'webp',
+					dimensions: `${outputMetadata.width}x${outputMetadata.height}`,
+				},
+				'Imagem de documento processada com sucesso',
+			)
+
+			return {
+				buffer: outputBuffer,
+				contentType: 'image/webp',
+				width: outputMetadata.width ?? metadata.width,
+				height: outputMetadata.height ?? metadata.height,
+				originalSize,
+				processedSize,
+				compressionRatio,
+			}
+		} catch (error) {
+			logger.error({ err: error }, 'Erro ao processar imagem de documento')
 			throw error
 		}
 	}

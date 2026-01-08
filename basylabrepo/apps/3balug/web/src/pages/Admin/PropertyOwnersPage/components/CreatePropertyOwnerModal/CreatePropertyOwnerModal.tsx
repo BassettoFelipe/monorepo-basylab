@@ -32,9 +32,11 @@ import { useCreatePropertyOwnerMutation } from '@/queries/property-owners/useCre
 import { uploadWithPresignedUrl } from '@/services/files/upload'
 import {
 	DOCUMENT_ENTITY_TYPES,
+	DOCUMENT_FILE_LIMITS,
 	DOCUMENT_SIZE_LIMITS,
 	DOCUMENT_TYPES,
 	type DocumentType,
+	getDocumentFileLimit,
 	getDocumentSizeLimitLabel,
 } from '@/types/document.types'
 import { BRAZILIAN_STATES, MARITAL_STATUS_LABELS } from '@/types/property-owner.types'
@@ -46,7 +48,7 @@ const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp
 interface DocumentSlot {
 	type: DocumentType
 	label: string
-	file: SelectedDocument | null
+	files: SelectedDocument[]
 }
 
 function formatFileSize(bytes: number): string {
@@ -162,10 +164,10 @@ const STEPS: Step[] = [
 ]
 
 const INITIAL_DOCUMENT_SLOTS: DocumentSlot[] = [
-	{ type: DOCUMENT_TYPES.RG, label: 'RG', file: null },
-	{ type: DOCUMENT_TYPES.CPF, label: 'CPF', file: null },
-	{ type: DOCUMENT_TYPES.COMPROVANTE_RESIDENCIA, label: 'Comprovante de Residencia', file: null },
-	{ type: DOCUMENT_TYPES.OUTROS, label: 'Outros Documentos', file: null },
+	{ type: DOCUMENT_TYPES.RG, label: 'RG', files: [] },
+	{ type: DOCUMENT_TYPES.CPF, label: 'CPF', files: [] },
+	{ type: DOCUMENT_TYPES.COMPROVANTE_RESIDENCIA, label: 'Comprovante de Residencia', files: [] },
+	{ type: DOCUMENT_TYPES.OUTROS, label: 'Outros Documentos', files: [] },
 ]
 
 export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwnerModalProps) {
@@ -206,8 +208,10 @@ export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwne
 	const handleClose = useCallback(() => {
 		if (!createMutation.isPending && !isUploading && !isUploadingPhoto) {
 			for (const slot of documentSlots) {
-				if (slot.file?.preview) {
-					URL.revokeObjectURL(slot.file.preview)
+				for (const file of slot.files) {
+					if (file.preview) {
+						URL.revokeObjectURL(file.preview)
+					}
 				}
 			}
 			if (photoPreview) {
@@ -319,28 +323,44 @@ export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwne
 			return
 		}
 
-		const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-		const preview = file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined
+		const maxFilesForType = DOCUMENT_FILE_LIMITS[slotType]
 
-		const newDocument: SelectedDocument = {
-			id,
-			file,
-			documentType: slotType,
-			preview,
-		}
+		setDocumentSlots((prev) => {
+			const currentSlot = prev.find((s) => s.type === slotType)
+			if (currentSlot && currentSlot.files.length >= maxFilesForType) {
+				toast.error(
+					`Limite de ${maxFilesForType} arquivo${maxFilesForType > 1 ? 's' : ''} atingido para ${currentSlot.label}`,
+				)
+				return prev
+			}
 
-		setDocumentSlots((prev) =>
-			prev.map((slot) => (slot.type === slotType ? { ...slot, file: newDocument } : slot)),
-		)
+			const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+			const preview = file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined
+
+			const newDocument: SelectedDocument = {
+				id,
+				file,
+				documentType: slotType,
+				preview,
+			}
+
+			return prev.map((slot) =>
+				slot.type === slotType ? { ...slot, files: [...slot.files, newDocument] } : slot,
+			)
+		})
 	}, [])
 
-	const handleRemoveFile = useCallback((slotType: DocumentType) => {
+	const handleRemoveFile = useCallback((slotType: DocumentType, fileId: string) => {
 		setDocumentSlots((prev) =>
 			prev.map((slot) => {
-				if (slot.type === slotType && slot.file?.preview) {
-					URL.revokeObjectURL(slot.file.preview)
+				if (slot.type === slotType) {
+					const fileToRemove = slot.files.find((f) => f.id === fileId)
+					if (fileToRemove?.preview) {
+						URL.revokeObjectURL(fileToRemove.preview)
+					}
+					return { ...slot, files: slot.files.filter((f) => f.id !== fileId) }
 				}
-				return slot.type === slotType ? { ...slot, file: null } : slot
+				return slot
 			}),
 		)
 	}, [])
@@ -495,17 +515,17 @@ export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwne
 			const response = await createMutation.mutateAsync(payload)
 			const ownerId = response.data.id
 
-			const filesToUpload = documentSlots.filter((slot) => slot.file !== null)
-			if (filesToUpload.length > 0) {
+			const slotsWithFiles = documentSlots.filter((slot) => slot.files.length > 0)
+			if (slotsWithFiles.length > 0) {
 				setIsUploading(true)
 				try {
-					for (const slot of filesToUpload) {
-						if (slot.file) {
+					for (const slot of slotsWithFiles) {
+						for (const doc of slot.files) {
 							await uploadDocumentMutation.mutateAsync({
 								entityType: DOCUMENT_ENTITY_TYPES.PROPERTY_OWNER,
 								entityId: ownerId,
-								documentType: slot.file.documentType,
-								file: slot.file.file,
+								documentType: doc.documentType,
+								file: doc.file,
 							})
 						}
 					}
@@ -983,110 +1003,127 @@ export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwne
 							<Info size={18} className={styles.documentsInfoIcon} />
 							<p className={styles.documentsInfoText}>
 								Anexe os documentos do proprietario. Todos os campos sao opcionais. Formatos
-								aceitos: PDF, JPG, PNG ou WebP. Limites: RG/CPF (2MB), Comprovantes (5MB), Contratos
-								(10MB).
+								aceitos: PDF, JPG, PNG ou WebP. Voce pode enviar multiplos arquivos por tipo
+								(frente, verso, etc).
 							</p>
 						</div>
 
 						<div className={styles.documentsGrid}>
-							{documentSlots.map((slot) => (
-								<div
-									key={slot.type}
-									className={`${styles.documentUploadCard} ${
-										slot.file ? styles.documentUploadCardFilled : ''
-									}`}
-								>
-									<div className={styles.documentCardHeader}>
-									<h4 className={styles.documentCardTitle}>{slot.label}</h4>
-									<span className={styles.documentCardOptional}>
-										Max {getDocumentSizeLimitLabel(slot.type)}
-									</span>
-								</div>
+							{documentSlots.map((slot) => {
+								const maxFiles = getDocumentFileLimit(slot.type)
+								const canAddMore = slot.files.length < maxFiles
 
-									{slot.file ? (
-										<div className={styles.documentFilePreview}>
-											{slot.file.preview ? (
-												<div
-													className={`${styles.documentFileIcon} ${styles.documentFileIconImage}`}
-												>
-													<img
-														src={slot.file.preview}
-														alt={slot.file.file.name}
-														className={styles.documentFileThumbnail}
-													/>
-												</div>
-											) : (
-												<div className={styles.documentFileIcon}>
-													<FileText size={18} />
-												</div>
-											)}
-											<div className={styles.documentFileInfo}>
-												<p className={styles.documentFileName}>{slot.file.file.name}</p>
-												<p className={styles.documentFileSize}>
-													{formatFileSize(slot.file.file.size)}
-												</p>
-											</div>
-											<button
-												type="button"
-												className={styles.documentRemoveButton}
-												onClick={() => handleRemoveFile(slot.type)}
-												disabled={isSubmitting}
-												title="Remover arquivo"
-											>
-												<Trash2 size={16} />
-											</button>
+								return (
+									<div
+										key={slot.type}
+										className={`${styles.documentUploadCard} ${
+											slot.files.length > 0 ? styles.documentUploadCardFilled : ''
+										}`}
+									>
+										<div className={styles.documentCardHeader}>
+											<h4 className={styles.documentCardTitle}>{slot.label}</h4>
+											<span className={styles.documentCardOptional}>
+												{slot.files.length}/{maxFiles} - Max {getDocumentSizeLimitLabel(slot.type)}
+											</span>
 										</div>
-									) : (
-										<>
-											<input
-												ref={(el) => {
-													fileInputRefs.current[slot.type] = el
-												}}
-												type="file"
-												accept={ALLOWED_TYPES.join(',')}
-												style={{ display: 'none' }}
-												onChange={(e) => {
-													const file = e.target.files?.[0]
-													if (file) {
-														handleFileSelect(slot.type, file)
-													}
-													e.target.value = ''
-												}}
-												disabled={isSubmitting}
-											/>
-											<button
-												type="button"
-												className={`${styles.documentDropZone} ${
-													draggingSlot === slot.type ? styles.documentDropZoneDragging : ''
-												} ${isSubmitting ? styles.documentDropZoneDisabled : ''}`}
-												onClick={() => fileInputRefs.current[slot.type]?.click()}
-												onDragOver={(e) => {
-													e.preventDefault()
-													if (!isSubmitting) setDraggingSlot(slot.type)
-												}}
-												onDragLeave={(e) => {
-													e.preventDefault()
-													setDraggingSlot(null)
-												}}
-												onDrop={(e) => {
-													e.preventDefault()
-													setDraggingSlot(null)
-													const file = e.dataTransfer.files?.[0]
-													if (file && !isSubmitting) {
-														handleFileSelect(slot.type, file)
-													}
-												}}
-												disabled={isSubmitting}
-											>
-												<Upload size={20} className={styles.documentDropZoneIcon} />
-												<span className={styles.documentDropZoneText}>
-													Arraste ou clique para enviar
-												</span>
-											</button>
-										</>
-									)}
-								</div>
-							))}
+
+										{/* Lista de arquivos ja adicionados */}
+										{slot.files.length > 0 && (
+											<div className={styles.documentFilesList}>
+												{slot.files.map((doc) => (
+													<div key={doc.id} className={styles.documentFilePreview}>
+														{doc.preview ? (
+															<div
+																className={`${styles.documentFileIcon} ${styles.documentFileIconImage}`}
+															>
+																<img
+																	src={doc.preview}
+																	alt={doc.file.name}
+																	className={styles.documentFileThumbnail}
+																/>
+															</div>
+														) : (
+															<div className={styles.documentFileIcon}>
+																<FileText size={18} />
+															</div>
+														)}
+														<div className={styles.documentFileInfo}>
+															<p className={styles.documentFileName}>{doc.file.name}</p>
+															<p className={styles.documentFileSize}>
+																{formatFileSize(doc.file.size)}
+															</p>
+														</div>
+														<button
+															type="button"
+															className={styles.documentRemoveButton}
+															onClick={() => handleRemoveFile(slot.type, doc.id)}
+															disabled={isSubmitting}
+															title="Remover arquivo"
+														>
+															<Trash2 size={16} />
+														</button>
+													</div>
+												))}
+											</div>
+										)}
+
+										{/* Botao para adicionar mais arquivos (se ainda nao atingiu o limite) */}
+										{canAddMore && (
+											<>
+												<input
+													ref={(el) => {
+														fileInputRefs.current[slot.type] = el
+													}}
+													type="file"
+													accept={ALLOWED_TYPES.join(',')}
+													style={{ display: 'none' }}
+													onChange={(e) => {
+														const file = e.target.files?.[0]
+														if (file) {
+															handleFileSelect(slot.type, file)
+														}
+														e.target.value = ''
+													}}
+													disabled={isSubmitting}
+												/>
+												<button
+													type="button"
+													className={`${styles.documentDropZone} ${
+														draggingSlot === slot.type ? styles.documentDropZoneDragging : ''
+													} ${isSubmitting ? styles.documentDropZoneDisabled : ''} ${
+														slot.files.length > 0 ? styles.documentDropZoneCompact : ''
+													}`}
+													onClick={() => fileInputRefs.current[slot.type]?.click()}
+													onDragOver={(e) => {
+														e.preventDefault()
+														if (!isSubmitting) setDraggingSlot(slot.type)
+													}}
+													onDragLeave={(e) => {
+														e.preventDefault()
+														setDraggingSlot(null)
+													}}
+													onDrop={(e) => {
+														e.preventDefault()
+														setDraggingSlot(null)
+														const file = e.dataTransfer.files?.[0]
+														if (file && !isSubmitting) {
+															handleFileSelect(slot.type, file)
+														}
+													}}
+													disabled={isSubmitting}
+												>
+													<Upload size={20} className={styles.documentDropZoneIcon} />
+													<span className={styles.documentDropZoneText}>
+														{slot.files.length > 0
+															? 'Adicionar mais'
+															: 'Arraste ou clique para enviar'}
+													</span>
+												</button>
+											</>
+										)}
+									</div>
+								)
+							})}
 						</div>
 					</div>
 				)}

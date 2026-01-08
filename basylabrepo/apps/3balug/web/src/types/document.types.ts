@@ -58,12 +58,47 @@ export const DOCUMENT_SIZE_LIMITS: Record<DocumentType, number> = {
 }
 
 /**
+ * Limites de quantidade de arquivos por tipo de documento
+ * - RG: 3 arquivos (frente, verso, aberto)
+ * - CPF: 2 arquivos (frente, verso)
+ * - CNPJ: 2 arquivos (cartao CNPJ pode ter frente/verso)
+ * - Comprovante de Residencia: 3 arquivos (conta pode ter varias paginas)
+ * - Comprovante de Renda: 5 arquivos (holerites, extratos, etc)
+ * - Contrato Social: 10 arquivos (documentos extensos com varias paginas)
+ * - Procuracao: 5 arquivos (documento pode ter varias paginas)
+ * - Contrato de Locacao: 10 arquivos (contratos extensos)
+ * - Termo de Vistoria: 10 arquivos (fotos do imovel + documento)
+ * - Laudo de Avaliacao: 10 arquivos (laudo completo com anexos)
+ * - Outros: 5 arquivos (flexibilidade para documentos diversos)
+ */
+export const DOCUMENT_FILE_LIMITS: Record<DocumentType, number> = {
+	rg: 3,
+	cpf: 2,
+	cnpj: 2,
+	comprovante_residencia: 3,
+	comprovante_renda: 5,
+	contrato_social: 10,
+	procuracao: 5,
+	contrato_locacao: 10,
+	termo_vistoria: 10,
+	laudo_avaliacao: 10,
+	outros: 5,
+}
+
+/**
  * Retorna o limite de tamanho formatado para exibicao
  */
 export function getDocumentSizeLimitLabel(documentType: DocumentType): string {
 	const sizeInBytes = DOCUMENT_SIZE_LIMITS[documentType]
 	const sizeInMB = sizeInBytes / (1024 * 1024)
 	return `${sizeInMB}MB`
+}
+
+/**
+ * Retorna o limite de arquivos para o tipo de documento
+ */
+export function getDocumentFileLimit(documentType: DocumentType): number {
+	return DOCUMENT_FILE_LIMITS[documentType]
 }
 
 export interface Document {

@@ -675,6 +675,13 @@ export const documentDropZoneDisabled = style({
 	},
 })
 
+export const documentDropZoneCompact = style({
+	minHeight: '48px',
+	padding: vars.spacing.sm,
+	flexDirection: 'row',
+	gap: vars.spacing.sm,
+})
+
 export const documentDropZoneIcon = style({
 	color: vars.color.text.secondary,
 })
@@ -683,6 +690,12 @@ export const documentDropZoneText = style({
 	fontSize: vars.fontSize.xs,
 	color: vars.color.text.secondary,
 	textAlign: 'center',
+})
+
+export const documentFilesList = style({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: vars.spacing.xs,
 })
 
 export const documentFilePreview = style({

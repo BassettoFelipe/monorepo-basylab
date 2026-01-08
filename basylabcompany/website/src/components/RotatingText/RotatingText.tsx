@@ -7,6 +7,7 @@ import {
   useImperativeHandle,
   useMemo,
   useState,
+  useRef,
 } from "react";
 import {
   motion,
@@ -52,6 +53,15 @@ export interface RotatingTextProps
   elementLevelClassName?: string;
 }
 
+// Helper function - no need for useCallback since it has no dependencies
+function splitIntoCharacters(text: string): string[] {
+  if (typeof Intl !== "undefined" && Intl.Segmenter) {
+    const segmenter = new Intl.Segmenter("en", { granularity: "grapheme" });
+    return Array.from(segmenter.segment(text), (segment) => segment.segment);
+  }
+  return Array.from(text);
+}
+
 const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
   (
     {
@@ -78,16 +88,13 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
   ) => {
     const [currentTextIndex, setCurrentTextIndex] = useState<number>(0);
 
-    const splitIntoCharacters = useCallback((text: string): string[] => {
-      if (typeof Intl !== "undefined" && Intl.Segmenter) {
-        const segmenter = new Intl.Segmenter("en", { granularity: "grapheme" });
-        return Array.from(
-          segmenter.segment(text),
-          (segment) => segment.segment,
-        );
-      }
-      return Array.from(text);
-    }, []);
+    // Use refs for values needed in interval to avoid recreating interval on every change
+    const currentIndexRef = useRef(currentTextIndex);
+    const onNextRef = useRef(onNext);
+
+    // Keep refs in sync
+    currentIndexRef.current = currentTextIndex;
+    onNextRef.current = onNext;
 
     const elements = useMemo(() => {
       const currentText: string = texts[currentTextIndex];
@@ -115,74 +122,63 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
         characters: [part],
         needsSpace: i !== arr.length - 1,
       }));
-    }, [texts, currentTextIndex, splitBy, splitIntoCharacters]);
+    }, [texts, currentTextIndex, splitBy]);
 
-    const getStaggerDelay = useCallback(
-      (index: number, totalChars: number): number => {
-        const total = totalChars;
-        if (staggerFrom === "first") return index * staggerDuration;
-        if (staggerFrom === "last")
-          return (total - 1 - index) * staggerDuration;
-        if (staggerFrom === "center") {
-          const center = Math.floor(total / 2);
-          return Math.abs(center - index) * staggerDuration;
-        }
-        if (staggerFrom === "random") {
-          const randomIndex = Math.floor(Math.random() * total);
-          return Math.abs(randomIndex - index) * staggerDuration;
-        }
-        return Math.abs((staggerFrom as number) - index) * staggerDuration;
-      },
-      [staggerFrom, staggerDuration],
-    );
-
-    const handleIndexChange = useCallback(
-      (newIndex: number) => {
-        setCurrentTextIndex(newIndex);
-        if (onNext) onNext(newIndex);
-      },
-      [onNext],
-    );
-
-    const next = useCallback(() => {
-      const nextIndex =
-        currentTextIndex === texts.length - 1
-          ? loop
-            ? 0
-            : currentTextIndex
-          : currentTextIndex + 1;
-      if (nextIndex !== currentTextIndex) {
-        handleIndexChange(nextIndex);
+    // getStaggerDelay is used in render - keep as simple function, no useCallback needed
+    const getStaggerDelay = (index: number, totalChars: number): number => {
+      if (staggerFrom === "first") return index * staggerDuration;
+      if (staggerFrom === "last")
+        return (totalChars - 1 - index) * staggerDuration;
+      if (staggerFrom === "center") {
+        const center = Math.floor(totalChars / 2);
+        return Math.abs(center - index) * staggerDuration;
       }
-    }, [currentTextIndex, texts.length, loop, handleIndexChange]);
+      if (staggerFrom === "random") {
+        const randomIndex = Math.floor(Math.random() * totalChars);
+        return Math.abs(randomIndex - index) * staggerDuration;
+      }
+      return Math.abs((staggerFrom as number) - index) * staggerDuration;
+    };
+
+    // These need useCallback because they're exposed via ref
+    const next = useCallback(() => {
+      const current = currentIndexRef.current;
+      const nextIndex =
+        current === texts.length - 1 ? (loop ? 0 : current) : current + 1;
+      if (nextIndex !== current) {
+        setCurrentTextIndex(nextIndex);
+        onNextRef.current?.(nextIndex);
+      }
+    }, [texts.length, loop]);
 
     const previous = useCallback(() => {
+      const current = currentIndexRef.current;
       const prevIndex =
-        currentTextIndex === 0
-          ? loop
-            ? texts.length - 1
-            : currentTextIndex
-          : currentTextIndex - 1;
-      if (prevIndex !== currentTextIndex) {
-        handleIndexChange(prevIndex);
+        current === 0 ? (loop ? texts.length - 1 : current) : current - 1;
+      if (prevIndex !== current) {
+        setCurrentTextIndex(prevIndex);
+        onNextRef.current?.(prevIndex);
       }
-    }, [currentTextIndex, texts.length, loop, handleIndexChange]);
+    }, [texts.length, loop]);
 
     const jumpTo = useCallback(
       (index: number) => {
+        const current = currentIndexRef.current;
         const validIndex = Math.max(0, Math.min(index, texts.length - 1));
-        if (validIndex !== currentTextIndex) {
-          handleIndexChange(validIndex);
+        if (validIndex !== current) {
+          setCurrentTextIndex(validIndex);
+          onNextRef.current?.(validIndex);
         }
       },
-      [texts.length, currentTextIndex, handleIndexChange],
+      [texts.length],
     );
 
     const reset = useCallback(() => {
-      if (currentTextIndex !== 0) {
-        handleIndexChange(0);
+      if (currentIndexRef.current !== 0) {
+        setCurrentTextIndex(0);
+        onNextRef.current?.(0);
       }
-    }, [currentTextIndex, handleIndexChange]);
+    }, []);
 
     useImperativeHandle(
       ref,

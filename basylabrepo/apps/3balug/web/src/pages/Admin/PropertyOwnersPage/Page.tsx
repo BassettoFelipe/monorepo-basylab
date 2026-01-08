@@ -18,7 +18,7 @@ import {
 	Trash2,
 	Users,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/Button/Button'
 import { ConfirmDialog } from '@/components/ConfirmDialog/ConfirmDialog'
@@ -37,6 +37,8 @@ import type {
 	PropertyOwnerSortOrder,
 } from '@/types/property-owner.types'
 import { BRAZILIAN_STATES } from '@/types/property-owner.types'
+import { getAvatarColor, getInitials } from '@/utils/avatar'
+import { formatDate, formatDocument, formatPhone } from '@/utils/format'
 import { CreatePropertyOwnerModal } from './components/CreatePropertyOwnerModal/CreatePropertyOwnerModal'
 import { EditPropertyOwnerModal } from './components/EditPropertyOwnerModal/EditPropertyOwnerModal'
 import * as styles from './styles.css'
@@ -44,6 +46,7 @@ import * as styles from './styles.css'
 export function PropertyOwnersPage() {
 	const [searchParams, setSearchParams] = useSearchParams()
 	const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
+	const [ownerToDelete, setOwnerToDelete] = useState<PropertyOwner | null>(null)
 	const navigate = useNavigate()
 
 	const limit = 20
@@ -97,14 +100,11 @@ export function PropertyOwnersPage() {
 		limit,
 	})
 
-	const { data: editOwnerData } = usePropertyOwnerQuery(editId || '', {
+	const { data: editOwnerData, isLoading: isLoadingOwner } = usePropertyOwnerQuery(editId || '', {
 		enabled: isEditModalOpen,
 	})
 
 	const deleteMutation = useDeletePropertyOwnerMutation()
-
-	// Derivar ownerToDelete dos dados
-	const ownerToDelete = data?.data.find((o) => o.id === editId)
 
 	const updateSearchParams = (updates: Record<string, string>) => {
 		const newParams = new URLSearchParams(searchParams)
@@ -169,76 +169,30 @@ export function PropertyOwnersPage() {
 	}
 
 	const openDeleteDialog = (owner: PropertyOwner) => {
+		setOwnerToDelete(owner)
 		updateSearchParams({ modal: 'delete', id: owner.id })
 	}
 
-	const closeModal = () => {
-		const newParams = new URLSearchParams(searchParams)
-		newParams.delete('modal')
-		newParams.delete('id')
-		setSearchParams(newParams)
-	}
+	const closeModal = useCallback(() => {
+		setSearchParams((prevParams) => {
+			const newParams = new URLSearchParams(prevParams)
+			newParams.delete('modal')
+			newParams.delete('id')
+			return newParams
+		})
+		setOwnerToDelete(null)
+	}, [setSearchParams])
 
-	const handleConfirmDelete = async () => {
-		if (!editId) return
+	const handleConfirmDelete = useCallback(async () => {
+		if (!ownerToDelete?.id) return
 
 		try {
-			await deleteMutation.mutateAsync(editId)
+			await deleteMutation.mutateAsync(ownerToDelete.id)
 			closeModal()
 		} catch {
 			// Error is handled by the mutation
 		}
-	}
-
-	const formatDocument = (doc: string, type: 'cpf' | 'cnpj') => {
-		const digits = doc.replace(/\D/g, '')
-		if (type === 'cpf' && digits.length === 11) {
-			return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`
-		}
-		if (type === 'cnpj' && digits.length === 14) {
-			return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`
-		}
-		return doc
-	}
-
-	const formatPhone = (phone: string | null) => {
-		if (!phone) return null
-		const digits = phone.replace(/\D/g, '')
-		if (digits.length === 11) {
-			return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
-		}
-		if (digits.length === 10) {
-			return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
-		}
-		return phone
-	}
-
-	const formatDate = (dateString: string | null | undefined) => {
-		if (!dateString) return '-'
-		const date = new Date(dateString)
-		if (Number.isNaN(date.getTime())) return '-'
-		return date.toLocaleDateString('pt-BR')
-	}
-
-	const getInitials = (name: string) => {
-		const parts = name.trim().split(' ')
-		if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
-		return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
-	}
-
-	const getAvatarColor = (name: string) => {
-		const colors = [
-			{ bg: '#DBEAFE', text: '#1E40AF' },
-			{ bg: '#E0E7FF', text: '#4338CA' },
-			{ bg: '#D1FAE5', text: '#065F46' },
-			{ bg: '#FEF3C7', text: '#92400E' },
-			{ bg: '#FCE7F3', text: '#9D174D' },
-			{ bg: '#E0F2FE', text: '#0369A1' },
-			{ bg: '#F3E8FF', text: '#7C3AED' },
-		]
-		const index = name.length % colors.length
-		return colors[index]
-	}
+	}, [ownerToDelete?.id, deleteMutation, closeModal])
 
 	const getPaginationPages = (currentPage: number, totalPages: number): (number | 'ellipsis')[] => {
 		const pages: (number | 'ellipsis')[] = []
@@ -519,14 +473,78 @@ export function PropertyOwnersPage() {
 			</div>
 
 			{isLoading && (
-				<div>
-					<div style={{ marginBottom: '8px' }}>
-						<Skeleton width="100%" height="80px" />
-					</div>
-					<div style={{ marginBottom: '8px' }}>
-						<Skeleton width="100%" height="80px" />
-					</div>
-					<Skeleton width="100%" height="80px" />
+				<div className={styles.tableWrapper}>
+					<table className={styles.table}>
+						<thead className={styles.tableHeader}>
+							<tr>
+								<th className={`${styles.tableHeaderCell} ${styles.colOwner}`}>Proprietario</th>
+								<th className={`${styles.tableHeaderCell} ${styles.colContact}`}>Contato</th>
+								<th className={`${styles.tableHeaderCell} ${styles.colLocation}`}>Localizacao</th>
+								<th className={`${styles.tableHeaderCell} ${styles.colProperties}`}>Imoveis</th>
+								<th className={`${styles.tableHeaderCell} ${styles.colDate}`}>Cadastro</th>
+								<th className={`${styles.tableHeaderCell} ${styles.colActions}`}>Acoes</th>
+							</tr>
+						</thead>
+						<tbody>
+							{Array.from({ length: 5 }).map((_, index) => (
+								<tr key={index} className={styles.tableRow}>
+									<td className={`${styles.tableCell} ${styles.colOwner}`}>
+										<div className={styles.ownerMainInfo}>
+											<Skeleton
+												width={40}
+												height={40}
+												variant="circular"
+											/>
+											<div className={styles.ownerInfo}>
+												<Skeleton width={140} height={14} variant="rounded" />
+												<div className={styles.ownerMeta}>
+													<Skeleton width={32} height={16} variant="rounded" />
+													<Skeleton width={100} height={12} variant="rounded" />
+												</div>
+											</div>
+										</div>
+									</td>
+									<td className={`${styles.tableCell} ${styles.colContact}`}>
+										<div className={styles.contactInfo}>
+											<div className={styles.contactRow}>
+												<Skeleton width={14} height={14} variant="rounded" />
+												<Skeleton width={130} height={13} variant="rounded" />
+											</div>
+											<div className={styles.contactRow}>
+												<Skeleton width={14} height={14} variant="rounded" />
+												<Skeleton width={100} height={13} variant="rounded" />
+											</div>
+										</div>
+									</td>
+									<td className={`${styles.tableCell} ${styles.colLocation}`}>
+										<div className={styles.contactRow}>
+											<Skeleton width={14} height={14} variant="rounded" />
+											<Skeleton width={90} height={13} variant="rounded" />
+										</div>
+									</td>
+									<td className={`${styles.tableCell} ${styles.colProperties}`}>
+										<div className={styles.propertiesCount}>
+											<Skeleton width={14} height={14} variant="rounded" />
+											<Skeleton width={20} height={14} variant="rounded" />
+										</div>
+									</td>
+									<td className={`${styles.tableCell} ${styles.colDate}`}>
+										<div className={styles.contactRow}>
+											<Skeleton width={14} height={14} variant="rounded" />
+											<Skeleton width={70} height={13} variant="rounded" />
+										</div>
+									</td>
+									<td className={`${styles.tableCell} ${styles.colActions}`}>
+										<div className={styles.actions}>
+											<Skeleton width={30} height={30} variant="rounded" />
+											<Skeleton width={30} height={30} variant="rounded" />
+											<Skeleton width={30} height={30} variant="rounded" />
+										</div>
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
 				</div>
 			)}
 
@@ -572,16 +590,16 @@ export function PropertyOwnersPage() {
 							<thead className={styles.tableHeader}>
 								<tr>
 									<th
-										className={`${styles.tableHeaderCell} ${styles.sortableHeader}`}
+										className={`${styles.tableHeaderCell} ${styles.colOwner} ${styles.sortableHeader}`}
 										onClick={() => handleSort('name')}
 									>
 										<span className={styles.sortableHeaderContent}>
 											Proprietario {getSortIcon('name')}
 										</span>
 									</th>
-									<th className={styles.tableHeaderCell}>Contato</th>
+									<th className={`${styles.tableHeaderCell} ${styles.colContact}`}>Contato</th>
 									<th
-										className={`${styles.tableHeaderCell} ${styles.sortableHeader}`}
+										className={`${styles.tableHeaderCell} ${styles.colLocation} ${styles.sortableHeader}`}
 										onClick={() => handleSort('city')}
 									>
 										<span className={styles.sortableHeaderContent}>
@@ -589,7 +607,7 @@ export function PropertyOwnersPage() {
 										</span>
 									</th>
 									<th
-										className={`${styles.tableHeaderCell} ${styles.sortableHeader}`}
+										className={`${styles.tableHeaderCell} ${styles.colProperties} ${styles.sortableHeader}`}
 										onClick={() => handleSort('propertiesCount')}
 									>
 										<span className={styles.sortableHeaderContent}>
@@ -597,14 +615,14 @@ export function PropertyOwnersPage() {
 										</span>
 									</th>
 									<th
-										className={`${styles.tableHeaderCell} ${styles.sortableHeader}`}
+										className={`${styles.tableHeaderCell} ${styles.colDate} ${styles.sortableHeader}`}
 										onClick={() => handleSort('createdAt')}
 									>
 										<span className={styles.sortableHeaderContent}>
 											Cadastro {getSortIcon('createdAt')}
 										</span>
 									</th>
-									<th className={styles.tableHeaderCell}>Acoes</th>
+									<th className={`${styles.tableHeaderCell} ${styles.colActions}`}>Acoes</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -612,7 +630,7 @@ export function PropertyOwnersPage() {
 									const avatarColor = getAvatarColor(owner.name)
 									return (
 										<tr key={owner.id} className={styles.tableRow}>
-											<td className={styles.tableCell}>
+											<td className={`${styles.tableCell} ${styles.colOwner}`}>
 												<div className={styles.ownerMainInfo}>
 													{owner.photoUrl ? (
 														<img
@@ -650,7 +668,7 @@ export function PropertyOwnersPage() {
 													</div>
 												</div>
 											</td>
-											<td className={styles.tableCell}>
+											<td className={`${styles.tableCell} ${styles.colContact}`}>
 												<div className={styles.contactInfo}>
 													{owner.email ? (
 														<div className={styles.contactRow}>
@@ -678,7 +696,7 @@ export function PropertyOwnersPage() {
 													)}
 												</div>
 											</td>
-											<td className={styles.tableCell}>
+											<td className={`${styles.tableCell} ${styles.colLocation}`}>
 												{owner.city || owner.state ? (
 													<div className={styles.contactRow}>
 														<MapPin size={14} className={styles.contactIcon} />
@@ -695,7 +713,7 @@ export function PropertyOwnersPage() {
 													</div>
 												)}
 											</td>
-											<td className={styles.tableCell}>
+											<td className={`${styles.tableCell} ${styles.colProperties}`}>
 												<div className={styles.propertiesCount}>
 													<Building2 size={14} className={styles.contactIcon} />
 													<span className={styles.propertiesCountText}>
@@ -703,7 +721,7 @@ export function PropertyOwnersPage() {
 													</span>
 												</div>
 											</td>
-											<td className={styles.tableCell}>
+											<td className={`${styles.tableCell} ${styles.colDate}`}>
 												<div className={styles.contactInfo}>
 													<div className={styles.contactRow}>
 														<Calendar size={14} className={styles.contactIcon} />
@@ -713,7 +731,7 @@ export function PropertyOwnersPage() {
 													</div>
 												</div>
 											</td>
-											<td className={styles.tableCell}>
+											<td className={`${styles.tableCell} ${styles.colActions}`}>
 												<div className={styles.actions}>
 													<button
 														type="button"
@@ -807,6 +825,7 @@ export function PropertyOwnersPage() {
 				isOpen={isEditModalOpen}
 				onClose={closeModal}
 				propertyOwner={editOwnerData || null}
+				isLoading={isLoadingOwner}
 			/>
 
 			<ConfirmDialog
@@ -819,6 +838,8 @@ export function PropertyOwnersPage() {
 				cancelText="Cancelar"
 				isLoading={deleteMutation.isPending}
 				variant="danger"
+				requireConfirmation
+				confirmationText="EXCLUIR"
 			/>
 		</AdminLayout>
 	)

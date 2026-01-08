@@ -2,7 +2,7 @@
 
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
-import { useRef, useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./Footer.module.css";
 
 // ============================================
@@ -53,7 +53,13 @@ const socialLinks = [
 // ============================================
 
 function TerminalPrompt() {
-  const [currentTime, setCurrentTime] = useState("");
+  const [currentTime, setCurrentTime] = useState(() => {
+    const now = new Date();
+    return now.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  });
 
   useEffect(() => {
     const updateTime = () => {
@@ -62,11 +68,10 @@ function TerminalPrompt() {
         now.toLocaleTimeString("pt-BR", {
           hour: "2-digit",
           minute: "2-digit",
-          second: "2-digit",
         }),
       );
     };
-    updateTime();
+
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, []);
@@ -182,12 +187,11 @@ function SocialBlock() {
 }
 
 function StatusIndicator() {
-  const [status, setStatus] = useState<"online" | "away">("online");
-
-  useEffect(() => {
+  // Calculate status once on mount - no need for useEffect
+  const [status] = useState<"online" | "away">(() => {
     const hour = new Date().getHours();
-    setStatus(hour >= 9 && hour < 18 ? "online" : "away");
-  }, []);
+    return hour >= 9 && hour < 18 ? "online" : "away";
+  });
 
   return (
     <div className={styles.statusIndicator}>

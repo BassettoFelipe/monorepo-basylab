@@ -28,6 +28,7 @@ export interface PropertyPhoto {
 
 export interface Property {
 	id: string
+	code: string | null
 	ownerId: string
 	brokerId: string | null
 	title: string
@@ -49,6 +50,8 @@ export interface Property {
 	iptuPrice: number | null
 	condoFee: number | null
 	features: PropertyFeatures | null
+	createdAt?: string
+	updatedAt?: string
 	owner?: {
 		id: string
 		name: string
@@ -109,6 +112,7 @@ export interface UpdatePropertyInput {
 
 export interface ListPropertiesParams {
 	search?: string
+	ownerId?: string
 	type?: PropertyType
 	listingType?: ListingType
 	status?: PropertyStatus

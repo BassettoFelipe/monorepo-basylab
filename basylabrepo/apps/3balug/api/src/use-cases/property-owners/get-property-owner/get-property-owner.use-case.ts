@@ -32,6 +32,8 @@ type GetPropertyOwnerOutput = {
 	zipCode: string | null
 	photoUrl: string | null
 	notes: string | null
+	createdAt: string
+	updatedAt: string
 }
 
 const ALLOWED_ROLES: UserRole[] = [
@@ -88,6 +90,8 @@ export class GetPropertyOwnerUseCase {
 			zipCode: propertyOwner.zipCode,
 			photoUrl: propertyOwner.photoUrl,
 			notes: propertyOwner.notes,
+			createdAt: propertyOwner.createdAt.toISOString(),
+			updatedAt: propertyOwner.updatedAt.toISOString(),
 		}
 	}
 }

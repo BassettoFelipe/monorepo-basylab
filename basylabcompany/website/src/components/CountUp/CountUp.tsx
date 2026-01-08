@@ -1,7 +1,7 @@
 "use client";
 
 import { useInView, useMotionValue, useSpring } from "motion/react";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 
 interface CountUpProps {
   to: number;
@@ -14,6 +14,17 @@ interface CountUpProps {
   separator?: string;
   onStart?: () => void;
   onEnd?: () => void;
+}
+
+function getDecimalPlaces(num: number): number {
+  const str = num.toString();
+  if (str.includes(".")) {
+    const decimals = str.split(".")[1];
+    if (Number.parseInt(decimals, 10) !== 0) {
+      return decimals.length;
+    }
+  }
+  return 0;
 }
 
 export const CountUp = ({
@@ -29,7 +40,8 @@ export const CountUp = ({
   onEnd,
 }: CountUpProps) => {
   const ref = useRef<HTMLSpanElement>(null);
-  const motionValue = useMotionValue(direction === "down" ? to : from);
+  const initialValue = direction === "down" ? to : from;
+  const motionValue = useMotionValue(initialValue);
 
   const damping = 20 + 40 * (1 / duration);
   const stiffness = 100 * (1 / duration);
@@ -41,91 +53,72 @@ export const CountUp = ({
 
   const isInView = useInView(ref, { once: true, margin: "0px" });
 
-  const getDecimalPlaces = (num: number): number => {
-    const str = num.toString();
+  // Memoize formatter config - only recalculate when from/to/separator change
+  const formatConfig = useMemo(() => {
+    const maxDecimals = Math.max(getDecimalPlaces(from), getDecimalPlaces(to));
+    const hasDecimals = maxDecimals > 0;
 
-    if (str.includes(".")) {
-      const decimals = str.split(".")[1];
+    const options: Intl.NumberFormatOptions = {
+      useGrouping: !!separator,
+      minimumFractionDigits: hasDecimals ? maxDecimals : 0,
+      maximumFractionDigits: hasDecimals ? maxDecimals : 0,
+    };
 
-      if (Number.parseInt(decimals, 10) !== 0) {
-        return decimals.length;
-      }
-    }
+    const formatter = new Intl.NumberFormat("en-US", options);
+    return { formatter, separator };
+  }, [from, to, separator]);
 
-    return 0;
-  };
+  // Use refs for callbacks to avoid recreating effects
+  const callbacksRef = useRef({ onStart, onEnd });
+  callbacksRef.current = { onStart, onEnd };
 
-  const maxDecimals = Math.max(getDecimalPlaces(from), getDecimalPlaces(to));
-
-  const formatValue = useCallback(
-    (latest: number): string => {
-      const hasDecimals = maxDecimals > 0;
-
-      const options: Intl.NumberFormatOptions = {
-        useGrouping: !!separator,
-        minimumFractionDigits: hasDecimals ? maxDecimals : 0,
-        maximumFractionDigits: hasDecimals ? maxDecimals : 0,
-      };
-
-      const formattedNumber = Intl.NumberFormat("en-US", options).format(
-        latest,
-      );
-
-      return separator
-        ? formattedNumber.replace(/,/g, separator)
-        : formattedNumber;
-    },
-    [maxDecimals, separator],
-  );
-
+  // Set initial value
   useEffect(() => {
     if (ref.current) {
-      ref.current.textContent = formatValue(direction === "down" ? to : from);
+      const formatted = formatConfig.formatter.format(initialValue);
+      ref.current.textContent = formatConfig.separator
+        ? formatted.replace(/,/g, formatConfig.separator)
+        : formatted;
     }
-  }, [from, to, direction, formatValue]);
+  }, [initialValue, formatConfig]);
 
+  // Animation trigger effect
   useEffect(() => {
-    if (isInView && startWhen) {
-      if (typeof onStart === "function") onStart();
+    if (!isInView || !startWhen) return;
 
-      const timeoutId = setTimeout(() => {
-        motionValue.set(direction === "down" ? from : to);
-      }, delay * 1000);
+    callbacksRef.current.onStart?.();
 
-      const durationTimeoutId = setTimeout(
-        () => {
-          if (typeof onEnd === "function") onEnd();
-        },
-        delay * 1000 + duration * 1000,
-      );
+    const targetValue = direction === "down" ? from : to;
+    const timeoutId = setTimeout(() => {
+      motionValue.set(targetValue);
+    }, delay * 1000);
 
-      return () => {
-        clearTimeout(timeoutId);
-        clearTimeout(durationTimeoutId);
-      };
-    }
-  }, [
-    isInView,
-    startWhen,
-    motionValue,
-    direction,
-    from,
-    to,
-    delay,
-    onStart,
-    onEnd,
-    duration,
-  ]);
+    const durationTimeoutId = setTimeout(
+      () => {
+        callbacksRef.current.onEnd?.();
+      },
+      delay * 1000 + duration * 1000,
+    );
 
+    return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(durationTimeoutId);
+    };
+  }, [isInView, startWhen, direction, from, to, delay, duration, motionValue]);
+
+  // Subscribe to spring value changes
   useEffect(() => {
     const unsubscribe = springValue.on("change", (latest) => {
       if (ref.current) {
-        ref.current.textContent = formatValue(latest);
+        const formatted = formatConfig.formatter.format(latest);
+        ref.current.textContent = formatConfig.separator
+          ? formatted.replace(/,/g, formatConfig.separator)
+          : formatted;
       }
     });
 
     return () => unsubscribe();
-  }, [springValue, formatValue]);
+  }, [springValue, formatConfig]);
 
   return <span className={className} ref={ref} />;
 };

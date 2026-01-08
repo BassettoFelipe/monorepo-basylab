@@ -1,46 +1,76 @@
 import {
 	ArrowLeft,
+	Bath,
+	Bed,
 	Building2,
 	Calendar,
-	ChevronRight,
+	Car,
+	ChevronDown,
 	Clock,
 	Download,
 	Edit,
 	ExternalLink,
 	FileText,
 	FolderOpen,
+	Home,
 	Mail,
 	MapPin,
 	Phone,
+	Ruler,
 	Trash2,
 	User,
 	UserX,
 } from 'lucide-react'
+import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/Button/Button'
 import { ConfirmDialog } from '@/components/ConfirmDialog/ConfirmDialog'
 import { Skeleton } from '@/components/Skeleton/Skeleton'
 import { AdminLayout } from '@/layouts/AdminLayout/AdminLayout'
+import { useDocumentsQuery } from '@/queries/documents/documents.queries'
 import { useDeletePropertyOwnerMutation } from '@/queries/property-owners/useDeletePropertyOwnerMutation'
 import { usePropertyOwnerQuery } from '@/queries/property-owners/usePropertyOwnerQuery'
-import { useDocumentsQuery } from '@/queries/documents/documents.queries'
+import { usePropertiesQuery } from '@/queries/properties/usePropertiesQuery'
 import { DOCUMENT_ENTITY_TYPES, DOCUMENT_TYPE_LABELS } from '@/types/document.types'
-import { applyMask } from '@/utils/masks'
-import { useState } from 'react'
+import { MARITAL_STATUS_LABELS } from '@/types/property-owner.types'
+import type { Property, PropertyStatus } from '@/types/property.types'
+import { getAvatarColor, getInitials } from '@/utils/avatar'
+import { formatCep, formatCurrencyFromCents, formatDateOrNull, formatDocument, formatPhone } from '@/utils/format'
 import * as styles from './styles.css'
 
-const MARITAL_STATUS_LABELS: Record<string, string> = {
-	solteiro: 'Solteiro(a)',
-	casado: 'Casado(a)',
-	divorciado: 'Divorciado(a)',
-	viuvo: 'Viuvo(a)',
-	uniao_estavel: 'Uniao Estavel',
+// Alias para uso no componente onde esperamos null em vez de '-'
+const formatDate = formatDateOrNull
+
+const PROPERTY_TYPE_LABELS: Record<string, string> = {
+	house: 'Casa',
+	apartment: 'Apartamento',
+	land: 'Terreno',
+	commercial: 'Comercial',
+	rural: 'Rural',
 }
+
+const LISTING_TYPE_LABELS: Record<string, string> = {
+	rent: 'Locacao',
+	sale: 'Venda',
+	both: 'Locacao e Venda',
+}
+
+const STATUS_LABELS: Record<string, string> = {
+	available: 'Disponivel',
+	rented: 'Alugado',
+	sold: 'Vendido',
+	maintenance: 'Manutencao',
+	unavailable: 'Indisponivel',
+}
+
+type StatusFilter = 'all' | PropertyStatus
 
 export function PropertyOwnerProfilePage() {
 	const { id } = useParams<{ id: string }>()
 	const navigate = useNavigate()
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+	const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+	const [propertiesLimit, setPropertiesLimit] = useState(5)
 
 	const { data: owner, isLoading, error } = usePropertyOwnerQuery(id || '')
 	const { data: documentsData, isLoading: isLoadingDocs } = useDocumentsQuery(
@@ -48,49 +78,38 @@ export function PropertyOwnerProfilePage() {
 		id || '',
 		{ enabled: !!id },
 	)
+	const { data: propertiesData, isLoading: isLoadingProperties } = usePropertiesQuery({
+		ownerId: id,
+		status: statusFilter === 'all' ? undefined : statusFilter,
+		limit: 100,
+	})
 	const deleteMutation = useDeletePropertyOwnerMutation()
-
-	const formatDocument = (doc: string, type: 'cpf' | 'cnpj') => {
-		return applyMask(doc, type)
-	}
-
-	const formatPhone = (phone: string) => {
-		return applyMask(phone, 'phone')
-	}
-
-	const formatDate = (dateString: string | null | undefined) => {
-		if (!dateString) return null
-		try {
-			const date = new Date(dateString)
-			if (Number.isNaN(date.getTime())) return null
-			return date.toLocaleDateString('pt-BR')
-		} catch {
-			return null
-		}
-	}
-
-	const getInitials = (name: string) => {
-		const parts = name.trim().split(' ')
-		if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
-		return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
-	}
-
-	const getAvatarColor = (name: string) => {
-		const colors = [
-			{ bg: '#DBEAFE', text: '#1E40AF' },
-			{ bg: '#E0E7FF', text: '#4338CA' },
-			{ bg: '#D1FAE5', text: '#065F46' },
-			{ bg: '#FEF3C7', text: '#92400E' },
-			{ bg: '#FCE7F3', text: '#9D174D' },
-			{ bg: '#E0F2FE', text: '#0369A1' },
-			{ bg: '#F3E8FF', text: '#7C3AED' },
-		]
-		const index = name.length % colors.length
-		return colors[index]
-	}
 
 	const isImageFile = (mimeType: string) => {
 		return mimeType.startsWith('image/')
+	}
+
+	const getStatusStyle = (status: string) => {
+		switch (status) {
+			case 'available':
+				return styles.statusAvailable
+			case 'rented':
+				return styles.statusRented
+			case 'sold':
+				return styles.statusSold
+			case 'maintenance':
+				return styles.statusMaintenance
+			default:
+				return styles.statusUnavailable
+		}
+	}
+
+	const getPropertyLocation = (property: Property) => {
+		const parts = []
+		if (property.neighborhood) parts.push(property.neighborhood)
+		if (property.city) parts.push(property.city)
+		if (property.state) parts.push(property.state)
+		return parts.join(', ') || 'Localizacao nao informada'
 	}
 
 	const handleEdit = () => {
@@ -226,11 +245,11 @@ export function PropertyOwnerProfilePage() {
 									<span className={styles.statValue}>{owner.propertiesCount ?? 0}</span>
 									<span>imoveis</span>
 								</div>
-								{formatDate(owner.createdAt) && (
+								{formatDateOrNull(owner.createdAt) && (
 									<div className={styles.statItem}>
 										<Calendar size={14} className={styles.statIcon} />
 										<span>Cliente desde</span>
-										<span className={styles.statValue}>{formatDate(owner.createdAt)}</span>
+										<span className={styles.statValue}>{formatDateOrNull(owner.createdAt)}</span>
 									</div>
 								)}
 							</div>
@@ -344,7 +363,7 @@ export function PropertyOwnerProfilePage() {
 									<div className={styles.infoItem}>
 										<span className={styles.infoLabel}>CEP</span>
 										<span className={owner.zipCode ? styles.infoValue : styles.infoValueMuted}>
-											{owner.zipCode ? applyMask(owner.zipCode, 'cep') : '-'}
+											{formatCep(owner.zipCode) || '-'}
 										</span>
 									</div>
 								</div>
@@ -367,10 +386,10 @@ export function PropertyOwnerProfilePage() {
 											<span className={styles.infoValue}>{owner.rg}</span>
 										</div>
 									)}
-									{owner.birthDate && formatDate(owner.birthDate) && (
+									{owner.birthDate && formatDateOrNull(owner.birthDate) && (
 										<div className={styles.infoItem}>
 											<span className={styles.infoLabel}>Nascimento</span>
-											<span className={styles.infoValue}>{formatDate(owner.birthDate)}</span>
+											<span className={styles.infoValue}>{formatDateOrNull(owner.birthDate)}</span>
 										</div>
 									)}
 									{owner.nationality && (
@@ -409,6 +428,191 @@ export function PropertyOwnerProfilePage() {
 								<div className={styles.notesContent}>{owner.notes}</div>
 							</div>
 						)}
+
+						{/* Properties History Card */}
+						<div className={styles.card}>
+							<div className={styles.cardHeader}>
+								<div className={styles.propertiesHistoryHeader}>
+									<h3 className={styles.cardTitle}>
+										<Building2 size={16} className={styles.cardTitleIcon} />
+										Historico de Imoveis
+									</h3>
+									<div className={styles.propertiesHistoryFilters}>
+										<button
+											type="button"
+											className={`${styles.filterButton} ${statusFilter === 'all' ? styles.filterButtonActive : ''}`}
+											onClick={() => setStatusFilter('all')}
+										>
+											Todos
+										</button>
+										<button
+											type="button"
+											className={`${styles.filterButton} ${statusFilter === 'available' ? styles.filterButtonActive : ''}`}
+											onClick={() => setStatusFilter('available')}
+										>
+											Disponiveis
+										</button>
+										<button
+											type="button"
+											className={`${styles.filterButton} ${statusFilter === 'rented' ? styles.filterButtonActive : ''}`}
+											onClick={() => setStatusFilter('rented')}
+										>
+											Alugados
+										</button>
+										<button
+											type="button"
+											className={`${styles.filterButton} ${statusFilter === 'sold' ? styles.filterButtonActive : ''}`}
+											onClick={() => setStatusFilter('sold')}
+										>
+											Vendidos
+										</button>
+									</div>
+								</div>
+								<span className={styles.cardCount}>{propertiesData?.total ?? 0}</span>
+							</div>
+
+							{isLoadingProperties ? (
+								<div className={styles.propertiesList}>
+									<Skeleton width="100%" height="120px" borderRadius="12px" />
+									<Skeleton width="100%" height="120px" borderRadius="12px" />
+								</div>
+							) : propertiesData && propertiesData.data.length > 0 ? (
+								<>
+									<div className={styles.propertiesList}>
+										{propertiesData.data.slice(0, propertiesLimit).map((property) => (
+											<Link
+												key={property.id}
+												to={`/properties/${property.id}`}
+												className={styles.propertyCard}
+											>
+												<div className={styles.propertyImageContainer}>
+													{property.photos && property.photos.length > 0 ? (
+														<img
+															src={property.photos[0].url}
+															alt={property.title}
+															className={styles.propertyImage}
+														/>
+													) : (
+														<div className={styles.propertyImagePlaceholder}>
+															<Home size={32} />
+														</div>
+													)}
+												</div>
+												<div className={styles.propertyInfo}>
+													<div className={styles.propertyHeader}>
+														<h4 className={styles.propertyTitle}>{property.title}</h4>
+														{property.code && (
+															<span className={styles.propertyCode}>{property.code}</span>
+														)}
+													</div>
+													<div className={styles.propertyBadges}>
+														<span className={styles.propertyTypeBadge}>
+															{PROPERTY_TYPE_LABELS[property.type] || property.type}
+														</span>
+														<span className={styles.listingTypeBadge}>
+															{LISTING_TYPE_LABELS[property.listingType] || property.listingType}
+														</span>
+														<span className={`${styles.statusBadge} ${getStatusStyle(property.status)}`}>
+															{STATUS_LABELS[property.status] || property.status}
+														</span>
+													</div>
+													<div className={styles.propertyLocation}>
+														<MapPin size={12} />
+														<span>{getPropertyLocation(property)}</span>
+													</div>
+													<div className={styles.propertyMeta}>
+														{property.bedrooms !== null && property.bedrooms > 0 && (
+															<div className={styles.propertyMetaItem}>
+																<Bed size={12} className={styles.propertyMetaIcon} />
+																<span className={styles.propertyMetaValue}>{property.bedrooms}</span>
+																<span>quartos</span>
+															</div>
+														)}
+														{property.bathrooms !== null && property.bathrooms > 0 && (
+															<div className={styles.propertyMetaItem}>
+																<Bath size={12} className={styles.propertyMetaIcon} />
+																<span className={styles.propertyMetaValue}>{property.bathrooms}</span>
+																<span>banheiros</span>
+															</div>
+														)}
+														{property.parkingSpaces !== null && property.parkingSpaces > 0 && (
+															<div className={styles.propertyMetaItem}>
+																<Car size={12} className={styles.propertyMetaIcon} />
+																<span className={styles.propertyMetaValue}>{property.parkingSpaces}</span>
+																<span>vagas</span>
+															</div>
+														)}
+														{property.area !== null && property.area > 0 && (
+															<div className={styles.propertyMetaItem}>
+																<Ruler size={12} className={styles.propertyMetaIcon} />
+																<span className={styles.propertyMetaValue}>{property.area}</span>
+																<span>m²</span>
+															</div>
+														)}
+													</div>
+												</div>
+												<div className={styles.propertyPricing}>
+													{property.listingType !== 'sale' && property.rentalPrice ? (
+														<div>
+															<span className={styles.propertyPrice}>
+																{formatCurrencyFromCents(property.rentalPrice)}
+															</span>
+															<span className={styles.propertyPriceLabel}>/mes</span>
+														</div>
+													) : property.salePrice ? (
+														<div>
+															<span className={styles.propertyPrice}>
+																{formatCurrencyFromCents(property.salePrice)}
+															</span>
+															<span className={styles.propertyPriceLabel}>venda</span>
+														</div>
+													) : (
+														<span className={styles.propertyPriceLabel}>Preco nao informado</span>
+													)}
+												</div>
+											</Link>
+										))}
+									</div>
+									{propertiesData.data.length > propertiesLimit && (
+										<button
+											type="button"
+											className={styles.loadMoreButton}
+											onClick={() => setPropertiesLimit((prev) => prev + 5)}
+										>
+											<ChevronDown size={16} />
+											Ver mais imoveis ({propertiesData.data.length - propertiesLimit} restantes)
+										</button>
+									)}
+								</>
+							) : (
+								<div className={styles.propertiesEmptyState}>
+									<div className={styles.propertiesEmptyIcon}>
+										<Building2 size={28} />
+									</div>
+									{statusFilter === 'all' ? (
+										<>
+											<h4 className={styles.propertiesEmptyTitle}>
+												Nenhum imovel cadastrado
+											</h4>
+											<p className={styles.propertiesEmptyDescription}>
+												Este proprietario ainda nao possui imoveis vinculados.
+												Cadastre um novo imovel e vincule a este proprietario.
+											</p>
+										</>
+									) : (
+										<>
+											<h4 className={styles.propertiesEmptyTitle}>
+												Nenhum imovel {STATUS_LABELS[statusFilter]?.toLowerCase()}
+											</h4>
+											<p className={styles.propertiesEmptyDescription}>
+												Nao ha imoveis com o status "{STATUS_LABELS[statusFilter]}" para este proprietario.
+												Tente selecionar outro filtro.
+											</p>
+										</>
+									)}
+								</div>
+							)}
+						</div>
 
 						{/* Documents Card */}
 						<div className={styles.card}>
@@ -475,29 +679,6 @@ export function PropertyOwnerProfilePage() {
 					</div>
 
 					<div className={styles.sideColumn}>
-						{/* Properties Card */}
-						<div className={styles.card}>
-							<div className={styles.cardHeader}>
-								<h3 className={styles.cardTitle}>
-									<Building2 size={16} className={styles.cardTitleIcon} />
-									Imoveis
-								</h3>
-							</div>
-							<div className={styles.propertiesContent}>
-								<Building2 size={24} className={styles.propertiesIcon} />
-								<span className={styles.propertiesCount}>{owner.propertiesCount ?? 0}</span>
-								<span className={styles.propertiesLabel}>
-									{owner.propertiesCount === 1 ? 'imovel vinculado' : 'imoveis vinculados'}
-								</span>
-							</div>
-							{owner.propertiesCount && owner.propertiesCount > 0 && (
-								<Link to={`/properties?ownerId=${id}`} className={styles.viewAllLink}>
-									Ver imoveis
-									<ChevronRight size={14} />
-								</Link>
-							)}
-						</div>
-
 						{/* Metadata Card */}
 						<div className={styles.card}>
 							<div className={styles.cardHeader}>
@@ -506,26 +687,33 @@ export function PropertyOwnerProfilePage() {
 									Registro
 								</h3>
 							</div>
-							<div className={styles.metadataList}>
-								{formatDate(owner.createdAt) && (
-									<div className={styles.metadataItem}>
-										<Calendar size={14} className={styles.metadataIcon} />
-										<div className={styles.metadataInfo}>
-											<span className={styles.metadataLabel}>Criado em</span>
-											<span className={styles.metadataValue}>{formatDate(owner.createdAt)}</span>
+							{formatDate(owner.createdAt) || (owner.updatedAt && formatDate(owner.updatedAt)) ? (
+								<div className={styles.metadataList}>
+									{formatDate(owner.createdAt) && (
+										<div className={styles.metadataItem}>
+											<Calendar size={14} className={styles.metadataIcon} />
+											<div className={styles.metadataInfo}>
+												<span className={styles.metadataLabel}>Criado em</span>
+												<span className={styles.metadataValue}>{formatDate(owner.createdAt)}</span>
+											</div>
 										</div>
-									</div>
-								)}
-								{owner.updatedAt && formatDate(owner.updatedAt) && (
-									<div className={styles.metadataItem}>
-										<Clock size={14} className={styles.metadataIcon} />
-										<div className={styles.metadataInfo}>
-											<span className={styles.metadataLabel}>Atualizado em</span>
-											<span className={styles.metadataValue}>{formatDate(owner.updatedAt)}</span>
+									)}
+									{owner.updatedAt && formatDate(owner.updatedAt) && (
+										<div className={styles.metadataItem}>
+											<Clock size={14} className={styles.metadataIcon} />
+											<div className={styles.metadataInfo}>
+												<span className={styles.metadataLabel}>Atualizado em</span>
+												<span className={styles.metadataValue}>{formatDate(owner.updatedAt)}</span>
+											</div>
 										</div>
-									</div>
-								)}
-							</div>
+									)}
+								</div>
+							) : (
+								<div className={styles.emptyState}>
+									<Clock size={20} />
+									<p className={styles.emptyStateText}>Sem informacoes de registro</p>
+								</div>
+							)}
 						</div>
 					</div>
 				</div>

@@ -24,6 +24,7 @@ export const listPropertiesController = new Elysia().guard({ as: 'local' }, (app
 			async ({ validatedUser, query }) => {
 				const result = await container.properties.list.execute({
 					search: query.search,
+					ownerId: query.ownerId,
 					type: query.type as PropertyType | undefined,
 					listingType: query.listingType as ListingType | undefined,
 					status: query.status as PropertyStatus | undefined,
@@ -41,7 +42,11 @@ export const listPropertiesController = new Elysia().guard({ as: 'local' }, (app
 
 				return {
 					success: true,
-					data: result.data,
+					data: result.data.map((property) => ({
+						...property,
+						createdAt: property.createdAt?.toISOString(),
+						updatedAt: property.updatedAt?.toISOString(),
+					})),
 					total: result.total,
 					limit: result.limit,
 					offset: result.offset,

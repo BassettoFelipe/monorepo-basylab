@@ -7,6 +7,7 @@ import { USER_ROLES } from '@/types/roles'
 
 type ListPropertiesInput = {
 	search?: string
+	ownerId?: string
 	type?: PropertyType
 	listingType?: ListingType
 	status?: PropertyStatus
@@ -22,7 +23,7 @@ type ListPropertiesInput = {
 	requestedBy: User
 }
 
-type PropertyListItem = Omit<Property, 'createdAt' | 'updatedAt' | 'createdBy' | 'companyId'>
+type PropertyListItem = Omit<Property, 'createdBy' | 'companyId' | 'deletedAt' | 'deletedBy'>
 
 type ListPropertiesOutput = {
 	data: PropertyListItem[]
@@ -60,6 +61,7 @@ export class ListPropertiesUseCase {
 		const result = await this.propertyRepository.list({
 			companyId: currentUser.companyId,
 			brokerId,
+			ownerId: input.ownerId,
 			search: input.search,
 			type: input.type,
 			listingType: input.listingType,
@@ -77,10 +79,10 @@ export class ListPropertiesUseCase {
 
 		const cleanData: PropertyListItem[] = result.data.map((property) => {
 			const {
-				createdAt: _createdAt,
-				updatedAt: _updatedAt,
 				createdBy: _createdBy,
 				companyId: _companyId,
+				deletedAt: _deletedAt,
+				deletedBy: _deletedBy,
 				...rest
 			} = property
 			return rest

@@ -1,12 +1,7 @@
 "use client";
 
-import {
-  motion,
-  useMotionValueEvent,
-  useScroll,
-  AnimatePresence,
-} from "framer-motion";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
 import styles from "./Header.module.css";
 
 const navItems = [
@@ -17,6 +12,8 @@ const navItems = [
   { id: "cases", label: "Cases", sectionId: "cases" },
   { id: "contact", label: "Contato", sectionId: "contato" },
 ];
+
+const CIRCUMFERENCE = 2 * Math.PI * 10;
 
 function smoothScrollTo(targetId: string) {
   const element = document.getElementById(targetId);
@@ -36,21 +33,49 @@ export function Header() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showNav, setShowNav] = useState(false);
-  const { scrollY } = useScroll();
+  const [scrollProgress, setScrollProgress] = useState(0);
   const collapseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    const footer = document.querySelector("footer");
-    if (footer) {
-      const footerTop = footer.getBoundingClientRect().top;
-      const windowHeight = window.innerHeight;
-      // Hide nav when footer is visible (with some buffer)
-      const isFooterVisible = footerTop < windowHeight - 100;
-      setShowNav(latest > 300 && !isFooterVisible);
-    } else {
-      setShowNav(latest > 300);
-    }
-  });
+  // Single unified scroll handler for all scroll-related state
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+
+      // Update scroll progress
+      const scrollPercent = docHeight > 0 ? scrollTop / docHeight : 0;
+      setScrollProgress(Math.min(Math.max(scrollPercent, 0), 1));
+
+      // Update nav visibility
+      const footer = document.querySelector("footer");
+      if (footer) {
+        const footerTop = footer.getBoundingClientRect().top;
+        const windowHeight = window.innerHeight;
+        const isFooterVisible = footerTop < windowHeight - 100;
+        setShowNav(scrollTop > 300 && !isFooterVisible);
+      } else {
+        setShowNav(scrollTop > 300);
+      }
+
+      // Update active section
+      const headerHeight = 150;
+      const scrollPosition = scrollTop + headerHeight;
+
+      for (let i = navItems.length - 1; i >= 0; i--) {
+        const element = document.getElementById(navItems[i].sectionId);
+        if (element && scrollPosition >= element.offsetTop) {
+          setActiveSection(navItems[i].sectionId);
+          return;
+        }
+      }
+      setActiveSection(null);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleMouseEnter = () => {
     if (collapseTimeoutRef.current) {
@@ -66,40 +91,13 @@ export function Header() {
     }, 150);
   };
 
-  const updateActiveSection = useCallback(() => {
-    const sections = navItems.map((item) => ({
-      id: item.sectionId,
-      element: document.getElementById(item.sectionId),
-    }));
-
-    const headerHeight = 150;
-    const scrollPosition = window.scrollY + headerHeight;
-
-    for (let i = sections.length - 1; i >= 0; i--) {
-      const section = sections[i];
-      if (section.element) {
-        const sectionTop = section.element.offsetTop;
-        if (scrollPosition >= sectionTop) {
-          setActiveSection(section.id);
-          return;
-        }
-      }
-    }
-    setActiveSection(null);
-  }, []);
-
-  useEffect(() => {
-    updateActiveSection();
-    window.addEventListener("scroll", updateActiveSection, { passive: true });
-    return () => window.removeEventListener("scroll", updateActiveSection);
-  }, [updateActiveSection]);
-
   const handleNavClick = (sectionId: string) => {
     smoothScrollTo(sectionId);
     setIsExpanded(false);
   };
 
   const activeItem = navItems.find((item) => item.sectionId === activeSection);
+  const strokeDashoffset = CIRCUMFERENCE - scrollProgress * CIRCUMFERENCE;
 
   return (
     <AnimatePresence>
@@ -111,15 +109,38 @@ export function Header() {
           exit={{ opacity: 0, x: 50, scale: 0.8 }}
           transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
-          {/* Collapsed state - just shows current section */}
           <motion.div
             className={styles.navPill}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             layout
           >
-            {/* Progress indicator */}
-            <ScrollProgressRing />
+            {/* Progress indicator - inline to avoid extra component overhead */}
+            <div className={styles.progressRing}>
+              <svg width="28" height="28" viewBox="0 0 28 28">
+                <circle
+                  cx="14"
+                  cy="14"
+                  r="10"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.1)"
+                  strokeWidth="2"
+                />
+                <circle
+                  cx="14"
+                  cy="14"
+                  r="10"
+                  fill="none"
+                  stroke="var(--color-brand-primary)"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeDasharray={CIRCUMFERENCE}
+                  strokeDashoffset={strokeDashoffset}
+                  transform="rotate(-90 14 14)"
+                />
+              </svg>
+              <div className={styles.progressDot} />
+            </div>
 
             {/* Navigation items */}
             <AnimatePresence mode="wait">
@@ -179,54 +200,5 @@ export function Header() {
         </motion.nav>
       )}
     </AnimatePresence>
-  );
-}
-
-function ScrollProgressRing() {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const updateProgress = () => {
-      const scrollTop = window.scrollY;
-      const docHeight =
-        document.documentElement.scrollHeight - window.innerHeight;
-      const scrollPercent = docHeight > 0 ? scrollTop / docHeight : 0;
-      setProgress(Math.min(Math.max(scrollPercent, 0), 1));
-    };
-
-    updateProgress();
-    window.addEventListener("scroll", updateProgress, { passive: true });
-    return () => window.removeEventListener("scroll", updateProgress);
-  }, []);
-
-  const circumference = 2 * Math.PI * 10;
-  const strokeDashoffset = circumference - progress * circumference;
-
-  return (
-    <div className={styles.progressRing}>
-      <svg width="28" height="28" viewBox="0 0 28 28">
-        <circle
-          cx="14"
-          cy="14"
-          r="10"
-          fill="none"
-          stroke="rgba(255,255,255,0.1)"
-          strokeWidth="2"
-        />
-        <circle
-          cx="14"
-          cy="14"
-          r="10"
-          fill="none"
-          stroke="var(--color-brand-primary)"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
-          transform="rotate(-90 14 14)"
-        />
-      </svg>
-      <div className={styles.progressDot} />
-    </div>
   );
 }

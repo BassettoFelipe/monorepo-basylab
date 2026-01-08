@@ -332,15 +332,22 @@ function FloatingParticles() {
   );
 }
 
-function StatusBar() {
-  const [time, setTime] = useState("");
-  const [statusIndex, setStatusIndex] = useState(0);
+const STATUS_MESSAGES = [
+  { text: "sistemas operacionais", icon: "●" },
+  { text: "aguardando input", icon: "◐" },
+  { text: "pronto para deploy", icon: "▲" },
+] as const;
 
-  const statusMessages = [
-    { text: "sistemas operacionais", icon: "●" },
-    { text: "aguardando input", icon: "◐" },
-    { text: "pronto para deploy", icon: "▲" },
-  ];
+function StatusBar() {
+  const [time, setTime] = useState(() => {
+    const now = new Date();
+    return now.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  });
+
+  const [statusIndex, setStatusIndex] = useState(0);
 
   useEffect(() => {
     const updateTime = () => {
@@ -352,16 +359,16 @@ function StatusBar() {
         }),
       );
     };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setStatusIndex((prev) => (prev + 1) % statusMessages.length);
+    const timeInterval = setInterval(updateTime, 1000);
+    const statusInterval = setInterval(() => {
+      setStatusIndex((prev) => (prev + 1) % STATUS_MESSAGES.length);
     }, 3000);
-    return () => clearInterval(interval);
+
+    return () => {
+      clearInterval(timeInterval);
+      clearInterval(statusInterval);
+    };
   }, []);
 
   return (
@@ -395,9 +402,9 @@ function StatusBar() {
           className={styles.statusMessage}
         >
           <span className={styles.statusIcon}>
-            {statusMessages[statusIndex].icon}
+            {STATUS_MESSAGES[statusIndex].icon}
           </span>
-          {statusMessages[statusIndex].text}
+          {STATUS_MESSAGES[statusIndex].text}
         </motion.span>
 
         <span className={styles.statusDivider}>|</span>
@@ -418,14 +425,22 @@ function GlitchText({ children }: { children: string }) {
   const [isGlitching, setIsGlitching] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(
-      () => {
+    let timeoutId: NodeJS.Timeout;
+
+    const scheduleGlitch = () => {
+      // Random delay between 4-6 seconds
+      const delay = 4000 + Math.random() * 2000;
+      timeoutId = setTimeout(() => {
         setIsGlitching(true);
-        setTimeout(() => setIsGlitching(false), 200);
-      },
-      4000 + Math.random() * 2000,
-    );
-    return () => clearInterval(interval);
+        setTimeout(() => {
+          setIsGlitching(false);
+          scheduleGlitch();
+        }, 200);
+      }, delay);
+    };
+
+    scheduleGlitch();
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return (

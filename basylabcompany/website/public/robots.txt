@@ -1,0 +1,60 @@
+# Robots.txt para Basylab
+# https://basylab.com.br
+
+# Permitir todos os crawlers
+User-agent: *
+Allow: /
+
+# Bloquear pastas sensíveis
+Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
+
+# Crawl-delay para ser gentil com o servidor
+Crawl-delay: 1
+
+# Sitemap
+Sitemap: https://basylab.com.br/sitemap.xml
+
+# Google Bot específico
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Google Images
+User-agent: Googlebot-Image
+Allow: /images/
+Allow: /og-image.png
+
+# Bing Bot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Bloquear bots de IA que fazem scraping sem permissão
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: FacebookBot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /

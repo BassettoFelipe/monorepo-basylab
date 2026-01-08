@@ -2,6 +2,7 @@ import { t } from 'elysia'
 
 export const listPropertiesQuerySchema = t.Object({
 	search: t.Optional(t.String()),
+	ownerId: t.Optional(t.String()),
 	type: t.Optional(
 		t.Union([
 			t.Literal('house'),
@@ -34,6 +35,7 @@ export const listPropertiesQuerySchema = t.Object({
 
 export const propertyResponseSchema = t.Object({
 	id: t.String(),
+	code: t.Union([t.String(), t.Null()]),
 	ownerId: t.String(),
 	brokerId: t.Union([t.String(), t.Null()]),
 	title: t.String(),
@@ -55,6 +57,8 @@ export const propertyResponseSchema = t.Object({
 	iptuPrice: t.Union([t.Number(), t.Null()]),
 	condoFee: t.Union([t.Number(), t.Null()]),
 	features: t.Union([t.Object({}), t.Null()]),
+	createdAt: t.Optional(t.String()),
+	updatedAt: t.Optional(t.String()),
 })
 
 export const listPropertiesResponseSchema = t.Object({

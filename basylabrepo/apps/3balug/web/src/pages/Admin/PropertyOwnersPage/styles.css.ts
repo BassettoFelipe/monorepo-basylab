@@ -103,13 +103,15 @@ export const tableWrapper = style({
 	boxShadow: vars.shadow.sm,
 	backgroundColor: vars.color.bg.primary,
 	border: `1px solid ${vars.color.border.primary}`,
+	WebkitOverflowScrolling: 'touch',
 })
 
 export const table = style({
 	width: '100%',
-	minWidth: '900px',
+	minWidth: '800px',
 	backgroundColor: vars.color.bg.primary,
 	borderCollapse: 'collapse',
+	tableLayout: 'fixed',
 })
 
 export const tableHeader = style({
@@ -126,6 +128,39 @@ export const tableHeaderCell = style({
 	textTransform: 'uppercase',
 	letterSpacing: '0.5px',
 	whiteSpace: 'nowrap',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+})
+
+export const colOwner = style({
+	width: '25%',
+	minWidth: '200px',
+})
+
+export const colContact = style({
+	width: '20%',
+	minWidth: '160px',
+})
+
+export const colLocation = style({
+	width: '15%',
+	minWidth: '120px',
+})
+
+export const colProperties = style({
+	width: '10%',
+	minWidth: '80px',
+})
+
+export const colDate = style({
+	width: '12%',
+	minWidth: '100px',
+})
+
+export const colActions = style({
+	width: '110px',
+	minWidth: '110px',
+	maxWidth: '110px',
 })
 
 export const sortableHeader = style({
@@ -306,13 +341,16 @@ export const actions = style({
 	gap: '6px',
 	alignItems: 'center',
 	justifyContent: 'flex-start',
+	flexShrink: 0,
 })
 
 export const iconButton = style({
 	border: '1px solid rgba(0, 0, 0, 0.08)',
-	padding: '6px',
+	width: '30px',
+	height: '30px',
+	padding: 0,
 	cursor: 'pointer',
-	display: 'flex',
+	display: 'inline-flex',
 	alignItems: 'center',
 	justifyContent: 'center',
 	borderRadius: vars.borderRadius.md,
@@ -321,6 +359,7 @@ export const iconButton = style({
 	backgroundColor: '#F9FAFB',
 	color: '#6B7280',
 	boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+	flexShrink: 0,
 	':hover': {
 		borderColor: '#D1D5DB',
 		color: '#374151',

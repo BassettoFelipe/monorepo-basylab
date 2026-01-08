@@ -676,3 +676,363 @@ export const errorDescription = style({
 	color: vars.color.text.secondary,
 	margin: 0,
 })
+
+// Properties History
+export const propertiesHistoryHeader = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'space-between',
+	gap: vars.spacing.md,
+	flexWrap: 'wrap',
+})
+
+export const propertiesHistoryFilters = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: vars.spacing.xs,
+})
+
+export const filterButton = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	gap: vars.spacing.xs,
+	padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
+	borderRadius: vars.borderRadius.lg,
+	backgroundColor: vars.color.bg.secondary,
+	color: vars.color.text.secondary,
+	border: `1px solid ${vars.color.border.primary}`,
+	cursor: 'pointer',
+	fontSize: vars.fontSize.xs,
+	fontWeight: vars.fontWeight.medium,
+	transition: `all ${vars.transitionDuration.fast}`,
+
+	':hover': {
+		backgroundColor: vars.color.bg.tertiary,
+		borderColor: vars.color.primary.main,
+	},
+})
+
+export const filterButtonActive = style({
+	backgroundColor: vars.color.primary.main,
+	color: vars.color.primary.dark,
+	borderColor: vars.color.primary.main,
+
+	':hover': {
+		backgroundColor: vars.color.primary.main,
+		filter: 'brightness(0.95)',
+	},
+})
+
+export const propertiesList = style({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: vars.spacing.sm,
+})
+
+export const propertyCard = style({
+	display: 'flex',
+	gap: vars.spacing.md,
+	padding: vars.spacing.md,
+	backgroundColor: vars.color.bg.primary,
+	borderRadius: vars.borderRadius.xl,
+	border: `1px solid ${vars.color.border.primary}`,
+	transition: `all ${vars.transitionDuration.fast}`,
+	cursor: 'pointer',
+	textDecoration: 'none',
+
+	':hover': {
+		borderColor: vars.color.primary.main,
+		boxShadow: vars.shadow.md,
+		transform: 'translateY(-2px)',
+	},
+
+	'@media': {
+		'(max-width: 640px)': {
+			flexDirection: 'column',
+		},
+	},
+})
+
+export const propertyImageContainer = style({
+	position: 'relative',
+	width: '120px',
+	height: '90px',
+	borderRadius: vars.borderRadius.lg,
+	overflow: 'hidden',
+	flexShrink: 0,
+	backgroundColor: vars.color.bg.secondary,
+
+	'@media': {
+		'(max-width: 640px)': {
+			width: '100%',
+			height: '160px',
+		},
+	},
+})
+
+export const propertyImage = style({
+	width: '100%',
+	height: '100%',
+	objectFit: 'cover',
+})
+
+export const propertyImagePlaceholder = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	width: '100%',
+	height: '100%',
+	color: vars.color.text.disabled,
+})
+
+export const propertyInfo = style({
+	flex: 1,
+	display: 'flex',
+	flexDirection: 'column',
+	gap: vars.spacing.xs,
+	minWidth: 0,
+})
+
+export const propertyHeader = style({
+	display: 'flex',
+	alignItems: 'flex-start',
+	justifyContent: 'space-between',
+	gap: vars.spacing.sm,
+})
+
+export const propertyTitle = style({
+	fontSize: vars.fontSize.base,
+	fontWeight: vars.fontWeight.bold,
+	color: vars.color.text.primary,
+	margin: 0,
+	lineHeight: 1.3,
+	display: '-webkit-box',
+	WebkitLineClamp: 2,
+	WebkitBoxOrient: 'vertical',
+	overflow: 'hidden',
+})
+
+export const propertyCode = style({
+	fontSize: vars.fontSize.xs,
+	fontWeight: vars.fontWeight.medium,
+	color: vars.color.text.secondary,
+	fontFamily: vars.fontFamily.mono,
+	backgroundColor: vars.color.bg.secondary,
+	padding: `2px ${vars.spacing.xs}`,
+	borderRadius: vars.borderRadius.sm,
+	flexShrink: 0,
+})
+
+export const propertyLocation = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: vars.spacing.xs,
+	fontSize: vars.fontSize.sm,
+	color: vars.color.text.secondary,
+})
+
+export const propertyMeta = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: vars.spacing.md,
+	flexWrap: 'wrap',
+	marginTop: 'auto',
+})
+
+export const propertyMetaItem = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: '4px',
+	fontSize: vars.fontSize.xs,
+	color: vars.color.text.secondary,
+})
+
+export const propertyMetaIcon = style({
+	color: vars.color.primary.dark,
+})
+
+export const propertyMetaValue = style({
+	fontWeight: vars.fontWeight.bold,
+	color: vars.color.text.primary,
+})
+
+export const propertyPricing = style({
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'flex-end',
+	justifyContent: 'space-between',
+	gap: vars.spacing.xs,
+	flexShrink: 0,
+
+	'@media': {
+		'(max-width: 640px)': {
+			flexDirection: 'row',
+			alignItems: 'center',
+		},
+	},
+})
+
+export const propertyPrice = style({
+	fontSize: vars.fontSize.lg,
+	fontWeight: vars.fontWeight.bold,
+	color: vars.color.primary.dark,
+})
+
+export const propertyPriceLabel = style({
+	fontSize: vars.fontSize.xs,
+	color: vars.color.text.secondary,
+})
+
+export const statusBadge = style({
+	display: 'inline-flex',
+	alignItems: 'center',
+	padding: `2px ${vars.spacing.xs}`,
+	borderRadius: vars.borderRadius.sm,
+	fontSize: '10px',
+	fontWeight: vars.fontWeight.bold,
+	textTransform: 'uppercase',
+	letterSpacing: '0.5px',
+})
+
+export const statusAvailable = style({
+	backgroundColor: '#D1FAE5',
+	color: '#065F46',
+})
+
+export const statusRented = style({
+	backgroundColor: '#DBEAFE',
+	color: '#1E40AF',
+})
+
+export const statusSold = style({
+	backgroundColor: '#FEE2E2',
+	color: '#991B1B',
+})
+
+export const statusMaintenance = style({
+	backgroundColor: '#FEF3C7',
+	color: '#92400E',
+})
+
+export const statusUnavailable = style({
+	backgroundColor: '#F3F4F6',
+	color: '#6B7280',
+})
+
+export const propertyDates = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: vars.spacing.md,
+	paddingTop: vars.spacing.xs,
+	borderTop: `1px dashed ${vars.color.border.primary}`,
+	marginTop: vars.spacing.xs,
+})
+
+export const propertyDateItem = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: '4px',
+	fontSize: vars.fontSize.xs,
+	color: vars.color.text.secondary,
+})
+
+export const propertyDateIcon = style({
+	color: vars.color.text.disabled,
+})
+
+export const loadMoreButton = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	gap: vars.spacing.xs,
+	padding: vars.spacing.md,
+	borderRadius: vars.borderRadius.lg,
+	backgroundColor: vars.color.bg.secondary,
+	color: vars.color.text.secondary,
+	border: `1px dashed ${vars.color.border.primary}`,
+	cursor: 'pointer',
+	fontSize: vars.fontSize.sm,
+	fontWeight: vars.fontWeight.medium,
+	transition: `all ${vars.transitionDuration.fast}`,
+	width: '100%',
+
+	':hover': {
+		backgroundColor: vars.color.bg.tertiary,
+		borderColor: vars.color.primary.main,
+		color: vars.color.primary.dark,
+	},
+})
+
+export const propertyTypeBadge = style({
+	display: 'inline-flex',
+	alignItems: 'center',
+	padding: `2px ${vars.spacing.xs}`,
+	borderRadius: vars.borderRadius.sm,
+	fontSize: '10px',
+	fontWeight: vars.fontWeight.bold,
+	textTransform: 'uppercase',
+	letterSpacing: '0.5px',
+	backgroundColor: '#E0E7FF',
+	color: '#4338CA',
+})
+
+export const listingTypeBadge = style({
+	display: 'inline-flex',
+	alignItems: 'center',
+	padding: `2px ${vars.spacing.xs}`,
+	borderRadius: vars.borderRadius.sm,
+	fontSize: '10px',
+	fontWeight: vars.fontWeight.bold,
+	textTransform: 'uppercase',
+	letterSpacing: '0.5px',
+	backgroundColor: '#FCE7F3',
+	color: '#9D174D',
+})
+
+export const propertyBadges = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: vars.spacing.xs,
+	flexWrap: 'wrap',
+})
+
+// Empty State for Properties History
+export const propertiesEmptyState = style({
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'center',
+	justifyContent: 'center',
+	padding: vars.spacing.xl,
+	backgroundColor: vars.color.bg.secondary,
+	borderRadius: vars.borderRadius.xl,
+	textAlign: 'center',
+	gap: vars.spacing.md,
+})
+
+export const propertiesEmptyIcon = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	width: '64px',
+	height: '64px',
+	borderRadius: vars.borderRadius.full,
+	backgroundColor: vars.color.bg.primary,
+	color: vars.color.text.disabled,
+	border: `2px dashed ${vars.color.border.primary}`,
+})
+
+export const propertiesEmptyTitle = style({
+	fontSize: vars.fontSize.base,
+	fontWeight: vars.fontWeight.bold,
+	color: vars.color.text.primary,
+	margin: 0,
+})
+
+export const propertiesEmptyDescription = style({
+	fontSize: vars.fontSize.sm,
+	color: vars.color.text.secondary,
+	margin: 0,
+	maxWidth: '300px',
+	lineHeight: 1.5,
+})

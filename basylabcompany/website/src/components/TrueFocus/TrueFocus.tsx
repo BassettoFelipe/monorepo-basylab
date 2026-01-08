@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import styles from "./TrueFocus.module.css";
 
 interface TrueFocusProps {
@@ -27,9 +27,8 @@ export const TrueFocus = ({
   pauseBetweenAnimations = 1,
   className,
 }: TrueFocusProps) => {
-  const words = sentence.split(separator);
+  const words = useMemo(() => sentence.split(separator), [sentence, separator]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [lastActiveIndex, setLastActiveIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const [focusRect, setFocusRect] = useState({
@@ -39,27 +38,29 @@ export const TrueFocus = ({
     height: 0,
   });
 
+  // Auto-rotation interval (only when not in manual mode)
   useEffect(() => {
-    if (!manualMode) {
-      const interval = setInterval(
-        () => {
-          setCurrentIndex((prev) => (prev + 1) % words.length);
-        },
-        (animationDuration + pauseBetweenAnimations) * 1000,
-      );
+    if (manualMode) return;
 
-      return () => clearInterval(interval);
-    }
+    const interval = setInterval(
+      () => {
+        setCurrentIndex((prev) => (prev + 1) % words.length);
+      },
+      (animationDuration + pauseBetweenAnimations) * 1000,
+    );
+
+    return () => clearInterval(interval);
   }, [manualMode, animationDuration, pauseBetweenAnimations, words.length]);
 
+  // Update focus rect when currentIndex changes
   useEffect(() => {
-    if (currentIndex === null || currentIndex === -1) return;
+    const wordEl = wordRefs.current[currentIndex];
+    const containerEl = containerRef.current;
 
-    if (!wordRefs.current[currentIndex] || !containerRef.current) return;
+    if (!wordEl || !containerEl) return;
 
-    const parentRect = containerRef.current.getBoundingClientRect();
-    const activeRect = wordRefs.current[currentIndex]?.getBoundingClientRect();
-    if (!activeRect) return;
+    const parentRect = containerEl.getBoundingClientRect();
+    const activeRect = wordEl.getBoundingClientRect();
 
     setFocusRect({
       x: activeRect.left - parentRect.left,
@@ -71,14 +72,7 @@ export const TrueFocus = ({
 
   const handleMouseEnter = (index: number) => {
     if (manualMode) {
-      setLastActiveIndex(index);
       setCurrentIndex(index);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (manualMode && lastActiveIndex !== null) {
-      setCurrentIndex(lastActiveIndex);
     }
   };
 
@@ -106,7 +100,6 @@ export const TrueFocus = ({
               } as React.CSSProperties
             }
             onMouseEnter={() => handleMouseEnter(index)}
-            onMouseLeave={handleMouseLeave}
           >
             {word}
           </button>

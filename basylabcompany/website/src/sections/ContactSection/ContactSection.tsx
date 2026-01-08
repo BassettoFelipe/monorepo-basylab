@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState } from "react";
 import styles from "./ContactSection.module.css";
 
 // ============================================
@@ -427,30 +427,28 @@ export function ContactSection() {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedTimeline, setSelectedTimeline] = useState<string | null>(null);
 
-  // Derived data
-  const projectTypes = useMemo(
-    () => PROJECT_TYPES.filter((p) => selectedTypes.includes(p.id)),
-    [selectedTypes],
+  // Derived data - simple lookups don't need useMemo (overhead > benefit)
+  const projectTypes = PROJECT_TYPES.filter((p) =>
+    selectedTypes.includes(p.id),
   );
-  const projectSize = useMemo(
-    () => PROJECT_SIZES.find((s) => s.id === selectedSize) || null,
-    [selectedSize],
-  );
-  const projectTimeline = useMemo(
-    () => PROJECT_TIMELINES.find((t) => t.id === selectedTimeline) || null,
-    [selectedTimeline],
-  );
+  const projectSize = PROJECT_SIZES.find((s) => s.id === selectedSize) || null;
+  const projectTimeline =
+    PROJECT_TIMELINES.find((t) => t.id === selectedTimeline) || null;
 
-  const isComplete = Boolean(
-    selectedTypes.length > 0 && selectedSize && selectedTimeline,
-  );
+  const isComplete =
+    selectedTypes.length > 0 &&
+    selectedSize !== null &&
+    selectedTimeline !== null;
 
-  const currentStep = useMemo(() => {
-    if (selectedTypes.length === 0) return 0;
-    if (!selectedSize) return 1;
-    if (!selectedTimeline) return 2;
-    return 3;
-  }, [selectedTypes, selectedSize, selectedTimeline]);
+  // Simple conditional - no need for useMemo
+  const currentStep =
+    selectedTypes.length === 0
+      ? 0
+      : !selectedSize
+        ? 1
+        : !selectedTimeline
+          ? 2
+          : 3;
 
   // Handler for multi-select types
   const handleTypeToggle = (typeId: string) => {

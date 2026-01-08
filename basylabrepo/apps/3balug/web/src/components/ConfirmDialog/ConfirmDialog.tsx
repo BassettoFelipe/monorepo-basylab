@@ -91,7 +91,8 @@ export function ConfirmDialog({
 				<h3 id="confirm-dialog-title" className={styles.title}>
 					{title}
 				</h3>
-				<p className={styles.description}>{description}</p>
+				{/* biome-ignore lint/security/noDangerouslySetInnerHtml: Description may contain safe HTML formatting like <strong> */}
+				<p className={styles.description} dangerouslySetInnerHTML={{ __html: description }} />
 
 				{requireConfirmation && (
 					<>

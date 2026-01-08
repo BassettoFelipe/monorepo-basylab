@@ -17,6 +17,7 @@ export const listProperties = async (
 		{
 			params: {
 				search: params?.search,
+				ownerId: params?.ownerId,
 				type: params?.type,
 				listingType: params?.listingType,
 				status: params?.status,

@@ -191,7 +191,7 @@ function ScrollProgressRing() {
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           transform="rotate(-90 14 14)"
-          style={{ transition: "stroke-dashoffset 0.1s ease" }}
+          style={{ transition: "stroke-dashoffset 0.02s linear" }}
         />
       </svg>
       <div className={styles.progressDot} />

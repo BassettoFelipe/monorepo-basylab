@@ -19,7 +19,7 @@ import {
 	Users,
 } from 'lucide-react'
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/Button/Button'
 import { ConfirmDialog } from '@/components/ConfirmDialog/ConfirmDialog'
 import { EmptyState } from '@/components/EmptyState/EmptyState'
@@ -39,12 +39,12 @@ import type {
 import { BRAZILIAN_STATES } from '@/types/property-owner.types'
 import { CreatePropertyOwnerModal } from './components/CreatePropertyOwnerModal/CreatePropertyOwnerModal'
 import { EditPropertyOwnerModal } from './components/EditPropertyOwnerModal/EditPropertyOwnerModal'
-import { ViewPropertyOwnerModal } from './components/ViewPropertyOwnerModal/ViewPropertyOwnerModal'
 import * as styles from './styles.css'
 
 export function PropertyOwnersPage() {
 	const [searchParams, setSearchParams] = useSearchParams()
 	const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
+	const navigate = useNavigate()
 
 	const limit = 20
 
@@ -66,7 +66,6 @@ export function PropertyOwnersPage() {
 	const editId = searchParams.get('id')
 
 	const isCreateModalOpen = modalAction === 'create'
-	const isViewModalOpen = modalAction === 'view' && !!editId
 	const isEditModalOpen = modalAction === 'edit' && !!editId
 	const isDeleteDialogOpen = modalAction === 'delete' && !!editId
 
@@ -99,7 +98,7 @@ export function PropertyOwnersPage() {
 	})
 
 	const { data: editOwnerData, isLoading: isLoadingOwner } = usePropertyOwnerQuery(editId || '', {
-		enabled: isViewModalOpen || isEditModalOpen,
+		enabled: isEditModalOpen,
 	})
 
 	const deleteMutation = useDeletePropertyOwnerMutation()
@@ -161,18 +160,12 @@ export function PropertyOwnersPage() {
 		updateSearchParams({ modal: 'create' })
 	}
 
-	const openViewModal = (owner: PropertyOwner) => {
-		updateSearchParams({ modal: 'view', id: owner.id })
+	const viewOwnerProfile = (owner: PropertyOwner) => {
+		navigate(`/property-owners/${owner.id}`)
 	}
 
 	const openEditModal = (owner: PropertyOwner) => {
 		updateSearchParams({ modal: 'edit', id: owner.id })
-	}
-
-	const openEditFromView = () => {
-		if (editId) {
-			updateSearchParams({ modal: 'edit', id: editId })
-		}
 	}
 
 	const openDeleteDialog = (owner: PropertyOwner) => {
@@ -725,7 +718,7 @@ export function PropertyOwnersPage() {
 													<button
 														type="button"
 														className={styles.iconButton}
-														onClick={() => openViewModal(owner)}
+														onClick={() => viewOwnerProfile(owner)}
 														title="Visualizar proprietario"
 													>
 														<Eye size={16} />
@@ -809,14 +802,6 @@ export function PropertyOwnersPage() {
 			)}
 
 			<CreatePropertyOwnerModal isOpen={isCreateModalOpen} onClose={closeModal} />
-
-			<ViewPropertyOwnerModal
-				isOpen={isViewModalOpen}
-				onClose={closeModal}
-				propertyOwner={editOwnerData || null}
-				onEdit={openEditFromView}
-				isLoading={isLoadingOwner}
-			/>
 
 			<EditPropertyOwnerModal
 				isOpen={isEditModalOpen}

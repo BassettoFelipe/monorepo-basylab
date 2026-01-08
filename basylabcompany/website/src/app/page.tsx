@@ -1,6 +1,7 @@
-import { HeroSection } from '@/sections/HeroSection/HeroSection';
-import { ProcessSection } from '@/sections/ProcessSection/ProcessSection';
-import { ServicesSection } from '@/sections/ServicesSection/ServicesSection';
+import { HeroSection } from "@/sections/HeroSection/HeroSection";
+import { ProcessSection } from "@/sections/ProcessSection/ProcessSection";
+import { ServicesSection } from "@/sections/ServicesSection/ServicesSection";
+import { TechSection } from "@/sections/TechSection/TechSection";
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
       <HeroSection />
       <ServicesSection />
       <ProcessSection />
+      <TechSection />
     </main>
   );
 }

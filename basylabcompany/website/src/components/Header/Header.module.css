@@ -12,10 +12,12 @@
 
 @media (max-width: 768px) {
     .floatingNav {
-        right: 1rem;
+        right: auto;
+        left: 50%;
         top: auto;
         bottom: 1.5rem;
-        transform: none;
+        transform: translateX(-50%);
+        max-width: calc(100vw - 2rem);
     }
 }
 
@@ -155,12 +157,6 @@
         padding: 0.625rem 0.5rem;
         border-radius: 0.625rem;
         font-size: 0.75rem;
-    }
-
-    .floatingNav {
-        right: 50%;
-        transform: translateX(50%);
-        max-width: calc(100vw - 2rem);
     }
 }
 

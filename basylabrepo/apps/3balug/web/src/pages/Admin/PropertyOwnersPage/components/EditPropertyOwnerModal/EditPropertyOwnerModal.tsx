@@ -269,7 +269,7 @@ export function EditPropertyOwnerModal({
 						/>
 						<Input
 							{...register('document', { onChange: handleDocumentChange })}
-							label="Documento"
+							label={documentType === 'cpf' ? 'CPF' : 'CNPJ'}
 							placeholder={documentType === 'cpf' ? '000.000.000-00' : '00.000.000/0000-00'}
 							error={errors.document?.message}
 							fullWidth

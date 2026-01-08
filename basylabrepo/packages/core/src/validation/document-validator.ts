@@ -42,13 +42,15 @@ export class DocumentValidator {
 		companyId: string,
 		repository: IDocumentRepository,
 		entityType = 'registro',
+		documentType: 'cpf' | 'cnpj' = 'cpf',
 		excludeId?: string,
 	): Promise<void> {
 		const existing = await repository.findByDocument(document, companyId)
 
 		if (existing && existing.id !== excludeId) {
+			const documentLabel = documentType === 'cpf' ? 'CPF' : 'CNPJ'
 			throw new ConflictError(
-				`Já existe ${entityType} cadastrado com este documento na sua empresa.`,
+				`Já existe ${entityType} cadastrado com este ${documentLabel} na sua empresa.`,
 			)
 		}
 	}
@@ -63,7 +65,7 @@ export class DocumentValidator {
 	): Promise<string> {
 		const normalized = this.validateDocument(value, type)
 
-		await this.validateDocumentUniqueness(normalized, companyId, repository, entityType, excludeId)
+		await this.validateDocumentUniqueness(normalized, companyId, repository, entityType, type, excludeId)
 
 		return normalized
 	}

@@ -1352,7 +1352,7 @@ export class InMemoryPropertyRepository implements IPropertyRepository {
 		const limit = filters.limit ?? 10
 		const offset = filters.offset ?? 0
 		return {
-			data: result.slice(offset, offset + limit),
+			data: result.slice(offset, offset + limit).map((p) => ({ ...p, primaryPhoto: null })),
 			total: result.length,
 			limit,
 			offset,

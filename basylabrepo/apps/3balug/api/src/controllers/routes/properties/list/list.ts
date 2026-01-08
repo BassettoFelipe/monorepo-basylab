@@ -46,6 +46,12 @@ export const listPropertiesController = new Elysia().guard({ as: 'local' }, (app
 						...property,
 						createdAt: property.createdAt?.toISOString(),
 						updatedAt: property.updatedAt?.toISOString(),
+						primaryPhoto: property.primaryPhoto
+							? {
+									...property.primaryPhoto,
+									createdAt: property.primaryPhoto.createdAt.toISOString(),
+								}
+							: null,
 					})),
 					total: result.total,
 					limit: result.limit,

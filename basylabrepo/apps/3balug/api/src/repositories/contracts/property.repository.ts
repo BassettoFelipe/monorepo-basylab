@@ -5,6 +5,7 @@ import type {
 	PropertyStatus,
 	PropertyType,
 } from '@/db/schema/properties'
+import type { PropertyPhoto } from '@/db/schema/property-photos'
 
 export type PropertyFilters = {
 	search?: string // Busca por título, endereço ou cidade
@@ -25,8 +26,12 @@ export type PropertyFilters = {
 	offset?: number
 }
 
+export type PropertyWithPrimaryPhoto = Property & {
+	primaryPhoto: PropertyPhoto | null
+}
+
 export type PropertyListResult = {
-	data: Property[]
+	data: PropertyWithPrimaryPhoto[]
 	total: number
 	limit: number
 	offset: number

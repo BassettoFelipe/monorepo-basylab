@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-	AlertTriangle,
 	AirVent,
+	AlertTriangle,
 	Armchair,
 	Baby,
 	Building2,
@@ -831,7 +831,9 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 							<Percent size={20} className={styles.sectionHeaderIcon} />
 							<div>
 								<h3 className={styles.sectionHeaderTitle}>Comissao</h3>
-								<p className={styles.sectionHeaderDescription}>Percentual sobre o valor do negocio</p>
+								<p className={styles.sectionHeaderDescription}>
+									Percentual sobre o valor do negocio
+								</p>
 							</div>
 						</div>
 
@@ -849,7 +851,8 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 						<div className={styles.infoBox}>
 							<Info size={18} className={styles.infoBoxIcon} />
 							<p className={styles.infoBoxText}>
-								O percentual de comissao sera aplicado sobre o valor total do negocio (aluguel ou venda).
+								O percentual de comissao sera aplicado sobre o valor total do negocio (aluguel ou
+								venda).
 							</p>
 						</div>
 					</div>
@@ -859,126 +862,150 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 				{currentStepId === 'features' && (
 					<div className={styles.formSection}>
 						<div className={styles.featuresGrid}>
-								<label className={`${styles.featureCheckbox} ${watch('hasPool') ? styles.featureCheckboxChecked : ''}`}>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasPool')}
-										disabled={isSubmitting}
-									/>
-									<Waves size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Piscina</span>
-								</label>
-								<label className={`${styles.featureCheckbox} ${watch('hasGarden') ? styles.featureCheckboxChecked : ''}`}>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasGarden')}
-										disabled={isSubmitting}
-									/>
-									<Flower2 size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Jardim</span>
-								</label>
-								<label className={`${styles.featureCheckbox} ${watch('hasGarage') ? styles.featureCheckboxChecked : ''}`}>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasGarage')}
-										disabled={isSubmitting}
-									/>
-									<Car size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Garagem</span>
-								</label>
-								<label className={`${styles.featureCheckbox} ${watch('hasElevator') ? styles.featureCheckboxChecked : ''}`}>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasElevator')}
-										disabled={isSubmitting}
-									/>
-									<Building2 size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Elevador</span>
-								</label>
-								<label className={`${styles.featureCheckbox} ${watch('hasGym') ? styles.featureCheckboxChecked : ''}`}>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasGym')}
-										disabled={isSubmitting}
-									/>
-									<Dumbbell size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Academia</span>
-								</label>
-								<label className={`${styles.featureCheckbox} ${watch('hasPlayground') ? styles.featureCheckboxChecked : ''}`}>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasPlayground')}
-										disabled={isSubmitting}
-									/>
-									<Baby size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Playground</span>
-								</label>
-								<label className={`${styles.featureCheckbox} ${watch('hasSecurity') ? styles.featureCheckboxChecked : ''}`}>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasSecurity')}
-										disabled={isSubmitting}
-									/>
-									<Shield size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Seguranca 24h</span>
-								</label>
-								<label className={`${styles.featureCheckbox} ${watch('hasAirConditioning') ? styles.featureCheckboxChecked : ''}`}>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasAirConditioning')}
-										disabled={isSubmitting}
-									/>
-									<AirVent size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Ar Condicionado</span>
-								</label>
-								<label className={`${styles.featureCheckbox} ${watch('hasFurnished') ? styles.featureCheckboxChecked : ''}`}>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasFurnished')}
-										disabled={isSubmitting}
-									/>
-									<Armchair size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Mobiliado</span>
-								</label>
-								<label className={`${styles.featureCheckbox} ${watch('hasPetFriendly') ? styles.featureCheckboxChecked : ''}`}>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasPetFriendly')}
-										disabled={isSubmitting}
-									/>
-									<PawPrint size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Aceita Pets</span>
-								</label>
-								<label className={`${styles.featureCheckbox} ${watch('hasBalcony') ? styles.featureCheckboxChecked : ''}`}>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasBalcony')}
-										disabled={isSubmitting}
-									/>
-									<Home size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Varanda</span>
-								</label>
-								<label className={`${styles.featureCheckbox} ${watch('hasBarbecue') ? styles.featureCheckboxChecked : ''}`}>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasBarbecue')}
-										disabled={isSubmitting}
-									/>
-									<Flame size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Churrasqueira</span>
-								</label>
+							<label
+								className={`${styles.featureCheckbox} ${watch('hasPool') ? styles.featureCheckboxChecked : ''}`}
+							>
+								<input
+									type="checkbox"
+									className={styles.checkbox}
+									{...register('hasPool')}
+									disabled={isSubmitting}
+								/>
+								<Waves size={28} className={styles.featureIcon} />
+								<span className={styles.featureLabel}>Piscina</span>
+							</label>
+							<label
+								className={`${styles.featureCheckbox} ${watch('hasGarden') ? styles.featureCheckboxChecked : ''}`}
+							>
+								<input
+									type="checkbox"
+									className={styles.checkbox}
+									{...register('hasGarden')}
+									disabled={isSubmitting}
+								/>
+								<Flower2 size={28} className={styles.featureIcon} />
+								<span className={styles.featureLabel}>Jardim</span>
+							</label>
+							<label
+								className={`${styles.featureCheckbox} ${watch('hasGarage') ? styles.featureCheckboxChecked : ''}`}
+							>
+								<input
+									type="checkbox"
+									className={styles.checkbox}
+									{...register('hasGarage')}
+									disabled={isSubmitting}
+								/>
+								<Car size={28} className={styles.featureIcon} />
+								<span className={styles.featureLabel}>Garagem</span>
+							</label>
+							<label
+								className={`${styles.featureCheckbox} ${watch('hasElevator') ? styles.featureCheckboxChecked : ''}`}
+							>
+								<input
+									type="checkbox"
+									className={styles.checkbox}
+									{...register('hasElevator')}
+									disabled={isSubmitting}
+								/>
+								<Building2 size={28} className={styles.featureIcon} />
+								<span className={styles.featureLabel}>Elevador</span>
+							</label>
+							<label
+								className={`${styles.featureCheckbox} ${watch('hasGym') ? styles.featureCheckboxChecked : ''}`}
+							>
+								<input
+									type="checkbox"
+									className={styles.checkbox}
+									{...register('hasGym')}
+									disabled={isSubmitting}
+								/>
+								<Dumbbell size={28} className={styles.featureIcon} />
+								<span className={styles.featureLabel}>Academia</span>
+							</label>
+							<label
+								className={`${styles.featureCheckbox} ${watch('hasPlayground') ? styles.featureCheckboxChecked : ''}`}
+							>
+								<input
+									type="checkbox"
+									className={styles.checkbox}
+									{...register('hasPlayground')}
+									disabled={isSubmitting}
+								/>
+								<Baby size={28} className={styles.featureIcon} />
+								<span className={styles.featureLabel}>Playground</span>
+							</label>
+							<label
+								className={`${styles.featureCheckbox} ${watch('hasSecurity') ? styles.featureCheckboxChecked : ''}`}
+							>
+								<input
+									type="checkbox"
+									className={styles.checkbox}
+									{...register('hasSecurity')}
+									disabled={isSubmitting}
+								/>
+								<Shield size={28} className={styles.featureIcon} />
+								<span className={styles.featureLabel}>Seguranca 24h</span>
+							</label>
+							<label
+								className={`${styles.featureCheckbox} ${watch('hasAirConditioning') ? styles.featureCheckboxChecked : ''}`}
+							>
+								<input
+									type="checkbox"
+									className={styles.checkbox}
+									{...register('hasAirConditioning')}
+									disabled={isSubmitting}
+								/>
+								<AirVent size={28} className={styles.featureIcon} />
+								<span className={styles.featureLabel}>Ar Condicionado</span>
+							</label>
+							<label
+								className={`${styles.featureCheckbox} ${watch('hasFurnished') ? styles.featureCheckboxChecked : ''}`}
+							>
+								<input
+									type="checkbox"
+									className={styles.checkbox}
+									{...register('hasFurnished')}
+									disabled={isSubmitting}
+								/>
+								<Armchair size={28} className={styles.featureIcon} />
+								<span className={styles.featureLabel}>Mobiliado</span>
+							</label>
+							<label
+								className={`${styles.featureCheckbox} ${watch('hasPetFriendly') ? styles.featureCheckboxChecked : ''}`}
+							>
+								<input
+									type="checkbox"
+									className={styles.checkbox}
+									{...register('hasPetFriendly')}
+									disabled={isSubmitting}
+								/>
+								<PawPrint size={28} className={styles.featureIcon} />
+								<span className={styles.featureLabel}>Aceita Pets</span>
+							</label>
+							<label
+								className={`${styles.featureCheckbox} ${watch('hasBalcony') ? styles.featureCheckboxChecked : ''}`}
+							>
+								<input
+									type="checkbox"
+									className={styles.checkbox}
+									{...register('hasBalcony')}
+									disabled={isSubmitting}
+								/>
+								<Home size={28} className={styles.featureIcon} />
+								<span className={styles.featureLabel}>Varanda</span>
+							</label>
+							<label
+								className={`${styles.featureCheckbox} ${watch('hasBarbecue') ? styles.featureCheckboxChecked : ''}`}
+							>
+								<input
+									type="checkbox"
+									className={styles.checkbox}
+									{...register('hasBarbecue')}
+									disabled={isSubmitting}
+								/>
+								<Flame size={28} className={styles.featureIcon} />
+								<span className={styles.featureLabel}>Churrasqueira</span>
+							</label>
 						</div>
 					</div>
 				)}
@@ -1031,9 +1058,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 							<div className={styles.photosEmptyState}>
 								<Upload size={32} className={styles.photosEmptyIcon} />
 								<p className={styles.photosEmptyTitle}>Nenhuma foto adicionada</p>
-								<p className={styles.photosEmptyText}>
-									Clique acima ou arraste suas fotos
-								</p>
+								<p className={styles.photosEmptyText}>Clique acima ou arraste suas fotos</p>
 							</div>
 						)}
 					</div>
@@ -1141,9 +1166,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 									<div className={styles.summaryItemContent}>
 										<span className={styles.summaryLabel}>Fotos</span>
 										<span className={styles.summaryValue}>
-											{selectedPhotos.length === 0
-												? 'Nenhuma'
-												: `${selectedPhotos.length} foto(s)`}
+											{selectedPhotos.length === 0 ? 'Nenhuma' : `${selectedPhotos.length} foto(s)`}
 										</span>
 									</div>
 								</div>

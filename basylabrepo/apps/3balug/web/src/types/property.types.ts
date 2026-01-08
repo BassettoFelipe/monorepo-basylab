@@ -146,12 +146,16 @@ export interface UpdatePropertyInput {
 	features?: PropertyFeatures
 }
 
+export type PropertySortBy = 'title' | 'createdAt' | 'rentalPrice' | 'salePrice' | 'city' | 'area'
+export type PropertySortOrder = 'asc' | 'desc'
+
 export interface ListPropertiesParams {
 	search?: string
 	ownerId?: string
 	type?: PropertyType
 	listingType?: ListingType
 	status?: PropertyStatus
+	state?: string
 	city?: string
 	minRentalPrice?: number
 	maxRentalPrice?: number
@@ -159,19 +163,25 @@ export interface ListPropertiesParams {
 	maxSalePrice?: number
 	minBedrooms?: number
 	maxBedrooms?: number
+	sortBy?: PropertySortBy
+	sortOrder?: PropertySortOrder
 	page?: number
 	limit?: number
 }
 
+export type PropertyListItem = Property & {
+	primaryPhoto: PropertyPhoto | null
+}
+
 export interface ListPropertiesApiResponse {
-	data: Property[]
+	data: PropertyListItem[]
 	total: number
 	limit: number
 	offset: number
 }
 
 export interface ListPropertiesResponse {
-	data: Property[]
+	data: PropertyListItem[]
 	total: number
 	page: number
 	limit: number

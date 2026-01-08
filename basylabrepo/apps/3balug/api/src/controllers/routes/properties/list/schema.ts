@@ -33,6 +33,20 @@ export const listPropertiesQuerySchema = t.Object({
 	offset: t.Optional(t.Numeric({ minimum: 0 })),
 })
 
+export const propertyPhotoSchema = t.Object({
+	id: t.String(),
+	propertyId: t.String(),
+	filename: t.String(),
+	originalName: t.String(),
+	mimeType: t.String(),
+	size: t.Number(),
+	url: t.String(),
+	order: t.Union([t.Number(), t.Null()]),
+	isPrimary: t.Union([t.Boolean(), t.Null()]),
+	uploadedBy: t.String(),
+	createdAt: t.String(),
+})
+
 export const propertyResponseSchema = t.Object({
 	id: t.String(),
 	code: t.Union([t.String(), t.Null()]),
@@ -57,6 +71,7 @@ export const propertyResponseSchema = t.Object({
 	iptuPrice: t.Union([t.Number(), t.Null()]),
 	condoFee: t.Union([t.Number(), t.Null()]),
 	features: t.Union([t.Object({}), t.Null()]),
+	primaryPhoto: t.Union([propertyPhotoSchema, t.Null()]),
 	createdAt: t.Optional(t.String()),
 	updatedAt: t.Optional(t.String()),
 })

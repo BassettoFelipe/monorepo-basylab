@@ -583,7 +583,8 @@ export function EditPropertyModal({ isOpen, onClose, property }: EditPropertyMod
 					<div className={styles.infoBox}>
 						<Info size={18} className={styles.infoBoxIcon} />
 						<p className={styles.infoBoxText}>
-							O percentual de comissao sera aplicado sobre o valor total do negocio (aluguel ou venda).
+							O percentual de comissao sera aplicado sobre o valor total do negocio (aluguel ou
+							venda).
 						</p>
 					</div>
 				</div>
@@ -650,12 +651,7 @@ export function EditPropertyModal({ isOpen, onClose, property }: EditPropertyMod
 							fullWidth
 						/>
 						<div className={styles.row2ColsInner}>
-							<Input
-								label="Numero"
-								placeholder="123"
-								{...register('addressNumber')}
-								fullWidth
-							/>
+							<Input label="Numero" placeholder="123" {...register('addressNumber')} fullWidth />
 							<Input
 								label="Complemento"
 								placeholder="Apto, Bloco, etc."
@@ -671,9 +667,7 @@ export function EditPropertyModal({ isOpen, onClose, property }: EditPropertyMod
 					{propertyType === 'land' ? (
 						<div className={styles.infoBox}>
 							<Info size={18} className={styles.infoBoxIcon} />
-							<p className={styles.infoBoxText}>
-								Terrenos geralmente nao possuem comodidades.
-							</p>
+							<p className={styles.infoBoxText}>Terrenos geralmente nao possuem comodidades.</p>
 						</div>
 					) : (
 						<div className={styles.featuresGrid}>

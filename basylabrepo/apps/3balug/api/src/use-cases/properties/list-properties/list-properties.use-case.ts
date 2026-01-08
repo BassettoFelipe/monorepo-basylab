@@ -1,5 +1,6 @@
 import { ForbiddenError, InternalServerError } from '@basylab/core/errors'
 import type { ListingType, Property, PropertyStatus, PropertyType } from '@/db/schema/properties'
+import type { PropertyPhoto } from '@/db/schema/property-photos'
 import type { User } from '@/db/schema/users'
 import type { IPropertyRepository } from '@/repositories/contracts/property.repository'
 import type { UserRole } from '@/types/roles'
@@ -23,7 +24,9 @@ type ListPropertiesInput = {
 	requestedBy: User
 }
 
-type PropertyListItem = Omit<Property, 'createdBy' | 'companyId' | 'deletedAt' | 'deletedBy'>
+type PropertyListItem = Omit<Property, 'createdBy' | 'companyId' | 'deletedAt' | 'deletedBy'> & {
+	primaryPhoto: PropertyPhoto | null
+}
 
 type ListPropertiesOutput = {
 	data: PropertyListItem[]
@@ -83,9 +86,13 @@ export class ListPropertiesUseCase {
 				companyId: _companyId,
 				deletedAt: _deletedAt,
 				deletedBy: _deletedBy,
+				primaryPhoto,
 				...rest
 			} = property
-			return rest
+			return {
+				...rest,
+				primaryPhoto,
+			}
 		})
 
 		return {

@@ -1,3 +1,4 @@
+import { AboutSection } from "@/sections/AboutSection/AboutSection";
 import { CasesSection } from "@/sections/CasesSection/CasesSection";
 import { ContactSection } from "@/sections/ContactSection/ContactSection";
 import { HeroSection } from "@/sections/HeroSection/HeroSection";
@@ -9,6 +10,7 @@ export default function Home() {
   return (
     <main>
       <HeroSection />
+      <AboutSection />
       <ServicesSection />
       <ProcessSection />
       <TechSection />

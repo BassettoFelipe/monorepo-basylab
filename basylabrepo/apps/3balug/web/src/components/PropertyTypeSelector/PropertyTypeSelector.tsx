@@ -1,4 +1,4 @@
-import { Building2, Home, Landmark, Mountain, Store } from 'lucide-react'
+import { Building2, Home, LandPlot, Store, Tractor } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import type { PropertyType } from '@/types/property.types'
@@ -22,9 +22,9 @@ interface PropertyTypeOption {
 const PROPERTY_TYPES: PropertyTypeOption[] = [
 	{ value: 'house', label: 'Casa', icon: <Home size={24} /> },
 	{ value: 'apartment', label: 'Apartamento', icon: <Building2 size={24} /> },
-	{ value: 'land', label: 'Terreno', icon: <Mountain size={24} /> },
+	{ value: 'land', label: 'Terreno', icon: <LandPlot size={24} /> },
 	{ value: 'commercial', label: 'Comercial', icon: <Store size={24} /> },
-	{ value: 'rural', label: 'Rural', icon: <Landmark size={24} /> },
+	{ value: 'rural', label: 'Rural', icon: <Tractor size={24} /> },
 ]
 
 export function PropertyTypeSelector({

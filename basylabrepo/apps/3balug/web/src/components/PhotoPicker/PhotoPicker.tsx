@@ -158,13 +158,6 @@ export function PhotoPicker({
 		.filter(Boolean)
 		.join(' ')
 
-	// Sort photos: primary first
-	const sortedPhotos = [...photos].sort((a, b) => {
-		if (a.isPrimary && !b.isPrimary) return -1
-		if (!a.isPrimary && b.isPrimary) return 1
-		return 0
-	})
-
 	return (
 		<div className={styles.container}>
 			<span className={styles.label}>
@@ -199,9 +192,9 @@ export function PhotoPicker({
 
 			{error && <p className={styles.errorMessage}>{error}</p>}
 
-			{sortedPhotos.length > 0 && (
+			{photos.length > 0 && (
 				<div className={styles.photosGrid}>
-					{sortedPhotos.map((photo) => (
+					{photos.map((photo) => (
 						<div
 							key={photo.id}
 							className={`${styles.photoCard} ${photo.isPrimary ? styles.photoCardPrimary : ''}`}

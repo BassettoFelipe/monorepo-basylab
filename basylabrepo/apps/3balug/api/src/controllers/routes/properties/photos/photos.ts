@@ -8,6 +8,9 @@ import { getStorageService } from '@/services/storage'
 import { USER_ROLES } from '@/types/roles'
 import { UploadFileUseCase } from '@/use-cases/files/upload-file/upload-file.use-case'
 import {
+	batchRegisterPhotosBodySchema,
+	batchRegisterPhotosParamsSchema,
+	batchRegisterPhotosResponseSchema,
 	deletePhotoParamsSchema,
 	deletePhotoResponseSchema,
 	setPrimaryPhotoParamsSchema,
@@ -127,6 +130,57 @@ export const propertyPhotosController = new Elysia().guard({ as: 'local' }, (app
 				params: setPrimaryPhotoParamsSchema,
 				response: {
 					200: setPrimaryPhotoResponseSchema,
+				},
+			},
+		)
+		.post(
+			'/properties/:id/photos/batch',
+			async ({ validatedUser, params, body }) => {
+				const { photos } = body
+				const registeredPhotos = []
+
+				for (let i = 0; i < photos.length; i++) {
+					const photo = photos[i]
+					const isPrimary = photo.isPrimary === true || (i === 0 && registeredPhotos.length === 0)
+
+					const result = await propertyPhotos.add.execute({
+						propertyId: params.id,
+						filename: photo.key,
+						originalName: photo.originalName,
+						mimeType: photo.mimeType,
+						size: photo.size,
+						url: photo.url,
+						isPrimary,
+						user: validatedUser,
+					})
+
+					registeredPhotos.push(result)
+				}
+
+				logger.info(
+					{
+						event: 'PROPERTY_PHOTOS_BATCH_REGISTERED',
+						propertyId: params.id,
+						count: registeredPhotos.length,
+						uploadedBy: validatedUser.id,
+					},
+					'Fotos registradas em lote',
+				)
+
+				return {
+					success: true,
+					message: `${registeredPhotos.length} foto(s) registrada(s) com sucesso`,
+					data: {
+						registered: registeredPhotos.length,
+						photos: registeredPhotos,
+					},
+				}
+			},
+			{
+				params: batchRegisterPhotosParamsSchema,
+				body: batchRegisterPhotosBodySchema,
+				response: {
+					200: batchRegisterPhotosResponseSchema,
 				},
 			},
 		),

@@ -47,3 +47,43 @@ export const setPrimaryPhotoResponseSchema = t.Object({
 	success: t.Boolean(),
 	message: t.String(),
 })
+
+// Batch register schemas for parallel upload with presigned URLs
+export const batchRegisterPhotosParamsSchema = t.Object({
+	id: t.String(),
+})
+
+export const batchRegisterPhotoItemSchema = t.Object({
+	key: t.String(),
+	originalName: t.String(),
+	mimeType: t.String(),
+	size: t.Number(),
+	url: t.String(),
+	isPrimary: t.Optional(t.Boolean()),
+})
+
+export const batchRegisterPhotosBodySchema = t.Object({
+	photos: t.Array(batchRegisterPhotoItemSchema, { minItems: 1, maxItems: 20 }),
+})
+
+export const batchRegisterPhotosResponseSchema = t.Object({
+	success: t.Boolean(),
+	message: t.String(),
+	data: t.Object({
+		registered: t.Number(),
+		photos: t.Array(
+			t.Object({
+				id: t.String(),
+				propertyId: t.String(),
+				filename: t.String(),
+				originalName: t.String(),
+				mimeType: t.String(),
+				size: t.Number(),
+				url: t.String(),
+				order: t.Number(),
+				isPrimary: t.Boolean(),
+				createdAt: t.Date(),
+			}),
+		),
+	}),
+})

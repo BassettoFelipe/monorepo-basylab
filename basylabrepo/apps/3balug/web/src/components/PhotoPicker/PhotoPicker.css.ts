@@ -18,15 +18,16 @@ export const dropZone = style({
 	flexDirection: 'column',
 	alignItems: 'center',
 	justifyContent: 'center',
-	gap: vars.spacing.sm,
-	padding: vars.spacing.lg,
+	gap: vars.spacing.xs,
+	padding: vars.spacing.md,
 	border: `2px dashed ${vars.color.border.primary}`,
 	borderRadius: vars.borderRadius.md,
 	backgroundColor: vars.color.bg.primary,
 	color: vars.color.text.secondary,
 	cursor: 'pointer',
 	transition: `all ${vars.transitionDuration.base}`,
-	minHeight: '120px',
+	minHeight: '80px',
+	width: '100%',
 
 	':hover': {
 		borderColor: vars.color.primary.dark,
@@ -46,12 +47,12 @@ export const dropZoneDisabled = style({
 
 	':hover': {
 		borderColor: vars.color.border.primary,
-		backgroundColor: vars.color.bg.secondary,
+		backgroundColor: vars.color.bg.primary,
 	},
 })
 
 export const icon = style({
-	color: vars.color.text.secondary,
+	color: vars.color.text.tertiary,
 })
 
 export const dropText = style({
@@ -63,7 +64,7 @@ export const dropText = style({
 
 export const dropHint = style({
 	fontSize: vars.fontSize.xs,
-	color: vars.color.text.secondary,
+	color: vars.color.text.tertiary,
 	textAlign: 'center',
 })
 
@@ -73,21 +74,31 @@ export const hiddenInput = style({
 
 export const photosGrid = style({
 	display: 'grid',
-	gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+	gridTemplateColumns: 'repeat(6, 1fr)',
 	gap: vars.spacing.sm,
-	marginTop: vars.spacing.md,
+	marginTop: vars.spacing.sm,
+	width: '100%',
+
+	'@media': {
+		'(max-width: 768px)': {
+			gridTemplateColumns: 'repeat(4, 1fr)',
+		},
+		'(max-width: 480px)': {
+			gridTemplateColumns: 'repeat(3, 1fr)',
+		},
+	},
 })
 
 export const photoCard = style({
 	position: 'relative',
 	aspectRatio: '1',
-	borderRadius: vars.borderRadius.md,
+	borderRadius: vars.borderRadius.sm,
 	overflow: 'hidden',
 	border: `1px solid ${vars.color.border.primary}`,
 })
 
 export const photoCardPrimary = style({
-	border: `2px solid ${vars.color.primary.main}`,
+	border: `2px solid ${vars.color.primary.dark}`,
 })
 
 export const photoImage = style({
@@ -98,16 +109,16 @@ export const photoImage = style({
 
 export const primaryBadge = style({
 	position: 'absolute',
-	top: vars.spacing.xs,
-	left: vars.spacing.xs,
+	top: '4px',
+	left: '4px',
 	display: 'flex',
 	alignItems: 'center',
 	gap: '2px',
-	padding: `2px ${vars.spacing.xs}`,
-	fontSize: '10px',
-	fontWeight: vars.fontWeight.medium,
-	color: vars.color.primary.dark,
-	backgroundColor: 'rgba(230, 255, 75, 0.9)',
+	padding: '2px 4px',
+	fontSize: '9px',
+	fontWeight: vars.fontWeight.bold,
+	color: '#FFFFFF',
+	backgroundColor: vars.color.primary.dark,
 	borderRadius: vars.borderRadius.sm,
 })
 
@@ -137,8 +148,8 @@ export const photoActionButton = style({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
-	width: '28px',
-	height: '28px',
+	width: '24px',
+	height: '24px',
 	padding: 0,
 	border: 'none',
 	borderRadius: vars.borderRadius.sm,

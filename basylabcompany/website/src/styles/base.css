@@ -28,3 +28,9 @@ body {
     background-color: var(--color-brand-primary);
     color: white;
 }
+
+/* Hide header and footer on 404 page */
+body.hide-layout > header,
+body.hide-layout > footer {
+    display: none;
+}

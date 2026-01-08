@@ -196,7 +196,7 @@ export function PropertiesPage() {
 		limit,
 	})
 
-	const { data: editPropertyData } = usePropertyQuery(editId || '', {
+	const { data: editPropertyData, isLoading: isLoadingProperty } = usePropertyQuery(editId || '', {
 		enabled: isEditModalOpen,
 	})
 
@@ -854,6 +854,7 @@ export function PropertiesPage() {
 				isOpen={isEditModalOpen}
 				onClose={closeModal}
 				property={editPropertyData || null}
+				isLoading={isLoadingProperty}
 			/>
 
 			<ConfirmDialog

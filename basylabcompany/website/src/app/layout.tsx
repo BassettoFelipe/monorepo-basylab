@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { Header } from "@/components/Header/Header";
 import { Footer } from "@/components/Footer/Footer";
 import { JsonLd } from "@/components/JsonLd/JsonLd";
+import { ReferralModalWrapper } from "@/components/ReferralModal";
 import "./globals.css";
 
 const inter = Inter({
@@ -180,6 +181,7 @@ export default function RootLayout({
         <Header />
         {children}
         <Footer />
+        <ReferralModalWrapper />
       </body>
     </html>
   );

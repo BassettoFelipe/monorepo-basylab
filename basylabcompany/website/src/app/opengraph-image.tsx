@@ -20,44 +20,22 @@ export default async function Image() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #030303 0%, #0a0a0a 50%, #111111 100%)",
+          background: "#030303",
           position: "relative",
         }}
       >
-        {/* Grid pattern overlay */}
+        {/* Gradient orb */}
         <div
           style={{
             position: "absolute",
-            inset: 0,
-            backgroundImage:
-              "linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-          }}
-        />
-
-        {/* Gradient orbs */}
-        <div
-          style={{
-            position: "absolute",
-            width: "600px",
-            height: "600px",
+            width: "800px",
+            height: "800px",
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)",
-            top: "-200px",
-            right: "-200px",
-            filter: "blur(60px)",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            width: "500px",
-            height: "500px",
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%)",
-            bottom: "-150px",
-            left: "-150px",
-            filter: "blur(60px)",
+            background:
+              "radial-gradient(circle, rgba(231, 52, 58, 0.2) 0%, transparent 60%)",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
           }}
         />
 
@@ -73,171 +51,76 @@ export default async function Image() {
             zIndex: 1,
           }}
         >
-          {/* Logo/Brand */}
+          {/* Logo Symbol */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "16px",
+              justifyContent: "center",
               marginBottom: "40px",
             }}
           >
-            <div
-              style={{
-                width: "80px",
-                height: "80px",
-                background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
-                borderRadius: "20px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "40px",
-                fontWeight: 700,
-                color: "white",
-              }}
-            >
-              B
-            </div>
-            <span
-              style={{
-                fontSize: "48px",
-                fontWeight: 700,
-                color: "white",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              Basylab
-            </span>
+            <svg width="120" height="120" viewBox="0 0 2000 2000" fill="none">
+              <g fill="#e7343a">
+                <path
+                  fillRule="evenodd"
+                  d="M533.55,1052.45s-32.75-16.84-76.59,12.68c-31.83,21.43-30.43,64.42-30.43,64.42l15.72,251.09s36.34-2.63,70-10.65c31.17-7.43,59.86-20.29,59.86-20.29l-79.64-211.02s-3.1-12.8,7.1-19.78c14.11-9.66,22.32-.51,22.32-.51l187.68,131.88s19.91-22.14,35.51-47.17c17.05-27.37,29.93-57.83,29.93-57.83l-241.45-92.83Z"
+                />
+                <path
+                  fillRule="evenodd"
+                  d="M359.18,1032.98c-21.33-31.9-64.32-30.65-64.32-30.65l-251.14,14.87s2.51,36.35,10.41,70.04c7.32,31.2,20.09,59.92,20.09,59.92l211.28-78.92s12.81-3.05,19.76,7.17c9.61,14.14.43,22.32.43,22.32l-132.52,187.23s22.08,19.98,47.05,35.67c27.31,17.15,57.72,30.12,57.72,30.12l93.64-241.13s16.96-32.69-12.42-76.64Z"
+                />
+                <path
+                  fillRule="evenodd"
+                  d="M795.27,909.2c-7.47-31.16-20.38-59.82-20.38-59.82l-210.9,79.95s-12.8,3.12-19.79-7.07c-9.68-14.09-.54-22.32-.54-22.32l131.6-187.88s-22.17-19.88-47.23-35.44c-27.39-17.01-57.87-29.84-57.87-29.84l-92.47,241.59s-16.8,32.78,12.8,76.58c21.48,31.8,64.47,30.34,64.47,30.34l251.06-16.1s-2.69-36.33-10.76-69.98Z"
+                />
+                <path
+                  fillRule="evenodd"
+                  d="M421.42,870.53l-14.37-251.17s-36.35,2.44-70.06,10.28c-31.21,7.26-59.96,19.97-59.96,19.97l78.5,211.44s3.03,12.82-7.21,19.74c-14.16,9.58-22.32.39-22.32.39l-186.97-132.89s-20.03,22.04-35.76,46.98c-17.2,27.27-30.24,57.66-30.24,57.66l240.95,94.12s32.66,17.02,76.66-12.27c31.94-21.26,30.78-64.26,30.78-64.26Z"
+                />
+              </g>
+              <g fill="#fff">
+                <path d="M866.39,678.28h145.92c68.47,0,97.41,28.53,97.41,76.63,0,25.68-12.23,59.1-51.76,68.47,47.69,11.41,63.99,35.87,63.99,70.1,0,48.09-27.31,85.19-102.3,85.19h-153.25v-300.39ZM1041.65,762.24c0-21.19-9.37-31.79-39.53-31.79h-70.51v69.7h61.55c29.75,0,48.5-11.82,48.5-37.91ZM1000.89,926.09c39.54,0,52.99-13.04,52.99-34.64,0-32.61-26.9-41.57-61.95-41.57h-60.32v76.22h69.29Z" />
+                <path d="M1218.55,678.28h83.55l102.3,300.39h-69.29l-18.75-57.88h-112.09l-18.75,57.88h-69.29l102.3-300.39ZM1260.12,747.97l-39.13,120.64h78.26l-39.13-120.64Z" />
+                <path d="M1402.37,863.73h68.88s-9.37,72.55,60.73,72.55c39.94,0,57.06-19.16,57.06-46.06,0-60.32-182.6-18.75-182.6-128.8,0-53.39,44.43-90.48,125.54-90.48,132.06,0,122.27,113.31,122.27,113.31h-68.88c0-.41,13.04-63.58-53.39-63.58-42.39,0-56.65,19.16-56.65,40.76,0,61.55,183,24.86,183,126.35,0,57.88-38.31,98.23-126.35,98.23-137.36,0-129.61-122.28-129.61-122.28Z" />
+                <path d="M1728.84,678.28l74.59,135.73,74.18-135.73h78.66l-119.83,203.38v97h-66.03v-97l-119.83-203.38h78.26Z" />
+                <path d="M931.61,1277.63h146.73v55.02h-211.94v-300.39h65.21v245.36Z" />
+                <path d="M1170.86,1032.26h83.55l102.3,300.39h-69.29l-18.75-57.88h-112.09l-18.75,57.88h-69.29l102.3-300.39ZM1212.43,1101.96l-39.13,120.65h78.26l-39.13-120.65Z" />
+                <path d="M1366.91,1032.26h145.91c68.47,0,97.41,28.53,97.41,76.63,0,25.68-12.23,59.1-51.76,68.47,47.69,11.41,63.99,35.87,63.99,70.11,0,48.09-27.31,85.18-102.3,85.18h-153.25v-300.39ZM1542.17,1116.23c0-21.19-9.37-31.79-39.54-31.79h-70.51v69.7h61.55c29.75,0,48.5-11.82,48.5-37.9ZM1501.41,1280.08c39.53,0,52.99-13.04,52.99-34.65,0-32.61-26.9-41.57-61.95-41.57h-60.32v76.22h69.29Z" />
+              </g>
+            </svg>
           </div>
 
           {/* Headline */}
           <h1
             style={{
-              fontSize: "64px",
+              fontSize: "56px",
               fontWeight: 700,
               color: "white",
-              lineHeight: 1.1,
+              lineHeight: 1.2,
               margin: 0,
-              marginBottom: "24px",
+              marginBottom: "20px",
               maxWidth: "900px",
               letterSpacing: "-0.02em",
             }}
           >
             Chega de software{" "}
-            <span
-              style={{
-                background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
-                backgroundClip: "text",
-                color: "transparent",
-              }}
-            >
-              medíocre.
-            </span>
+            <span style={{ color: "#e7343a" }}>medíocre.</span>
           </h1>
 
           {/* Subheadline */}
           <p
             style={{
-              fontSize: "28px",
-              color: "rgba(255, 255, 255, 0.7)",
+              fontSize: "24px",
+              color: "rgba(255, 255, 255, 0.6)",
               margin: 0,
               maxWidth: "700px",
-              lineHeight: 1.4,
+              lineHeight: 1.5,
             }}
           >
-            Desenvolvimento de software sob medida com rigor técnico e qualidade garantida.
+            Desenvolvimento de software sob medida com rigor técnico e qualidade
+            garantida.
           </p>
-
-          {/* Stats */}
-          <div
-            style={{
-              display: "flex",
-              gap: "60px",
-              marginTop: "50px",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: "36px",
-                  fontWeight: 700,
-                  color: "#6366f1",
-                }}
-              >
-                10k+
-              </span>
-              <span
-                style={{
-                  fontSize: "16px",
-                  color: "rgba(255, 255, 255, 0.5)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                }}
-              >
-                Horas de código
-              </span>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: "36px",
-                  fontWeight: 700,
-                  color: "#6366f1",
-                }}
-              >
-                30+
-              </span>
-              <span
-                style={{
-                  fontSize: "16px",
-                  color: "rgba(255, 255, 255, 0.5)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                }}
-              >
-                Projetos entregues
-              </span>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: "36px",
-                  fontWeight: 700,
-                  color: "#6366f1",
-                }}
-              >
-                100%
-              </span>
-              <span
-                style={{
-                  fontSize: "16px",
-                  color: "rgba(255, 255, 255, 0.5)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                }}
-              >
-                Clientes satisfeitos
-              </span>
-            </div>
-          </div>
         </div>
 
         {/* URL */}
@@ -263,6 +146,6 @@ export default async function Image() {
     ),
     {
       ...size,
-    }
+    },
   );
 }

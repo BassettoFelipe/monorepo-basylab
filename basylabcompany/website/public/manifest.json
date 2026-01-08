@@ -8,7 +8,7 @@
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#030303",
-  "theme_color": "#6366f1",
+  "theme_color": "#e7343a",
   "lang": "pt-BR",
   "dir": "ltr",
   "categories": ["business", "developer tools", "productivity"],

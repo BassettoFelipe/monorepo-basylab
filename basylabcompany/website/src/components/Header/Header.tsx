@@ -6,7 +6,7 @@ import {
   useScroll,
   AnimatePresence,
 } from "framer-motion";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import styles from "./Header.module.css";
 
 const navItems = [
@@ -37,10 +37,25 @@ export function Header() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showNav, setShowNav] = useState(false);
   const { scrollY } = useScroll();
+  const collapseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setShowNav(latest > 300);
   });
+
+  const handleMouseEnter = () => {
+    if (collapseTimeoutRef.current) {
+      clearTimeout(collapseTimeoutRef.current);
+      collapseTimeoutRef.current = null;
+    }
+    setIsExpanded(true);
+  };
+
+  const handleMouseLeave = () => {
+    collapseTimeoutRef.current = setTimeout(() => {
+      setIsExpanded(false);
+    }, 150);
+  };
 
   const updateActiveSection = useCallback(() => {
     const sections = navItems.map((item) => ({
@@ -90,8 +105,8 @@ export function Header() {
           {/* Collapsed state - just shows current section */}
           <motion.div
             className={styles.navPill}
-            onMouseEnter={() => setIsExpanded(true)}
-            onMouseLeave={() => setIsExpanded(false)}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
             layout
           >
             {/* Progress indicator */}

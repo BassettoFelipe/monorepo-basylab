@@ -97,7 +97,7 @@ export function PropertyOwnersPage() {
 		limit,
 	})
 
-	const { data: editOwnerData, isLoading: isLoadingOwner } = usePropertyOwnerQuery(editId || '', {
+	const { data: editOwnerData } = usePropertyOwnerQuery(editId || '', {
 		enabled: isEditModalOpen,
 	})
 

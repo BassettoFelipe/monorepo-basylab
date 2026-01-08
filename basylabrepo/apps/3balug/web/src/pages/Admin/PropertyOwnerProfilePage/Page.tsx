@@ -1,6 +1,5 @@
 import {
 	ArrowLeft,
-	ArrowRight,
 	Building2,
 	Calendar,
 	ChevronRight,
@@ -10,7 +9,6 @@ import {
 	ExternalLink,
 	FileText,
 	FolderOpen,
-	Heart,
 	Mail,
 	MapPin,
 	Phone,

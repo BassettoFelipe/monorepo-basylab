@@ -25,10 +25,10 @@ export const backButton = style({
 	display: 'inline-flex',
 	alignItems: 'center',
 	justifyContent: 'center',
-	width: '32px',
-	height: '32px',
-	borderRadius: vars.borderRadius.md,
-	backgroundColor: 'transparent',
+	width: '36px',
+	height: '36px',
+	borderRadius: vars.borderRadius.lg,
+	backgroundColor: vars.color.bg.secondary,
 	color: vars.color.text.secondary,
 	border: 'none',
 	cursor: 'pointer',
@@ -36,15 +36,15 @@ export const backButton = style({
 	textDecoration: 'none',
 
 	':hover': {
-		backgroundColor: vars.color.bg.secondary,
+		backgroundColor: vars.color.bg.tertiary,
 		color: vars.color.text.primary,
 	},
 })
 
 export const pageTitle = style({
-	fontSize: vars.fontSize.sm,
+	fontSize: vars.fontSize.base,
 	fontWeight: vars.fontWeight.medium,
-	color: vars.color.text.secondary,
+	color: vars.color.text.primary,
 	margin: 0,
 })
 
@@ -54,14 +54,20 @@ export const pageHeaderRight = style({
 	gap: vars.spacing.xs,
 })
 
-// Profile Header
+// Profile Card
+export const profileCard = style({
+	backgroundColor: vars.color.bg.primary,
+	borderRadius: vars.borderRadius.xl,
+	border: `1px solid ${vars.color.border.primary}`,
+	padding: vars.spacing.lg,
+	marginBottom: vars.spacing.lg,
+	boxShadow: vars.shadow.sm,
+})
+
 export const profileHeader = style({
 	display: 'flex',
 	alignItems: 'center',
 	gap: vars.spacing.lg,
-	marginBottom: vars.spacing.xl,
-	paddingBottom: vars.spacing.lg,
-	borderBottom: `1px solid ${vars.color.border.primary}`,
 
 	'@media': {
 		'(max-width: 640px)': {
@@ -77,21 +83,36 @@ export const avatarContainer = style({
 })
 
 export const avatar = style({
-	width: '72px',
-	height: '72px',
+	width: '80px',
+	height: '80px',
 	borderRadius: vars.borderRadius.full,
 	objectFit: 'cover',
+	border: `3px solid ${vars.color.bg.primary}`,
+	boxShadow: vars.shadow.md,
 })
 
 export const avatarFallback = style({
-	width: '72px',
-	height: '72px',
+	width: '80px',
+	height: '80px',
 	borderRadius: vars.borderRadius.full,
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
-	fontSize: '24px',
+	fontSize: '28px',
 	fontWeight: vars.fontWeight.bold,
+	border: `3px solid ${vars.color.bg.primary}`,
+	boxShadow: vars.shadow.md,
+})
+
+export const statusIndicator = style({
+	position: 'absolute',
+	bottom: '2px',
+	right: '2px',
+	width: '18px',
+	height: '18px',
+	borderRadius: vars.borderRadius.full,
+	backgroundColor: '#22C55E',
+	border: `2px solid ${vars.color.bg.primary}`,
 })
 
 export const profileInfo = style({
@@ -134,29 +155,41 @@ export const badgeCnpj = style({
 	color: '#92400E',
 })
 
-export const profileMeta = style({
+export const document = style({
+	fontSize: vars.fontSize.sm,
+	color: vars.color.text.secondary,
+	fontFamily: vars.fontFamily.mono,
+	marginBottom: vars.spacing.sm,
+})
+
+export const quickStats = style({
+	display: 'flex',
+	gap: vars.spacing.lg,
+	flexWrap: 'wrap',
+})
+
+export const statItem = style({
 	display: 'flex',
 	alignItems: 'center',
-	gap: vars.spacing.lg,
+	gap: vars.spacing.xs,
 	fontSize: vars.fontSize.sm,
 	color: vars.color.text.secondary,
 })
 
-export const metaItem = style({
-	display: 'flex',
-	alignItems: 'center',
-	gap: vars.spacing.xs,
+export const statIcon = style({
+	color: vars.color.primary.dark,
 })
 
-export const metaIcon = style({
-	color: vars.color.text.disabled,
+export const statValue = style({
+	fontWeight: vars.fontWeight.bold,
+	color: vars.color.text.primary,
 })
 
 // Content Layout
 export const content = style({
 	display: 'grid',
-	gridTemplateColumns: '1fr 320px',
-	gap: vars.spacing.xl,
+	gridTemplateColumns: '1fr 300px',
+	gap: vars.spacing.lg,
 
 	'@media': {
 		'(max-width: 900px)': {
@@ -168,34 +201,61 @@ export const content = style({
 export const mainColumn = style({
 	display: 'flex',
 	flexDirection: 'column',
-	gap: vars.spacing.lg,
+	gap: vars.spacing.md,
 })
 
 export const sideColumn = style({
 	display: 'flex',
 	flexDirection: 'column',
-	gap: vars.spacing.lg,
+	gap: vars.spacing.md,
 })
 
-// Section
-export const section = style({
-	marginBottom: vars.spacing.xs,
+// Card
+export const card = style({
+	backgroundColor: vars.color.bg.primary,
+	borderRadius: vars.borderRadius.xl,
+	border: `1px solid ${vars.color.border.primary}`,
+	padding: vars.spacing.md,
+	boxShadow: vars.shadow.sm,
 })
 
-export const sectionTitle = style({
-	fontSize: vars.fontSize.xs,
-	fontWeight: vars.fontWeight.medium,
-	color: vars.color.text.secondary,
-	textTransform: 'uppercase',
-	letterSpacing: '0.5px',
-	marginBottom: vars.spacing.sm,
+export const cardHeader = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'space-between',
+	marginBottom: vars.spacing.md,
+	paddingBottom: vars.spacing.sm,
+	borderBottom: `1px solid ${vars.color.border.primary}`,
 })
 
-// Info Grid
-export const infoGrid = style({
+export const cardTitle = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: vars.spacing.xs,
+	fontSize: vars.fontSize.sm,
+	fontWeight: vars.fontWeight.bold,
+	color: vars.color.text.primary,
+	margin: 0,
+})
+
+export const cardTitleIcon = style({
+	color: vars.color.primary.dark,
+})
+
+export const cardCount = style({
+	fontSize: '11px',
+	fontWeight: vars.fontWeight.bold,
+	color: vars.color.primary.dark,
+	backgroundColor: vars.color.primary.main,
+	padding: `2px 8px`,
+	borderRadius: vars.borderRadius.full,
+})
+
+// Contact Grid
+export const contactGrid = style({
 	display: 'grid',
 	gridTemplateColumns: 'repeat(2, 1fr)',
-	gap: vars.spacing.sm,
+	gap: vars.spacing.md,
 
 	'@media': {
 		'(max-width: 500px)': {
@@ -204,14 +264,84 @@ export const infoGrid = style({
 	},
 })
 
-export const infoGridThree = style({
+export const contactItem = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: vars.spacing.md,
+	padding: vars.spacing.md,
+	backgroundColor: vars.color.bg.primary,
+	borderRadius: vars.borderRadius.xl,
+	border: `1px solid ${vars.color.border.primary}`,
+	transition: `all ${vars.transitionDuration.fast}`,
+
+	':hover': {
+		borderColor: vars.color.primary.main,
+		boxShadow: vars.shadow.sm,
+	},
+})
+
+export const contactIconWrapper = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	width: '44px',
+	height: '44px',
+	borderRadius: vars.borderRadius.xl,
+	flexShrink: 0,
+})
+
+export const contactIconPhone = style({
+	backgroundColor: '#ECFDF5',
+	color: '#059669',
+})
+
+export const contactIconEmail = style({
+	backgroundColor: '#EFF6FF',
+	color: '#2563EB',
+})
+
+export const contactInfo = style({
+	flex: 1,
+	minWidth: 0,
+	display: 'flex',
+	flexDirection: 'column',
+	gap: '4px',
+})
+
+export const contactLabel = style({
+	fontSize: vars.fontSize.xs,
+	color: vars.color.text.secondary,
+	fontWeight: vars.fontWeight.medium,
+	display: 'block',
+})
+
+export const contactValue = style({
+	fontSize: vars.fontSize.base,
+	fontWeight: vars.fontWeight.bold,
+	color: vars.color.text.primary,
+	textDecoration: 'none',
+	display: 'block',
+
+	':hover': {
+		color: vars.color.primary.dark,
+	},
+})
+
+export const contactValueMuted = style({
+	fontSize: vars.fontSize.sm,
+	color: vars.color.text.disabled,
+	fontStyle: 'italic',
+})
+
+// Info Grid
+export const infoGrid = style({
 	display: 'grid',
 	gridTemplateColumns: 'repeat(3, 1fr)',
 	gap: vars.spacing.sm,
 
 	'@media': {
 		'(max-width: 500px)': {
-			gridTemplateColumns: '1fr',
+			gridTemplateColumns: 'repeat(2, 1fr)',
 		},
 	},
 })
@@ -225,17 +355,8 @@ export const infoItem = style({
 	borderRadius: vars.borderRadius.md,
 })
 
-export const infoItemClickable = style({
-	cursor: 'pointer',
-	transition: `background-color ${vars.transitionDuration.fast}`,
-
-	':hover': {
-		backgroundColor: vars.color.bg.tertiary,
-	},
-})
-
 export const infoLabel = style({
-	fontSize: '11px',
+	fontSize: '10px',
 	color: vars.color.text.secondary,
 	textTransform: 'uppercase',
 	letterSpacing: '0.3px',
@@ -252,61 +373,58 @@ export const infoValueMuted = style({
 	color: vars.color.text.disabled,
 })
 
-export const infoValueLink = style({
-	fontSize: vars.fontSize.sm,
-	fontWeight: vars.fontWeight.medium,
-	color: vars.color.text.primary,
-	textDecoration: 'none',
-
-	':hover': {
-		color: vars.color.primary.dark,
-	},
-})
-
-// Card
-export const card = style({
-	backgroundColor: vars.color.bg.primary,
-	borderRadius: vars.borderRadius.lg,
-	border: `1px solid ${vars.color.border.primary}`,
-	padding: vars.spacing.md,
-})
-
-export const cardHeader = style({
+// Address
+export const addressMain = style({
 	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'space-between',
+	alignItems: 'flex-start',
+	gap: vars.spacing.sm,
+	padding: vars.spacing.sm,
+	backgroundColor: vars.color.bg.secondary,
+	borderRadius: vars.borderRadius.lg,
 	marginBottom: vars.spacing.sm,
 })
 
-export const cardTitle = style({
-	fontSize: vars.fontSize.xs,
+export const addressIconWrapper = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	width: '36px',
+	height: '36px',
+	borderRadius: vars.borderRadius.lg,
+	backgroundColor: '#FEF3C7',
+	color: '#92400E',
+	flexShrink: 0,
+})
+
+export const addressInfo = style({
+	flex: 1,
+})
+
+export const addressLine = style({
+	fontSize: vars.fontSize.sm,
 	fontWeight: vars.fontWeight.medium,
-	color: vars.color.text.secondary,
-	textTransform: 'uppercase',
-	letterSpacing: '0.5px',
+	color: vars.color.text.primary,
+	lineHeight: 1.4,
 	margin: 0,
 })
 
-export const cardCount = style({
-	fontSize: '11px',
-	fontWeight: vars.fontWeight.bold,
+export const addressSecondary = style({
+	fontSize: vars.fontSize.xs,
 	color: vars.color.text.secondary,
-	backgroundColor: vars.color.bg.secondary,
-	padding: `2px 6px`,
-	borderRadius: vars.borderRadius.sm,
+	marginTop: '2px',
 })
 
 // Documents
 export const documentsGrid = style({
 	display: 'grid',
-	gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+	gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
 	gap: vars.spacing.sm,
 })
 
 export const documentCard = style({
 	display: 'flex',
 	flexDirection: 'column',
-	borderRadius: vars.borderRadius.md,
+	borderRadius: vars.borderRadius.lg,
 	border: `1px solid ${vars.color.border.primary}`,
 	overflow: 'hidden',
 	backgroundColor: vars.color.bg.primary,
@@ -314,14 +432,15 @@ export const documentCard = style({
 
 	':hover': {
 		borderColor: vars.color.primary.main,
-		boxShadow: vars.shadow.sm,
+		boxShadow: vars.shadow.md,
+		transform: 'translateY(-2px)',
 	},
 })
 
 export const documentPreview = style({
 	position: 'relative',
 	width: '100%',
-	height: '80px',
+	height: '70px',
 	backgroundColor: vars.color.bg.secondary,
 	overflow: 'hidden',
 })
@@ -338,8 +457,8 @@ export const documentIconWrapper = style({
 	justifyContent: 'center',
 	width: '100%',
 	height: '100%',
-	backgroundColor: vars.color.bg.secondary,
-	color: vars.color.text.disabled,
+	backgroundColor: '#FEE2E2',
+	color: '#DC2626',
 })
 
 export const documentOverlay = style({
@@ -380,7 +499,7 @@ export const documentAction = style({
 })
 
 export const documentInfo = style({
-	padding: vars.spacing.xs,
+	padding: `${vars.spacing.xs} ${vars.spacing.sm}`,
 })
 
 export const documentName = style({
@@ -390,6 +509,7 @@ export const documentName = style({
 	whiteSpace: 'nowrap',
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
+	marginBottom: '1px',
 })
 
 export const documentType = style({
@@ -403,9 +523,10 @@ export const emptyState = style({
 	alignItems: 'center',
 	justifyContent: 'center',
 	padding: vars.spacing.lg,
+	backgroundColor: vars.color.bg.secondary,
+	borderRadius: vars.borderRadius.lg,
 	color: vars.color.text.disabled,
 	gap: vars.spacing.xs,
-	textAlign: 'center',
 })
 
 export const emptyStateText = style({
@@ -417,24 +538,39 @@ export const emptyStateText = style({
 export const notesContent = style({
 	fontSize: vars.fontSize.sm,
 	color: vars.color.text.primary,
-	lineHeight: 1.6,
+	lineHeight: 1.5,
 	whiteSpace: 'pre-wrap',
 	padding: vars.spacing.sm,
 	backgroundColor: vars.color.bg.secondary,
 	borderRadius: vars.borderRadius.md,
+	borderLeft: `3px solid ${vars.color.primary.main}`,
 })
 
-// Properties
-export const propertiesEmpty = style({
+// Properties Card
+export const propertiesContent = style({
 	display: 'flex',
+	flexDirection: 'column',
 	alignItems: 'center',
 	justifyContent: 'center',
 	padding: vars.spacing.md,
 	backgroundColor: vars.color.bg.secondary,
-	borderRadius: vars.borderRadius.md,
+	borderRadius: vars.borderRadius.lg,
+	gap: vars.spacing.xs,
+})
+
+export const propertiesIcon = style({
+	color: vars.color.primary.dark,
+})
+
+export const propertiesCount = style({
+	fontSize: vars.fontSize.lg,
+	fontWeight: vars.fontWeight.bold,
+	color: vars.color.text.primary,
+})
+
+export const propertiesLabel = style({
+	fontSize: vars.fontSize.xs,
 	color: vars.color.text.secondary,
-	fontSize: vars.fontSize.sm,
-	gap: vars.spacing.sm,
 })
 
 export const viewAllLink = style({
@@ -445,19 +581,19 @@ export const viewAllLink = style({
 	padding: vars.spacing.sm,
 	marginTop: vars.spacing.sm,
 	borderRadius: vars.borderRadius.md,
-	backgroundColor: vars.color.bg.secondary,
+	backgroundColor: vars.color.primary.main,
 	color: vars.color.primary.dark,
 	fontSize: vars.fontSize.xs,
-	fontWeight: vars.fontWeight.medium,
+	fontWeight: vars.fontWeight.bold,
 	textDecoration: 'none',
-	transition: `background-color ${vars.transitionDuration.fast}`,
+	transition: `all ${vars.transitionDuration.fast}`,
 
 	':hover': {
-		backgroundColor: vars.color.bg.tertiary,
+		filter: 'brightness(0.95)',
 	},
 })
 
-// Metadata
+// Metadata Card
 export const metadataList = style({
 	display: 'flex',
 	flexDirection: 'column',
@@ -467,21 +603,37 @@ export const metadataList = style({
 export const metadataItem = style({
 	display: 'flex',
 	alignItems: 'center',
-	justifyContent: 'space-between',
-	fontSize: vars.fontSize.xs,
+	gap: vars.spacing.sm,
+	padding: vars.spacing.xs,
+})
+
+export const metadataIcon = style({
+	color: vars.color.text.disabled,
+	flexShrink: 0,
+})
+
+export const metadataInfo = style({
+	flex: 1,
+})
+
+export const metadataLabel = style({
+	fontSize: '10px',
 	color: vars.color.text.secondary,
+	textTransform: 'uppercase',
+	letterSpacing: '0.3px',
 })
 
 export const metadataValue = style({
+	fontSize: vars.fontSize.sm,
 	fontWeight: vars.fontWeight.medium,
 	color: vars.color.text.primary,
 })
 
-// Error/Loading States
+// Error/Loading
 export const loadingContainer = style({
 	display: 'flex',
 	flexDirection: 'column',
-	gap: vars.spacing.lg,
+	gap: vars.spacing.md,
 })
 
 export const errorContainer = style({
@@ -491,7 +643,6 @@ export const errorContainer = style({
 	justifyContent: 'center',
 	minHeight: '300px',
 	gap: vars.spacing.md,
-	color: vars.color.text.secondary,
 	textAlign: 'center',
 })
 

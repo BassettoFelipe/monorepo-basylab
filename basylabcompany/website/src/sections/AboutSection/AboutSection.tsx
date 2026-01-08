@@ -120,6 +120,14 @@ export function AboutSection() {
       {/* Background */}
       <div className={styles.background}>
         <div className={styles.gradientOrb} />
+        <Image
+          src="/images/symbol.svg"
+          alt=""
+          width={900}
+          height={900}
+          className={styles.backgroundLogo}
+          aria-hidden="true"
+        />
         <div className={styles.gridPattern} />
       </div>
 

@@ -3,12 +3,17 @@ import {
 	Building2,
 	Calendar,
 	ChevronRight,
+	Clock,
 	Download,
 	Edit,
 	ExternalLink,
 	FileText,
 	FolderOpen,
+	Mail,
+	MapPin,
+	Phone,
 	Trash2,
+	User,
 	UserX,
 } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -107,23 +112,26 @@ export function PropertyOwnerProfilePage() {
 			<AdminLayout>
 				<div className={styles.container}>
 					<div className={styles.pageHeader}>
-						<Skeleton width="120px" height="20px" />
-						<Skeleton width="160px" height="32px" />
+						<Skeleton width="150px" height="24px" />
+						<Skeleton width="180px" height="36px" />
 					</div>
-					<div className={styles.profileHeader}>
-						<Skeleton width="72px" height="72px" borderRadius="50%" />
-						<div style={{ flex: 1 }}>
-							<Skeleton width="200px" height="24px" />
-							<Skeleton width="300px" height="16px" />
+					<div className={styles.profileCard}>
+						<div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+							<Skeleton width="80px" height="80px" borderRadius="50%" />
+							<div style={{ flex: 1 }}>
+								<Skeleton width="200px" height="24px" />
+								<Skeleton width="150px" height="16px" />
+								<Skeleton width="250px" height="16px" />
+							</div>
 						</div>
 					</div>
 					<div className={styles.content}>
 						<div className={styles.mainColumn}>
-							<Skeleton width="100%" height="120px" borderRadius="8px" />
-							<Skeleton width="100%" height="100px" borderRadius="8px" />
+							<Skeleton width="100%" height="150px" borderRadius="16px" />
+							<Skeleton width="100%" height="120px" borderRadius="16px" />
 						</div>
 						<div className={styles.sideColumn}>
-							<Skeleton width="100%" height="140px" borderRadius="8px" />
+							<Skeleton width="100%" height="150px" borderRadius="16px" />
 						</div>
 					</div>
 				</div>
@@ -140,17 +148,17 @@ export function PropertyOwnerProfilePage() {
 							<Link to="/property-owners" className={styles.backButton}>
 								<ArrowLeft size={18} />
 							</Link>
-							<span className={styles.pageTitle}>Proprietario</span>
+							<h1 className={styles.pageTitle}>Proprietario</h1>
 						</div>
 					</div>
 					<div className={styles.errorContainer}>
 						<UserX size={48} className={styles.errorIcon} />
-						<h2 className={styles.errorTitle}>Nao encontrado</h2>
+						<h2 className={styles.errorTitle}>Proprietario nao encontrado</h2>
 						<p className={styles.errorDescription}>
 							Este proprietario nao existe ou foi removido.
 						</p>
 						<Button variant="outline" size="small" onClick={() => navigate('/property-owners')}>
-							Voltar
+							Voltar para lista
 						</Button>
 					</div>
 				</div>
@@ -160,7 +168,7 @@ export function PropertyOwnerProfilePage() {
 
 	const avatarColor = getAvatarColor(owner.name)
 	const documents = documentsData?.data || []
-
+	const hasAddress = owner.address || owner.city || owner.state || owner.zipCode
 	const hasPersonalInfo = owner.documentType === 'cpf' && (
 		owner.rg || owner.nationality || owner.maritalStatus || owner.profession || owner.birthDate
 	)
@@ -168,13 +176,13 @@ export function PropertyOwnerProfilePage() {
 	return (
 		<AdminLayout>
 			<div className={styles.container}>
-				{/* Header */}
+				{/* Page Header */}
 				<div className={styles.pageHeader}>
 					<div className={styles.pageHeaderLeft}>
 						<Link to="/property-owners" className={styles.backButton}>
 							<ArrowLeft size={18} />
 						</Link>
-						<span className={styles.pageTitle}>Proprietario</span>
+						<h1 className={styles.pageTitle}>Perfil do Proprietario</h1>
 					</div>
 					<div className={styles.pageHeaderRight}>
 						<Button variant="outline" size="small" onClick={handleEdit}>
@@ -183,45 +191,49 @@ export function PropertyOwnerProfilePage() {
 						</Button>
 						<Button variant="danger" size="small" onClick={() => setIsDeleteDialogOpen(true)}>
 							<Trash2 size={14} />
+							Excluir
 						</Button>
 					</div>
 				</div>
 
-				{/* Profile Header */}
-				<div className={styles.profileHeader}>
-					<div className={styles.avatarContainer}>
-						{owner.photoUrl ? (
-							<img src={owner.photoUrl} alt={owner.name} className={styles.avatar} />
-						) : (
-							<div
-								className={styles.avatarFallback}
-								style={{ backgroundColor: avatarColor.bg, color: avatarColor.text }}
-							>
-								{getInitials(owner.name)}
-							</div>
-						)}
-					</div>
-					<div className={styles.profileInfo}>
-						<div className={styles.nameRow}>
-							<h1 className={styles.name}>{owner.name}</h1>
-							<span className={`${styles.badge} ${owner.documentType === 'cpf' ? styles.badgeCpf : styles.badgeCnpj}`}>
-								{owner.documentType.toUpperCase()}
-							</span>
-						</div>
-						<div className={styles.profileMeta}>
-							<span className={styles.metaItem}>
-								{formatDocument(owner.document, owner.documentType)}
-							</span>
-							<span className={styles.metaItem}>
-								<Building2 size={14} className={styles.metaIcon} />
-								{owner.propertiesCount ?? 0} imoveis
-							</span>
-							{formatDate(owner.createdAt) && (
-								<span className={styles.metaItem}>
-									<Calendar size={14} className={styles.metaIcon} />
-									Desde {formatDate(owner.createdAt)}
-								</span>
+				{/* Profile Card */}
+				<div className={styles.profileCard}>
+					<div className={styles.profileHeader}>
+						<div className={styles.avatarContainer}>
+							{owner.photoUrl ? (
+								<img src={owner.photoUrl} alt={owner.name} className={styles.avatar} />
+							) : (
+								<div
+									className={styles.avatarFallback}
+									style={{ backgroundColor: avatarColor.bg, color: avatarColor.text }}
+								>
+									{getInitials(owner.name)}
+								</div>
 							)}
+							<div className={styles.statusIndicator} />
+						</div>
+						<div className={styles.profileInfo}>
+							<div className={styles.nameRow}>
+								<h2 className={styles.name}>{owner.name}</h2>
+								<span className={`${styles.badge} ${owner.documentType === 'cpf' ? styles.badgeCpf : styles.badgeCnpj}`}>
+									{owner.documentType.toUpperCase()}
+								</span>
+							</div>
+							<p className={styles.document}>{formatDocument(owner.document, owner.documentType)}</p>
+							<div className={styles.quickStats}>
+								<div className={styles.statItem}>
+									<Building2 size={14} className={styles.statIcon} />
+									<span className={styles.statValue}>{owner.propertiesCount ?? 0}</span>
+									<span>imoveis</span>
+								</div>
+								{formatDate(owner.createdAt) && (
+									<div className={styles.statItem}>
+										<Calendar size={14} className={styles.statIcon} />
+										<span>Cliente desde</span>
+										<span className={styles.statValue}>{formatDate(owner.createdAt)}</span>
+									</div>
+								)}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -229,63 +241,94 @@ export function PropertyOwnerProfilePage() {
 				{/* Content */}
 				<div className={styles.content}>
 					<div className={styles.mainColumn}>
-						{/* Contact */}
-						<div className={styles.section}>
-							<h3 className={styles.sectionTitle}>Contato</h3>
-							<div className={styles.infoGrid}>
-								<div className={`${styles.infoItem} ${owner.phone ? styles.infoItemClickable : ''}`}>
-									<span className={styles.infoLabel}>Telefone</span>
-									{owner.phone ? (
-										<a href={`tel:${owner.phone}`} className={styles.infoValueLink}>
-											{formatPhone(owner.phone)}
-										</a>
-									) : (
-										<span className={styles.infoValueMuted}>-</span>
-									)}
+						{/* Contact Card */}
+						<div className={styles.card}>
+							<div className={styles.cardHeader}>
+								<h3 className={styles.cardTitle}>
+									<Phone size={16} className={styles.cardTitleIcon} />
+									Contato
+								</h3>
+							</div>
+							<div className={styles.contactGrid}>
+								<div className={styles.contactItem}>
+									<div className={`${styles.contactIconWrapper} ${styles.contactIconPhone}`}>
+										<Phone size={16} />
+									</div>
+									<div className={styles.contactInfo}>
+										<span className={styles.contactLabel}>Telefone</span>
+										{owner.phone ? (
+											<a href={`tel:${owner.phone}`} className={styles.contactValue}>
+												{formatPhone(owner.phone)}
+											</a>
+										) : (
+											<span className={styles.contactValueMuted}>Nao informado</span>
+										)}
+									</div>
 								</div>
-								<div className={`${styles.infoItem} ${owner.phoneSecondary ? styles.infoItemClickable : ''}`}>
-									<span className={styles.infoLabel}>Telefone 2</span>
-									{owner.phoneSecondary ? (
-										<a href={`tel:${owner.phoneSecondary}`} className={styles.infoValueLink}>
-											{formatPhone(owner.phoneSecondary)}
-										</a>
-									) : (
-										<span className={styles.infoValueMuted}>-</span>
-									)}
+								<div className={styles.contactItem}>
+									<div className={`${styles.contactIconWrapper} ${styles.contactIconPhone}`}>
+										<Phone size={16} />
+									</div>
+									<div className={styles.contactInfo}>
+										<span className={styles.contactLabel}>Telefone 2</span>
+										{owner.phoneSecondary ? (
+											<a href={`tel:${owner.phoneSecondary}`} className={styles.contactValue}>
+												{formatPhone(owner.phoneSecondary)}
+											</a>
+										) : (
+											<span className={styles.contactValueMuted}>Nao informado</span>
+										)}
+									</div>
 								</div>
-								<div className={`${styles.infoItem} ${owner.email ? styles.infoItemClickable : ''}`} style={{ gridColumn: 'span 2' }}>
-									<span className={styles.infoLabel}>Email</span>
-									{owner.email ? (
-										<a href={`mailto:${owner.email}`} className={styles.infoValueLink}>
-											{owner.email}
-										</a>
-									) : (
-										<span className={styles.infoValueMuted}>-</span>
-									)}
+								<div className={styles.contactItem} style={{ gridColumn: 'span 2' }}>
+									<div className={`${styles.contactIconWrapper} ${styles.contactIconEmail}`}>
+										<Mail size={16} />
+									</div>
+									<div className={styles.contactInfo}>
+										<span className={styles.contactLabel}>Email</span>
+										{owner.email ? (
+											<a href={`mailto:${owner.email}`} className={styles.contactValue}>
+												{owner.email}
+											</a>
+										) : (
+											<span className={styles.contactValueMuted}>Nao informado</span>
+										)}
+									</div>
 								</div>
 							</div>
 						</div>
 
-						{/* Address */}
-						{(owner.address || owner.city || owner.state || owner.zipCode) && (
-							<div className={styles.section}>
-								<h3 className={styles.sectionTitle}>Endereco</h3>
-								<div className={styles.infoGridThree}>
-									<div className={styles.infoItem} style={{ gridColumn: 'span 3' }}>
-										<span className={styles.infoLabel}>Logradouro</span>
-										<span className={styles.infoValue}>
+						{/* Address Card */}
+						{hasAddress && (
+							<div className={styles.card}>
+								<div className={styles.cardHeader}>
+									<h3 className={styles.cardTitle}>
+										<MapPin size={16} className={styles.cardTitleIcon} />
+										Endereco
+									</h3>
+								</div>
+								<div className={styles.addressMain}>
+									<div className={styles.addressIconWrapper}>
+										<MapPin size={18} />
+									</div>
+									<div className={styles.addressInfo}>
+										<p className={styles.addressLine}>
 											{owner.address ? (
 												<>
 													{owner.address}
 													{owner.addressNumber && `, ${owner.addressNumber}`}
 													{owner.addressComplement && ` - ${owner.addressComplement}`}
-													{owner.neighborhood && ` - ${owner.neighborhood}`}
 												</>
 											) : (
-												<span className={styles.infoValueMuted}>-</span>
+												'Endereco nao informado'
 											)}
-										</span>
+										</p>
+										{owner.neighborhood && (
+											<p className={styles.addressSecondary}>{owner.neighborhood}</p>
+										)}
 									</div>
+								</div>
+								<div className={styles.infoGrid}>
 									<div className={styles.infoItem}>
 										<span className={styles.infoLabel}>Cidade</span>
 										<span className={owner.city ? styles.infoValue : styles.infoValueMuted}>
@@ -308,10 +351,15 @@ export function PropertyOwnerProfilePage() {
 							</div>
 						)}
 
-						{/* Personal Info (CPF only) */}
+						{/* Personal Info Card */}
 						{hasPersonalInfo && (
-							<div className={styles.section}>
-								<h3 className={styles.sectionTitle}>Dados Pessoais</h3>
+							<div className={styles.card}>
+								<div className={styles.cardHeader}>
+									<h3 className={styles.cardTitle}>
+										<User size={16} className={styles.cardTitleIcon} />
+										Dados Pessoais
+									</h3>
+								</div>
 								<div className={styles.infoGrid}>
 									{owner.rg && (
 										<div className={styles.infoItem}>
@@ -349,18 +397,26 @@ export function PropertyOwnerProfilePage() {
 							</div>
 						)}
 
-						{/* Notes */}
+						{/* Notes Card */}
 						{owner.notes && (
-							<div className={styles.section}>
-								<h3 className={styles.sectionTitle}>Observacoes</h3>
+							<div className={styles.card}>
+								<div className={styles.cardHeader}>
+									<h3 className={styles.cardTitle}>
+										<FileText size={16} className={styles.cardTitleIcon} />
+										Observacoes
+									</h3>
+								</div>
 								<div className={styles.notesContent}>{owner.notes}</div>
 							</div>
 						)}
 
-						{/* Documents */}
-						<div className={styles.section}>
+						{/* Documents Card */}
+						<div className={styles.card}>
 							<div className={styles.cardHeader}>
-								<h3 className={styles.cardTitle}>Documentos</h3>
+								<h3 className={styles.cardTitle}>
+									<FolderOpen size={16} className={styles.cardTitleIcon} />
+									Documentos
+								</h3>
 								<span className={styles.cardCount}>{documents.length}</span>
 							</div>
 							{isLoadingDocs ? (
@@ -377,7 +433,7 @@ export function PropertyOwnerProfilePage() {
 													<img src={doc.url} alt={doc.originalName} className={styles.documentImage} />
 												) : (
 													<div className={styles.documentIconWrapper}>
-														<FileText size={24} />
+														<FileText size={20} />
 													</div>
 												)}
 												<div className={styles.documentOverlay}>
@@ -387,14 +443,14 @@ export function PropertyOwnerProfilePage() {
 														rel="noopener noreferrer"
 														className={styles.documentAction}
 													>
-														<ExternalLink size={14} />
+														<ExternalLink size={12} />
 													</a>
 													<a
 														href={doc.url}
 														download={doc.originalName}
 														className={styles.documentAction}
 													>
-														<Download size={14} />
+														<Download size={12} />
 													</a>
 												</div>
 											</div>
@@ -411,7 +467,7 @@ export function PropertyOwnerProfilePage() {
 								</div>
 							) : (
 								<div className={styles.emptyState}>
-									<FolderOpen size={24} />
+									<FolderOpen size={20} />
 									<p className={styles.emptyStateText}>Nenhum documento</p>
 								</div>
 							)}
@@ -419,45 +475,54 @@ export function PropertyOwnerProfilePage() {
 					</div>
 
 					<div className={styles.sideColumn}>
-						{/* Properties */}
+						{/* Properties Card */}
 						<div className={styles.card}>
 							<div className={styles.cardHeader}>
-								<h3 className={styles.cardTitle}>Imoveis</h3>
-								<span className={styles.cardCount}>{owner.propertiesCount ?? 0}</span>
+								<h3 className={styles.cardTitle}>
+									<Building2 size={16} className={styles.cardTitleIcon} />
+									Imoveis
+								</h3>
 							</div>
-							{owner.propertiesCount && owner.propertiesCount > 0 ? (
-								<>
-									<div className={styles.propertiesEmpty}>
-										<Building2 size={18} />
-										{owner.propertiesCount} {owner.propertiesCount === 1 ? 'imovel' : 'imoveis'}
-									</div>
-									<Link to={`/properties?ownerId=${id}`} className={styles.viewAllLink}>
-										Ver imoveis
-										<ChevronRight size={14} />
-									</Link>
-								</>
-							) : (
-								<div className={styles.propertiesEmpty}>
-									<Building2 size={18} />
-									Nenhum imovel
-								</div>
+							<div className={styles.propertiesContent}>
+								<Building2 size={24} className={styles.propertiesIcon} />
+								<span className={styles.propertiesCount}>{owner.propertiesCount ?? 0}</span>
+								<span className={styles.propertiesLabel}>
+									{owner.propertiesCount === 1 ? 'imovel vinculado' : 'imoveis vinculados'}
+								</span>
+							</div>
+							{owner.propertiesCount && owner.propertiesCount > 0 && (
+								<Link to={`/properties?ownerId=${id}`} className={styles.viewAllLink}>
+									Ver imoveis
+									<ChevronRight size={14} />
+								</Link>
 							)}
 						</div>
 
-						{/* Metadata */}
+						{/* Metadata Card */}
 						<div className={styles.card}>
-							<h3 className={styles.cardTitle} style={{ marginBottom: '12px' }}>Registro</h3>
+							<div className={styles.cardHeader}>
+								<h3 className={styles.cardTitle}>
+									<Clock size={16} className={styles.cardTitleIcon} />
+									Registro
+								</h3>
+							</div>
 							<div className={styles.metadataList}>
 								{formatDate(owner.createdAt) && (
 									<div className={styles.metadataItem}>
-										<span>Criado em</span>
-										<span className={styles.metadataValue}>{formatDate(owner.createdAt)}</span>
+										<Calendar size={14} className={styles.metadataIcon} />
+										<div className={styles.metadataInfo}>
+											<span className={styles.metadataLabel}>Criado em</span>
+											<span className={styles.metadataValue}>{formatDate(owner.createdAt)}</span>
+										</div>
 									</div>
 								)}
 								{owner.updatedAt && formatDate(owner.updatedAt) && (
 									<div className={styles.metadataItem}>
-										<span>Atualizado</span>
-										<span className={styles.metadataValue}>{formatDate(owner.updatedAt)}</span>
+										<Clock size={14} className={styles.metadataIcon} />
+										<div className={styles.metadataInfo}>
+											<span className={styles.metadataLabel}>Atualizado em</span>
+											<span className={styles.metadataValue}>{formatDate(owner.updatedAt)}</span>
+										</div>
 									</div>
 								)}
 							</div>
@@ -471,7 +536,7 @@ export function PropertyOwnerProfilePage() {
 				onClose={() => setIsDeleteDialogOpen(false)}
 				onConfirm={handleDelete}
 				title="Excluir Proprietario"
-				description={`Tem certeza que deseja excluir <strong>${owner.name}</strong>?`}
+				description={`Tem certeza que deseja excluir <strong>${owner.name}</strong>? Esta acao nao pode ser desfeita.`}
 				confirmText="Excluir"
 				cancelText="Cancelar"
 				isLoading={deleteMutation.isPending}

@@ -213,7 +213,6 @@
     border: none;
     box-shadow: none;
     width: 100%;
-    overflow: hidden;
 }
 
 .orbitalContainer {
@@ -225,7 +224,6 @@
     justify-items: center;
     width: 100%;
     max-width: 100%;
-    padding: 0 0.5rem;
 }
 
 @media (min-width: 768px) {

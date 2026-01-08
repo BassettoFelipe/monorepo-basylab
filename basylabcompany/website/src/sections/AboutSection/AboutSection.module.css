@@ -38,6 +38,18 @@
     filter: blur(80px);
 }
 
+.backgroundLogo {
+    position: absolute;
+    top: 50%;
+    left: 60%;
+    transform: translate(-50%, -50%);
+    width: 80vw;
+    max-width: 900px;
+    height: auto;
+    opacity: 0.1;
+    pointer-events: none;
+}
+
 .gridPattern {
     position: absolute;
     inset: 0;

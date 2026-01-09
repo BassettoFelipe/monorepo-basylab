@@ -6,9 +6,14 @@ const steps = [
 		title: 'Cadastre seus dados',
 		description:
 			'Adicione professores, turmas e disciplinas. Informe a disponibilidade de cada professor e a carga horaria semanal.',
-		// Icone: escola/predio com pessoas - representa cadastro de dados escolares
 		icon: (
-			<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+			<svg
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke="currentColor"
+				strokeWidth={1.5}
+				aria-hidden="true"
+			>
 				<path
 					strokeLinecap="round"
 					strokeLinejoin="round"
@@ -22,9 +27,14 @@ const steps = [
 		title: 'Configure as regras',
 		description:
 			'Defina suas preferencias: evitar janelas, limitar aulas consecutivas, ou priorizar determinados horarios.',
-		// Icone: checklist/clipboard - representa configuracao de regras e restricoes
 		icon: (
-			<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+			<svg
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke="currentColor"
+				strokeWidth={1.5}
+				aria-hidden="true"
+			>
 				<path
 					strokeLinecap="round"
 					strokeLinejoin="round"
@@ -38,9 +48,14 @@ const steps = [
 		title: 'Gere a grade',
 		description:
 			'Clique em gerar e em segundos tenha sua grade otimizada, sem conflitos e pronta para exportar.',
-		// Icone: calendario/grade - representa a grade horaria gerada
 		icon: (
-			<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+			<svg
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke="currentColor"
+				strokeWidth={1.5}
+				aria-hidden="true"
+			>
 				<path
 					strokeLinecap="round"
 					strokeLinejoin="round"
@@ -78,7 +93,13 @@ export function HowItWorksSection() {
 							<p className="how-it-works__card-description">{step.description}</p>
 							{index < steps.length - 1 && (
 								<div className="how-it-works__arrow">
-									<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+									<svg
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+										strokeWidth={2}
+										aria-hidden="true"
+									>
 										<path
 											strokeLinecap="round"
 											strokeLinejoin="round"
@@ -94,7 +115,13 @@ export function HowItWorksSection() {
 				<div className="how-it-works__cta">
 					<a href="/cadastro" className="how-it-works__button">
 						Testar gratuitamente
-						<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+						<svg
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							strokeWidth={2}
+							aria-hidden="true"
+						>
 							<path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
 						</svg>
 					</a>

@@ -323,7 +323,7 @@ export function MyProfilePage() {
 					uploadWithPresignedUrl({
 						file: task.file,
 						entityType: 'user',
-						entityId: user.id,
+						entityId: user!.id,
 						fieldId: task.fieldId,
 					}).then((result) => ({
 						fieldId: task.fieldId,

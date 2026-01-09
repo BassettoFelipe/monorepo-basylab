@@ -4,21 +4,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://basylab.com.br";
   const lastModified = new Date();
 
-  // Seções da página principal (âncoras)
-  const sections = [
-    { id: "", priority: 1.0, changeFrequency: "weekly" as const },
-    { id: "#sobre", priority: 0.9, changeFrequency: "monthly" as const },
-    { id: "#servicos", priority: 0.9, changeFrequency: "monthly" as const },
-    { id: "#processo", priority: 0.8, changeFrequency: "monthly" as const },
-    { id: "#tecnologias", priority: 0.7, changeFrequency: "monthly" as const },
-    { id: "#cases", priority: 0.8, changeFrequency: "weekly" as const },
-    { id: "#contato", priority: 0.9, changeFrequency: "monthly" as const },
+  // Páginas reais do site (URLs com # não são válidas para sitemap)
+  const pages = [
+    { path: "", priority: 1.0, changeFrequency: "weekly" as const },
+    { path: "privacidade", priority: 0.5, changeFrequency: "yearly" as const },
+    { path: "termos", priority: 0.5, changeFrequency: "yearly" as const },
   ];
 
-  return sections.map((section) => ({
-    url: `${baseUrl}/${section.id}`,
+  return pages.map((page) => ({
+    url: page.path ? `${baseUrl}/${page.path}` : baseUrl,
     lastModified,
-    changeFrequency: section.changeFrequency,
-    priority: section.priority,
+    changeFrequency: page.changeFrequency,
+    priority: page.priority,
   }));
 }

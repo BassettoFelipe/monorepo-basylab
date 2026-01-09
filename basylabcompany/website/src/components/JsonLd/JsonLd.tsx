@@ -59,6 +59,9 @@ export function JsonLd() {
     address: {
       "@type": "PostalAddress",
       addressCountry: "BR",
+      addressRegion: "SP",
+      addressLocality: "Bauru",
+      postalCode: "17012-000",
     },
     geo: {
       "@type": "GeoCoordinates",
@@ -70,13 +73,6 @@ export function JsonLd() {
       dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       opens: "09:00",
       closes: "18:00",
-    },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "5",
-      reviewCount: "30",
-      bestRating: "5",
-      worstRating: "1",
     },
   };
 

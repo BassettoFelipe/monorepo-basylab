@@ -1,0 +1,133 @@
+.features {
+	padding: var(--spacing-24) 0;
+	background: white;
+}
+
+.features__container {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 var(--spacing-6);
+}
+
+/* Header */
+.features__header {
+	text-align: center;
+	margin-bottom: var(--spacing-16);
+}
+
+.features__label {
+	display: inline-block;
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-bold);
+	color: var(--color-teal-600);
+	text-transform: uppercase;
+	letter-spacing: 0.15em;
+	margin-bottom: var(--spacing-4);
+}
+
+.features__title {
+	font-size: var(--font-size-3xl);
+	font-weight: var(--font-weight-bold);
+	color: var(--color-slate-900);
+	margin: 0 0 var(--spacing-4) 0;
+	line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+	.features__title {
+		font-size: 2.75rem;
+	}
+}
+
+.features__highlight {
+	color: var(--color-teal-600);
+}
+
+.features__subtitle {
+	font-size: var(--font-size-lg);
+	color: var(--color-slate-600);
+	margin: 0;
+	max-width: 520px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* Grid */
+.features__grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--spacing-6);
+}
+
+@media (min-width: 640px) {
+	.features__grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (min-width: 1024px) {
+	.features__grid {
+		grid-template-columns: repeat(3, 1fr);
+		gap: var(--spacing-8);
+	}
+}
+
+/* Card */
+.features__card {
+	position: relative;
+	background: var(--color-slate-50);
+	border-radius: var(--radius-2xl);
+	padding: var(--spacing-8);
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease,
+		background 0.2s ease;
+}
+
+.features__card:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+	background: white;
+}
+
+.features__icon {
+	width: 56px;
+	height: 56px;
+	background: white;
+	border-radius: var(--radius-xl);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--color-teal-600);
+	margin-bottom: var(--spacing-5);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+	transition:
+		background 0.2s ease,
+		color 0.2s ease,
+		transform 0.2s ease;
+}
+
+.features__card:hover .features__icon {
+	background: var(--color-teal-600);
+	color: white;
+	transform: scale(1.05);
+}
+
+.features__icon svg {
+	width: 28px;
+	height: 28px;
+}
+
+.features__card-title {
+	font-size: var(--font-size-lg);
+	font-weight: var(--font-weight-semibold);
+	color: var(--color-slate-900);
+	margin: 0 0 var(--spacing-2) 0;
+}
+
+.features__card-description {
+	font-size: var(--font-size-base);
+	color: var(--color-slate-600);
+	line-height: 1.6;
+	margin: 0;
+}

@@ -712,6 +712,7 @@ export function PropertiesPage() {
 														className={styles.iconButton}
 														onClick={() => viewPropertyDetails(property)}
 														title="Ver detalhes"
+														aria-label={`Ver detalhes do imovel ${property.title}`}
 													>
 														<Eye size={16} />
 													</button>
@@ -720,6 +721,7 @@ export function PropertiesPage() {
 														className={styles.iconButton}
 														onClick={() => openEditModal(property)}
 														title="Editar imovel"
+														aria-label={`Editar imovel ${property.title}`}
 													>
 														<Edit size={16} />
 													</button>
@@ -728,6 +730,7 @@ export function PropertiesPage() {
 														className={`${styles.iconButton} ${styles.iconButtonDanger}`}
 														onClick={() => openDeleteDialog(property)}
 														title="Excluir imovel"
+														aria-label={`Excluir imovel ${property.title}`}
 													>
 														<Trash2 size={16} />
 													</button>

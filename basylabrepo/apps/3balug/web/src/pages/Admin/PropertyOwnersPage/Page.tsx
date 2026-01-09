@@ -732,6 +732,7 @@ export function PropertyOwnersPage() {
 														className={styles.iconButton}
 														onClick={() => viewOwnerProfile(owner)}
 														title="Visualizar proprietario"
+														aria-label={`Visualizar proprietario ${owner.name}`}
 													>
 														<Eye size={16} />
 													</button>
@@ -740,6 +741,7 @@ export function PropertyOwnersPage() {
 														className={styles.iconButton}
 														onClick={() => openEditModal(owner)}
 														title="Editar proprietario"
+														aria-label={`Editar proprietario ${owner.name}`}
 													>
 														<Edit size={16} />
 													</button>
@@ -748,6 +750,7 @@ export function PropertyOwnersPage() {
 														className={`${styles.iconButton} ${styles.iconButtonDanger}`}
 														onClick={() => openDeleteDialog(owner)}
 														title="Excluir proprietario"
+														aria-label={`Excluir proprietario ${owner.name}`}
 													>
 														<Trash2 size={16} />
 													</button>

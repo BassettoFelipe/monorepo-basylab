@@ -116,6 +116,36 @@ export const closeButton = style({
 	},
 })
 
+// Error state styles
+export const errorState = style({
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'center',
+	justifyContent: 'center',
+	padding: vars.spacing['2xl'],
+	textAlign: 'center',
+	gap: vars.spacing.md,
+	minHeight: '200px',
+})
+
+export const errorIcon = style({
+	color: vars.color.text.tertiary,
+})
+
+export const errorTitle = style({
+	fontSize: vars.fontSize.lg,
+	fontWeight: 600,
+	color: vars.color.text.primary,
+	margin: 0,
+})
+
+export const errorDescription = style({
+	fontSize: vars.fontSize.sm,
+	color: vars.color.text.secondary,
+	margin: 0,
+	maxWidth: '300px',
+})
+
 // Steps
 export const stepsContainer = style({
 	display: 'flex',

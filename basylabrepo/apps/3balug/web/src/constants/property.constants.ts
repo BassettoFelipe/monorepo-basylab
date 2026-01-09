@@ -95,23 +95,3 @@ export const SORT_ORDER_OPTIONS = [
 	{ value: 'asc', label: 'Crescente' },
 	{ value: 'desc', label: 'Decrescente' },
 ]
-
-/**
- * List of all property feature keys
- */
-export const PROPERTY_FEATURE_KEYS = [
-	'hasPool',
-	'hasGarden',
-	'hasGarage',
-	'hasElevator',
-	'hasGym',
-	'hasPlayground',
-	'hasSecurity',
-	'hasAirConditioning',
-	'hasFurnished',
-	'hasPetFriendly',
-	'hasBalcony',
-	'hasBarbecue',
-] as const
-
-export type PropertyFeatureKey = (typeof PROPERTY_FEATURE_KEYS)[number]

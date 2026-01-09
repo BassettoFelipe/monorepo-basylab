@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
+	AlertCircle,
 	AlertTriangle,
 	Briefcase,
 	Camera,
@@ -54,6 +55,7 @@ import {
 	MARITAL_STATUS_LABELS,
 	type PropertyOwner,
 } from '@/types/property-owner.types'
+import { getUploadErrorMessage, handleApiError } from '@/utils/api-error-handler'
 import { applyMask } from '@/utils/masks'
 import * as styles from '../CreatePropertyOwnerModal/CreatePropertyOwnerModal.styles.css'
 
@@ -542,8 +544,9 @@ export function EditPropertyOwnerModal({
 						fieldId: 'property-owner-photo',
 					})
 					photoUrl = uploadResult.url
-				} catch {
-					toast.error('Erro ao enviar foto. Tente novamente.')
+				} catch (photoError) {
+					const errorMsg = getUploadErrorMessage(photoError, photoFile?.name)
+					toast.error(errorMsg)
 					setIsUploadingPhoto(false)
 					setIsUploading(false)
 					return
@@ -593,8 +596,9 @@ export function EditPropertyOwnerModal({
 							entityId: propertyOwner.id,
 						})
 					}
-				} catch {
-					toast.error('Erro ao remover alguns documentos')
+				} catch (deleteError) {
+					const errorMsg = handleApiError(deleteError, 'Erro ao remover documentos')
+					toast.error(errorMsg)
 				}
 			}
 
@@ -611,18 +615,16 @@ export function EditPropertyOwnerModal({
 							})
 						}
 					}
-				} catch {
-					toast.error('Proprietario atualizado, mas houve erro ao enviar alguns documentos')
+				} catch (uploadError) {
+					const errorMsg = getUploadErrorMessage(uploadError)
+					toast.error(`Proprietario atualizado, mas houve erro ao enviar documentos: ${errorMsg}`)
 				}
 			}
 
 			toast.success('Proprietario atualizado com sucesso!')
 			handleClose()
 		} catch (error: unknown) {
-			const errorMessage =
-				error && typeof error === 'object' && 'message' in error
-					? String(error.message)
-					: 'Erro ao atualizar proprietario'
+			const errorMessage = handleApiError(error, 'Erro ao atualizar proprietario')
 			toast.error(errorMessage)
 		} finally {
 			setIsUploading(false)
@@ -913,6 +915,24 @@ export function EditPropertyOwnerModal({
 		}
 	}
 
+	// Show error state if property owner doesn't exist after loading
+	if (!propertyOwner && !isLoading) {
+		return (
+			<Modal isOpen={isOpen} onClose={onClose} title="Editar Proprietario" size="md">
+				<div className={styles.errorState}>
+					<AlertCircle size={48} className={styles.errorIcon} />
+					<h3 className={styles.errorTitle}>Proprietario nao encontrado</h3>
+					<p className={styles.errorDescription}>
+						O proprietario que voce esta tentando editar nao existe ou foi removido.
+					</p>
+					<Button type="button" onClick={onClose}>
+						Fechar
+					</Button>
+				</div>
+			</Modal>
+		)
+	}
+
 	return (
 		<Modal
 			isOpen={isOpen}
@@ -1176,7 +1196,9 @@ export function EditPropertyOwnerModal({
 											cepLoading ? <Loader2 size={18} className={styles.spinner} /> : undefined
 										}
 									/>
-									{cepLoading && <span className={styles.cepHint}>Buscando endereco...</span>}
+									<div aria-live="polite" aria-atomic="true">
+										{cepLoading && <span className={styles.cepHint}>Buscando endereco...</span>}
+									</div>
 								</div>
 								<Input
 									{...register('city')}
@@ -1197,17 +1219,19 @@ export function EditPropertyOwnerModal({
 								/>
 							</div>
 
-							{cepError && !cepLoading && (
-								<div className={styles.cepAlert}>
-									<AlertTriangle size={18} className={styles.cepAlertIcon} />
-									<div className={styles.cepAlertContent}>
-										<p className={styles.cepAlertTitle}>CEP nao encontrado</p>
-										<p className={styles.cepAlertText}>
-											Preencha os campos de endereco manualmente.
-										</p>
+							<div aria-live="polite" aria-atomic="true">
+								{cepError && !cepLoading && (
+									<div className={styles.cepAlert}>
+										<AlertTriangle size={18} className={styles.cepAlertIcon} />
+										<div className={styles.cepAlertContent}>
+											<p className={styles.cepAlertTitle}>CEP nao encontrado</p>
+											<p className={styles.cepAlertText}>
+												Preencha os campos de endereco manualmente.
+											</p>
+										</div>
 									</div>
-								</div>
-							)}
+								)}
+							</div>
 
 							<Input
 								{...register('address')}

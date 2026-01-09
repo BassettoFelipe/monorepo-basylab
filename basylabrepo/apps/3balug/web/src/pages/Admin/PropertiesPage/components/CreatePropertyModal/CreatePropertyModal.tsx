@@ -1,37 +1,28 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-	AirVent,
 	AlertTriangle,
-	Armchair,
-	Baby,
 	Building2,
 	Camera,
-	Car,
 	CheckCircle2,
 	DollarSign,
-	Dumbbell,
 	FileText,
-	Flame,
-	Flower2,
 	Globe,
 	Home,
 	Image,
 	Info,
 	Loader2,
-	PawPrint,
 	Percent,
 	Rocket,
 	Ruler,
-	Shield,
 	Sparkles,
 	Upload,
-	Waves,
 } from 'lucide-react'
 import type { FocusEvent } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'react-toastify'
 
+import { type FeatureKey, FeaturesGrid } from '@/components/FeatureCheckbox'
 import { Input } from '@/components/Input/Input'
 import { OwnerSelect } from '@/components/OwnerSelect'
 import { PhotoPicker, type SelectedPhoto } from '@/components/PhotoPicker/PhotoPicker'
@@ -50,6 +41,7 @@ import { getPresignedUrl, uploadToPresignedUrl } from '@/services/files/presigne
 import type { BatchRegisterPhotoItem } from '@/services/property-photos/batch-register'
 import type { ListingType, PropertyType } from '@/types/property.types'
 import { BRAZILIAN_STATES } from '@/types/property-owner.types'
+import { getUploadErrorMessage, handleApiError } from '@/utils/api-error-handler'
 import { getCurrencyRawValue } from '@/utils/masks'
 import * as styles from './CreatePropertyModal.styles.css'
 
@@ -97,15 +89,32 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 	const { createMaskedHandler } = useMaskedInput(setValue)
 
 	// Use useWatch for reactive values (more efficient than multiple watch() calls)
-	const [listingType, propertyType, notesValue, selectedOwnerId, isMarketplace] = useWatch({
-		control,
-		name: ['listingType', 'type', 'notes', 'ownerId', 'isMarketplace'],
-	})
-
-	// Watch feature checkboxes for styling
-	const featureValues = useWatch({
+	const [
+		listingType,
+		propertyType,
+		notesValue,
+		selectedOwnerId,
+		isMarketplace,
+		hasPool,
+		hasGarden,
+		hasGarage,
+		hasElevator,
+		hasGym,
+		hasPlayground,
+		hasSecurity,
+		hasAirConditioning,
+		hasFurnished,
+		hasPetFriendly,
+		hasBalcony,
+		hasBarbecue,
+	] = useWatch({
 		control,
 		name: [
+			'listingType',
+			'type',
+			'notes',
+			'ownerId',
+			'isMarketplace',
 			'hasPool',
 			'hasGarden',
 			'hasGarage',
@@ -120,6 +129,26 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 			'hasBarbecue',
 		],
 	})
+
+	// Feature values for FeaturesGrid
+	const featureValues: Record<FeatureKey, boolean | undefined> = {
+		hasPool,
+		hasGarden,
+		hasGarage,
+		hasElevator,
+		hasGym,
+		hasPlayground,
+		hasSecurity,
+		hasAirConditioning,
+		hasFurnished,
+		hasPetFriendly,
+		hasBalcony,
+		hasBarbecue,
+	}
+
+	const handleFeatureChange = (key: FeatureKey, value: boolean) => {
+		setValue(key, value)
+	}
 
 	const steps = getPropertyStepsForType(propertyType || 'house')
 	const currentStepId = steps[currentStep]?.id
@@ -281,8 +310,9 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 						propertyId,
 						photos: photosToRegister,
 					})
-				} catch {
-					toast.error('Imovel criado, mas houve erro ao enviar algumas fotos')
+				} catch (uploadError) {
+					const uploadErrorMsg = getUploadErrorMessage(uploadError)
+					toast.error(`Imovel criado, mas houve erro ao enviar fotos: ${uploadErrorMsg}`)
 				} finally {
 					setIsUploading(false)
 				}
@@ -291,18 +321,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 			toast.success(response.message || 'Imovel criado com sucesso!')
 			handleClose()
 		} catch (error: unknown) {
-			const errorMessage =
-				error &&
-				typeof error === 'object' &&
-				'response' in error &&
-				error.response &&
-				typeof error.response === 'object' &&
-				'data' in error.response &&
-				error.response.data &&
-				typeof error.response.data === 'object' &&
-				'message' in error.response.data
-					? String(error.response.data.message)
-					: 'Erro ao criar imovel'
+			const errorMessage = handleApiError(error, 'Erro ao criar imovel')
 			toast.error(errorMessage)
 		}
 	}
@@ -524,7 +543,9 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 										cepLoading ? <Loader2 size={18} className={styles.spinner} /> : undefined
 									}
 								/>
-								{cepLoading && <span className={styles.cepHint}>Buscando endereco...</span>}
+								<div aria-live="polite" aria-atomic="true">
+									{cepLoading && <span className={styles.cepHint}>Buscando endereco...</span>}
+								</div>
 							</div>
 							<Input
 								{...register('city')}
@@ -547,15 +568,19 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 							/>
 						</div>
 
-						{cepError && !cepLoading && (
-							<div className={styles.cepAlert}>
-								<AlertTriangle size={18} className={styles.cepAlertIcon} />
-								<div className={styles.cepAlertContent}>
-									<p className={styles.cepAlertTitle}>CEP nao encontrado</p>
-									<p className={styles.cepAlertText}>Preencha os campos de endereco manualmente.</p>
+						<div aria-live="polite" aria-atomic="true">
+							{cepError && !cepLoading && (
+								<div className={styles.cepAlert}>
+									<AlertTriangle size={18} className={styles.cepAlertIcon} />
+									<div className={styles.cepAlertContent}>
+										<p className={styles.cepAlertTitle}>CEP nao encontrado</p>
+										<p className={styles.cepAlertText}>
+											Preencha os campos de endereco manualmente.
+										</p>
+									</div>
 								</div>
-							</div>
-						)}
+							)}
+						</div>
 
 						<Input
 							{...register('address')}
@@ -696,152 +721,11 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 				{/* Step: Comodidades */}
 				{currentStepId === 'features' && (
 					<div className={styles.formSection}>
-						<div className={styles.featuresGrid}>
-							<label
-								className={`${styles.featureCheckbox} ${featureValues[0] ? styles.featureCheckboxChecked : ''}`}
-							>
-								<input
-									type="checkbox"
-									className={styles.checkbox}
-									{...register('hasPool')}
-									disabled={isSubmitting}
-								/>
-								<Waves size={28} className={styles.featureIcon} />
-								<span className={styles.featureLabel}>Piscina</span>
-							</label>
-							<label
-								className={`${styles.featureCheckbox} ${featureValues[1] ? styles.featureCheckboxChecked : ''}`}
-							>
-								<input
-									type="checkbox"
-									className={styles.checkbox}
-									{...register('hasGarden')}
-									disabled={isSubmitting}
-								/>
-								<Flower2 size={28} className={styles.featureIcon} />
-								<span className={styles.featureLabel}>Jardim</span>
-							</label>
-							<label
-								className={`${styles.featureCheckbox} ${featureValues[2] ? styles.featureCheckboxChecked : ''}`}
-							>
-								<input
-									type="checkbox"
-									className={styles.checkbox}
-									{...register('hasGarage')}
-									disabled={isSubmitting}
-								/>
-								<Car size={28} className={styles.featureIcon} />
-								<span className={styles.featureLabel}>Garagem</span>
-							</label>
-							<label
-								className={`${styles.featureCheckbox} ${featureValues[3] ? styles.featureCheckboxChecked : ''}`}
-							>
-								<input
-									type="checkbox"
-									className={styles.checkbox}
-									{...register('hasElevator')}
-									disabled={isSubmitting}
-								/>
-								<Building2 size={28} className={styles.featureIcon} />
-								<span className={styles.featureLabel}>Elevador</span>
-							</label>
-							<label
-								className={`${styles.featureCheckbox} ${featureValues[4] ? styles.featureCheckboxChecked : ''}`}
-							>
-								<input
-									type="checkbox"
-									className={styles.checkbox}
-									{...register('hasGym')}
-									disabled={isSubmitting}
-								/>
-								<Dumbbell size={28} className={styles.featureIcon} />
-								<span className={styles.featureLabel}>Academia</span>
-							</label>
-							<label
-								className={`${styles.featureCheckbox} ${featureValues[5] ? styles.featureCheckboxChecked : ''}`}
-							>
-								<input
-									type="checkbox"
-									className={styles.checkbox}
-									{...register('hasPlayground')}
-									disabled={isSubmitting}
-								/>
-								<Baby size={28} className={styles.featureIcon} />
-								<span className={styles.featureLabel}>Playground</span>
-							</label>
-							<label
-								className={`${styles.featureCheckbox} ${featureValues[6] ? styles.featureCheckboxChecked : ''}`}
-							>
-								<input
-									type="checkbox"
-									className={styles.checkbox}
-									{...register('hasSecurity')}
-									disabled={isSubmitting}
-								/>
-								<Shield size={28} className={styles.featureIcon} />
-								<span className={styles.featureLabel}>Seguranca 24h</span>
-							</label>
-							<label
-								className={`${styles.featureCheckbox} ${featureValues[7] ? styles.featureCheckboxChecked : ''}`}
-							>
-								<input
-									type="checkbox"
-									className={styles.checkbox}
-									{...register('hasAirConditioning')}
-									disabled={isSubmitting}
-								/>
-								<AirVent size={28} className={styles.featureIcon} />
-								<span className={styles.featureLabel}>Ar Condicionado</span>
-							</label>
-							<label
-								className={`${styles.featureCheckbox} ${featureValues[8] ? styles.featureCheckboxChecked : ''}`}
-							>
-								<input
-									type="checkbox"
-									className={styles.checkbox}
-									{...register('hasFurnished')}
-									disabled={isSubmitting}
-								/>
-								<Armchair size={28} className={styles.featureIcon} />
-								<span className={styles.featureLabel}>Mobiliado</span>
-							</label>
-							<label
-								className={`${styles.featureCheckbox} ${featureValues[9] ? styles.featureCheckboxChecked : ''}`}
-							>
-								<input
-									type="checkbox"
-									className={styles.checkbox}
-									{...register('hasPetFriendly')}
-									disabled={isSubmitting}
-								/>
-								<PawPrint size={28} className={styles.featureIcon} />
-								<span className={styles.featureLabel}>Aceita Pets</span>
-							</label>
-							<label
-								className={`${styles.featureCheckbox} ${featureValues[10] ? styles.featureCheckboxChecked : ''}`}
-							>
-								<input
-									type="checkbox"
-									className={styles.checkbox}
-									{...register('hasBalcony')}
-									disabled={isSubmitting}
-								/>
-								<Home size={28} className={styles.featureIcon} />
-								<span className={styles.featureLabel}>Varanda</span>
-							</label>
-							<label
-								className={`${styles.featureCheckbox} ${featureValues[11] ? styles.featureCheckboxChecked : ''}`}
-							>
-								<input
-									type="checkbox"
-									className={styles.checkbox}
-									{...register('hasBarbecue')}
-									disabled={isSubmitting}
-								/>
-								<Flame size={28} className={styles.featureIcon} />
-								<span className={styles.featureLabel}>Churrasqueira</span>
-							</label>
-						</div>
+						<FeaturesGrid
+							values={featureValues}
+							onChange={handleFeatureChange}
+							disabled={isSubmitting}
+						/>
 					</div>
 				)}
 

@@ -10,8 +10,24 @@ interface ACLHook {
 	isAnalyst: boolean
 	isAdmin: boolean
 	hasRole: (roles: UserRole | UserRole[]) => boolean
+	// Permissões de usuários
 	canManageUsers: boolean
 	canViewUsers: boolean
+	// Permissões de imóveis
+	canViewProperties: boolean
+	canCreateProperty: boolean
+	canEditProperty: boolean
+	canDeleteProperty: boolean
+	// Permissões de proprietários
+	canViewPropertyOwners: boolean
+	canCreatePropertyOwner: boolean
+	canEditPropertyOwner: boolean
+	canDeletePropertyOwner: boolean
+	// Permissões de contratos
+	canViewContracts: boolean
+	canCreateContract: boolean
+	canEditContract: boolean
+	canTerminateContract: boolean
 	isLoading: boolean
 }
 
@@ -34,9 +50,27 @@ export function useACL(): ACLHook {
 		return allowedRoles.includes(userRole)
 	}
 
-	// Permissões específicas
-	const canManageUsers = isOwner || isManager || isAdmin // Criar, editar, desativar usuários
-	const canViewUsers = isOwner || isManager || isAdmin // Listar usuários
+	// Permissões de usuários
+	const canManageUsers = isOwner || isManager || isAdmin
+	const canViewUsers = isOwner || isManager || isAdmin
+
+	// Permissões de imóveis
+	const canViewProperties = isOwner || isManager || isBroker || isAdmin
+	const canCreateProperty = isOwner || isManager || isBroker || isAdmin
+	const canEditProperty = isOwner || isManager || isBroker || isAdmin
+	const canDeleteProperty = isOwner || isManager || isAdmin // Broker não pode deletar
+
+	// Permissões de proprietários
+	const canViewPropertyOwners = isOwner || isManager || isBroker || isAdmin
+	const canCreatePropertyOwner = isOwner || isManager || isBroker || isAdmin
+	const canEditPropertyOwner = isOwner || isManager || isBroker || isAdmin
+	const canDeletePropertyOwner = isOwner || isManager || isAdmin // Broker não pode deletar
+
+	// Permissões de contratos
+	const canViewContracts = isOwner || isManager || isBroker || isAnalyst || isAdmin
+	const canCreateContract = isOwner || isManager || isBroker || isAdmin
+	const canEditContract = isOwner || isManager || isAdmin
+	const canTerminateContract = isOwner || isManager || isAdmin
 
 	return {
 		userRole,
@@ -48,6 +82,18 @@ export function useACL(): ACLHook {
 		hasRole,
 		canManageUsers,
 		canViewUsers,
+		canViewProperties,
+		canCreateProperty,
+		canEditProperty,
+		canDeleteProperty,
+		canViewPropertyOwners,
+		canCreatePropertyOwner,
+		canEditPropertyOwner,
+		canDeletePropertyOwner,
+		canViewContracts,
+		canCreateContract,
+		canEditContract,
+		canTerminateContract,
 		isLoading,
 	}
 }

@@ -45,6 +45,7 @@ import {
 	getDocumentSizeLimitLabel,
 } from '@/types/document.types'
 import { BRAZILIAN_STATES, MARITAL_STATUS_LABELS } from '@/types/property-owner.types'
+import { getUploadErrorMessage, handleApiError } from '@/utils/api-error-handler'
 import { applyMask } from '@/utils/masks'
 import * as styles from './CreatePropertyOwnerModal.styles.css'
 
@@ -407,8 +408,9 @@ export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwne
 						fieldId: 'property-owner-photo',
 					})
 					photoUrl = uploadResult.url
-				} catch {
-					toast.error('Erro ao enviar foto. Tente novamente.')
+				} catch (photoError) {
+					const errorMsg = getUploadErrorMessage(photoError, photoFile?.name)
+					toast.error(errorMsg)
 					setIsUploadingPhoto(false)
 					return
 				} finally {
@@ -454,8 +456,9 @@ export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwne
 							})
 						}
 					}
-				} catch {
-					toast.error('Proprietario criado, mas houve erro ao enviar alguns documentos')
+				} catch (docError) {
+					const errorMsg = getUploadErrorMessage(docError)
+					toast.error(`Proprietario criado, mas houve erro ao enviar documentos: ${errorMsg}`)
 				} finally {
 					setIsUploading(false)
 				}
@@ -469,10 +472,7 @@ export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwne
 			setPhotoPreview(null)
 			onClose()
 		} catch (error: unknown) {
-			const errorMessage =
-				error && typeof error === 'object' && 'message' in error
-					? String(error.message)
-					: 'Erro ao criar proprietario'
+			const errorMessage = handleApiError(error, 'Erro ao criar proprietario')
 			toast.error(errorMessage)
 		}
 	}
@@ -843,7 +843,9 @@ export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwne
 										cepLoading ? <Loader2 size={18} className={styles.spinner} /> : undefined
 									}
 								/>
-								{cepLoading && <span className={styles.cepHint}>Buscando endereco...</span>}
+								<div aria-live="polite" aria-atomic="true">
+									{cepLoading && <span className={styles.cepHint}>Buscando endereco...</span>}
+								</div>
 							</div>
 							<Input
 								{...register('city')}
@@ -864,15 +866,19 @@ export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwne
 							/>
 						</div>
 
-						{cepError && !cepLoading && (
-							<div className={styles.cepAlert}>
-								<AlertTriangle size={18} className={styles.cepAlertIcon} />
-								<div className={styles.cepAlertContent}>
-									<p className={styles.cepAlertTitle}>CEP nao encontrado</p>
-									<p className={styles.cepAlertText}>Preencha os campos de endereco manualmente.</p>
+						<div aria-live="polite" aria-atomic="true">
+							{cepError && !cepLoading && (
+								<div className={styles.cepAlert}>
+									<AlertTriangle size={18} className={styles.cepAlertIcon} />
+									<div className={styles.cepAlertContent}>
+										<p className={styles.cepAlertTitle}>CEP nao encontrado</p>
+										<p className={styles.cepAlertText}>
+											Preencha os campos de endereco manualmente.
+										</p>
+									</div>
 								</div>
-							</div>
-						)}
+							)}
+						</div>
 
 						<Input
 							{...register('address')}

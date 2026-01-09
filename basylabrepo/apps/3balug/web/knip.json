@@ -1,8 +1,15 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "entry": ["src/index.tsx", "src/App.tsx", "src/**/*.css.ts"],
+  "entry": ["src/index.tsx", "src/App.tsx", "src/**/*.css.ts", "src/**/*.test.ts"],
   "project": ["src/**/*.{ts,tsx}"],
-  "ignore": ["**/*.d.ts", "dist/**"],
+  "ignore": [
+    "**/*.d.ts",
+    "dist/**",
+    "src/**/__tests__/**",
+    "src/hooks/useUrlFilters.ts",
+    "src/utils/url-params.ts",
+    "src/utils/photo-utils.ts"
+  ],
   "ignoreDependencies": [],
   "ignoreExportsUsedInFile": true,
   "includeEntryExports": false

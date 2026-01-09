@@ -1,37 +1,28 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-	AirVent,
+	AlertCircle,
 	AlertTriangle,
-	Armchair,
-	Baby,
 	Building2,
 	Camera,
-	Car,
 	Check,
 	CheckCircle2,
 	ChevronLeft,
 	ChevronRight,
 	DollarSign,
-	Dumbbell,
 	FileText,
-	Flame,
-	Flower2,
 	Globe,
 	Home,
 	Image,
 	ImagePlus,
 	Info,
 	Loader2,
-	PawPrint,
 	Percent,
 	Rocket,
 	RotateCcw,
 	Ruler,
-	Shield,
 	Sparkles,
 	Star,
 	Trash2,
-	Waves,
 	X,
 } from 'lucide-react'
 import type { ChangeEvent, DragEvent, FocusEvent } from 'react'
@@ -40,6 +31,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'react-toastify'
 
 import { Button } from '@/components/Button/Button'
+import { type FeatureKey, FeaturesGrid } from '@/components/FeatureCheckbox'
 import { Input } from '@/components/Input/Input'
 import { Modal } from '@/components/Modal/Modal'
 import { OwnerSelect } from '@/components/OwnerSelect'
@@ -61,6 +53,7 @@ import { getPresignedUrl, uploadToPresignedUrl } from '@/services/files/presigne
 import type { BatchRegisterPhotoItem } from '@/services/property-photos/batch-register'
 import type { ListingType, Property, PropertyStatus, PropertyType } from '@/types/property.types'
 import { BRAZILIAN_STATES } from '@/types/property-owner.types'
+import { getUploadErrorMessage, handleApiError } from '@/utils/api-error-handler'
 import { applyMask, formatCurrencyToInput, getCurrencyRawValue } from '@/utils/masks'
 import * as styles from '../CreatePropertyModal/CreatePropertyModal.styles.css'
 
@@ -137,15 +130,32 @@ export function EditPropertyModal({
 	const { createMaskedHandler } = useMaskedInput(setValue)
 
 	// Use useWatch for reactive values (more efficient than multiple watch() calls)
-	const [listingType, propertyType, notesValue, selectedOwnerId, isMarketplace] = useWatch({
-		control,
-		name: ['listingType', 'type', 'notes', 'ownerId', 'isMarketplace'],
-	})
-
-	// Watch feature checkboxes for styling
-	const featureValues = useWatch({
+	const [
+		listingType,
+		propertyType,
+		notesValue,
+		selectedOwnerId,
+		isMarketplace,
+		hasPool,
+		hasGarden,
+		hasGarage,
+		hasElevator,
+		hasGym,
+		hasPlayground,
+		hasSecurity,
+		hasAirConditioning,
+		hasFurnished,
+		hasPetFriendly,
+		hasBalcony,
+		hasBarbecue,
+	] = useWatch({
 		control,
 		name: [
+			'listingType',
+			'type',
+			'notes',
+			'ownerId',
+			'isMarketplace',
 			'hasPool',
 			'hasGarden',
 			'hasGarage',
@@ -160,6 +170,29 @@ export function EditPropertyModal({
 			'hasBarbecue',
 		],
 	})
+
+	// Feature values for FeaturesGrid
+	const featureValues: Record<FeatureKey, boolean | undefined> = {
+		hasPool,
+		hasGarden,
+		hasGarage,
+		hasElevator,
+		hasGym,
+		hasPlayground,
+		hasSecurity,
+		hasAirConditioning,
+		hasFurnished,
+		hasPetFriendly,
+		hasBalcony,
+		hasBarbecue,
+	}
+
+	const handleFeatureChange = useCallback(
+		(key: FeatureKey, value: boolean) => {
+			setValue(key, value)
+		},
+		[setValue],
+	)
 
 	const steps = getPropertyStepsForType(propertyType || 'house')
 	const currentStepId = steps[currentStep]?.id
@@ -564,8 +597,9 @@ export function EditPropertyModal({
 						propertyId: property.id,
 						photoId: photo.id,
 					})
-				} catch {
-					toast.error('Erro ao remover foto')
+				} catch (deleteError) {
+					const errorMsg = handleApiError(deleteError, 'Erro ao remover foto')
+					toast.error(errorMsg)
 				}
 			}
 
@@ -603,8 +637,9 @@ export function EditPropertyModal({
 						propertyId: property.id,
 						photos: photosToRegister,
 					})
-				} catch {
-					toast.error('Erro ao enviar algumas fotos')
+				} catch (uploadError) {
+					const errorMsg = getUploadErrorMessage(uploadError)
+					toast.error(`Erro ao enviar fotos: ${errorMsg}`)
 				}
 			}
 
@@ -621,26 +656,16 @@ export function EditPropertyModal({
 						propertyId: property.id,
 						photoId: primaryPhotoId,
 					})
-				} catch {
-					toast.error('Erro ao definir foto principal')
+				} catch (primaryError) {
+					const errorMsg = handleApiError(primaryError, 'Erro ao definir foto principal')
+					toast.error(errorMsg)
 				}
 			}
 
 			toast.success('Imovel atualizado com sucesso!')
 			handleClose()
 		} catch (error: unknown) {
-			const errorMessage =
-				error &&
-				typeof error === 'object' &&
-				'response' in error &&
-				error.response &&
-				typeof error.response === 'object' &&
-				'data' in error.response &&
-				error.response.data &&
-				typeof error.response.data === 'object' &&
-				'message' in error.response.data
-					? String(error.response.data.message)
-					: 'Erro ao atualizar imovel'
+			const errorMessage = handleApiError(error, 'Erro ao atualizar imovel')
 			toast.error(errorMessage)
 		} finally {
 			setIsUploading(false)
@@ -989,8 +1014,23 @@ export function EditPropertyModal({
 		</div>
 	)
 
-	// Show nothing if modal is closed or if property doesn't exist after loading
-	if (!property && !isLoading) return null
+	// Show error state if property doesn't exist after loading
+	if (!property && !isLoading) {
+		return (
+			<Modal isOpen={isOpen} onClose={onClose} title="Editar Imovel" size="md">
+				<div className={styles.errorState}>
+					<AlertCircle size={48} className={styles.errorIcon} />
+					<h3 className={styles.errorTitle}>Imovel nao encontrado</h3>
+					<p className={styles.errorDescription}>
+						O imovel que voce esta tentando editar nao existe ou foi removido.
+					</p>
+					<Button type="button" onClick={onClose}>
+						Fechar
+					</Button>
+				</div>
+			</Modal>
+		)
+	}
 
 	return (
 		<Modal
@@ -1189,7 +1229,9 @@ export function EditPropertyModal({
 											cepLoading ? <Loader2 size={18} className={styles.spinner} /> : undefined
 										}
 									/>
-									{cepLoading && <span className={styles.cepHint}>Buscando endereco...</span>}
+									<div aria-live="polite" aria-atomic="true">
+										{cepLoading && <span className={styles.cepHint}>Buscando endereco...</span>}
+									</div>
 								</div>
 								<Input
 									{...register('city')}
@@ -1212,17 +1254,19 @@ export function EditPropertyModal({
 								/>
 							</div>
 
-							{cepError && !cepLoading && (
-								<div className={styles.cepAlert}>
-									<AlertTriangle size={18} className={styles.cepAlertIcon} />
-									<div className={styles.cepAlertContent}>
-										<p className={styles.cepAlertTitle}>CEP nao encontrado</p>
-										<p className={styles.cepAlertText}>
-											Preencha os campos de endereco manualmente.
-										</p>
+							<div aria-live="polite" aria-atomic="true">
+								{cepError && !cepLoading && (
+									<div className={styles.cepAlert}>
+										<AlertTriangle size={18} className={styles.cepAlertIcon} />
+										<div className={styles.cepAlertContent}>
+											<p className={styles.cepAlertTitle}>CEP nao encontrado</p>
+											<p className={styles.cepAlertText}>
+												Preencha os campos de endereco manualmente.
+											</p>
+										</div>
 									</div>
-								</div>
-							)}
+								)}
+							</div>
 
 							<Input
 								{...register('address')}
@@ -1363,152 +1407,11 @@ export function EditPropertyModal({
 					{/* Step: Comodidades */}
 					{currentStepId === 'features' && (
 						<div className={styles.formSection}>
-							<div className={styles.featuresGrid}>
-								<label
-									className={`${styles.featureCheckbox} ${featureValues[0] ? styles.featureCheckboxChecked : ''}`}
-								>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasPool')}
-										disabled={isSubmitting}
-									/>
-									<Waves size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Piscina</span>
-								</label>
-								<label
-									className={`${styles.featureCheckbox} ${featureValues[1] ? styles.featureCheckboxChecked : ''}`}
-								>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasGarden')}
-										disabled={isSubmitting}
-									/>
-									<Flower2 size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Jardim</span>
-								</label>
-								<label
-									className={`${styles.featureCheckbox} ${featureValues[2] ? styles.featureCheckboxChecked : ''}`}
-								>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasGarage')}
-										disabled={isSubmitting}
-									/>
-									<Car size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Garagem</span>
-								</label>
-								<label
-									className={`${styles.featureCheckbox} ${featureValues[3] ? styles.featureCheckboxChecked : ''}`}
-								>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasElevator')}
-										disabled={isSubmitting}
-									/>
-									<Building2 size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Elevador</span>
-								</label>
-								<label
-									className={`${styles.featureCheckbox} ${featureValues[4] ? styles.featureCheckboxChecked : ''}`}
-								>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasGym')}
-										disabled={isSubmitting}
-									/>
-									<Dumbbell size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Academia</span>
-								</label>
-								<label
-									className={`${styles.featureCheckbox} ${featureValues[5] ? styles.featureCheckboxChecked : ''}`}
-								>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasPlayground')}
-										disabled={isSubmitting}
-									/>
-									<Baby size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Playground</span>
-								</label>
-								<label
-									className={`${styles.featureCheckbox} ${featureValues[6] ? styles.featureCheckboxChecked : ''}`}
-								>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasSecurity')}
-										disabled={isSubmitting}
-									/>
-									<Shield size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Seguranca 24h</span>
-								</label>
-								<label
-									className={`${styles.featureCheckbox} ${featureValues[7] ? styles.featureCheckboxChecked : ''}`}
-								>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasAirConditioning')}
-										disabled={isSubmitting}
-									/>
-									<AirVent size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Ar Condicionado</span>
-								</label>
-								<label
-									className={`${styles.featureCheckbox} ${featureValues[8] ? styles.featureCheckboxChecked : ''}`}
-								>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasFurnished')}
-										disabled={isSubmitting}
-									/>
-									<Armchair size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Mobiliado</span>
-								</label>
-								<label
-									className={`${styles.featureCheckbox} ${featureValues[9] ? styles.featureCheckboxChecked : ''}`}
-								>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasPetFriendly')}
-										disabled={isSubmitting}
-									/>
-									<PawPrint size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Aceita Pets</span>
-								</label>
-								<label
-									className={`${styles.featureCheckbox} ${featureValues[10] ? styles.featureCheckboxChecked : ''}`}
-								>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasBalcony')}
-										disabled={isSubmitting}
-									/>
-									<Home size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Varanda</span>
-								</label>
-								<label
-									className={`${styles.featureCheckbox} ${featureValues[11] ? styles.featureCheckboxChecked : ''}`}
-								>
-									<input
-										type="checkbox"
-										className={styles.checkbox}
-										{...register('hasBarbecue')}
-										disabled={isSubmitting}
-									/>
-									<Flame size={28} className={styles.featureIcon} />
-									<span className={styles.featureLabel}>Churrasqueira</span>
-								</label>
-							</div>
+							<FeaturesGrid
+								values={featureValues}
+								onChange={handleFeatureChange}
+								disabled={isSubmitting}
+							/>
 						</div>
 					)}
 

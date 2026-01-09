@@ -7,7 +7,7 @@ export const usePropertiesQuery = (params?: ListPropertiesParams) => {
 	return useQuery<ListPropertiesResponse>({
 		queryKey: queryKeys.properties.list(params),
 		queryFn: () => listProperties(params),
-		staleTime: 0,
+		staleTime: 1000 * 60 * 2, // 2 minutos - reduz requisicoes desnecessarias
 		gcTime: 1000 * 60 * 5,
 	})
 }

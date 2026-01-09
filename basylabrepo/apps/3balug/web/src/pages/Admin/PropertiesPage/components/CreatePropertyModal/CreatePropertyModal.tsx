@@ -28,8 +28,8 @@ import {
 	Waves,
 } from 'lucide-react'
 import type { FocusEvent } from 'react'
-import { useCallback, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'react-toastify'
 
 import { Input } from '@/components/Input/Input'
@@ -64,6 +64,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 	const [currentStep, setCurrentStep] = useState(0)
 	const [selectedPhotos, setSelectedPhotos] = useState<SelectedPhoto[]>([])
 	const [isUploading, setIsUploading] = useState(false)
+	const prevIsOpenRef = useRef(isOpen)
 
 	const { data: ownersData, isLoading: isLoadingOwners } = usePropertyOwnersQuery({ limit: 100 })
 
@@ -80,9 +81,9 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 		handleSubmit,
 		formState: { errors },
 		reset,
-		watch,
 		setValue,
 		trigger,
+		control,
 	} = useForm<CreatePropertyFormData>({
 		resolver: zodResolver(createPropertySchema),
 		mode: 'onBlur',
@@ -95,18 +96,50 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 
 	const { createMaskedHandler } = useMaskedInput(setValue)
 
-	const listingType = watch('listingType')
-	const propertyType = watch('type')
-	const notesValue = watch('notes') || ''
+	// Use useWatch for reactive values (more efficient than multiple watch() calls)
+	const [listingType, propertyType, notesValue, selectedOwnerId, isMarketplace] = useWatch({
+		control,
+		name: ['listingType', 'type', 'notes', 'ownerId', 'isMarketplace'],
+	})
 
-	const steps = getPropertyStepsForType(propertyType)
+	// Watch feature checkboxes for styling
+	const featureValues = useWatch({
+		control,
+		name: [
+			'hasPool',
+			'hasGarden',
+			'hasGarage',
+			'hasElevator',
+			'hasGym',
+			'hasPlayground',
+			'hasSecurity',
+			'hasAirConditioning',
+			'hasFurnished',
+			'hasPetFriendly',
+			'hasBalcony',
+			'hasBarbecue',
+		],
+	})
+
+	const steps = getPropertyStepsForType(propertyType || 'house')
 	const currentStepId = steps[currentStep]?.id
 
+	// Reset step when modal opens (using ref to detect transition)
 	useEffect(() => {
-		if (isOpen) {
+		if (isOpen && !prevIsOpenRef.current) {
 			setCurrentStep(0)
 		}
+		prevIsOpenRef.current = isOpen
 	}, [isOpen])
+
+	// Cleanup blob URLs on unmount to prevent memory leaks
+	useEffect(() => {
+		return () => {
+			for (const photo of selectedPhotos) {
+				URL.revokeObjectURL(photo.preview)
+			}
+		}
+	}, [selectedPhotos])
 
 	const handleCepBlur = async (e: FocusEvent<HTMLInputElement>) => {
 		const result = await fetchAddress(e.target.value)
@@ -289,28 +322,18 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 
 	const isSubmitting = createMutation.isPending || isUploading
 
-	const selectedOwnerId = watch('ownerId')
+	// Simple handlers without useCallback - they are not passed to memoized children
+	const handleOwnerChange = (ownerId: string) => {
+		setValue('ownerId', ownerId, { shouldValidate: true })
+	}
 
-	const handleOwnerChange = useCallback(
-		(ownerId: string) => {
-			setValue('ownerId', ownerId, { shouldValidate: true })
-		},
-		[setValue],
-	)
+	const handlePropertyTypeChange = (type: PropertyType) => {
+		setValue('type', type, { shouldValidate: true })
+	}
 
-	const handlePropertyTypeChange = useCallback(
-		(type: PropertyType) => {
-			setValue('type', type, { shouldValidate: true })
-		},
-		[setValue],
-	)
-
-	const handleListingTypeChange = useCallback(
-		(listingType: ListingType) => {
-			setValue('listingType', listingType, { shouldValidate: true })
-		},
-		[setValue],
-	)
+	const handleListingTypeChange = (type: ListingType) => {
+		setValue('listingType', type, { shouldValidate: true })
+	}
 
 	return (
 		<WizardModal
@@ -675,7 +698,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 					<div className={styles.formSection}>
 						<div className={styles.featuresGrid}>
 							<label
-								className={`${styles.featureCheckbox} ${watch('hasPool') ? styles.featureCheckboxChecked : ''}`}
+								className={`${styles.featureCheckbox} ${featureValues[0] ? styles.featureCheckboxChecked : ''}`}
 							>
 								<input
 									type="checkbox"
@@ -687,7 +710,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								<span className={styles.featureLabel}>Piscina</span>
 							</label>
 							<label
-								className={`${styles.featureCheckbox} ${watch('hasGarden') ? styles.featureCheckboxChecked : ''}`}
+								className={`${styles.featureCheckbox} ${featureValues[1] ? styles.featureCheckboxChecked : ''}`}
 							>
 								<input
 									type="checkbox"
@@ -699,7 +722,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								<span className={styles.featureLabel}>Jardim</span>
 							</label>
 							<label
-								className={`${styles.featureCheckbox} ${watch('hasGarage') ? styles.featureCheckboxChecked : ''}`}
+								className={`${styles.featureCheckbox} ${featureValues[2] ? styles.featureCheckboxChecked : ''}`}
 							>
 								<input
 									type="checkbox"
@@ -711,7 +734,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								<span className={styles.featureLabel}>Garagem</span>
 							</label>
 							<label
-								className={`${styles.featureCheckbox} ${watch('hasElevator') ? styles.featureCheckboxChecked : ''}`}
+								className={`${styles.featureCheckbox} ${featureValues[3] ? styles.featureCheckboxChecked : ''}`}
 							>
 								<input
 									type="checkbox"
@@ -723,7 +746,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								<span className={styles.featureLabel}>Elevador</span>
 							</label>
 							<label
-								className={`${styles.featureCheckbox} ${watch('hasGym') ? styles.featureCheckboxChecked : ''}`}
+								className={`${styles.featureCheckbox} ${featureValues[4] ? styles.featureCheckboxChecked : ''}`}
 							>
 								<input
 									type="checkbox"
@@ -735,7 +758,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								<span className={styles.featureLabel}>Academia</span>
 							</label>
 							<label
-								className={`${styles.featureCheckbox} ${watch('hasPlayground') ? styles.featureCheckboxChecked : ''}`}
+								className={`${styles.featureCheckbox} ${featureValues[5] ? styles.featureCheckboxChecked : ''}`}
 							>
 								<input
 									type="checkbox"
@@ -747,7 +770,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								<span className={styles.featureLabel}>Playground</span>
 							</label>
 							<label
-								className={`${styles.featureCheckbox} ${watch('hasSecurity') ? styles.featureCheckboxChecked : ''}`}
+								className={`${styles.featureCheckbox} ${featureValues[6] ? styles.featureCheckboxChecked : ''}`}
 							>
 								<input
 									type="checkbox"
@@ -759,7 +782,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								<span className={styles.featureLabel}>Seguranca 24h</span>
 							</label>
 							<label
-								className={`${styles.featureCheckbox} ${watch('hasAirConditioning') ? styles.featureCheckboxChecked : ''}`}
+								className={`${styles.featureCheckbox} ${featureValues[7] ? styles.featureCheckboxChecked : ''}`}
 							>
 								<input
 									type="checkbox"
@@ -771,7 +794,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								<span className={styles.featureLabel}>Ar Condicionado</span>
 							</label>
 							<label
-								className={`${styles.featureCheckbox} ${watch('hasFurnished') ? styles.featureCheckboxChecked : ''}`}
+								className={`${styles.featureCheckbox} ${featureValues[8] ? styles.featureCheckboxChecked : ''}`}
 							>
 								<input
 									type="checkbox"
@@ -783,7 +806,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								<span className={styles.featureLabel}>Mobiliado</span>
 							</label>
 							<label
-								className={`${styles.featureCheckbox} ${watch('hasPetFriendly') ? styles.featureCheckboxChecked : ''}`}
+								className={`${styles.featureCheckbox} ${featureValues[9] ? styles.featureCheckboxChecked : ''}`}
 							>
 								<input
 									type="checkbox"
@@ -795,7 +818,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								<span className={styles.featureLabel}>Aceita Pets</span>
 							</label>
 							<label
-								className={`${styles.featureCheckbox} ${watch('hasBalcony') ? styles.featureCheckboxChecked : ''}`}
+								className={`${styles.featureCheckbox} ${featureValues[10] ? styles.featureCheckboxChecked : ''}`}
 							>
 								<input
 									type="checkbox"
@@ -807,7 +830,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								<span className={styles.featureLabel}>Varanda</span>
 							</label>
 							<label
-								className={`${styles.featureCheckbox} ${watch('hasBarbecue') ? styles.featureCheckboxChecked : ''}`}
+								className={`${styles.featureCheckbox} ${featureValues[11] ? styles.featureCheckboxChecked : ''}`}
 							>
 								<input
 									type="checkbox"
@@ -989,7 +1012,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 									<div className={styles.summaryItemContent}>
 										<span className={styles.summaryLabel}>Visibilidade</span>
 										<span className={styles.summaryValue}>
-											{watch('isMarketplace') ? 'Publico' : 'Interno'}
+											{isMarketplace ? 'Publico' : 'Interno'}
 										</span>
 									</div>
 								</div>

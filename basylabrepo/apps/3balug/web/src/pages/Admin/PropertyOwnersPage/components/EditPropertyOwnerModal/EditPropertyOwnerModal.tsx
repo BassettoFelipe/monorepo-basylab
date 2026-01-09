@@ -261,6 +261,22 @@ export function EditPropertyOwnerModal({
 		}
 	}, [documentsData])
 
+	// Cleanup blob URLs on unmount to prevent memory leaks
+	useEffect(() => {
+		return () => {
+			for (const slot of documentSlots) {
+				for (const file of slot.files) {
+					if (file.preview) {
+						URL.revokeObjectURL(file.preview)
+					}
+				}
+			}
+			if (photoPreview?.startsWith('blob:')) {
+				URL.revokeObjectURL(photoPreview)
+			}
+		}
+	}, [documentSlots, photoPreview])
+
 	const handleClose = useCallback(() => {
 		if (!updateMutation.isPending && !isUploading && !isUploadingPhoto) {
 			for (const slot of documentSlots) {

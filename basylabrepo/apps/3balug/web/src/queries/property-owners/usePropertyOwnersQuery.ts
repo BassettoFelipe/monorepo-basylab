@@ -10,7 +10,7 @@ export const usePropertyOwnersQuery = (params?: ListPropertyOwnersParams) => {
 	return useQuery<ListPropertyOwnersResponse>({
 		queryKey: queryKeys.propertyOwners.list(params),
 		queryFn: () => listPropertyOwners(params),
-		staleTime: 0,
+		staleTime: 1000 * 60 * 2, // 2 minutos - reduz requisicoes desnecessarias
 		gcTime: 1000 * 60 * 5,
 	})
 }

@@ -18,7 +18,7 @@ import {
 	Trash2,
 	Users,
 } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/Button/Button'
 import { ConfirmDialog } from '@/components/ConfirmDialog/ConfirmDialog'
@@ -26,6 +26,7 @@ import { EmptyState } from '@/components/EmptyState/EmptyState'
 import { Input } from '@/components/Input/Input'
 import { Select } from '@/components/Select/Select'
 import { Skeleton } from '@/components/Skeleton/Skeleton'
+import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { AdminLayout } from '@/layouts/AdminLayout/AdminLayout'
 import { useDeletePropertyOwnerMutation } from '@/queries/property-owners/useDeletePropertyOwnerMutation'
 import { usePropertyOwnerQuery } from '@/queries/property-owners/usePropertyOwnerQuery'
@@ -52,8 +53,44 @@ export function PropertyOwnersPage() {
 
 	const limit = 20
 
+	// Helper function to update URL search params - defined early for use in effects
+	const updateSearchParams = useCallback(
+		(updates: Record<string, string>) => {
+			setSearchParams((prevParams) => {
+				const newParams = new URLSearchParams(prevParams)
+				for (const [key, value] of Object.entries(updates)) {
+					if (value) {
+						newParams.set(key, value)
+					} else {
+						newParams.delete(key)
+					}
+				}
+				return newParams
+			})
+		},
+		[setSearchParams],
+	)
+
 	// Extrair estados da URL
-	const search = searchParams.get('search') || ''
+	const searchFromUrl = searchParams.get('search') || ''
+	const [searchInput, setSearchInput] = useState(searchFromUrl)
+	const debouncedSearch = useDebouncedValue(searchInput, 300)
+
+	// Sincronizar URL com valor debounced
+	useEffect(() => {
+		if (debouncedSearch !== searchFromUrl) {
+			updateSearchParams({ search: debouncedSearch, page: '1' })
+		}
+	}, [debouncedSearch, searchFromUrl, updateSearchParams])
+
+	// Sincronizar input com URL (quando URL muda externamente)
+	useEffect(() => {
+		if (searchFromUrl !== searchInput && searchFromUrl !== debouncedSearch) {
+			setSearchInput(searchFromUrl)
+		}
+	}, [searchFromUrl, debouncedSearch, searchInput])
+
+	const search = searchFromUrl
 	const page = Number(searchParams.get('page')) || 1
 	const documentType = (searchParams.get('documentType') as DocumentType) || undefined
 	const state = searchParams.get('state') || undefined
@@ -106,18 +143,6 @@ export function PropertyOwnersPage() {
 	})
 
 	const deleteMutation = useDeletePropertyOwnerMutation()
-
-	const updateSearchParams = (updates: Record<string, string>) => {
-		const newParams = new URLSearchParams(searchParams)
-		for (const [key, value] of Object.entries(updates)) {
-			if (value) {
-				newParams.set(key, value)
-			} else {
-				newParams.delete(key)
-			}
-		}
-		setSearchParams(newParams)
-	}
 
 	const clearAllFilters = () => {
 		const newParams = new URLSearchParams()
@@ -219,10 +244,8 @@ export function PropertyOwnersPage() {
 						</label>
 						<Input
 							id="search-filter"
-							value={search}
-							onChange={(e) => {
-								updateSearchParams({ search: e.target.value, page: '1' })
-							}}
+							value={searchInput}
+							onChange={(e) => setSearchInput(e.target.value)}
 							placeholder="Buscar por nome, documento, email, telefone ou cidade..."
 							fullWidth
 						/>

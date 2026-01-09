@@ -36,7 +36,7 @@ import {
 } from 'lucide-react'
 import type { ChangeEvent, DragEvent, FocusEvent } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'react-toastify'
 
 import { Button } from '@/components/Button/Button'
@@ -126,9 +126,9 @@ export function EditPropertyModal({
 		handleSubmit,
 		formState: { errors },
 		reset,
-		watch,
 		setValue,
 		trigger,
+		control,
 	} = useForm<EditPropertyFormData>({
 		resolver: zodResolver(editPropertySchema),
 		mode: 'onBlur',
@@ -136,10 +136,30 @@ export function EditPropertyModal({
 
 	const { createMaskedHandler } = useMaskedInput(setValue)
 
-	const listingType = watch('listingType')
-	const propertyType = watch('type')
-	const notesValue = watch('notes') || ''
-	const selectedOwnerId = watch('ownerId')
+	// Use useWatch for reactive values (more efficient than multiple watch() calls)
+	const [listingType, propertyType, notesValue, selectedOwnerId, isMarketplace] = useWatch({
+		control,
+		name: ['listingType', 'type', 'notes', 'ownerId', 'isMarketplace'],
+	})
+
+	// Watch feature checkboxes for styling
+	const featureValues = useWatch({
+		control,
+		name: [
+			'hasPool',
+			'hasGarden',
+			'hasGarage',
+			'hasElevator',
+			'hasGym',
+			'hasPlayground',
+			'hasSecurity',
+			'hasAirConditioning',
+			'hasFurnished',
+			'hasPetFriendly',
+			'hasBalcony',
+			'hasBarbecue',
+		],
+	})
 
 	const steps = getPropertyStepsForType(propertyType || 'house')
 	const currentStepId = steps[currentStep]?.id
@@ -222,6 +242,15 @@ export function EditPropertyModal({
 			clearCepError()
 		}
 	}, [property, isOpen, reset, clearCepError])
+
+	// Cleanup blob URLs on unmount to prevent memory leaks
+	useEffect(() => {
+		return () => {
+			for (const photo of newPhotos) {
+				URL.revokeObjectURL(photo.preview)
+			}
+		}
+	}, [newPhotos])
 
 	// Photo management handlers
 	const handleFiles = useCallback(
@@ -960,6 +989,7 @@ export function EditPropertyModal({
 		</div>
 	)
 
+	// Show nothing if modal is closed or if property doesn't exist after loading
 	if (!property && !isLoading) return null
 
 	return (
@@ -1335,7 +1365,7 @@ export function EditPropertyModal({
 						<div className={styles.formSection}>
 							<div className={styles.featuresGrid}>
 								<label
-									className={`${styles.featureCheckbox} ${watch('hasPool') ? styles.featureCheckboxChecked : ''}`}
+									className={`${styles.featureCheckbox} ${featureValues[0] ? styles.featureCheckboxChecked : ''}`}
 								>
 									<input
 										type="checkbox"
@@ -1347,7 +1377,7 @@ export function EditPropertyModal({
 									<span className={styles.featureLabel}>Piscina</span>
 								</label>
 								<label
-									className={`${styles.featureCheckbox} ${watch('hasGarden') ? styles.featureCheckboxChecked : ''}`}
+									className={`${styles.featureCheckbox} ${featureValues[1] ? styles.featureCheckboxChecked : ''}`}
 								>
 									<input
 										type="checkbox"
@@ -1359,7 +1389,7 @@ export function EditPropertyModal({
 									<span className={styles.featureLabel}>Jardim</span>
 								</label>
 								<label
-									className={`${styles.featureCheckbox} ${watch('hasGarage') ? styles.featureCheckboxChecked : ''}`}
+									className={`${styles.featureCheckbox} ${featureValues[2] ? styles.featureCheckboxChecked : ''}`}
 								>
 									<input
 										type="checkbox"
@@ -1371,7 +1401,7 @@ export function EditPropertyModal({
 									<span className={styles.featureLabel}>Garagem</span>
 								</label>
 								<label
-									className={`${styles.featureCheckbox} ${watch('hasElevator') ? styles.featureCheckboxChecked : ''}`}
+									className={`${styles.featureCheckbox} ${featureValues[3] ? styles.featureCheckboxChecked : ''}`}
 								>
 									<input
 										type="checkbox"
@@ -1383,7 +1413,7 @@ export function EditPropertyModal({
 									<span className={styles.featureLabel}>Elevador</span>
 								</label>
 								<label
-									className={`${styles.featureCheckbox} ${watch('hasGym') ? styles.featureCheckboxChecked : ''}`}
+									className={`${styles.featureCheckbox} ${featureValues[4] ? styles.featureCheckboxChecked : ''}`}
 								>
 									<input
 										type="checkbox"
@@ -1395,7 +1425,7 @@ export function EditPropertyModal({
 									<span className={styles.featureLabel}>Academia</span>
 								</label>
 								<label
-									className={`${styles.featureCheckbox} ${watch('hasPlayground') ? styles.featureCheckboxChecked : ''}`}
+									className={`${styles.featureCheckbox} ${featureValues[5] ? styles.featureCheckboxChecked : ''}`}
 								>
 									<input
 										type="checkbox"
@@ -1407,7 +1437,7 @@ export function EditPropertyModal({
 									<span className={styles.featureLabel}>Playground</span>
 								</label>
 								<label
-									className={`${styles.featureCheckbox} ${watch('hasSecurity') ? styles.featureCheckboxChecked : ''}`}
+									className={`${styles.featureCheckbox} ${featureValues[6] ? styles.featureCheckboxChecked : ''}`}
 								>
 									<input
 										type="checkbox"
@@ -1419,7 +1449,7 @@ export function EditPropertyModal({
 									<span className={styles.featureLabel}>Seguranca 24h</span>
 								</label>
 								<label
-									className={`${styles.featureCheckbox} ${watch('hasAirConditioning') ? styles.featureCheckboxChecked : ''}`}
+									className={`${styles.featureCheckbox} ${featureValues[7] ? styles.featureCheckboxChecked : ''}`}
 								>
 									<input
 										type="checkbox"
@@ -1431,7 +1461,7 @@ export function EditPropertyModal({
 									<span className={styles.featureLabel}>Ar Condicionado</span>
 								</label>
 								<label
-									className={`${styles.featureCheckbox} ${watch('hasFurnished') ? styles.featureCheckboxChecked : ''}`}
+									className={`${styles.featureCheckbox} ${featureValues[8] ? styles.featureCheckboxChecked : ''}`}
 								>
 									<input
 										type="checkbox"
@@ -1443,7 +1473,7 @@ export function EditPropertyModal({
 									<span className={styles.featureLabel}>Mobiliado</span>
 								</label>
 								<label
-									className={`${styles.featureCheckbox} ${watch('hasPetFriendly') ? styles.featureCheckboxChecked : ''}`}
+									className={`${styles.featureCheckbox} ${featureValues[9] ? styles.featureCheckboxChecked : ''}`}
 								>
 									<input
 										type="checkbox"
@@ -1455,7 +1485,7 @@ export function EditPropertyModal({
 									<span className={styles.featureLabel}>Aceita Pets</span>
 								</label>
 								<label
-									className={`${styles.featureCheckbox} ${watch('hasBalcony') ? styles.featureCheckboxChecked : ''}`}
+									className={`${styles.featureCheckbox} ${featureValues[10] ? styles.featureCheckboxChecked : ''}`}
 								>
 									<input
 										type="checkbox"
@@ -1467,7 +1497,7 @@ export function EditPropertyModal({
 									<span className={styles.featureLabel}>Varanda</span>
 								</label>
 								<label
-									className={`${styles.featureCheckbox} ${watch('hasBarbecue') ? styles.featureCheckboxChecked : ''}`}
+									className={`${styles.featureCheckbox} ${featureValues[11] ? styles.featureCheckboxChecked : ''}`}
 								>
 									<input
 										type="checkbox"
@@ -1719,7 +1749,7 @@ export function EditPropertyModal({
 									rows={2}
 									showCharCount
 									maxLength={2000}
-									value={notesValue}
+									value={notesValue || ''}
 									disabled={isSubmitting}
 								/>
 							</div>
@@ -1787,7 +1817,7 @@ export function EditPropertyModal({
 										<div className={styles.summaryItemContent}>
 											<span className={styles.summaryLabel}>Visibilidade</span>
 											<span className={styles.summaryValue}>
-												{watch('isMarketplace') ? 'Publico' : 'Interno'}
+												{isMarketplace ? 'Publico' : 'Interno'}
 											</span>
 										</div>
 									</div>

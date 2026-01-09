@@ -329,6 +329,22 @@ export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwne
 		}
 	}, [isOpen])
 
+	// Cleanup blob URLs on unmount to prevent memory leaks
+	useEffect(() => {
+		return () => {
+			for (const slot of documentSlots) {
+				for (const file of slot.files) {
+					if (file.preview) {
+						URL.revokeObjectURL(file.preview)
+					}
+				}
+			}
+			if (photoPreview) {
+				URL.revokeObjectURL(photoPreview)
+			}
+		}
+	}, [documentSlots, photoPreview])
+
 	// Handler especifico para documento porque a mascara muda baseado no documentType
 	const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const masked = applyMask(e.target.value, documentType)

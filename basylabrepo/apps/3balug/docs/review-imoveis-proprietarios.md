@@ -4,6 +4,37 @@ Este documento contem uma analise detalhada dos fluxos de imoveis e proprietario
 
 ---
 
+## Checklist de Progresso
+
+### Fase 1: Codigo Duplicado e Oportunidades de Reutilizacao
+- [x] 1.1 Schemas Zod Duplicados - `web/src/schemas/property.schema.ts` criado
+- [x] 1.2 Schemas de Proprietarios Duplicados - `web/src/schemas/property-owner.schema.ts` criado
+- [x] 1.3 Logica de Paginacao Duplicada - `web/src/utils/pagination.ts` criado
+- [x] 1.4 Hook de Busca de CEP Duplicado - `web/src/hooks/useCepLookup.ts` criado
+- [x] 1.5 Logica de Mascara de Input Duplicada - `web/src/hooks/useMaskedInput.ts` criado
+- [x] 1.6 Steps do Wizard Duplicados - `web/src/constants/wizard-steps.ts` criado
+- [x] 1.7 Labels e Options Duplicados - `web/src/constants/property.constants.ts` criado
+- [x] 1.8 propertyFeaturesSchema Duplicado no Backend - `api/src/controllers/routes/properties/shared/features.schema.ts` criado
+
+### Fase 2: Problemas de Performance
+- [x] 2.1 useCallbacks Desnecessarios - Removidos `useCallback` desnecessarios nos handlers dos modais (handleOwnerChange, handlePropertyTypeChange, handleListingTypeChange)
+- [x] 2.2 useEffect com Reset Desnecessario - Otimizado usando `useRef` para detectar transicao de estado do modal
+- [x] 2.3 watch() Multiplos sem Memoizacao - Refatorado para usar `useWatch` com arrays em CreatePropertyModal e EditPropertyModal
+- [x] 2.4 staleTime: 0 nas Queries - Ajustado para 2 minutos em `usePropertiesQuery` e `usePropertyOwnersQuery`
+- [ ] 2.5 Funcoes Inline em JSX - Baixa prioridade, impacto minimo
+
+### Fase 3: Bugs Potenciais e Validacoes
+- [x] 3.1 Race Condition no Upload de Fotos - Cleanup de blob URLs adicionado em todos os modais
+- [x] 3.2 Validacao de Preco Inconsistente - Criada funcao helper `isValidPrice` que verifica existencia e valor > 0
+- [x] 3.3 Potencial Null Reference no Property Delete - Ja tratado com early return existente
+- [x] 3.4 Estado de Modal Inconsistente - Tratamento existente adequado (return null quando !property && !isLoading)
+- [x] 3.5 Falta de Debounce na Busca - `useDebouncedValue` criado e aplicado em `PropertiesPage` e `PropertyOwnersPage`
+
+### Fase 4-14: Pendentes
+- [ ] Ver secoes detalhadas abaixo
+
+---
+
 ## Sumario
 
 - [Fase 1: Codigo Duplicado e Oportunidades de Reutilizacao](#fase-1-codigo-duplicado-e-oportunidades-de-reutilizacao)
@@ -12,6 +43,14 @@ Este documento contem uma analise detalhada dos fluxos de imoveis e proprietario
 - [Fase 4: Melhorias de Codigo e Boas Praticas](#fase-4-melhorias-de-codigo-e-boas-praticas)
 - [Fase 5: Melhorias de Performance no Backend](#fase-5-melhorias-de-performance-no-backend)
 - [Fase 6: Plano de Implementacao](#fase-6-plano-de-implementacao)
+- [Fase 7: Cobertura de Testes](#fase-7-cobertura-de-testes)
+- [Fase 8: Acessibilidade (A11Y)](#fase-8-acessibilidade-a11y)
+- [Fase 9: Tratamento de Erros](#fase-9-tratamento-de-erros)
+- [Fase 10: Internacionalizacao (I18N)](#fase-10-internacionalizacao-i18n)
+- [Fase 11: Componentes de UI Reutilizaveis](#fase-11-componentes-de-ui-reutilizaveis)
+- [Fase 12: Queries e Mutations - Padroes e Consistencia](#fase-12-queries-e-mutations---padroes-e-consistencia)
+- [Fase 13: Seguranca](#fase-13-seguranca)
+- [Fase 14: Plano de Implementacao Atualizado](#fase-14-plano-de-implementacao-atualizado)
 
 ---
 
@@ -456,6 +495,1320 @@ export const STATUS_OPTIONS = [
 **Arquivos afetados**:
 - `api/src/controllers/routes/properties/create/schema.ts`
 - `api/src/controllers/routes/properties/update/schema.ts`
+
+---
+
+## Fase 7: Cobertura de Testes
+
+### 7.1 Testes E2E sem Testes Unitarios (Alta Prioridade)
+
+**Problema**: O projeto possui muitos testes E2E (335 ocorrencias em properties, 296 em property-owners), mas faltam testes unitarios para funcoes de negocio criticas.
+
+**Arquivos que precisam de testes unitarios**:
+- `api/src/controllers/routes/properties/list/list.ts` - Validacao de filtros de preco
+- `api/src/controllers/routes/property-owners/list/list.ts` - Logica de filtros complexos
+- Funcoes de formatacao e conversao de dados (currency, masks)
+
+**Solucao**: Criar testes unitarios para:
+
+```typescript
+// api/src/controllers/routes/properties/list/__tests__/list.unit.test.ts
+import { describe, it, expect } from 'vitest'
+
+describe('Property List Filters', () => {
+  describe('Price Filters', () => {
+    it('should filter by minRentalPrice correctly', () => {
+      // ...
+    })
+    
+    it('should filter by maxSalePrice correctly', () => {
+      // ...
+    })
+    
+    it('should handle invalid price values gracefully', () => {
+      // ...
+    })
+  })
+})
+```
+
+---
+
+### 7.2 Testes de Manipulacao de Fotos (Alta Prioridade)
+
+**Problema**: Logica complexa de gerenciamento de fotos sem testes especificos.
+
+**Arquivo**: `web/src/pages/Admin/PropertiesPage/components/EditPropertyModal/EditPropertyModal.tsx` (linhas 180-400)
+
+**Solucao**: Criar testes para:
+- Adicao e remocao de fotos
+- Definicao de foto primaria
+- Rollback de operacoes de foto em caso de erro
+- Validacao de tamanho e tipo de arquivo
+
+```typescript
+// web/src/pages/Admin/PropertiesPage/components/EditPropertyModal/__tests__/PhotoManagement.test.tsx
+import { describe, it, expect, vi } from 'vitest'
+import { renderHook, act } from '@testing-library/react'
+
+describe('Photo Management', () => {
+  it('should add photos to the list', () => {
+    // ...
+  })
+  
+  it('should remove a photo from the list', () => {
+    // ...
+  })
+  
+  it('should set a photo as primary', () => {
+    // ...
+  })
+  
+  it('should rollback on upload error', () => {
+    // ...
+  })
+})
+```
+
+---
+
+### 7.3 Testes de Validacao de Schemas (Media Prioridade)
+
+**Problema**: Schema complexo com validacoes customizadas (.refine) sem testes.
+
+**Arquivo**: `web/src/schemas/property.schema.ts`
+
+**Solucao**: Adicionar testes para validacoes condicionais.
+
+```typescript
+// web/src/schemas/__tests__/property.schema.test.ts
+import { describe, it, expect } from 'vitest'
+import { createPropertySchema } from '../property.schema'
+
+describe('Property Schema', () => {
+  describe('Price Validation', () => {
+    it('should require rentalPrice when listingType is rent', () => {
+      const result = createPropertySchema.safeParse({
+        listingType: 'rent',
+        rentalPrice: '',
+        // ... outros campos obrigatorios
+      })
+      expect(result.success).toBe(false)
+      expect(result.error?.issues[0].path).toContain('rentalPrice')
+    })
+    
+    it('should require salePrice when listingType is sale', () => {
+      const result = createPropertySchema.safeParse({
+        listingType: 'sale',
+        salePrice: '',
+        // ...
+      })
+      expect(result.success).toBe(false)
+    })
+    
+    it('should require both prices when listingType is both', () => {
+      // ...
+    })
+  })
+})
+```
+
+---
+
+## Fase 8: Acessibilidade (A11Y)
+
+### 8.1 Labels Desassociados dos Inputs (Alta Prioridade)
+
+**Problema**: Labels sem `htmlFor` correto em varios filtros.
+
+**Arquivo**: `web/src/pages/Admin/PropertiesPage/Page.tsx` (linhas 215-250)
+
+**Solucao**: Garantir que todos os labels tem `htmlFor` correto e consistente.
+
+```typescript
+// Antes
+<label className={styles.filterLabel}>
+  Buscar
+</label>
+<Input id="search-filter" ... />
+
+// Depois
+<label className={styles.filterLabel} htmlFor="search-filter">
+  Buscar
+</label>
+<Input id="search-filter" ... />
+```
+
+---
+
+### 8.2 Elementos Interativos sem Role Semantico (Alta Prioridade)
+
+**Problema**: Divs interativas usadas como dropzone sem role apropriado.
+
+**Arquivo**: `web/src/pages/Admin/PropertyOwnersPage/components/CreatePropertyOwnerModal/CreatePropertyOwnerModal.tsx` (linhas 232-260)
+
+**Solucao**: Adicionar roles e handlers de teclado.
+
+```typescript
+// Antes
+<div onClick={handleClick} className={styles.dropzone}>
+  ...
+</div>
+
+// Depois
+<div
+  role="button"
+  tabIndex={0}
+  onClick={handleClick}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleClick()
+    }
+  }}
+  className={styles.dropzone}
+  aria-label="Clique ou arraste arquivos para upload"
+>
+  ...
+</div>
+```
+
+---
+
+### 8.3 Botoes de Icone sem Aria-Label (Alta Prioridade)
+
+**Problema**: Buttons com apenas icones (Eye, Edit, Trash2) sem acessibilidade adequada.
+
+**Arquivos**:
+- `web/src/pages/Admin/PropertiesPage/Page.tsx` (linhas 614-630)
+- `web/src/pages/Admin/PropertyOwnersPage/Page.tsx` (linhas 472-485)
+
+**Solucao**: Adicionar `aria-label` alem de `title`.
+
+```typescript
+// Antes
+<button
+  type="button"
+  className={styles.iconButton}
+  onClick={() => viewPropertyDetails(property)}
+  title="Ver detalhes"
+>
+  <Eye size={16} />
+</button>
+
+// Depois
+<button
+  type="button"
+  className={styles.iconButton}
+  onClick={() => viewPropertyDetails(property)}
+  title="Ver detalhes"
+  aria-label={`Ver detalhes do imovel ${property.title}`}
+>
+  <Eye size={16} />
+</button>
+```
+
+---
+
+### 8.4 Modais sem Focus Trap (Media Prioridade)
+
+**Problema**: Modal nao gerencia focus trap quando abre/fecha.
+
+**Arquivo**: `web/src/pages/Admin/PropertiesPage/components/EditPropertyModal/EditPropertyModal.tsx`
+
+**Solucao**: Implementar focus trap usando biblioteca.
+
+```typescript
+// Instalar: npm install focus-trap-react
+
+import FocusTrap from 'focus-trap-react'
+
+function EditPropertyModal({ isOpen, ... }) {
+  return (
+    <FocusTrap active={isOpen}>
+      <div className={styles.modalOverlay}>
+        <div className={styles.modalContent}>
+          {/* conteudo do modal */}
+        </div>
+      </div>
+    </FocusTrap>
+  )
+}
+```
+
+---
+
+### 8.5 Mensagens Dinamicas sem Aria-Live (Media Prioridade)
+
+**Problema**: Validacao de CEP mostra hint sem aria-live.
+
+**Arquivo**: `web/src/pages/Admin/PropertiesPage/components/CreatePropertyModal/CreatePropertyModal.tsx` (linhas 260-280)
+
+**Solucao**: Adicionar `aria-live="polite"`.
+
+```typescript
+// Antes
+{cepLoading && <span className={styles.cepHint}>Buscando endereco...</span>}
+
+// Depois
+<div aria-live="polite" aria-atomic="true">
+  {cepLoading && <span className={styles.cepHint}>Buscando endereco...</span>}
+  {cepError && <span className={styles.cepError}>{cepError}</span>}
+</div>
+```
+
+---
+
+## Fase 9: Tratamento de Erros
+
+### 9.1 Tratamento de Erro Generico sem Contexto (Alta Prioridade)
+
+**Problema**: Erro de upload nao diferencia tipos de falha.
+
+**Arquivo**: `web/src/pages/Admin/PropertiesPage/components/CreatePropertyModal/CreatePropertyModal.tsx` (linhas 379-383)
+
+**Solucao**: Melhorar tratamento com mais contexto.
+
+```typescript
+// Antes
+catch {
+  toast.error('Imovel criado, mas houve erro ao enviar algumas fotos')
+}
+
+// Depois
+catch (error) {
+  if (error instanceof UploadSizeError) {
+    toast.error(`Arquivo ${error.fileName} excede o tamanho maximo permitido`)
+  } else if (error instanceof NetworkError) {
+    toast.error('Erro de conexao. Verifique sua internet e tente novamente.')
+  } else if (error instanceof ServerError) {
+    toast.error('Servidor indisponivel. Tente novamente em alguns instantes.')
+  } else {
+    toast.error('Imovel criado, mas houve erro ao enviar algumas fotos. Voce pode adiciona-las depois.')
+  }
+}
+```
+
+---
+
+### 9.2 Falta de Validacao de Estado no EditPropertyModal (Media Prioridade)
+
+**Problema**: Modal assume que property existe sem validacao adequada.
+
+**Arquivo**: `web/src/pages/Admin/PropertiesPage/components/EditPropertyModal/EditPropertyModal.tsx`
+
+**Solucao**: Adicionar verificacao e fallback melhor.
+
+```typescript
+// Adicionar estado de erro
+if (!property && !isLoading) {
+  return (
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <div className={styles.errorState}>
+        <AlertCircle size={48} />
+        <h3>Imovel nao encontrado</h3>
+        <p>O imovel que voce esta tentando editar nao existe ou foi removido.</p>
+        <Button onClick={onClose}>Fechar</Button>
+      </div>
+    </Modal>
+  )
+}
+```
+
+---
+
+### 9.3 Falta de Retry Logic para Operacoes de Arquivo (Media Prioridade)
+
+**Problema**: Se upload de documento falha, nao ha retry automatico.
+
+**Arquivo**: `web/src/pages/Admin/PropertyOwnersPage/components/EditPropertyOwnerModal/EditPropertyOwnerModal.tsx`
+
+**Solucao**: Implementar retry com backoff exponencial.
+
+```typescript
+// web/src/utils/retry.ts
+export async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries = 3,
+  baseDelay = 1000
+): Promise<T> {
+  let lastError: Error | null = null
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await fn()
+    } catch (error) {
+      lastError = error as Error
+      if (attempt < maxRetries - 1) {
+        const delay = baseDelay * Math.pow(2, attempt)
+        await new Promise(resolve => setTimeout(resolve, delay))
+      }
+    }
+  }
+  
+  throw lastError
+}
+
+// Uso
+const uploadedUrl = await retryWithBackoff(() => uploadFile(file))
+```
+
+---
+
+### 9.4 Erros de API sem Diferenciacao por Status Code (Media Prioridade)
+
+**Problema**: Tratamento generico nao diferencia 401, 403, 404, 500.
+
+**Arquivo**: `web/src/queries/properties/useDeletePropertyMutation.ts`
+
+**Solucao**: Diferenciar erros por status code.
+
+```typescript
+// web/src/utils/api-error-handler.ts
+export function handleApiError(error: unknown): string {
+  if (error instanceof HTTPError) {
+    switch (error.status) {
+      case 401:
+        return 'Sua sessao expirou. Faca login novamente.'
+      case 403:
+        return 'Voce nao tem permissao para realizar esta acao.'
+      case 404:
+        return 'O recurso solicitado nao foi encontrado.'
+      case 422:
+        return 'Os dados enviados sao invalidos. Verifique e tente novamente.'
+      case 500:
+        return 'Erro interno do servidor. Tente novamente mais tarde.'
+      default:
+        return 'Ocorreu um erro inesperado. Tente novamente.'
+    }
+  }
+  return 'Erro de conexao. Verifique sua internet.'
+}
+```
+
+---
+
+### 9.5 Falta de Validacao de Permissoes no Cliente (Baixa Prioridade)
+
+**Problema**: Botoes de delete/edit nao verificam permissoes antes de exibir.
+
+**Arquivo**: `web/src/pages/Admin/PropertiesPage/Page.tsx`
+
+**Solucao**: Desabilitar buttons baseado em permissoes do usuario.
+
+```typescript
+// Usar contexto de autenticacao
+const { user, hasPermission } = useAuth()
+
+// No JSX
+<button
+  type="button"
+  className={styles.iconButton}
+  onClick={() => openDeleteDialog(property.id)}
+  disabled={!hasPermission('property:delete')}
+  title={hasPermission('property:delete') 
+    ? 'Excluir imovel' 
+    : 'Voce nao tem permissao para excluir imoveis'}
+>
+  <Trash2 size={16} />
+</button>
+```
+
+---
+
+## Fase 10: Internacionalizacao (I18N)
+
+### 10.1 Strings Hardcoded em Multiplos Locais (Media Prioridade)
+
+**Problema**: Strings distribuidas em varios arquivos, dificultando manutencao e traducao.
+
+**Arquivos afetados**:
+- `web/src/pages/Admin/PropertiesPage/Page.tsx`
+- `web/src/pages/Admin/PropertyOwnersPage/Page.tsx`
+- Todos os modais de criacao e edicao
+
+**Exemplos encontrados**:
+```typescript
+// PropertiesPage.tsx (linhas 283-286)
+<p className={styles.sectionDescription}>
+  {data?.total || 0} {data?.total === 1 ? 'imovel cadastrado' : 'imoveis cadastrados'}
+</p>
+
+// PropertiesPage.tsx (linhas 507-509)
+title="Erro ao carregar imoveis"
+description="Nao foi possivel carregar os imoveis. Tente novamente."
+```
+
+**Solucao**: Consolidar strings em arquivos i18n centralizados.
+
+```typescript
+// web/src/locales/pt-BR/properties.json
+{
+  "list": {
+    "title": "Imoveis",
+    "count": {
+      "one": "{{count}} imovel cadastrado",
+      "other": "{{count}} imoveis cadastrados"
+    },
+    "error": {
+      "title": "Erro ao carregar imoveis",
+      "description": "Nao foi possivel carregar os imoveis. Tente novamente."
+    }
+  },
+  "form": {
+    "owner": "Proprietario",
+    "type": "Tipo do imovel",
+    "title": "Titulo",
+    "address": "Endereco"
+  }
+}
+
+// Uso com i18next
+import { useTranslation } from 'react-i18next'
+
+function PropertiesPage() {
+  const { t } = useTranslation('properties')
+  
+  return (
+    <p>{t('list.count', { count: data?.total || 0 })}</p>
+  )
+}
+```
+
+---
+
+### 10.2 Labels de Validacao Hardcoded em Schemas (Media Prioridade)
+
+**Problema**: Mensagens de erro em portugues, dificil de traduzir.
+
+**Arquivo**: `web/src/schemas/property.schema.ts`
+
+**Solucao**: Mover para arquivo de traducao e usar funcao auxiliar.
+
+```typescript
+// web/src/locales/pt-BR/validation.json
+{
+  "property": {
+    "ownerId": {
+      "required": "Proprietario e obrigatorio"
+    },
+    "title": {
+      "min": "Titulo deve ter pelo menos {{min}} caracteres",
+      "max": "Titulo deve ter no maximo {{max}} caracteres"
+    }
+  }
+}
+
+// web/src/schemas/property.schema.ts
+import i18n from '@/lib/i18n'
+
+const t = (key: string, params?: Record<string, unknown>) => 
+  i18n.t(`validation:property.${key}`, params)
+
+export const propertyBaseSchema = z.object({
+  ownerId: z.string().min(1, t('ownerId.required')),
+  title: z.string()
+    .min(3, t('title.min', { min: 3 }))
+    .max(200, t('title.max', { max: 200 })),
+  // ...
+})
+```
+
+---
+
+### 10.3 Pluralizacao Manual com Ternarios (Baixa Prioridade)
+
+**Problema**: Logica de pluralizacao hardcoded e repetida.
+
+**Arquivo**: `web/src/pages/Admin/PropertiesPage/Page.tsx` (linha 283-286)
+
+**Solucao**: Usar biblioteca de i18n com suporte a pluralizacao.
+
+```typescript
+// i18next suporta pluralizacao nativa
+// pt-BR/properties.json
+{
+  "count_one": "{{count}} imovel cadastrado",
+  "count_other": "{{count}} imoveis cadastrados"
+}
+
+// Uso
+t('count', { count: data?.total || 0 }) // Automaticamente seleciona a forma correta
+```
+
+---
+
+## Fase 11: Componentes de UI Reutilizaveis
+
+### 11.1 Componente de Upload Duplicado (Alta Prioridade)
+
+**Problema**: Logica de drag-and-drop, validacao de arquivo, preview duplicada em multiplos modais.
+
+**Locais afetados**:
+- `EditPropertyModal.tsx` (linhas 1000-1150) - Upload de fotos
+- `CreatePropertyOwnerModal.tsx` (linhas 150-300) - Upload de foto perfil + documentos
+- `EditPropertyOwnerModal.tsx` (linhas 200-350) - Similar
+
+**Solucao**: Extrair para componente reutilizavel.
+
+```typescript
+// web/src/components/FileUploadZone/FileUploadZone.tsx
+import { useCallback, useState } from 'react'
+import { Upload, X } from 'lucide-react'
+import styles from './FileUploadZone.module.css'
+
+interface FileUploadZoneProps {
+  onFiles: (files: File[]) => void
+  maxSize: number
+  allowedTypes: string[]
+  maxFiles?: number
+  currentCount?: number
+  disabled?: boolean
+  label?: string
+  hint?: string
+}
+
+export function FileUploadZone({
+  onFiles,
+  maxSize,
+  allowedTypes,
+  maxFiles = 10,
+  currentCount = 0,
+  disabled = false,
+  label = 'Arraste arquivos ou clique para selecionar',
+  hint,
+}: FileUploadZoneProps) {
+  const [isDragging, setIsDragging] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    
+    if (disabled) return
+    
+    const files = Array.from(e.dataTransfer.files)
+    validateAndSubmit(files)
+  }, [disabled, maxSize, allowedTypes, maxFiles, currentCount])
+
+  const validateAndSubmit = (files: File[]) => {
+    setError(null)
+    
+    const remainingSlots = maxFiles - currentCount
+    if (files.length > remainingSlots) {
+      setError(`Voce pode adicionar no maximo ${remainingSlots} arquivo(s)`)
+      return
+    }
+    
+    const invalidFiles = files.filter(
+      file => !allowedTypes.includes(file.type) || file.size > maxSize
+    )
+    
+    if (invalidFiles.length > 0) {
+      setError('Alguns arquivos sao invalidos (tipo ou tamanho)')
+      return
+    }
+    
+    onFiles(files)
+  }
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      className={`${styles.dropzone} ${isDragging ? styles.dragging : ''} ${disabled ? styles.disabled : ''}`}
+      onDrop={handleDrop}
+      onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
+      onDragLeave={() => setIsDragging(false)}
+      onClick={() => !disabled && document.getElementById('file-input')?.click()}
+      onKeyDown={(e) => {
+        if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
+          e.preventDefault()
+          document.getElementById('file-input')?.click()
+        }
+      }}
+      aria-label={label}
+    >
+      <input
+        id="file-input"
+        type="file"
+        multiple
+        accept={allowedTypes.join(',')}
+        onChange={(e) => e.target.files && validateAndSubmit(Array.from(e.target.files))}
+        className={styles.hiddenInput}
+      />
+      <Upload size={32} />
+      <p>{label}</p>
+      {hint && <span className={styles.hint}>{hint}</span>}
+      {error && <span className={styles.error}>{error}</span>}
+    </div>
+  )
+}
+```
+
+---
+
+### 11.2 Componente de Grid de Arquivos (Alta Prioridade)
+
+**Problema**: Mesmo layout para exibicao de multiplos arquivos, duplicado.
+
+**Locais afetados**:
+- `EditPropertyModal.tsx` (linhas 1150-1300) - Grid de fotos
+- `CreatePropertyOwnerModal.tsx` (linhas 450-550) - Grid de documentos
+- `EditPropertyOwnerModal.tsx` (linhas 450-550) - Grid de documentos
+
+**Solucao**: Extrair componente reutilizavel.
+
+```typescript
+// web/src/components/FileGrid/FileGrid.tsx
+import { Star, Trash2 } from 'lucide-react'
+import styles from './FileGrid.module.css'
+
+interface FileItem {
+  id: string
+  preview: string
+  name: string
+}
+
+interface FileGridProps {
+  files: FileItem[]
+  onRemove: (id: string) => void
+  onSetPrimary?: (id: string) => void
+  primaryId?: string
+  disabled?: boolean
+}
+
+export function FileGrid({
+  files,
+  onRemove,
+  onSetPrimary,
+  primaryId,
+  disabled = false,
+}: FileGridProps) {
+  if (files.length === 0) return null
+
+  return (
+    <div className={styles.grid}>
+      {files.map((file) => (
+        <div key={file.id} className={styles.item}>
+          <img src={file.preview} alt={file.name} className={styles.image} />
+          <div className={styles.overlay}>
+            {onSetPrimary && (
+              <button
+                type="button"
+                className={`${styles.starButton} ${primaryId === file.id ? styles.primary : ''}`}
+                onClick={() => onSetPrimary(file.id)}
+                disabled={disabled}
+                aria-label={primaryId === file.id ? 'Foto principal' : 'Definir como principal'}
+              >
+                <Star size={16} fill={primaryId === file.id ? 'gold' : 'none'} />
+              </button>
+            )}
+            <button
+              type="button"
+              className={styles.removeButton}
+              onClick={() => onRemove(file.id)}
+              disabled={disabled}
+              aria-label={`Remover ${file.name}`}
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+          {primaryId === file.id && (
+            <span className={styles.primaryBadge}>Principal</span>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+---
+
+### 11.3 Componente de AlertBox (Media Prioridade)
+
+**Problema**: Estilos hardcoded em cada arquivo, sem componente reutilizavel.
+
+**Locais afetados**:
+- `CreatePropertyModal.tsx` (linhas 595, 850) - `styles.infoBox`
+- `EditPropertyModal.tsx` - similar
+- `PropertyForm.styles.css.ts` (linhas 99-140) - `infoBox`, `cepAlert`
+
+**Solucao**: Criar componente `AlertBox`.
+
+```typescript
+// web/src/components/AlertBox/AlertBox.tsx
+import { AlertCircle, CheckCircle, Info, XCircle } from 'lucide-react'
+import styles from './AlertBox.module.css'
+
+type AlertVariant = 'info' | 'success' | 'warning' | 'error'
+
+interface AlertBoxProps {
+  variant?: AlertVariant
+  title?: string
+  children: React.ReactNode
+  className?: string
+}
+
+const icons: Record<AlertVariant, React.ReactNode> = {
+  info: <Info size={20} />,
+  success: <CheckCircle size={20} />,
+  warning: <AlertCircle size={20} />,
+  error: <XCircle size={20} />,
+}
+
+export function AlertBox({
+  variant = 'info',
+  title,
+  children,
+  className,
+}: AlertBoxProps) {
+  return (
+    <div className={`${styles.alertBox} ${styles[variant]} ${className || ''}`}>
+      <div className={styles.icon}>{icons[variant]}</div>
+      <div className={styles.content}>
+        {title && <strong className={styles.title}>{title}</strong>}
+        <div className={styles.message}>{children}</div>
+      </div>
+    </div>
+  )
+}
+```
+
+---
+
+### 11.4 Componente de StatusBadge (Media Prioridade)
+
+**Problema**: Funcoes de mapeamento de classe nao reutilizaveis.
+
+**Locais afetados**:
+- `PropertiesPage.tsx` (linhas 455-475) - 3 funcoes `getTypeBadgeClass`, `getListingTypeBadgeClass`, `getStatusBadgeClass`
+- `PropertyOwnersPage.tsx` (linhas 300-315) - Badge de CPF/CNPJ
+
+**Solucao**: Criar componente `StatusBadge`.
+
+```typescript
+// web/src/components/StatusBadge/StatusBadge.tsx
+import styles from './StatusBadge.module.css'
+
+type BadgeCategory = 'propertyType' | 'listingType' | 'status' | 'documentType'
+
+interface StatusBadgeProps {
+  category: BadgeCategory
+  value: string
+  label?: string
+}
+
+const categoryStyles: Record<BadgeCategory, Record<string, string>> = {
+  propertyType: {
+    house: styles.house,
+    apartment: styles.apartment,
+    land: styles.land,
+    commercial: styles.commercial,
+    rural: styles.rural,
+  },
+  listingType: {
+    rent: styles.rent,
+    sale: styles.sale,
+    both: styles.both,
+  },
+  status: {
+    available: styles.available,
+    rented: styles.rented,
+    sold: styles.sold,
+    maintenance: styles.maintenance,
+    unavailable: styles.unavailable,
+  },
+  documentType: {
+    cpf: styles.cpf,
+    cnpj: styles.cnpj,
+  },
+}
+
+export function StatusBadge({ category, value, label }: StatusBadgeProps) {
+  const variantClass = categoryStyles[category]?.[value] || styles.default
+  
+  return (
+    <span className={`${styles.badge} ${variantClass}`}>
+      {label || value}
+    </span>
+  )
+}
+```
+
+---
+
+### 11.5 Abstracoes para Wizard Multi-Step (Baixa Prioridade)
+
+**Problema**: Cada modal reimplementa logica de navegacao de steps.
+
+**Locais afetados**:
+- `CreatePropertyModal.tsx` - 8 steps
+- `EditPropertyModal.tsx` - 8 steps
+- `CreatePropertyOwnerModal.tsx` - 5 steps
+- `EditPropertyOwnerModal.tsx` - 5 steps
+
+**Solucao**: Criar hook para gerenciamento de steps.
+
+```typescript
+// web/src/hooks/useWizardSteps.ts
+import { useState, useCallback } from 'react'
+
+interface UseWizardStepsOptions<T> {
+  steps: T[]
+  initialStep?: number
+  validateStep?: (stepIndex: number) => boolean | Promise<boolean>
+}
+
+export function useWizardSteps<T>({
+  steps,
+  initialStep = 0,
+  validateStep,
+}: UseWizardStepsOptions<T>) {
+  const [currentStepIndex, setCurrentStepIndex] = useState(initialStep)
+
+  const currentStep = steps[currentStepIndex]
+  const isFirstStep = currentStepIndex === 0
+  const isLastStep = currentStepIndex === steps.length - 1
+  const progress = ((currentStepIndex + 1) / steps.length) * 100
+
+  const goToStep = useCallback((index: number) => {
+    if (index >= 0 && index < steps.length) {
+      setCurrentStepIndex(index)
+    }
+  }, [steps.length])
+
+  const goToNext = useCallback(async () => {
+    if (isLastStep) return false
+    
+    if (validateStep) {
+      const isValid = await validateStep(currentStepIndex)
+      if (!isValid) return false
+    }
+    
+    setCurrentStepIndex(prev => prev + 1)
+    return true
+  }, [isLastStep, validateStep, currentStepIndex])
+
+  const goToPrevious = useCallback(() => {
+    if (!isFirstStep) {
+      setCurrentStepIndex(prev => prev - 1)
+    }
+  }, [isFirstStep])
+
+  const reset = useCallback(() => {
+    setCurrentStepIndex(initialStep)
+  }, [initialStep])
+
+  return {
+    currentStep,
+    currentStepIndex,
+    isFirstStep,
+    isLastStep,
+    progress,
+    totalSteps: steps.length,
+    goToStep,
+    goToNext,
+    goToPrevious,
+    reset,
+  }
+}
+```
+
+---
+
+## Fase 12: Queries e Mutations - Padroes e Consistencia
+
+### 12.1 Queries sem Tratamento de Erro Especifico (Media Prioridade)
+
+**Problema**: Queries muito simples, sem tratamento de erro ou retry adequado.
+
+**Arquivo**: `web/src/queries/properties/usePropertiesQuery.ts`
+
+**Solucao**: Adicionar configuracoes avancadas.
+
+```typescript
+// web/src/queries/properties/usePropertiesQuery.ts
+export const usePropertiesQuery = (params?: ListPropertiesParams) => {
+  return useQuery<ListPropertiesResponse>({
+    queryKey: queryKeys.properties.list(params),
+    queryFn: () => listProperties(params),
+    staleTime: 1000 * 60 * 2, // 2 minutos
+    gcTime: 1000 * 60 * 5,
+    retry: 3,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+    throwOnError: false,
+    select: (data) => ({
+      ...data,
+      properties: data.properties.map(formatPropertyForDisplay),
+    }),
+  })
+}
+```
+
+---
+
+### 12.2 Falta de Padrao para Cache Invalidation (Media Prioridade)
+
+**Problema**: Nao ha padrao consistente para invalidar queries apos mutations.
+
+**Arquivos afetados**: Todas as mutations de create/update/delete
+
+**Solucao**: Criar hook utilities.
+
+```typescript
+// web/src/queries/properties/usePropertyMutationUtils.ts
+import { useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '../keys'
+
+export function usePropertyMutationUtils() {
+  const queryClient = useQueryClient()
+
+  const invalidateList = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.properties.list() })
+  }
+
+  const invalidateById = (id: string) => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.properties.detail(id) })
+  }
+
+  const invalidateAll = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.properties.all })
+  }
+
+  const removeFromCache = (id: string) => {
+    queryClient.removeQueries({ queryKey: queryKeys.properties.detail(id) })
+  }
+
+  return {
+    invalidateList,
+    invalidateById,
+    invalidateAll,
+    removeFromCache,
+  }
+}
+```
+
+---
+
+### 12.3 Falta de Optimistic Updates (Media Prioridade)
+
+**Problema**: UI nao atualiza imediatamente apos acao, espera resposta do servidor.
+
+**Arquivos afetados**: Todas as mutations
+
+**Solucao**: Implementar optimistic updates com rollback.
+
+```typescript
+// web/src/queries/properties/useDeletePropertyMutation.ts
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { deleteProperty } from '@/services/api/properties'
+import { queryKeys } from '../keys'
+import type { ListPropertiesResponse } from '@/types/property.types'
+
+export function useDeletePropertyMutation() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: deleteProperty,
+    onMutate: async (id: string) => {
+      // Cancelar queries em flight
+      await queryClient.cancelQueries({ queryKey: queryKeys.properties.list() })
+
+      // Snapshot do estado antigo
+      const previousData = queryClient.getQueryData<ListPropertiesResponse>(
+        queryKeys.properties.list()
+      )
+
+      // Atualizar otimisticamente
+      queryClient.setQueryData<ListPropertiesResponse>(
+        queryKeys.properties.list(),
+        (old) => {
+          if (!old) return old
+          return {
+            ...old,
+            properties: old.properties.filter((p) => p.id !== id),
+            total: old.total - 1,
+          }
+        }
+      )
+
+      return { previousData }
+    },
+    onError: (err, id, context) => {
+      // Rollback em caso de erro
+      if (context?.previousData) {
+        queryClient.setQueryData(
+          queryKeys.properties.list(),
+          context.previousData
+        )
+      }
+    },
+    onSettled: () => {
+      // Sempre revalidar para garantir consistencia
+      queryClient.invalidateQueries({ queryKey: queryKeys.properties.list() })
+    },
+  })
+}
+```
+
+---
+
+### 12.4 Falta de Loading States Granulares (Baixa Prioridade)
+
+**Problema**: Usa `isLoading` global, nao diferencia entre carregamento da lista e acoes.
+
+**Arquivo**: `web/src/pages/Admin/PropertiesPage/Page.tsx`
+
+**Solucao**: Usar estados mais granulares.
+
+```typescript
+// Usar estados especificos de cada mutation/query
+const { isLoading: isLoadingList } = usePropertiesQuery(params)
+const { isPending: isDeleting } = deleteMutation
+const { isPending: isCreating } = createMutation
+
+// No JSX
+<Button disabled={isDeleting} loading={isDeleting}>
+  {isDeleting ? 'Excluindo...' : 'Excluir'}
+</Button>
+```
+
+---
+
+### 12.5 Falta de Retry Logic Configuravel (Baixa Prioridade)
+
+**Problema**: Sem retry automatico para falhas de rede.
+
+**Solucao**: Adicionar em react-query config global.
+
+```typescript
+// web/src/lib/query-client.ts
+import { QueryClient } from '@tanstack/react-query'
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3,
+      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+      staleTime: 1000 * 60 * 2, // 2 minutos
+      gcTime: 1000 * 60 * 5, // 5 minutos
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: 2,
+      retryDelay: 1000,
+    },
+  },
+})
+```
+
+---
+
+## Fase 13: Seguranca
+
+### 13.1 Validacao de Tamanho de Arquivo Apenas no Cliente (Alta Prioridade)
+
+**Problema**: `MAX_FILE_SIZE`, `PHOTO_MAX_SIZE` verificados apenas no client.
+
+**Arquivos**: `CreatePropertyModal.tsx`, `CreatePropertyOwnerModal.tsx`
+
+**Solucao**: Garantir validacao tambem no servidor.
+
+```typescript
+// api/src/controllers/routes/properties/photos/upload/upload.ts
+import { t, Elysia } from 'elysia'
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+
+export const uploadPhotoRoute = new Elysia().post(
+  '/properties/:id/photos',
+  async ({ params, body, set }) => {
+    const file = body.file
+    
+    // Validacao no servidor
+    if (file.size > MAX_FILE_SIZE) {
+      set.status = 413
+      return { error: 'Arquivo excede o tamanho maximo permitido (5MB)' }
+    }
+    
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+    if (!allowedTypes.includes(file.type)) {
+      set.status = 415
+      return { error: 'Tipo de arquivo nao permitido' }
+    }
+    
+    // ... continuar upload
+  },
+  {
+    body: t.Object({
+      file: t.File(),
+    }),
+  }
+)
+```
+
+---
+
+### 13.2 Falta de Sanitizacao de Nomes de Arquivo (Alta Prioridade)
+
+**Problema**: Nome do arquivo usado diretamente sem sanitizacao.
+
+**Arquivo**: `CreatePropertyModal.tsx` (linhas 300-350)
+
+**Solucao**: Sanitizar nome antes de enviar ou usar UUID.
+
+```typescript
+// web/src/utils/file.ts
+export function sanitizeFileName(fileName: string): string {
+  // Remove caracteres especiais e espacos
+  return fileName
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+    .replace(/[^a-zA-Z0-9.-]/g, '_') // Substitui caracteres especiais
+    .replace(/_+/g, '_') // Remove underscores duplicados
+    .toLowerCase()
+}
+
+// Ou usar UUID para evitar conflitos
+import { v4 as uuidv4 } from 'uuid'
+
+export function generateUniqueFileName(originalName: string): string {
+  const extension = originalName.split('.').pop()
+  return `${uuidv4()}.${extension}`
+}
+```
+
+---
+
+## Fase 14: Plano de Implementacao Atualizado
+
+### Prioridade 1 - Critico (Semana 1-2)
+
+| Item | Descricao | Esforco | Arquivos |
+|------|-----------|---------|----------|
+| 1.1 | Extrair schemas Zod duplicados | 2h | property.schema.ts, property-owner.schema.ts |
+| 1.2 | Criar hook useCepLookup | 1h | useCepLookup.ts |
+| 1.3 | Extrair propertyFeaturesSchema no backend | 30min | features.schema.ts |
+| 7.1 | Testes unitarios para funcoes de negocio | 4h | *.unit.test.ts |
+| 8.1-8.3 | Correcoes de acessibilidade criticas | 2h | Todos os modais e paginas |
+| 9.1 | Melhorar tratamento de erro de upload | 1h | CreatePropertyModal.tsx |
+| 13.1-13.2 | Validacao de arquivo no servidor + sanitizacao | 2h | upload.ts, file.ts |
+
+### Prioridade 2 - Importante (Semana 3-4)
+
+| Item | Descricao | Esforco | Arquivos |
+|------|-----------|---------|----------|
+| 1.4-1.7 | Centralizar constantes e utilitarios | 2h | constants/, utils/ |
+| 3.5 | Adicionar debounce na busca | 30min | PropertiesPage.tsx, PropertyOwnersPage.tsx |
+| 7.2 | Testes de manipulacao de fotos | 3h | PhotoManagement.test.tsx |
+| 8.4-8.5 | Focus trap e aria-live | 2h | Modais |
+| 9.2-9.4 | Melhorar tratamento de erros | 3h | Varios |
+| 11.1-11.2 | Componentes FileUploadZone e FileGrid | 4h | components/ |
+| 12.1-12.3 | Melhorar queries e mutations | 3h | queries/ |
+
+### Prioridade 3 - Melhorias (Semana 5-6)
+
+| Item | Descricao | Esforco | Arquivos |
+|------|-----------|---------|----------|
+| 2.1-2.5 | Remover useCallbacks desnecessarios | 2h | Todos os componentes |
+| 4.1 | Criar componente FeatureCheckbox | 2h | FeatureCheckbox.tsx |
+| 4.2 | Criar hook usePhotoUpload | 3h | usePhotoUpload.ts |
+| 7.3 | Testes de validacao de schemas | 2h | property.schema.test.ts |
+| 10.1-10.3 | Internacionalizacao inicial | 8h | locales/, componentes |
+| 11.3-11.4 | Componentes AlertBox e StatusBadge | 2h | components/ |
+
+### Prioridade 4 - Nice to Have (Backlog)
+
+| Item | Descricao | Esforco |
+|------|-----------|---------|
+| 4.3 | Criar hook useUrlFilters | 2h |
+| 4.4 | Melhorar tipagem com validacao de URL params | 1h |
+| 5.3 | Revisar indices do banco de dados | 1h |
+| 9.5 | Validacao de permissoes no cliente | 2h |
+| 11.5 | Hook useWizardSteps | 2h |
+| 12.4-12.5 | Loading states granulares e retry global | 2h |
+
+---
+
+## Metricas de Sucesso Atualizadas
+
+Apos implementar todas as melhorias:
+
+| Metrica | Antes | Depois |
+|---------|-------|--------|
+| Linhas de codigo duplicado | ~800 | ~200 |
+| Cobertura de testes | 45% | 75% |
+| Violacoes de A11Y | 15+ | 0 |
+| Strings hardcoded | 200+ | 0 (via i18n) |
+| Componentes reutilizaveis | 3 | 10+ |
+| Re-renders desnecessarios | Alto | Baixo |
+
+---
+
+## Arquivos Criados/Modificados (Atualizado)
+
+### Novos Arquivos
+
+**Schemas e Validacao**
+- `web/src/schemas/property.schema.ts`
+- `web/src/schemas/property-owner.schema.ts`
+- `api/src/controllers/routes/properties/shared/features.schema.ts`
+
+**Hooks**
+- `web/src/hooks/useCepLookup.ts`
+- `web/src/hooks/useMaskedInput.ts`
+- `web/src/hooks/usePhotoUpload.ts`
+- `web/src/hooks/useUrlFilters.ts`
+- `web/src/hooks/useWizardSteps.ts`
+
+**Utilitarios**
+- `web/src/utils/pagination.ts`
+- `web/src/utils/retry.ts`
+- `web/src/utils/file.ts`
+- `web/src/utils/api-error-handler.ts`
+
+**Constantes**
+- `web/src/constants/property.constants.ts`
+- `web/src/constants/wizard-steps.ts`
+
+**Componentes**
+- `web/src/components/FeatureCheckbox/FeatureCheckbox.tsx`
+- `web/src/components/FileUploadZone/FileUploadZone.tsx`
+- `web/src/components/FileGrid/FileGrid.tsx`
+- `web/src/components/AlertBox/AlertBox.tsx`
+- `web/src/components/StatusBadge/StatusBadge.tsx`
+
+**Queries**
+- `web/src/queries/properties/usePropertyMutationUtils.ts`
+
+**i18n**
+- `web/src/locales/pt-BR/properties.json`
+- `web/src/locales/pt-BR/property-owners.json`
+- `web/src/locales/pt-BR/validation.json`
+
+**Testes**
+- `api/src/controllers/routes/properties/list/__tests__/list.unit.test.ts`
+- `web/src/pages/Admin/PropertiesPage/components/EditPropertyModal/__tests__/PhotoManagement.test.tsx`
+- `web/src/schemas/__tests__/property.schema.test.ts`
+
+### Arquivos Modificados
+
+- `web/src/pages/Admin/PropertiesPage/Page.tsx`
+- `web/src/pages/Admin/PropertyOwnersPage/Page.tsx`
+- `web/src/pages/Admin/PropertiesPage/components/CreatePropertyModal/CreatePropertyModal.tsx`
+- `web/src/pages/Admin/PropertiesPage/components/EditPropertyModal/EditPropertyModal.tsx`
+- `web/src/pages/Admin/PropertyOwnersPage/components/CreatePropertyOwnerModal/CreatePropertyOwnerModal.tsx`
+- `web/src/pages/Admin/PropertyOwnersPage/components/EditPropertyOwnerModal/EditPropertyOwnerModal.tsx`
+- `web/src/queries/properties/usePropertiesQuery.ts`
+- `web/src/queries/properties/usePropertyQuery.ts`
+- `web/src/queries/properties/useDeletePropertyMutation.ts`
+- `web/src/queries/property-owners/usePropertyOwnersQuery.ts`
+- `web/src/lib/query-client.ts`
+- `api/src/controllers/routes/properties/create/schema.ts`
+- `api/src/controllers/routes/properties/update/schema.ts`
+- `api/src/controllers/routes/properties/photos/upload/upload.ts`
 
 **Solucao**: Criar schema compartilhado.
 

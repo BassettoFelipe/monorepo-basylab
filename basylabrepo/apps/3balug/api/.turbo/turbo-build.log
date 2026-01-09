@@ -1,6 +1,6 @@
 
 [0m[2m[35m$[0m [2m[1mbun build src/server.ts --outdir ./dist --target bun[0m
-[32mBundled 1269 modules in 100ms[0m
+[32mBundled 1270 modules in 102ms[0m
 
-  [34mserver.js[33m  4.26 MB  [2m(entry point)[0m
+  [34mserver.js[33m  4.27 MB  [2m(entry point)[0m
 

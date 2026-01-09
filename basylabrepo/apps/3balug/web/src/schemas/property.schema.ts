@@ -74,14 +74,23 @@ export const propertyBaseSchema = z.object({
 })
 
 /**
+ * Helper function to validate price fields
+ * Checks if the value exists and is greater than 0
+ */
+const isValidPrice = (price: string | undefined): boolean => {
+	if (!price || price.trim() === '') return false
+	const rawValue = getCurrencyRawValue(price)
+	return rawValue > 0
+}
+
+/**
  * Schema for creating a new property
  */
 export const createPropertySchema = propertyBaseSchema
 	.refine(
 		(data) => {
 			if (data.listingType === 'rent' || data.listingType === 'both') {
-				const rentalValue = getCurrencyRawValue(data.rentalPrice || '')
-				return rentalValue > 0
+				return isValidPrice(data.rentalPrice)
 			}
 			return true
 		},
@@ -93,8 +102,7 @@ export const createPropertySchema = propertyBaseSchema
 	.refine(
 		(data) => {
 			if (data.listingType === 'sale' || data.listingType === 'both') {
-				const saleValue = getCurrencyRawValue(data.salePrice || '')
-				return saleValue > 0
+				return isValidPrice(data.salePrice)
 			}
 			return true
 		},
@@ -120,8 +128,7 @@ export const editPropertySchema = editPropertyBaseSchema
 	.refine(
 		(data) => {
 			if (data.listingType === 'rent' || data.listingType === 'both') {
-				const rentalValue = getCurrencyRawValue(data.rentalPrice || '')
-				return rentalValue > 0
+				return isValidPrice(data.rentalPrice)
 			}
 			return true
 		},
@@ -133,8 +140,7 @@ export const editPropertySchema = editPropertyBaseSchema
 	.refine(
 		(data) => {
 			if (data.listingType === 'sale' || data.listingType === 'both') {
-				const saleValue = getCurrencyRawValue(data.salePrice || '')
-				return saleValue > 0
+				return isValidPrice(data.salePrice)
 			}
 			return true
 		},

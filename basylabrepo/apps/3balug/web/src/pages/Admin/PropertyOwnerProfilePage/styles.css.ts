@@ -252,7 +252,7 @@ export const cardCount = style({
 	fontWeight: vars.fontWeight.bold,
 	color: vars.color.primary.dark,
 	backgroundColor: vars.color.primary.main,
-	padding: `2px 8px`,
+	padding: '2px 8px',
 	borderRadius: vars.borderRadius.full,
 })
 

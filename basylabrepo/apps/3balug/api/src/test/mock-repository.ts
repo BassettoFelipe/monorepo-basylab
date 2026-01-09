@@ -2185,6 +2185,7 @@ export class InMemoryUserCacheService implements IUserCacheService {
 				email: user.email,
 				name: user.name,
 				role: user.role,
+				phone: user.phone,
 				companyId: user.companyId,
 				createdBy: user.createdBy,
 				isActive: user.isActive,

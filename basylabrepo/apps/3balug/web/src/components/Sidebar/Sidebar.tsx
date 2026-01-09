@@ -16,6 +16,7 @@ import {
 	UsersRound,
 	X,
 } from 'lucide-react'
+import type { ElementType } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Avatar } from '@/components/Avatar/Avatar'
@@ -28,7 +29,7 @@ import { storage } from '@/utils/storage'
 import * as styles from './Sidebar.css'
 
 interface NavItem {
-	icon: React.ElementType
+	icon: ElementType
 	label: string
 	path: string
 	requiredRoles?: string[]

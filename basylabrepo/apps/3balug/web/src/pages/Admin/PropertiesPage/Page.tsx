@@ -25,6 +25,16 @@ import { EmptyState } from '@/components/EmptyState/EmptyState'
 import { Input } from '@/components/Input/Input'
 import { Select } from '@/components/Select/Select'
 import { Skeleton } from '@/components/Skeleton/Skeleton'
+import {
+	LISTING_TYPE_LABELS,
+	LISTING_TYPE_OPTIONS,
+	PROPERTY_TYPE_LABELS,
+	PROPERTY_TYPE_OPTIONS,
+	SORT_BY_OPTIONS,
+	SORT_ORDER_OPTIONS,
+	STATUS_LABELS,
+	STATUS_OPTIONS,
+} from '@/constants/property.constants'
 import { AdminLayout } from '@/layouts/AdminLayout/AdminLayout'
 import { useDeletePropertyMutation } from '@/queries/properties/useDeletePropertyMutation'
 import { usePropertiesQuery } from '@/queries/properties/usePropertiesQuery'
@@ -38,31 +48,10 @@ import type {
 	PropertyType,
 } from '@/types/property.types'
 import { BRAZILIAN_STATES } from '@/types/property-owner.types'
+import { getPaginationPages } from '@/utils/pagination'
 import { CreatePropertyModal } from './components/CreatePropertyModal/CreatePropertyModal'
 import { EditPropertyModal } from './components/EditPropertyModal/EditPropertyModal'
 import * as styles from './styles.css'
-
-const propertyTypeLabels: Record<PropertyType, string> = {
-	house: 'Casa',
-	apartment: 'Apartamento',
-	land: 'Terreno',
-	commercial: 'Comercial',
-	rural: 'Rural',
-}
-
-const listingTypeLabels: Record<ListingType, string> = {
-	rent: 'Locacao',
-	sale: 'Venda',
-	both: 'Ambos',
-}
-
-const statusLabels: Record<PropertyStatus, string> = {
-	available: 'Disponivel',
-	rented: 'Alugado',
-	sold: 'Vendido',
-	maintenance: 'Manutencao',
-	unavailable: 'Indisponivel',
-}
 
 const getTypeBadgeClass = (type: PropertyType) => {
 	const classes: Record<PropertyType, string> = {
@@ -102,45 +91,6 @@ const formatCurrency = (value: number | null) => {
 		currency: 'BRL',
 	}).format(value / 100)
 }
-
-const typeOptions = [
-	{ value: '', label: 'Todos' },
-	{ value: 'house', label: 'Casa' },
-	{ value: 'apartment', label: 'Apartamento' },
-	{ value: 'land', label: 'Terreno' },
-	{ value: 'commercial', label: 'Comercial' },
-	{ value: 'rural', label: 'Rural' },
-]
-
-const listingTypeFilterOptions = [
-	{ value: '', label: 'Todas' },
-	{ value: 'rent', label: 'Locacao' },
-	{ value: 'sale', label: 'Venda' },
-	{ value: 'both', label: 'Ambos' },
-]
-
-const statusOptions = [
-	{ value: '', label: 'Todos' },
-	{ value: 'available', label: 'Disponivel' },
-	{ value: 'rented', label: 'Alugado' },
-	{ value: 'sold', label: 'Vendido' },
-	{ value: 'maintenance', label: 'Manutencao' },
-	{ value: 'unavailable', label: 'Indisponivel' },
-]
-
-const sortByOptions = [
-	{ value: 'title', label: 'Titulo' },
-	{ value: 'createdAt', label: 'Data de cadastro' },
-	{ value: 'rentalPrice', label: 'Preco de aluguel' },
-	{ value: 'salePrice', label: 'Preco de venda' },
-	{ value: 'city', label: 'Cidade' },
-	{ value: 'area', label: 'Area' },
-]
-
-const sortOrderOptions = [
-	{ value: 'asc', label: 'Crescente' },
-	{ value: 'desc', label: 'Decrescente' },
-]
 
 export function PropertiesPage() {
 	const navigate = useNavigate()
@@ -290,44 +240,6 @@ export function PropertiesPage() {
 		}
 	}, [propertyToDelete?.id, deleteMutation, closeModal])
 
-	const getPaginationPages = (currentPage: number, totalPages: number): (number | 'ellipsis')[] => {
-		const pages: (number | 'ellipsis')[] = []
-		const showEllipsisThreshold = 7
-
-		if (totalPages <= showEllipsisThreshold) {
-			for (let i = 1; i <= totalPages; i++) {
-				pages.push(i)
-			}
-			return pages
-		}
-
-		// Always show first page
-		pages.push(1)
-
-		if (currentPage > 3) {
-			pages.push('ellipsis')
-		}
-
-		// Pages around current
-		const start = Math.max(2, currentPage - 1)
-		const end = Math.min(totalPages - 1, currentPage + 1)
-
-		for (let i = start; i <= end; i++) {
-			pages.push(i)
-		}
-
-		if (currentPage < totalPages - 2) {
-			pages.push('ellipsis')
-		}
-
-		// Always show last page
-		if (totalPages > 1) {
-			pages.push(totalPages)
-		}
-
-		return pages
-	}
-
 	return (
 		<AdminLayout>
 			<div className={styles.sectionHeader}>
@@ -369,7 +281,7 @@ export function PropertiesPage() {
 							onChange={(e) => {
 								updateSearchParams({ type: e.target.value, page: '1' })
 							}}
-							options={typeOptions}
+							options={PROPERTY_TYPE_OPTIONS}
 							fullWidth
 						/>
 					</div>
@@ -383,7 +295,7 @@ export function PropertiesPage() {
 							onChange={(e) => {
 								updateSearchParams({ status: e.target.value, page: '1' })
 							}}
-							options={statusOptions}
+							options={STATUS_OPTIONS}
 							fullWidth
 						/>
 					</div>
@@ -431,7 +343,7 @@ export function PropertiesPage() {
 									onChange={(e) => {
 										updateSearchParams({ listingType: e.target.value, page: '1' })
 									}}
-									options={listingTypeFilterOptions}
+									options={LISTING_TYPE_OPTIONS}
 									fullWidth
 								/>
 							</div>
@@ -510,7 +422,7 @@ export function PropertiesPage() {
 									onChange={(e) => {
 										updateSearchParams({ sortBy: e.target.value, page: '1' })
 									}}
-									options={sortByOptions}
+									options={SORT_BY_OPTIONS}
 									fullWidth
 								/>
 							</div>
@@ -524,7 +436,7 @@ export function PropertiesPage() {
 									onChange={(e) => {
 										updateSearchParams({ sortOrder: e.target.value, page: '1' })
 									}}
-									options={sortOrderOptions}
+									options={SORT_ORDER_OPTIONS}
 									fullWidth
 								/>
 							</div>
@@ -635,11 +547,14 @@ export function PropertiesPage() {
 								<tr>
 									<th
 										className={`${styles.tableHeaderCell} ${styles.colProperty} ${styles.sortableHeader}`}
-										onClick={() => handleSort('title')}
 									>
-										<span className={styles.sortableHeaderContent}>
+										<button
+											type="button"
+											className={styles.sortableHeaderContent}
+											onClick={() => handleSort('title')}
+										>
 											Imovel {getSortIcon('title')}
-										</span>
+										</button>
 									</th>
 									<th className={`${styles.tableHeaderCell} ${styles.colType}`}>Tipo</th>
 									<th className={`${styles.tableHeaderCell} ${styles.colListingType}`}>
@@ -648,17 +563,25 @@ export function PropertiesPage() {
 									<th className={`${styles.tableHeaderCell} ${styles.colStatus}`}>Status</th>
 									<th
 										className={`${styles.tableHeaderCell} ${styles.colPrices} ${styles.sortableHeader}`}
-										onClick={() => handleSort('rentalPrice')}
 									>
-										<span className={styles.sortableHeaderContent}>
+										<button
+											type="button"
+											className={styles.sortableHeaderContent}
+											onClick={() => handleSort('rentalPrice')}
+										>
 											Valores {getSortIcon('rentalPrice')}
-										</span>
+										</button>
 									</th>
 									<th
 										className={`${styles.tableHeaderCell} ${styles.colFeatures} ${styles.sortableHeader}`}
-										onClick={() => handleSort('area')}
 									>
-										<span className={styles.sortableHeaderContent}>Area {getSortIcon('area')}</span>
+										<button
+											type="button"
+											className={styles.sortableHeaderContent}
+											onClick={() => handleSort('area')}
+										>
+											Area {getSortIcon('area')}
+										</button>
 									</th>
 									<th className={`${styles.tableHeaderCell} ${styles.colActions}`}>Acoes</th>
 								</tr>
@@ -703,19 +626,19 @@ export function PropertiesPage() {
 											</td>
 											<td className={`${styles.tableCell} ${styles.colType}`}>
 												<span className={`${styles.badge} ${getTypeBadgeClass(property.type)}`}>
-													{propertyTypeLabels[property.type]}
+													{PROPERTY_TYPE_LABELS[property.type]}
 												</span>
 											</td>
 											<td className={`${styles.tableCell} ${styles.colListingType}`}>
 												<span
 													className={`${styles.badge} ${getListingTypeBadgeClass(property.listingType)}`}
 												>
-													{listingTypeLabels[property.listingType]}
+													{LISTING_TYPE_LABELS[property.listingType]}
 												</span>
 											</td>
 											<td className={`${styles.tableCell} ${styles.colStatus}`}>
 												<span className={`${styles.badge} ${getStatusBadgeClass(property.status)}`}>
-													{statusLabels[property.status]}
+													{STATUS_LABELS[property.status]}
 												</span>
 											</td>
 											<td className={`${styles.tableCell} ${styles.colPrices}`}>

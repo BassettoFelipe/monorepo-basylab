@@ -27,6 +27,16 @@ const registerSchema = z
 			.min(2, 'Nome deve ter pelo menos 2 caracteres')
 			.max(100, 'Nome deve ter no máximo 100 caracteres')
 			.regex(/^[a-zA-ZÀ-ÿ\s'-]+$/, 'Nome contém caracteres inválidos'),
+		phone: z
+			.string()
+			.min(1, 'Telefone é obrigatório')
+			.transform((val) => val.replace(/\D/g, ''))
+			.pipe(
+				z
+					.string()
+					.min(10, 'Telefone deve ter pelo menos 10 dígitos')
+					.max(11, 'Telefone deve ter no máximo 11 dígitos'),
+			),
 		companyName: z
 			.string()
 			.min(1, 'Nome da empresa é obrigatório')
@@ -91,6 +101,7 @@ export function RegisterPage() {
 		try {
 			const response = await registerMutation.mutateAsync({
 				name: data.name,
+				phone: data.phone,
 				companyName: data.companyName,
 				email: data.email,
 				password: data.password,
@@ -163,6 +174,16 @@ export function RegisterPage() {
 							error={errors.name?.message}
 							fullWidth
 							autoComplete="name"
+						/>
+
+						<Input
+							{...register('phone')}
+							type="tel"
+							label="Telefone"
+							placeholder="(11) 99999-9999"
+							error={errors.phone?.message}
+							fullWidth
+							autoComplete="tel"
 						/>
 
 						<Input

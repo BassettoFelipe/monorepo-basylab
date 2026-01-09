@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import type { ChangeEvent } from 'react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
@@ -85,7 +86,7 @@ export function EditContractModal({ isOpen, onClose, contract }: EditContractMod
 	}, [contract, reset])
 
 	const handleCurrencyChange =
-		(field: 'rentalAmount' | 'depositAmount') => (e: React.ChangeEvent<HTMLInputElement>) => {
+		(field: 'rentalAmount' | 'depositAmount') => (e: ChangeEvent<HTMLInputElement>) => {
 			const masked = applyMask(e.target.value, 'currency')
 			setValue(field, masked, { shouldValidate: false })
 		}

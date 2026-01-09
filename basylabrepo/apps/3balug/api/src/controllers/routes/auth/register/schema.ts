@@ -9,6 +9,12 @@ export const registerBodySchema = t.Object({
 			'A senha deve conter pelo menos 8 caracteres, incluindo letra maiúscula, minúscula, número e caractere especial',
 	}),
 	name: t.String({ minLength: 2 }),
+	phone: t.String({
+		minLength: 10,
+		maxLength: 15,
+		pattern: '^[0-9]+$',
+		error: 'Telefone deve conter apenas números (10-11 dígitos)',
+	}),
 	companyName: t.String({ minLength: 2, maxLength: 100 }),
 	planId: t.String(),
 })

@@ -18,22 +18,19 @@ import {
 	Image,
 	Info,
 	Loader2,
-	MapPin,
 	PawPrint,
 	Percent,
 	Rocket,
 	Ruler,
-	Settings,
 	Shield,
 	Sparkles,
 	Upload,
-	User,
 	Waves,
 } from 'lucide-react'
+import type { FocusEvent } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
-import { z } from 'zod'
 
 import { Input } from '@/components/Input/Input'
 import { OwnerSelect } from '@/components/OwnerSelect'
@@ -41,190 +38,42 @@ import { PhotoPicker, type SelectedPhoto } from '@/components/PhotoPicker/PhotoP
 import { ListingTypeSelector, PropertyTypeSelector } from '@/components/PropertyTypeSelector'
 import { Select } from '@/components/Select/Select'
 import { Textarea } from '@/components/Textarea/Textarea'
-import { WizardModal, type WizardStep } from '@/components/WizardModal'
+import { WizardModal } from '@/components/WizardModal'
+import { getPropertyStepsForType } from '@/constants/wizard-steps'
+import { useCepLookup } from '@/hooks/useCepLookup'
+import { useMaskedInput } from '@/hooks/useMaskedInput'
 import { useCreatePropertyMutation } from '@/queries/properties/useCreatePropertyMutation'
 import { usePropertyOwnersQuery } from '@/queries/property-owners/usePropertyOwnersQuery'
 import { useBatchRegisterPhotosMutation } from '@/queries/property-photos/useBatchRegisterPhotosMutation'
+import { type CreatePropertyFormData, createPropertySchema } from '@/schemas/property.schema'
 import { getPresignedUrl, uploadToPresignedUrl } from '@/services/files/presigned-url'
 import type { BatchRegisterPhotoItem } from '@/services/property-photos/batch-register'
 import type { ListingType, PropertyType } from '@/types/property.types'
 import { BRAZILIAN_STATES } from '@/types/property-owner.types'
-import { applyMask, getCurrencyRawValue } from '@/utils/masks'
+import { getCurrencyRawValue } from '@/utils/masks'
 import * as styles from './CreatePropertyModal.styles.css'
-
-interface ViaCepResponse {
-	cep: string
-	logradouro: string
-	complemento: string
-	bairro: string
-	localidade: string
-	uf: string
-	erro?: boolean
-}
-
-const createPropertySchema = z
-	.object({
-		// Step 1: Proprietario
-		ownerId: z.string().min(1, 'Proprietario e obrigatorio'),
-
-		// Step 2: Tipo do Imovel
-		type: z.enum(['house', 'apartment', 'land', 'commercial', 'rural'], {
-			message: 'Selecione o tipo do imovel',
-		}),
-		listingType: z.enum(['rent', 'sale', 'both'], {
-			message: 'Selecione a finalidade',
-		}),
-
-		// Step 3: Informacoes Basicas
-		title: z
-			.string()
-			.min(3, 'Titulo deve ter pelo menos 3 caracteres')
-			.max(200, 'Titulo deve ter no maximo 200 caracteres'),
-		description: z.string().optional(),
-		bedrooms: z.string().optional(),
-		bathrooms: z.string().optional(),
-		suites: z.string().optional(),
-		parkingSpaces: z.string().optional(),
-		area: z.string().optional(),
-		floor: z.string().optional(),
-		totalFloors: z.string().optional(),
-
-		// Step 4: Endereco
-		zipCode: z.string().optional(),
-		address: z.string().min(1, 'Endereco e obrigatorio'),
-		addressNumber: z.string().min(1, 'Numero e obrigatorio'),
-		addressComplement: z.string().optional(),
-		neighborhood: z.string().min(1, 'Bairro e obrigatorio'),
-		city: z.string().min(1, 'Cidade e obrigatoria'),
-		state: z.string().min(1, 'Estado e obrigatorio').max(2, 'Use a sigla do estado (ex: SP)'),
-
-		// Step 5: Valores e Comissao
-		rentalPrice: z.string().optional(),
-		salePrice: z.string().optional(),
-		iptuPrice: z.string().optional(),
-		condoFee: z.string().optional(),
-		commissionPercentage: z.string().optional(),
-
-		// Step 6: Comodidades
-		hasPool: z.boolean().optional(),
-		hasGarden: z.boolean().optional(),
-		hasGarage: z.boolean().optional(),
-		hasElevator: z.boolean().optional(),
-		hasGym: z.boolean().optional(),
-		hasPlayground: z.boolean().optional(),
-		hasSecurity: z.boolean().optional(),
-		hasAirConditioning: z.boolean().optional(),
-		hasFurnished: z.boolean().optional(),
-		hasPetFriendly: z.boolean().optional(),
-		hasBalcony: z.boolean().optional(),
-		hasBarbecue: z.boolean().optional(),
-
-		// Step 7: Publicacao
-		isMarketplace: z.boolean().optional(),
-		notes: z.string().optional(),
-	})
-	.refine(
-		(data) => {
-			if (data.listingType === 'rent' || data.listingType === 'both') {
-				const rentalValue = getCurrencyRawValue(data.rentalPrice || '')
-				return rentalValue > 0
-			}
-			return true
-		},
-		{
-			message: 'Preco de aluguel e obrigatorio para locacao',
-			path: ['rentalPrice'],
-		},
-	)
-	.refine(
-		(data) => {
-			if (data.listingType === 'sale' || data.listingType === 'both') {
-				const saleValue = getCurrencyRawValue(data.salePrice || '')
-				return saleValue > 0
-			}
-			return true
-		},
-		{
-			message: 'Preco de venda e obrigatorio para venda',
-			path: ['salePrice'],
-		},
-	)
-
-type CreatePropertyFormData = z.infer<typeof createPropertySchema>
 
 interface CreatePropertyModalProps {
 	isOpen: boolean
 	onClose: () => void
 }
 
-const ALL_STEPS: WizardStep[] = [
-	{
-		id: 'owner',
-		title: 'Proprietario',
-		description: 'Selecione o proprietario do imovel',
-		icon: <User size={16} />,
-	},
-	{
-		id: 'type',
-		title: 'Categoria',
-		description: 'Tipo e finalidade do imovel',
-		icon: <Building2 size={16} />,
-	},
-	{
-		id: 'details',
-		title: 'Detalhes',
-		description: 'Informacoes basicas do imovel',
-		icon: <Home size={16} />,
-	},
-	{
-		id: 'address',
-		title: 'Endereco',
-		description: 'Localizacao do imovel',
-		icon: <MapPin size={16} />,
-	},
-	{
-		id: 'pricing',
-		title: 'Valores',
-		description: 'Precos e comissao',
-		icon: <DollarSign size={16} />,
-	},
-	{
-		id: 'features',
-		title: 'Extras',
-		description: 'Caracteristicas do imovel',
-		icon: <Settings size={16} />,
-	},
-	{
-		id: 'photos',
-		title: 'Fotos',
-		description: 'Imagens do imovel',
-		icon: <Camera size={16} />,
-	},
-	{
-		id: 'publish',
-		title: 'Publicacao',
-		description: 'Configuracoes de publicacao',
-		icon: <Globe size={16} />,
-	},
-]
-
-function getStepsForPropertyType(type: PropertyType): WizardStep[] {
-	if (type === 'land') {
-		return ALL_STEPS.filter((step) => step.id !== 'features')
-	}
-	return ALL_STEPS
-}
-
 export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProps) {
 	const createMutation = useCreatePropertyMutation()
 	const batchRegisterPhotosMutation = useBatchRegisterPhotosMutation()
 	const [currentStep, setCurrentStep] = useState(0)
-	const [cepLoading, setCepLoading] = useState(false)
-	const [cepError, setCepError] = useState<string | null>(null)
 	const [selectedPhotos, setSelectedPhotos] = useState<SelectedPhoto[]>([])
 	const [isUploading, setIsUploading] = useState(false)
 
 	const { data: ownersData, isLoading: isLoadingOwners } = usePropertyOwnersQuery({ limit: 100 })
+
+	// Custom hooks
+	const {
+		isLoading: cepLoading,
+		error: cepError,
+		fetchAddress,
+		clearError: clearCepError,
+	} = useCepLookup()
 
 	const {
 		register,
@@ -244,11 +93,13 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 		},
 	})
 
+	const { createMaskedHandler } = useMaskedInput(setValue)
+
 	const listingType = watch('listingType')
 	const propertyType = watch('type')
 	const notesValue = watch('notes') || ''
 
-	const steps = getStepsForPropertyType(propertyType)
+	const steps = getPropertyStepsForType(propertyType)
 	const currentStepId = steps[currentStep]?.id
 
 	useEffect(() => {
@@ -257,58 +108,15 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 		}
 	}, [isOpen])
 
-	const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const masked = applyMask(e.target.value, 'cep')
-		setValue('zipCode', masked, { shouldValidate: false })
-	}
-
-	const handleCurrencyChange =
-		(field: 'rentalPrice' | 'salePrice' | 'iptuPrice' | 'condoFee') =>
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			const masked = applyMask(e.target.value, 'currency')
-			setValue(field, masked, { shouldValidate: false })
+	const handleCepBlur = async (e: FocusEvent<HTMLInputElement>) => {
+		const result = await fetchAddress(e.target.value)
+		if (result) {
+			setValue('address', result.address)
+			setValue('neighborhood', result.neighborhood)
+			setValue('city', result.city)
+			setValue('state', result.state)
 		}
-
-	const handlePercentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		let value = e.target.value.replace(/\D/g, '')
-		if (value.length > 4) value = value.slice(0, 4)
-		if (Number.parseInt(value, 10) > 10000) value = '10000'
-		const numValue = Number.parseInt(value, 10) || 0
-		const formatted = numValue > 0 ? `${(numValue / 100).toFixed(2)}%` : ''
-		setValue('commissionPercentage', formatted, { shouldValidate: false })
 	}
-
-	const fetchAddressByCep = useCallback(
-		async (cep: string) => {
-			const cleanCep = cep.replace(/\D/g, '')
-			if (cleanCep.length !== 8) return
-
-			setCepLoading(true)
-			setCepError(null)
-
-			try {
-				const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
-				if (!response.ok) throw new Error('Erro ao buscar CEP')
-
-				const data: ViaCepResponse = await response.json()
-				if (data.erro) {
-					setCepError('CEP nao encontrado')
-					return
-				}
-
-				setValue('address', data.logradouro || '')
-				setValue('neighborhood', data.bairro || '')
-				setValue('city', data.localidade || '')
-				setValue('state', data.uf || '')
-				setCepError(null)
-			} catch {
-				setCepError('Erro ao buscar CEP. Preencha manualmente.')
-			} finally {
-				setCepLoading(false)
-			}
-		},
-		[setValue],
-	)
 
 	const validateCurrentStep = async (): Promise<boolean> => {
 		switch (currentStepId) {
@@ -472,12 +280,12 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 				URL.revokeObjectURL(photo.preview)
 			}
 			reset()
-			setCepError(null)
+			clearCepError()
 			setSelectedPhotos([])
 			setCurrentStep(0)
 			onClose()
 		}
-	}, [createMutation.isPending, isUploading, selectedPhotos, reset, onClose])
+	}, [createMutation.isPending, isUploading, selectedPhotos, reset, clearCepError, onClose])
 
 	const isSubmitting = createMutation.isPending || isUploading
 
@@ -686,8 +494,8 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 									error={errors.zipCode?.message}
 									fullWidth
 									disabled={isSubmitting || cepLoading}
-									onChange={handleCepChange}
-									onBlur={(e) => fetchAddressByCep(e.target.value)}
+									onChange={createMaskedHandler('zipCode', 'cep')}
+									onBlur={handleCepBlur}
 									maxLength={9}
 									rightIcon={
 										cepLoading ? <Loader2 size={18} className={styles.spinner} /> : undefined
@@ -786,7 +594,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 									label="Valor do Aluguel"
 									placeholder="R$ 0,00"
 									error={errors.rentalPrice?.message}
-									onChange={handleCurrencyChange('rentalPrice')}
+									onChange={createMaskedHandler('rentalPrice', 'currency')}
 									fullWidth
 									required
 									disabled={isSubmitting}
@@ -799,7 +607,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 									label="Valor de Venda"
 									placeholder="R$ 0,00"
 									error={errors.salePrice?.message}
-									onChange={handleCurrencyChange('salePrice')}
+									onChange={createMaskedHandler('salePrice', 'currency')}
 									fullWidth
 									required
 									disabled={isSubmitting}
@@ -814,7 +622,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								label="IPTU (mensal)"
 								placeholder="R$ 0,00"
 								error={errors.iptuPrice?.message}
-								onChange={handleCurrencyChange('iptuPrice')}
+								onChange={createMaskedHandler('iptuPrice', 'currency')}
 								fullWidth
 								disabled={isSubmitting}
 								leftIcon={<FileText size={18} />}
@@ -824,7 +632,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 								label="Condominio"
 								placeholder="R$ 0,00"
 								error={errors.condoFee?.message}
-								onChange={handleCurrencyChange('condoFee')}
+								onChange={createMaskedHandler('condoFee', 'currency')}
 								fullWidth
 								disabled={isSubmitting}
 								leftIcon={<Building2 size={18} />}
@@ -846,7 +654,7 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 							label="Percentual de Comissao"
 							placeholder="5.00%"
 							error={errors.commissionPercentage?.message}
-							onChange={handlePercentageChange}
+							onChange={createMaskedHandler('commissionPercentage', 'percentage')}
 							fullWidth
 							disabled={isSubmitting}
 							leftIcon={<Percent size={18} />}

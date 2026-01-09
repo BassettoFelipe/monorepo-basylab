@@ -3,6 +3,7 @@ import type { User, UserRole } from './user.types'
 
 export interface RegisterData {
 	name: string
+	phone: string
 	companyName: string
 	email: string
 	password: string

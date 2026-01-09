@@ -1,6 +1,6 @@
 import { X } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import * as styles from './Modal.css'
 
 interface ModalProps {
@@ -42,6 +42,10 @@ export function Modal({
 		}
 	}, [isOpen, onClose])
 
+	const handleOverlayClick = useCallback(() => {
+		onClose()
+	}, [onClose])
+
 	if (!isOpen) return null
 
 	const modalSizeClass =
@@ -56,13 +60,13 @@ export function Modal({
 						: styles.modalMd
 
 	return (
-		// biome-ignore lint/a11y/useKeyWithClickEvents lint/a11y/noStaticElementInteractions: Overlay click-to-dismiss is a common UX pattern, keyboard users can use Escape key
-		<div className={styles.overlay} onClick={onClose}>
-			<div
+		// biome-ignore lint/a11y/noStaticElementInteractions: Presentational overlay - click closes modal, ESC key handler via useEffect
+		<div className={styles.overlay} onClick={handleOverlayClick} role="presentation">
+			<dialog
 				className={`${styles.modal} ${modalSizeClass}`}
 				onClick={(e) => e.stopPropagation()}
 				onKeyDown={(e) => e.stopPropagation()}
-				role="dialog"
+				open
 				aria-modal="true"
 				aria-labelledby="modal-title"
 			>
@@ -85,7 +89,7 @@ export function Modal({
 				)}
 				<div className={styles.body}>{children}</div>
 				{footer && <div className={styles.footer}>{footer}</div>}
-			</div>
+			</dialog>
 		</div>
 	)
 }

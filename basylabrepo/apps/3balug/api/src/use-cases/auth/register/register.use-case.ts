@@ -20,6 +20,7 @@ type RegisterInput = {
 	email: string
 	password: string
 	name: string
+	phone: string
 	companyName: string
 	planId: string
 }
@@ -102,6 +103,7 @@ export class RegisterUseCase {
 					email: params.normalizedEmail,
 					password: params.hashedPassword,
 					name: params.input.name,
+					phone: params.input.phone,
 					role: USER_ROLES.OWNER,
 					isEmailVerified: false,
 					verificationSecret: params.verificationSecret,

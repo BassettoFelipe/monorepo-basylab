@@ -1,4 +1,5 @@
 import { Eye, FileImage, FileText, Trash2, Upload, X } from 'lucide-react'
+import type { ChangeEvent, DragEvent } from 'react'
 import { useCallback, useRef, useState } from 'react'
 import type { DocumentType } from '@/types/document.types'
 import { DOCUMENT_TYPE_LABELS, DOCUMENT_TYPES } from '@/types/document.types'
@@ -101,7 +102,7 @@ export function DocumentPicker({
 	)
 
 	const handleDragOver = useCallback(
-		(e: React.DragEvent) => {
+		(e: DragEvent) => {
 			e.preventDefault()
 			if (!disabled && canUploadMore) {
 				setIsDragging(true)
@@ -110,13 +111,13 @@ export function DocumentPicker({
 		[disabled, canUploadMore],
 	)
 
-	const handleDragLeave = useCallback((e: React.DragEvent) => {
+	const handleDragLeave = useCallback((e: DragEvent) => {
 		e.preventDefault()
 		setIsDragging(false)
 	}, [])
 
 	const handleDrop = useCallback(
-		(e: React.DragEvent) => {
+		(e: DragEvent) => {
 			e.preventDefault()
 			setIsDragging(false)
 			if (!disabled && canUploadMore && e.dataTransfer.files[0]) {
@@ -133,7 +134,7 @@ export function DocumentPicker({
 	}, [disabled, canUploadMore])
 
 	const handleInputChange = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
+		(e: ChangeEvent<HTMLInputElement>) => {
 			const file = e.target.files?.[0]
 			if (file) {
 				handleFile(file)
@@ -265,9 +266,13 @@ export function DocumentPicker({
 
 			{/* Modal de preview de imagem */}
 			{previewImage && (
-				// biome-ignore lint/a11y/useKeyWithClickEvents lint/a11y/noStaticElementInteractions: Overlay click-to-dismiss is a common UX pattern, keyboard users can use Escape key via close button
-				<div className={styles.previewOverlay} onClick={() => setPreviewImage(null)}>
-					<div className={styles.previewModal}>
+				// biome-ignore lint/a11y/noStaticElementInteractions: Presentational overlay - click closes modal, close button inside for keyboard
+				<div
+					className={styles.previewOverlay}
+					onClick={() => setPreviewImage(null)}
+					role="presentation"
+				>
+					<dialog className={styles.previewModal} open aria-modal="true">
 						<button
 							type="button"
 							className={styles.previewCloseButton}
@@ -281,7 +286,7 @@ export function DocumentPicker({
 							alt="Preview do documento"
 							className={styles.previewModalImage}
 						/>
-					</div>
+					</dialog>
 				</div>
 			)}
 		</div>

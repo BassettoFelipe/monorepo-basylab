@@ -39,6 +39,7 @@ import type {
 import { BRAZILIAN_STATES } from '@/types/property-owner.types'
 import { getAvatarColor, getInitials } from '@/utils/avatar'
 import { formatDate, formatDocument, formatPhone } from '@/utils/format'
+import { getPaginationPages } from '@/utils/pagination'
 import { CreatePropertyOwnerModal } from './components/CreatePropertyOwnerModal/CreatePropertyOwnerModal'
 import { EditPropertyOwnerModal } from './components/EditPropertyOwnerModal/EditPropertyOwnerModal'
 import * as styles from './styles.css'
@@ -193,44 +194,6 @@ export function PropertyOwnersPage() {
 			// Error is handled by the mutation
 		}
 	}, [ownerToDelete?.id, deleteMutation, closeModal])
-
-	const getPaginationPages = (currentPage: number, totalPages: number): (number | 'ellipsis')[] => {
-		const pages: (number | 'ellipsis')[] = []
-		const showEllipsisThreshold = 7
-
-		if (totalPages <= showEllipsisThreshold) {
-			for (let i = 1; i <= totalPages; i++) {
-				pages.push(i)
-			}
-			return pages
-		}
-
-		// Always show first page
-		pages.push(1)
-
-		if (currentPage > 3) {
-			pages.push('ellipsis')
-		}
-
-		// Pages around current
-		const start = Math.max(2, currentPage - 1)
-		const end = Math.min(totalPages - 1, currentPage + 1)
-
-		for (let i = start; i <= end; i++) {
-			pages.push(i)
-		}
-
-		if (currentPage < totalPages - 2) {
-			pages.push('ellipsis')
-		}
-
-		// Always show last page
-		if (totalPages > 1) {
-			pages.push(totalPages)
-		}
-
-		return pages
-	}
 
 	return (
 		<AdminLayout>
@@ -595,36 +558,48 @@ export function PropertyOwnersPage() {
 								<tr>
 									<th
 										className={`${styles.tableHeaderCell} ${styles.colOwner} ${styles.sortableHeader}`}
-										onClick={() => handleSort('name')}
 									>
-										<span className={styles.sortableHeaderContent}>
+										<button
+											type="button"
+											className={styles.sortableHeaderContent}
+											onClick={() => handleSort('name')}
+										>
 											Proprietario {getSortIcon('name')}
-										</span>
+										</button>
 									</th>
 									<th className={`${styles.tableHeaderCell} ${styles.colContact}`}>Contato</th>
 									<th
 										className={`${styles.tableHeaderCell} ${styles.colLocation} ${styles.sortableHeader}`}
-										onClick={() => handleSort('city')}
 									>
-										<span className={styles.sortableHeaderContent}>
+										<button
+											type="button"
+											className={styles.sortableHeaderContent}
+											onClick={() => handleSort('city')}
+										>
 											Localizacao {getSortIcon('city')}
-										</span>
+										</button>
 									</th>
 									<th
 										className={`${styles.tableHeaderCell} ${styles.colProperties} ${styles.sortableHeader}`}
-										onClick={() => handleSort('propertiesCount')}
 									>
-										<span className={styles.sortableHeaderContent}>
+										<button
+											type="button"
+											className={styles.sortableHeaderContent}
+											onClick={() => handleSort('propertiesCount')}
+										>
 											Imoveis {getSortIcon('propertiesCount')}
-										</span>
+										</button>
 									</th>
 									<th
 										className={`${styles.tableHeaderCell} ${styles.colDate} ${styles.sortableHeader}`}
-										onClick={() => handleSort('createdAt')}
 									>
-										<span className={styles.sortableHeaderContent}>
+										<button
+											type="button"
+											className={styles.sortableHeaderContent}
+											onClick={() => handleSort('createdAt')}
+										>
 											Cadastro {getSortIcon('createdAt')}
-										</span>
+										</button>
 									</th>
 									<th className={`${styles.tableHeaderCell} ${styles.colActions}`}>Acoes</th>
 								</tr>

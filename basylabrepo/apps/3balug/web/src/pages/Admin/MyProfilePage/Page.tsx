@@ -14,6 +14,7 @@ import {
 	Users,
 	X,
 } from 'lucide-react'
+import type { ChangeEvent } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
@@ -194,7 +195,7 @@ export function MyProfilePage() {
 		},
 	})
 
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0]
 		if (!file) return
 

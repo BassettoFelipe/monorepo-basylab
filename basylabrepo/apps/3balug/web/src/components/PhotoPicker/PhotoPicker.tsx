@@ -1,4 +1,5 @@
 import { ImagePlus, Star, Trash2 } from 'lucide-react'
+import type { ChangeEvent, DragEvent } from 'react'
 import { useCallback, useRef, useState } from 'react'
 import * as styles from './PhotoPicker.css'
 
@@ -109,7 +110,7 @@ export function PhotoPicker({
 	)
 
 	const handleDragOver = useCallback(
-		(e: React.DragEvent) => {
+		(e: DragEvent) => {
 			e.preventDefault()
 			if (!disabled && canUploadMore) {
 				setIsDragging(true)
@@ -118,13 +119,13 @@ export function PhotoPicker({
 		[disabled, canUploadMore],
 	)
 
-	const handleDragLeave = useCallback((e: React.DragEvent) => {
+	const handleDragLeave = useCallback((e: DragEvent) => {
 		e.preventDefault()
 		setIsDragging(false)
 	}, [])
 
 	const handleDrop = useCallback(
-		(e: React.DragEvent) => {
+		(e: DragEvent) => {
 			e.preventDefault()
 			setIsDragging(false)
 			if (!disabled && canUploadMore) {
@@ -141,7 +142,7 @@ export function PhotoPicker({
 	}, [disabled, canUploadMore])
 
 	const handleInputChange = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
+		(e: ChangeEvent<HTMLInputElement>) => {
 			handleFiles(e.target.files)
 			if (inputRef.current) {
 				inputRef.current.value = ''

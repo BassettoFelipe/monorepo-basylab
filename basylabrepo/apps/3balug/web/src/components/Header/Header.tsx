@@ -291,8 +291,8 @@ export function Header({ onMenuToggle, hideHamburgerOnDesktop = false }: HeaderP
 
 			{/* Mobile Search Overlay */}
 			{isSearchExpanded && (
-				// biome-ignore lint/a11y/useKeyWithClickEvents lint/a11y/noStaticElementInteractions: Overlay click-to-dismiss is a common UX pattern, keyboard users can use Escape key via close button
-				<div className={styles.mobileSearchOverlay} onClick={handleCloseSearch}>
+				// biome-ignore lint/a11y/noStaticElementInteractions: Presentational overlay - click closes search, close button inside for keyboard
+				<div className={styles.mobileSearchOverlay} onClick={handleCloseSearch} role="presentation">
 					<div
 						className={styles.mobileSearchContainer}
 						onClick={(e) => e.stopPropagation()}

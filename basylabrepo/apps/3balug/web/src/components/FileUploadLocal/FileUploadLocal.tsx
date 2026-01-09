@@ -1,4 +1,5 @@
-import { type ReactNode, useCallback, useRef, useState } from 'react'
+import type { ChangeEvent, DragEvent, ReactNode } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import * as styles from './FileUploadLocal.css'
 
 export interface LocalFile {
@@ -196,7 +197,7 @@ export function FileUploadLocal({
 	)
 
 	const handleDragOver = useCallback(
-		(e: React.DragEvent) => {
+		(e: DragEvent) => {
 			e.preventDefault()
 			if (!disabled && canUploadMore) {
 				setIsDragging(true)
@@ -205,13 +206,13 @@ export function FileUploadLocal({
 		[disabled, canUploadMore],
 	)
 
-	const handleDragLeave = useCallback((e: React.DragEvent) => {
+	const handleDragLeave = useCallback((e: DragEvent) => {
 		e.preventDefault()
 		setIsDragging(false)
 	}, [])
 
 	const handleDrop = useCallback(
-		(e: React.DragEvent) => {
+		(e: DragEvent) => {
 			e.preventDefault()
 			setIsDragging(false)
 			if (!disabled && canUploadMore) {
@@ -228,7 +229,7 @@ export function FileUploadLocal({
 	}, [disabled, canUploadMore])
 
 	const handleInputChange = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
+		(e: ChangeEvent<HTMLInputElement>) => {
 			handleFiles(e.target.files)
 			if (inputRef.current) {
 				inputRef.current.value = ''

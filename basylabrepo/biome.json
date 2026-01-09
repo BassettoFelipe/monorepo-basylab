@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
   "linter": {
     "enabled": true,
     "rules": {
@@ -67,7 +67,6 @@
         "useImportType": "error"
       },
       "a11y": {
-        "noStaticElementInteractions": "warn",
         "useSemanticElements": "warn",
         "noLabelWithoutControl": "warn",
         "useKeyWithClickEvents": "warn",
@@ -78,7 +77,9 @@
   "assist": {
     "actions": {
       "source": {
-        "organizeImports": "on"
+        "organizeImports": {
+          "level": "on"
+        }
       }
     }
   },
@@ -89,7 +90,10 @@
     "lineWidth": 100
   },
   "javascript": {
-    "globals": ["Bun", "mock"],
+    "globals": [
+      "Bun",
+      "mock"
+    ],
     "formatter": {
       "quoteStyle": "single",
       "semicolons": "asNeeded"

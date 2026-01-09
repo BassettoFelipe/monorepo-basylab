@@ -1,4 +1,5 @@
 import { Download, FileImage, FileText, Loader2, Trash2, Upload } from 'lucide-react'
+import type { ChangeEvent, DragEvent } from 'react'
 import { useCallback, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import {
@@ -120,7 +121,7 @@ export function DocumentUpload({
 	)
 
 	const handleDragOver = useCallback(
-		(e: React.DragEvent) => {
+		(e: DragEvent) => {
 			e.preventDefault()
 			if (!disabled && canUploadMore) {
 				setIsDragging(true)
@@ -129,13 +130,13 @@ export function DocumentUpload({
 		[disabled, canUploadMore],
 	)
 
-	const handleDragLeave = useCallback((e: React.DragEvent) => {
+	const handleDragLeave = useCallback((e: DragEvent) => {
 		e.preventDefault()
 		setIsDragging(false)
 	}, [])
 
 	const handleDrop = useCallback(
-		(e: React.DragEvent) => {
+		(e: DragEvent) => {
 			e.preventDefault()
 			setIsDragging(false)
 			if (!disabled && canUploadMore && e.dataTransfer.files[0]) {
@@ -152,7 +153,7 @@ export function DocumentUpload({
 	}, [disabled, canUploadMore])
 
 	const handleInputChange = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
+		(e: ChangeEvent<HTMLInputElement>) => {
 			const file = e.target.files?.[0]
 			if (file) {
 				handleFile(file)

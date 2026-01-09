@@ -10,6 +10,7 @@ export interface CachedUserState {
 		email: string
 		name: string
 		role: string
+		phone: string | null
 		companyId: string | null
 		createdBy: string | null
 		isActive: boolean
@@ -82,6 +83,7 @@ export class UserCacheService implements IUserCacheService {
 					email: user.email,
 					name: user.name,
 					role: user.role,
+					phone: user.phone,
 					companyId: user.companyId,
 					createdBy: user.createdBy,
 					isActive: user.isActive,

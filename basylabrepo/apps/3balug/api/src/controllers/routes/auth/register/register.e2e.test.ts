@@ -20,6 +20,7 @@ describe('POST /auth/register', () => {
 				email,
 				password: 'SecureTest@2024!',
 				name: 'Test User',
+				phone: '11999999999',
 				companyName: 'Test Company',
 				planId: testPlan.id,
 			})
@@ -49,6 +50,7 @@ describe('POST /auth/register', () => {
 				email,
 				password: 'SecureTest@2024!',
 				name: 'Test User',
+				phone: '11999999999',
 				companyName: 'Test Company',
 				planId: allPlans[0].id,
 			})
@@ -75,6 +77,7 @@ describe('POST /auth/register', () => {
 				email: generateTestEmail('weak-pass'),
 				password: 'weak',
 				name: 'Test User',
+				phone: '11999999999',
 				companyName: 'Test Company',
 				planId: allPlans[0].id,
 			})
@@ -91,6 +94,7 @@ describe('POST /auth/register', () => {
 				email: generateTestEmail('invalid-plan'),
 				password: 'SecureTest@2024!',
 				name: 'Test User',
+				phone: '11999999999',
 				companyName: 'Test Company',
 				planId: 'invalid-plan-id',
 			})
@@ -120,6 +124,7 @@ describe('POST /auth/register', () => {
 				email,
 				password: 'SecureTest@2024!',
 				name: 'New User',
+				phone: '11999999999',
 				companyName: 'Duplicate Company',
 				planId: allPlans[0].id,
 			})
@@ -139,6 +144,7 @@ describe('POST /auth/register', () => {
 				email: generateTestEmail('security'),
 				password: 'SecureTest@2024!',
 				name: 'Test User',
+				phone: '11999999999',
 				companyName: 'Test Company',
 				planId: allPlans[0].id,
 			})
@@ -159,6 +165,7 @@ describe('POST /auth/register', () => {
 					email: injection,
 					password: 'SecureTest@2024!',
 					name: 'Test User',
+					phone: '11999999999',
 					companyName: 'Test Company',
 					planId: allPlans[0].id,
 				})

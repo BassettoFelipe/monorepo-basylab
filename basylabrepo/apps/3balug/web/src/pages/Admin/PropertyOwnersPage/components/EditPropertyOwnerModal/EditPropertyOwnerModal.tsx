@@ -19,7 +19,6 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
-import { z } from 'zod'
 
 import { Button } from '@/components/Button/Button'
 import type { SelectedDocument } from '@/components/DocumentPicker/DocumentPicker'
@@ -28,12 +27,18 @@ import { Modal } from '@/components/Modal/Modal'
 import { Select } from '@/components/Select/Select'
 import { Skeleton } from '@/components/Skeleton/Skeleton'
 import { Textarea } from '@/components/Textarea/Textarea'
+import { useCepLookup } from '@/hooks/useCepLookup'
+import { useMaskedInput } from '@/hooks/useMaskedInput'
 import {
 	useDeleteDocumentMutation,
 	useDocumentsQuery,
 	useUploadDocumentMutation,
 } from '@/queries/documents/documents.queries'
 import { useUpdatePropertyOwnerMutation } from '@/queries/property-owners/useUpdatePropertyOwnerMutation'
+import {
+	type EditPropertyOwnerFormData,
+	editPropertyOwnerSchema,
+} from '@/schemas/property-owner.schema'
 import { uploadWithPresignedUrl } from '@/services/files/upload'
 import {
 	DOCUMENT_ENTITY_TYPES,
@@ -74,66 +79,10 @@ function formatFileSize(bytes: number): string {
 	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/
-const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/
 const cepRegex = /^\d{5}-?\d{3}$/
 
 const PHOTO_ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
 const PHOTO_MAX_SIZE = 5 * 1024 * 1024 // 5MB
-
-const editPropertyOwnerSchema = z
-	.object({
-		name: z
-			.string()
-			.min(2, 'Nome deve ter pelo menos 2 caracteres')
-			.max(100, 'Nome deve ter no maximo 100 caracteres'),
-		documentType: z.enum(['cpf', 'cnpj'], {
-			message: 'Selecione o tipo de documento',
-		}),
-		document: z.string().min(1, 'Documento e obrigatorio'),
-		rg: z.string().optional(),
-		nationality: z.string().optional(),
-		maritalStatus: z
-			.enum(['solteiro', 'casado', 'divorciado', 'viuvo', 'uniao_estavel'])
-			.optional(),
-		profession: z.string().optional(),
-		email: z.string().email('Email invalido').optional().or(z.literal('')),
-		phone: z.string().min(1, 'Telefone e obrigatorio'),
-		phoneSecondary: z.string().optional(),
-		zipCode: z.string().optional(),
-		address: z.string().optional(),
-		addressNumber: z.string().optional(),
-		addressComplement: z.string().optional(),
-		neighborhood: z.string().optional(),
-		city: z.string().optional(),
-		state: z.string().optional(),
-		birthDate: z.string().optional(),
-		notes: z.string().optional(),
-	})
-	.refine(
-		(data) => {
-			if (data.documentType === 'cpf') {
-				return cpfRegex.test(data.document)
-			}
-			return cnpjRegex.test(data.document)
-		},
-		{
-			message: 'Documento invalido',
-			path: ['document'],
-		},
-	)
-
-type EditPropertyOwnerFormData = z.infer<typeof editPropertyOwnerSchema>
-
-interface ViaCepResponse {
-	cep: string
-	logradouro: string
-	complemento: string
-	bairro: string
-	localidade: string
-	uf: string
-	erro?: boolean
-}
 
 interface EditPropertyOwnerModalProps {
 	isOpen: boolean
@@ -199,8 +148,6 @@ export function EditPropertyOwnerModal({
 	const uploadDocumentMutation = useUploadDocumentMutation()
 	const deleteDocumentMutation = useDeleteDocumentMutation()
 	const [currentStep, setCurrentStep] = useState(0)
-	const [cepLoading, setCepLoading] = useState(false)
-	const [cepError, setCepError] = useState<string | null>(null)
 	const [documentSlots, setDocumentSlots] = useState<DocumentSlot[]>(INITIAL_DOCUMENT_SLOTS)
 	const [existingDocuments, setExistingDocuments] = useState<ExistingDocument[]>([])
 	const [documentsToDelete, setDocumentsToDelete] = useState<string[]>([])
@@ -212,6 +159,14 @@ export function EditPropertyOwnerModal({
 	const [photoPreview, setPhotoPreview] = useState<string | null>(null)
 	const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
 	const [isDraggingPhoto, setIsDraggingPhoto] = useState(false)
+
+	// Custom hooks
+	const {
+		isLoading: cepLoading,
+		error: cepError,
+		fetchAddress,
+		clearError: clearCepError,
+	} = useCepLookup()
 
 	// Query para buscar documentos existentes
 	const { data: documentsData } = useDocumentsQuery(
@@ -237,6 +192,8 @@ export function EditPropertyOwnerModal({
 			documentType: 'cpf',
 		},
 	})
+
+	const { createMaskedHandler } = useMaskedInput(setValue)
 
 	const documentType = watch('documentType')
 	const notesValue = watch('notes') || ''
@@ -283,11 +240,11 @@ export function EditPropertyOwnerModal({
 
 			// Reset estado
 			setCurrentStep(0)
-			setCepError(null)
+			clearCepError()
 			setDocumentSlots(INITIAL_DOCUMENT_SLOTS)
 			setDocumentsToDelete([])
 		}
-	}, [propertyOwner, isOpen, reset])
+	}, [propertyOwner, isOpen, reset, clearCepError])
 
 	// Carregar documentos existentes
 	useEffect(() => {
@@ -318,7 +275,7 @@ export function EditPropertyOwnerModal({
 				URL.revokeObjectURL(photoPreview)
 			}
 			reset()
-			setCepError(null)
+			clearCepError()
 			setDocumentSlots(INITIAL_DOCUMENT_SLOTS)
 			setExistingDocuments([])
 			setDocumentsToDelete([])
@@ -335,6 +292,7 @@ export function EditPropertyOwnerModal({
 		photoPreview,
 		reset,
 		onClose,
+		clearCepError,
 	])
 
 	const processPhotoFile = useCallback(
@@ -414,7 +372,7 @@ export function EditPropertyOwnerModal({
 
 	const handleFileSelect = useCallback((slotType: DocumentType, file: File) => {
 		if (!ALLOWED_TYPES.includes(file.type)) {
-			toast.error(`Tipo de arquivo nao permitido. Use PDF, JPG, PNG ou WebP.`)
+			toast.error('Tipo de arquivo nao permitido. Use PDF, JPG, PNG ou WebP.')
 			return
 		}
 
@@ -473,74 +431,24 @@ export function EditPropertyOwnerModal({
 		setExistingDocuments((prev) => prev.filter((doc) => doc.id !== docId))
 	}, [])
 
+	// Handler especifico para documento porque a mascara muda baseado no documentType
 	const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const masked = applyMask(e.target.value, documentType)
 		setValue('document', masked, { shouldValidate: false })
 	}
 
-	const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const masked = applyMask(e.target.value, 'phone')
-		setValue('phone', masked, { shouldValidate: false })
-	}
-
-	const handlePhoneSecondaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const masked = applyMask(e.target.value, 'phone')
-		setValue('phoneSecondary', masked, { shouldValidate: false })
-	}
-
-	const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const masked = applyMask(e.target.value, 'cep')
-		setValue('zipCode', masked, { shouldValidate: false })
-	}
-
-	const fetchAddressByCep = useCallback(
-		async (cep: string) => {
-			const cleanCep = cep.replace(/\D/g, '')
-
-			if (cleanCep.length !== 8) {
-				return
+	const handleCepBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+		const cep = e.target.value
+		if (cepRegex.test(cep)) {
+			const result = await fetchAddress(cep)
+			if (result) {
+				setValue('address', result.address)
+				setValue('neighborhood', result.neighborhood)
+				setValue('city', result.city)
+				setValue('state', result.state)
 			}
-
-			setCepLoading(true)
-			setCepError(null)
-
-			try {
-				const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
-
-				if (!response.ok) {
-					throw new Error('Erro ao buscar CEP')
-				}
-
-				const data: ViaCepResponse = await response.json()
-
-				if (data.erro) {
-					setCepError('CEP nao encontrado')
-					return
-				}
-
-				setValue('address', data.logradouro || '')
-				setValue('neighborhood', data.bairro || '')
-				setValue('city', data.localidade || '')
-				setValue('state', data.uf || '')
-				setCepError(null)
-			} catch {
-				setCepError('Erro ao buscar CEP. Preencha manualmente.')
-			} finally {
-				setCepLoading(false)
-			}
-		},
-		[setValue],
-	)
-
-	const handleCepBlur = useCallback(
-		(e: React.FocusEvent<HTMLInputElement>) => {
-			const cep = e.target.value
-			if (cepRegex.test(cep)) {
-				fetchAddressByCep(cep)
-			}
-		},
-		[fetchAddressByCep],
-	)
+		}
+	}
 
 	const validateCurrentStep = async (): Promise<boolean> => {
 		switch (currentStep) {
@@ -1201,7 +1109,8 @@ export function EditPropertyOwnerModal({
 						<div className={styles.formSection}>
 							<div className={styles.row2Cols}>
 								<Input
-									{...register('phone', { onChange: handlePhoneChange })}
+									{...register('phone')}
+									onChange={createMaskedHandler('phone', 'phone')}
 									type="tel"
 									label="Telefone Principal"
 									placeholder="(11) 99999-9999"
@@ -1211,7 +1120,8 @@ export function EditPropertyOwnerModal({
 									required
 								/>
 								<Input
-									{...register('phoneSecondary', { onChange: handlePhoneSecondaryChange })}
+									{...register('phoneSecondary')}
+									onChange={createMaskedHandler('phoneSecondary', 'phone')}
 									type="tel"
 									label="Telefone Secundario"
 									placeholder="(11) 99999-9999"
@@ -1238,7 +1148,8 @@ export function EditPropertyOwnerModal({
 							<div className={styles.row3Cols}>
 								<div className={styles.cepWrapper}>
 									<Input
-										{...register('zipCode', { onChange: handleCepChange })}
+										{...register('zipCode')}
+										onChange={createMaskedHandler('zipCode', 'cep')}
 										label="CEP"
 										placeholder="00000-000"
 										error={errors.zipCode?.message}

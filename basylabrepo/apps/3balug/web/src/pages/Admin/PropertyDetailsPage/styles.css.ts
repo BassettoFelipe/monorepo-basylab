@@ -146,6 +146,26 @@ export const heroEditButton = style({
 	},
 })
 
+export const heroActionButtons = style({
+	position: 'absolute',
+	top: vars.spacing.lg,
+	right: vars.spacing.lg,
+	zIndex: 10,
+	display: 'flex',
+	gap: vars.spacing.sm,
+
+	'@media': {
+		'(max-width: 768px)': {
+			top: vars.spacing.md,
+			right: vars.spacing.md,
+		},
+		'(max-width: 480px)': {
+			flexDirection: 'column',
+			gap: vars.spacing.xs,
+		},
+	},
+})
+
 export const photoCount = style({
 	position: 'absolute',
 	bottom: vars.spacing.xl,
@@ -1071,7 +1091,7 @@ export const photoGalleryItem = style({
 	},
 
 	':focus-visible': {
-		outline: `2px solid #C7E356`,
+		outline: '2px solid #C7E356',
 		outlineOffset: '2px',
 	},
 })
@@ -1109,6 +1129,113 @@ export const photoGalleryMore = style({
 	fontWeight: vars.fontWeight.bold,
 })
 
+// ============================================
+// Share Modal
+// ============================================
+
+export const shareModalContent = style({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: vars.spacing.lg,
+})
+
+export const shareCodeDisplay = style({
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'center',
+	gap: vars.spacing.xs,
+	padding: vars.spacing.lg,
+	backgroundColor: '#F7FCE8',
+	borderRadius: vars.borderRadius.lg,
+	border: '1px solid #C7E356',
+})
+
+export const shareCodeLabel = style({
+	fontSize: vars.fontSize.xs,
+	color: vars.color.text.secondary,
+	textTransform: 'uppercase',
+	letterSpacing: '0.5px',
+})
+
+export const shareCodeValue = style({
+	fontSize: vars.fontSize['2xl'],
+	fontWeight: vars.fontWeight.bold,
+	color: '#5E6C02',
+	fontFamily: vars.fontFamily.mono,
+})
+
+export const shareInputGroup = style({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: vars.spacing.xs,
+})
+
+export const shareInputLabel = style({
+	fontSize: vars.fontSize.sm,
+	fontWeight: vars.fontWeight.medium,
+	color: vars.color.text.primary,
+})
+
+export const shareInput = style({
+	width: '100%',
+	padding: `${vars.spacing.sm} ${vars.spacing.md}`,
+	fontSize: vars.fontSize.base,
+	fontFamily: vars.fontFamily.mono,
+	border: `1px solid ${vars.color.border.primary}`,
+	borderRadius: vars.borderRadius.md,
+	backgroundColor: vars.color.bg.primary,
+	color: vars.color.text.primary,
+	transition: `all ${vars.transitionDuration.base}`,
+
+	':focus': {
+		outline: 'none',
+		borderColor: vars.color.border.focus,
+		boxShadow: '0 0 0 3px rgba(199, 227, 86, 0.2)',
+	},
+
+	'::placeholder': {
+		color: vars.color.text.disabled,
+	},
+})
+
+export const sharePreview = style({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: vars.spacing.xs,
+})
+
+export const sharePreviewLabel = style({
+	fontSize: vars.fontSize.xs,
+	color: vars.color.text.secondary,
+	textTransform: 'uppercase',
+	letterSpacing: '0.5px',
+})
+
+export const sharePreviewText = style({
+	padding: vars.spacing.md,
+	backgroundColor: '#FAFAF9',
+	borderRadius: vars.borderRadius.md,
+	border: '1px solid #E7E5E4',
+	fontSize: vars.fontSize.sm,
+	color: vars.color.text.primary,
+	lineHeight: 1.6,
+	whiteSpace: 'pre-wrap',
+})
+
+export const shareActions = style({
+	display: 'flex',
+	gap: vars.spacing.md,
+	paddingTop: vars.spacing.sm,
+})
+
+// ============================================
+// Map Loading Fallback
+// ============================================
+
+export const mapLoadingFallback = style({
+	marginTop: vars.spacing.md,
+})
+
 // Legacy exports for compatibility
 export const header = style({})
 export const headerInfo = style({})
@@ -1122,3 +1249,65 @@ export const thumbnailButton = style({})
 export const thumbnail = style({})
 export const thumbnailActive = style({})
 export const noPhotos = style({})
+
+// ============================================
+// Map Fallback (skeleton while loading)
+// ============================================
+
+export const mapFallback = style({
+	width: '100%',
+	height: '300px',
+	marginTop: vars.spacing.md,
+	borderRadius: vars.borderRadius.lg,
+	overflow: 'hidden',
+
+	'@media': {
+		'(max-width: 768px)': {
+			height: '250px',
+		},
+	},
+})
+
+// ============================================
+// Contact Card
+// ============================================
+
+export const contactInfo = style({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: vars.spacing.sm,
+})
+
+export const contactLabel = style({
+	fontSize: vars.fontSize.sm,
+	color: vars.color.text.secondary,
+	margin: 0,
+})
+
+export const contactPhone = style({
+	fontSize: vars.fontSize.lg,
+	fontWeight: vars.fontWeight.bold,
+	color: vars.color.text.primary,
+	margin: 0,
+})
+
+export const contactWhatsAppButton = style({
+	display: 'inline-flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	gap: vars.spacing.xs,
+	marginTop: vars.spacing.sm,
+	padding: `${vars.spacing.sm} ${vars.spacing.md}`,
+	backgroundColor: '#25D366',
+	color: '#ffffff',
+	fontSize: vars.fontSize.sm,
+	fontWeight: vars.fontWeight.medium,
+	borderRadius: vars.borderRadius.md,
+	textDecoration: 'none',
+	transition: `opacity ${vars.transitionDuration.base}`,
+
+	':hover': {
+		opacity: 0.85,
+		color: '#ffffff',
+	},
+})

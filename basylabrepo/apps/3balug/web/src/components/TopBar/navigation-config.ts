@@ -18,16 +18,17 @@ import {
 	Users,
 	UsersRound,
 } from 'lucide-react'
+import type { ComponentType } from 'react'
 
 export interface NavItem {
 	label: string
 	path: string
-	icon: React.ComponentType<{ size?: number }>
+	icon: ComponentType<{ size?: number }>
 	badge?: string
 }
 
 export interface NavGroup {
-	icon: React.ComponentType<{ size?: number }>
+	icon: ComponentType<{ size?: number }>
 	label: string
 	items: NavItem[]
 }

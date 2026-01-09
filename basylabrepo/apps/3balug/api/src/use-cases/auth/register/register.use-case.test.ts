@@ -59,6 +59,7 @@ describe('RegisterUseCase', () => {
 		email: 'test@example.com',
 		password: 'SecureP@ss123',
 		name: 'Test User',
+		phone: '11999999999',
 		companyName: 'Test Company',
 		planId: 'plan-123',
 	}

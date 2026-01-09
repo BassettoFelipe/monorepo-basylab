@@ -254,7 +254,7 @@ export const photoUploadCard = style({
 	':focus': {
 		outline: 'none',
 		borderColor: vars.color.primary.main,
-		boxShadow: `0 0 0 3px rgba(154, 169, 51, 0.2)`,
+		boxShadow: '0 0 0 3px rgba(154, 169, 51, 0.2)',
 	},
 })
 

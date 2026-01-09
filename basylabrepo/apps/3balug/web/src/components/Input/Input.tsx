@@ -1,4 +1,5 @@
-import { forwardRef, type InputHTMLAttributes, type ReactNode, useCallback, useState } from 'react'
+import type { ChangeEvent, InputHTMLAttributes, ReactNode } from 'react'
+import { forwardRef, useCallback, useState } from 'react'
 import { applyMask, getRawValue, type MaskType } from '@/utils/masks'
 import * as styles from './Input.css'
 
@@ -13,7 +14,7 @@ interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChan
 	onRightIconClick?: () => void
 	mask?: MaskType
 	uppercase?: boolean
-	onChange?: (e: React.ChangeEvent<HTMLInputElement>, rawValue?: string) => void
+	onChange?: (e: ChangeEvent<HTMLInputElement>, rawValue?: string) => void
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -54,7 +55,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 			.join(' ')
 
 		const handleChange = useCallback(
-			(e: React.ChangeEvent<HTMLInputElement>) => {
+			(e: ChangeEvent<HTMLInputElement>) => {
 				let newValue = e.target.value
 				let rawValue = newValue
 

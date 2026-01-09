@@ -9,6 +9,7 @@ import {
 	Search,
 	User,
 } from 'lucide-react'
+import type { KeyboardEvent } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Avatar } from '@/components/Avatar/Avatar'
@@ -82,7 +83,7 @@ export function OwnerSelect({
 	)
 
 	const handleKeyDown = useCallback(
-		(e: React.KeyboardEvent) => {
+		(e: KeyboardEvent) => {
 			if (e.key === 'Escape') {
 				setIsOpen(false)
 				setSearchTerm('')
@@ -158,6 +159,7 @@ export function OwnerSelect({
 					role="combobox"
 					aria-expanded={isOpen}
 					aria-haspopup="listbox"
+					aria-controls="owner-select-listbox"
 					aria-disabled={disabled}
 				>
 					{isLoading ? (
@@ -197,7 +199,7 @@ export function OwnerSelect({
 							</div>
 						</div>
 
-						<div className={styles.optionsList} role="listbox">
+						<div className={styles.optionsList} role="listbox" id="owner-select-listbox">
 							{filteredOwners.length === 0 ? (
 								<div className={styles.noResults}>
 									{searchTerm ? 'Nenhum proprietario encontrado' : 'Nenhum proprietario cadastrado'}

@@ -1,4 +1,5 @@
 import { AlertTriangle } from 'lucide-react'
+import type React from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '../Button/Button'
 import * as styles from './ConfirmDialog.css'
@@ -75,13 +76,13 @@ export function ConfirmDialog({
 	const isConfirmDisabled = requireConfirmation && inputValue !== confirmationText
 
 	return (
-		// biome-ignore lint/a11y/useKeyWithClickEvents lint/a11y/noStaticElementInteractions: Overlay click-to-dismiss is a common UX pattern, keyboard users can use Escape key
-		<div className={styles.overlay} onClick={handleOverlayClick}>
-			<div
+		// biome-ignore lint/a11y/noStaticElementInteractions: Presentational overlay - click closes modal, ESC key handler via useEffect
+		<div className={styles.overlay} onClick={handleOverlayClick} role="presentation">
+			<dialog
 				className={styles.dialog}
 				onClick={(e) => e.stopPropagation()}
 				onKeyDown={(e) => e.stopPropagation()}
-				role="dialog"
+				open
 				aria-modal="true"
 				aria-labelledby="confirm-dialog-title"
 			>
@@ -124,7 +125,7 @@ export function ConfirmDialog({
 						{cancelText}
 					</Button>
 				</div>
-			</div>
+			</dialog>
 		</div>
 	)
 }

@@ -1,0 +1,30 @@
+{
+	"name": "@gradely/web",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview",
+		"clean": "rm -rf dist",
+		"lint": "biome check src",
+		"lint:fix": "biome check --write src",
+		"format": "biome format --write src",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"react": "^19",
+		"react-dom": "^19",
+		"react-router-dom": "^7.9.6"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"@types/node": "^24.10.1",
+		"@types/react": "^19",
+		"@types/react-dom": "^19",
+		"@vitejs/plugin-react": "^5.1.1",
+		"typescript": "^5.9.3",
+		"vite": "^7.2.6"
+	}
+}

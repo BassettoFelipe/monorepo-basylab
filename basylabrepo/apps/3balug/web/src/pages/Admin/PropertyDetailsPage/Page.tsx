@@ -22,21 +22,40 @@ import {
 	Lock,
 	MapPin,
 	Percent,
+	Phone,
 	Ruler,
+	Share2,
 	Sparkles,
 	Square,
 	StickyNote,
 	User,
 	X,
 } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import type { ChangeEvent } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/Button/Button'
+import { Modal } from '@/components/Modal/Modal'
 import { Skeleton } from '@/components/Skeleton/Skeleton'
 import { AdminLayout } from '@/layouts/AdminLayout/AdminLayout'
+import { useUser } from '@/queries/auth/useUser'
 import { usePropertyQuery } from '@/queries/properties/usePropertyQuery'
 import type { ListingType, PropertyStatus, PropertyType } from '@/types/property.types'
 import * as styles from './styles.css'
+
+// Lazy load do mapa - carrega apenas quando necessário, não bloqueia a página
+const PropertyMap = lazy(() =>
+	import('@/components/PropertyMap/PropertyMap').then((m) => ({ default: m.PropertyMap })),
+)
+
+// Skeleton para o mapa enquanto carrega
+function MapSkeleton() {
+	return (
+		<div className={styles.mapFallback}>
+			<Skeleton width="100%" height="100%" />
+		</div>
+	)
+}
 
 const propertyTypeLabels: Record<PropertyType, string> = {
 	house: 'Casa',
@@ -123,14 +142,57 @@ const formatDate = (dateString: string | undefined) => {
 	})
 }
 
+// Format phone number with mask (00) 00000-0000
+const formatPhoneNumber = (value: string): string => {
+	const digits = value.replace(/\D/g, '').slice(0, 11)
+	if (digits.length === 0) return ''
+	if (digits.length <= 2) return `(${digits}`
+	if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+	return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+}
+
 export function PropertyDetailsPage() {
 	const { id } = useParams<{ id: string }>()
 	const navigate = useNavigate()
 	const [showGallery, setShowGallery] = useState(false)
 	const [galleryIndex, setGalleryIndex] = useState(0)
 	const [codeCopied, setCodeCopied] = useState(false)
+	const [showShareModal, setShowShareModal] = useState(false)
+	const [sharePhone, setSharePhone] = useState('')
+	const [shareCopied, setShareCopied] = useState(false)
 
+	const { user } = useUser()
 	const { data: property, isLoading, error } = usePropertyQuery(id || '')
+
+	// Generate marketplace link for the property (includes phone as query param)
+	const shareLink = useMemo(() => {
+		if (!property?.code) return ''
+		const phoneDigits = sharePhone.replace(/\D/g, '')
+		const phoneParam = phoneDigits ? `?telefone=${phoneDigits}` : ''
+		// TODO: Update with actual marketplace domain when available
+		return `https://marketplace.3balug.com.br/imovel/${property.code}${phoneParam}`
+	}, [property?.code, sharePhone])
+
+	// Copy link to clipboard
+	const handleCopyLink = useCallback(() => {
+		navigator.clipboard.writeText(shareLink)
+		setShareCopied(true)
+		setTimeout(() => setShareCopied(false), 2000)
+	}, [shareLink])
+
+	// Handle phone input change
+	const handlePhoneChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+		setSharePhone(formatPhoneNumber(e.target.value))
+	}, [])
+
+	// Open share modal and pre-fill phone
+	const handleOpenShareModal = useCallback(() => {
+		if (user?.phone) {
+			setSharePhone(formatPhoneNumber(user.phone))
+		}
+		setShareCopied(false)
+		setShowShareModal(true)
+	}, [user?.phone])
 
 	const photos = property?.photos || []
 	const sortedPhotos = [...photos].sort((a, b) => {
@@ -174,27 +236,155 @@ export function PropertyDetailsPage() {
 	if (isLoading) {
 		return (
 			<AdminLayout>
-				<div className={styles.skeletonBanner} />
+				{/* Hero Banner Skeleton */}
+				<div className={styles.skeletonBanner}>
+					<div className={styles.heroBackButton} style={{ pointerEvents: 'none' }}>
+						<Skeleton width="70px" height="32px" variant="rounded" />
+					</div>
+					<div className={styles.heroEditButton} style={{ pointerEvents: 'none' }}>
+						<Skeleton width="90px" height="40px" variant="rounded" />
+					</div>
+					<div
+						className={styles.photoCount}
+						style={{ pointerEvents: 'none', background: 'transparent' }}
+					>
+						<Skeleton width="80px" height="32px" variant="rounded" />
+					</div>
+				</div>
+
 				<div className={styles.container}>
+					{/* Property Header Skeleton */}
 					<div className={styles.propertyHeader}>
-						<Skeleton width="60%" height="32px" />
-						<div style={{ marginTop: '8px' }}>
-							<Skeleton width="40%" height="20px" />
+						<div className={styles.propertyMeta}>
+							<Skeleton width="100px" height="28px" variant="rounded" />
 						</div>
-						<div style={{ marginTop: '16px', display: 'flex', gap: '8px' }}>
-							<Skeleton width="80px" height="24px" variant="rounded" />
-							<Skeleton width="80px" height="24px" variant="rounded" />
-							<Skeleton width="80px" height="24px" variant="rounded" />
+						<Skeleton width="70%" height="36px" style={{ marginBottom: '8px' }} />
+						<div
+							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
+						>
+							<Skeleton width="16px" height="16px" variant="circular" />
+							<Skeleton width="200px" height="20px" />
+						</div>
+						<div className={styles.badgesRow}>
+							<Skeleton width="90px" height="28px" variant="rounded" />
+							<Skeleton width="70px" height="28px" variant="rounded" />
+							<Skeleton width="80px" height="28px" variant="rounded" />
 						</div>
 					</div>
+
 					<div className={styles.content}>
+						{/* Main Column Skeleton */}
 						<div className={styles.mainColumn}>
-							<Skeleton width="100%" height="120px" />
-							<Skeleton width="100%" height="200px" />
+							{/* Characteristics Grid Skeleton */}
+							<div className={styles.characteristicsGrid}>
+								{[1, 2, 3, 4].map((i) => (
+									<div key={i} className={styles.characteristicItem}>
+										<Skeleton width="40px" height="40px" variant="circular" />
+										<Skeleton width="30px" height="24px" style={{ marginTop: '8px' }} />
+										<Skeleton width="60px" height="14px" />
+									</div>
+								))}
+							</div>
+
+							{/* Description Card Skeleton */}
+							<div className={styles.card}>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '12px',
+										marginBottom: '16px',
+									}}
+								>
+									<Skeleton width="32px" height="32px" variant="rounded" />
+									<Skeleton width="100px" height="24px" />
+								</div>
+								<Skeleton width="100%" height="16px" style={{ marginBottom: '8px' }} />
+								<Skeleton width="100%" height="16px" style={{ marginBottom: '8px' }} />
+								<Skeleton width="80%" height="16px" />
+							</div>
+
+							{/* Features Card Skeleton */}
+							<div className={styles.card}>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '12px',
+										marginBottom: '16px',
+									}}
+								>
+									<Skeleton width="32px" height="32px" variant="rounded" />
+									<Skeleton width="120px" height="24px" />
+								</div>
+								<div className={styles.featuresList}>
+									{[1, 2, 3, 4, 5, 6].map((i) => (
+										<Skeleton key={i} width="100%" height="40px" variant="rounded" />
+									))}
+								</div>
+							</div>
+
+							{/* Address Card Skeleton */}
+							<div className={styles.card}>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '12px',
+										marginBottom: '16px',
+									}}
+								>
+									<Skeleton width="32px" height="32px" variant="rounded" />
+									<Skeleton width="90px" height="24px" />
+								</div>
+								<Skeleton width="100%" height="20px" style={{ marginBottom: '8px' }} />
+								<Skeleton width="60%" height="20px" />
+							</div>
 						</div>
+
+						{/* Side Column Skeleton */}
 						<div className={styles.sideColumn}>
-							<Skeleton width="100%" height="200px" />
-							<Skeleton width="100%" height="150px" />
+							{/* Price Card Skeleton */}
+							<div className={styles.priceCardSticky}>
+								<div className={styles.priceCard}>
+									<div className={styles.priceMain}>
+										<Skeleton width="60px" height="14px" style={{ marginBottom: '8px' }} />
+										<Skeleton width="180px" height="36px" />
+									</div>
+									<Skeleton width="100%" height="20px" style={{ marginBottom: '8px' }} />
+									<Skeleton width="100%" height="20px" />
+								</div>
+							</div>
+
+							{/* Owner Card Skeleton */}
+							<div className={styles.card}>
+								<div
+									style={{
+										display: 'flex',
+										justifyContent: 'space-between',
+										alignItems: 'center',
+										marginBottom: '16px',
+									}}
+								>
+									<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+										<Skeleton width="32px" height="32px" variant="rounded" />
+										<Skeleton width="100px" height="24px" />
+									</div>
+									<Skeleton width="50px" height="20px" variant="rounded" />
+								</div>
+								<div className={styles.ownerCard}>
+									<Skeleton width="48px" height="48px" variant="circular" />
+									<div style={{ flex: 1 }}>
+										<Skeleton width="120px" height="18px" style={{ marginBottom: '4px' }} />
+										<Skeleton width="80px" height="14px" />
+									</div>
+								</div>
+							</div>
+
+							{/* Registration Info Skeleton */}
+							<div className={styles.registrationInfo} style={{ background: 'transparent' }}>
+								<Skeleton width="100%" height="44px" variant="rounded" />
+							</div>
 						</div>
 					</div>
 				</div>
@@ -282,8 +472,12 @@ export function PropertyDetailsPage() {
 					Voltar
 				</Link>
 
-				{/* Edit button sobre o banner */}
-				<div className={styles.heroEditButton}>
+				{/* Action buttons sobre o banner */}
+				<div className={styles.heroActionButtons}>
+					<Button variant="outline" onClick={handleOpenShareModal}>
+						<Share2 size={16} />
+						Compartilhar
+					</Button>
 					<Button
 						variant="primary"
 						onClick={() => navigate(`/properties?modal=edit&id=${property.id}`)}
@@ -580,6 +774,19 @@ export function PropertyDetailsPage() {
 									Endereco
 								</h2>
 								<p className={styles.addressText}>{fullAddress}</p>
+
+								{/* Map - lazy loaded */}
+								{property.address && (
+									<Suspense fallback={<MapSkeleton />}>
+										<PropertyMap
+											address={property.address}
+											city={property.city}
+											state={property.state}
+											neighborhood={property.neighborhood}
+											zipCode={property.zipCode}
+										/>
+									</Suspense>
+								)}
 							</div>
 						)}
 
@@ -741,6 +948,32 @@ export function PropertyDetailsPage() {
 							</div>
 						)}
 
+						{/* Contact Card - visible to users */}
+						<div className={styles.card}>
+							<h2 className={styles.cardTitle}>
+								<span className={styles.cardTitleIcon}>
+									<Phone size={18} />
+								</span>
+								Contato
+							</h2>
+							<div className={styles.contactInfo}>
+								<p className={styles.contactLabel}>Telefone para contato</p>
+								<p className={styles.contactPhone}>
+									{user?.phone ? formatPhoneNumber(user.phone) : 'Não informado'}
+								</p>
+								{user?.phone && (
+									<a
+										href={`https://wa.me/55${user.phone.replace(/\D/g, '')}`}
+										target="_blank"
+										rel="noopener noreferrer"
+										className={styles.contactWhatsAppButton}
+									>
+										Chamar no WhatsApp
+									</a>
+								)}
+							</div>
+						</div>
+
 						{/* Registration Info */}
 						{property.createdAt && (
 							<div className={styles.registrationInfo}>
@@ -815,6 +1048,52 @@ export function PropertyDetailsPage() {
 					)}
 				</div>
 			)}
+
+			{/* Share Modal */}
+			<Modal
+				isOpen={showShareModal}
+				onClose={() => {
+					setShowShareModal(false)
+					setShareCopied(false)
+				}}
+				title="Compartilhar Imóvel"
+				size="sm"
+			>
+				<div className={styles.shareModalContent}>
+					{/* Property Code Display */}
+					<div className={styles.shareCodeDisplay}>
+						<span className={styles.shareCodeLabel}>Código do Imóvel</span>
+						<span className={styles.shareCodeValue}>{property?.code}</span>
+					</div>
+
+					{/* Phone Input */}
+					<div className={styles.shareInputGroup}>
+						<label htmlFor="share-phone" className={styles.shareInputLabel}>
+							Telefone para Contato
+						</label>
+						<input
+							id="share-phone"
+							type="tel"
+							value={sharePhone}
+							onChange={handlePhoneChange}
+							placeholder="(00) 00000-0000"
+							className={styles.shareInput}
+						/>
+					</div>
+
+					{/* Marketplace Link Preview */}
+					<div className={styles.sharePreview}>
+						<span className={styles.sharePreviewLabel}>Link do Imóvel</span>
+						<div className={styles.sharePreviewText}>{shareLink}</div>
+					</div>
+
+					{/* Copy Link Button */}
+					<Button variant="primary" onClick={handleCopyLink} style={{ width: '100%' }}>
+						{shareCopied ? <Check size={16} /> : <Copy size={16} />}
+						{shareCopied ? 'Link Copiado!' : 'Copiar Link'}
+					</Button>
+				</div>
+			</Modal>
 		</AdminLayout>
 	)
 }

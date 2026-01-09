@@ -22,25 +22,22 @@ import {
 	ImagePlus,
 	Info,
 	Loader2,
-	MapPin,
 	PawPrint,
 	Percent,
 	Rocket,
 	RotateCcw,
 	Ruler,
-	Settings,
 	Shield,
 	Sparkles,
 	Star,
 	Trash2,
-	User,
 	Waves,
 	X,
 } from 'lucide-react'
+import type { ChangeEvent, DragEvent, FocusEvent } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
-import { z } from 'zod'
 
 import { Button } from '@/components/Button/Button'
 import { Input } from '@/components/Input/Input'
@@ -50,27 +47,22 @@ import { ListingTypeSelector, PropertyTypeSelector } from '@/components/Property
 import { Select } from '@/components/Select/Select'
 import { Skeleton } from '@/components/Skeleton/Skeleton'
 import { Textarea } from '@/components/Textarea/Textarea'
+import { STATUS_OPTIONS_NO_EMPTY } from '@/constants/property.constants'
+import { getPropertyStepsForType } from '@/constants/wizard-steps'
+import { useCepLookup } from '@/hooks/useCepLookup'
+import { useMaskedInput } from '@/hooks/useMaskedInput'
 import { useUpdatePropertyMutation } from '@/queries/properties/useUpdatePropertyMutation'
 import { usePropertyOwnersQuery } from '@/queries/property-owners/usePropertyOwnersQuery'
 import { useBatchRegisterPhotosMutation } from '@/queries/property-photos/useBatchRegisterPhotosMutation'
 import { useDeletePropertyPhotoMutation } from '@/queries/property-photos/useDeletePropertyPhotoMutation'
 import { useSetPrimaryPhotoMutation } from '@/queries/property-photos/useSetPrimaryPhotoMutation'
+import { type EditPropertyFormData, editPropertySchema } from '@/schemas/property.schema'
 import { getPresignedUrl, uploadToPresignedUrl } from '@/services/files/presigned-url'
 import type { BatchRegisterPhotoItem } from '@/services/property-photos/batch-register'
 import type { ListingType, Property, PropertyStatus, PropertyType } from '@/types/property.types'
 import { BRAZILIAN_STATES } from '@/types/property-owner.types'
 import { applyMask, formatCurrencyToInput, getCurrencyRawValue } from '@/utils/masks'
 import * as styles from '../CreatePropertyModal/CreatePropertyModal.styles.css'
-
-interface ViaCepResponse {
-	cep: string
-	logradouro: string
-	complemento: string
-	bairro: string
-	localidade: string
-	uf: string
-	erro?: boolean
-}
 
 // Photo management types
 interface ExistingPhoto {
@@ -91,178 +83,12 @@ interface NewPhoto {
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 
-const editPropertySchema = z
-	.object({
-		// Step 1: Proprietario
-		ownerId: z.string().min(1, 'Proprietario e obrigatorio'),
-
-		// Step 2: Tipo do Imovel
-		type: z.enum(['house', 'apartment', 'land', 'commercial', 'rural'], {
-			message: 'Selecione o tipo do imovel',
-		}),
-		listingType: z.enum(['rent', 'sale', 'both'], {
-			message: 'Selecione a finalidade',
-		}),
-		status: z.enum(['available', 'rented', 'sold', 'maintenance', 'unavailable'], {
-			message: 'Selecione o status',
-		}),
-
-		// Step 3: Informacoes Basicas
-		title: z
-			.string()
-			.min(3, 'Titulo deve ter pelo menos 3 caracteres')
-			.max(200, 'Titulo deve ter no maximo 200 caracteres'),
-		description: z.string().optional(),
-		bedrooms: z.string().optional(),
-		bathrooms: z.string().optional(),
-		suites: z.string().optional(),
-		parkingSpaces: z.string().optional(),
-		area: z.string().optional(),
-		floor: z.string().optional(),
-		totalFloors: z.string().optional(),
-
-		// Step 4: Endereco
-		zipCode: z.string().optional(),
-		address: z.string().min(1, 'Endereco e obrigatorio'),
-		addressNumber: z.string().min(1, 'Numero e obrigatorio'),
-		addressComplement: z.string().optional(),
-		neighborhood: z.string().min(1, 'Bairro e obrigatorio'),
-		city: z.string().min(1, 'Cidade e obrigatoria'),
-		state: z.string().min(1, 'Estado e obrigatorio').max(2, 'Use a sigla do estado (ex: SP)'),
-
-		// Step 5: Valores e Comissao
-		rentalPrice: z.string().optional(),
-		salePrice: z.string().optional(),
-		iptuPrice: z.string().optional(),
-		condoFee: z.string().optional(),
-		commissionPercentage: z.string().optional(),
-
-		// Step 6: Comodidades
-		hasPool: z.boolean().optional(),
-		hasGarden: z.boolean().optional(),
-		hasGarage: z.boolean().optional(),
-		hasElevator: z.boolean().optional(),
-		hasGym: z.boolean().optional(),
-		hasPlayground: z.boolean().optional(),
-		hasSecurity: z.boolean().optional(),
-		hasAirConditioning: z.boolean().optional(),
-		hasFurnished: z.boolean().optional(),
-		hasPetFriendly: z.boolean().optional(),
-		hasBalcony: z.boolean().optional(),
-		hasBarbecue: z.boolean().optional(),
-
-		// Step 7: Publicacao
-		isMarketplace: z.boolean().optional(),
-		notes: z.string().optional(),
-	})
-	.refine(
-		(data) => {
-			if (data.listingType === 'rent' || data.listingType === 'both') {
-				const rentalValue = getCurrencyRawValue(data.rentalPrice || '')
-				return rentalValue > 0
-			}
-			return true
-		},
-		{
-			message: 'Preco de aluguel e obrigatorio para locacao',
-			path: ['rentalPrice'],
-		},
-	)
-	.refine(
-		(data) => {
-			if (data.listingType === 'sale' || data.listingType === 'both') {
-				const saleValue = getCurrencyRawValue(data.salePrice || '')
-				return saleValue > 0
-			}
-			return true
-		},
-		{
-			message: 'Preco de venda e obrigatorio para venda',
-			path: ['salePrice'],
-		},
-	)
-
-type EditPropertyFormData = z.infer<typeof editPropertySchema>
-
-interface Step {
-	id: string
-	title: string
-	description: string
-	icon: React.ReactNode
-}
-
-const ALL_STEPS: Step[] = [
-	{
-		id: 'owner',
-		title: 'Proprietario',
-		description: 'Proprietario do imovel',
-		icon: <User size={16} />,
-	},
-	{
-		id: 'type',
-		title: 'Categoria',
-		description: 'Tipo e finalidade do imovel',
-		icon: <Building2 size={16} />,
-	},
-	{
-		id: 'details',
-		title: 'Detalhes',
-		description: 'Informacoes basicas do imovel',
-		icon: <Home size={16} />,
-	},
-	{
-		id: 'address',
-		title: 'Endereco',
-		description: 'Localizacao do imovel',
-		icon: <MapPin size={16} />,
-	},
-	{
-		id: 'pricing',
-		title: 'Valores',
-		description: 'Precos e comissao',
-		icon: <DollarSign size={16} />,
-	},
-	{
-		id: 'features',
-		title: 'Extras',
-		description: 'Caracteristicas do imovel',
-		icon: <Settings size={16} />,
-	},
-	{
-		id: 'photos',
-		title: 'Fotos',
-		description: 'Imagens do imovel',
-		icon: <Camera size={16} />,
-	},
-	{
-		id: 'publish',
-		title: 'Publicacao',
-		description: 'Configuracoes de publicacao',
-		icon: <Globe size={16} />,
-	},
-]
-
-function getStepsForPropertyType(type: PropertyType): Step[] {
-	if (type === 'land') {
-		return ALL_STEPS.filter((step) => step.id !== 'features')
-	}
-	return ALL_STEPS
-}
-
 interface EditPropertyModalProps {
 	isOpen: boolean
 	onClose: () => void
 	property: Property | null
 	isLoading?: boolean
 }
-
-const STATUS_OPTIONS = [
-	{ value: 'available', label: 'Disponivel' },
-	{ value: 'rented', label: 'Alugado' },
-	{ value: 'sold', label: 'Vendido' },
-	{ value: 'maintenance', label: 'Manutencao' },
-	{ value: 'unavailable', label: 'Indisponivel' },
-]
 
 export function EditPropertyModal({
 	isOpen,
@@ -276,9 +102,15 @@ export function EditPropertyModal({
 	const batchRegisterPhotosMutation = useBatchRegisterPhotosMutation()
 
 	const [currentStep, setCurrentStep] = useState(0)
-	const [cepLoading, setCepLoading] = useState(false)
-	const [cepError, setCepError] = useState<string | null>(null)
 	const [isUploading, setIsUploading] = useState(false)
+
+	// Custom hooks
+	const {
+		isLoading: cepLoading,
+		error: cepError,
+		fetchAddress,
+		clearError: clearCepError,
+	} = useCepLookup()
 
 	// Photo management state
 	const [existingPhotos, setExistingPhotos] = useState<ExistingPhoto[]>([])
@@ -302,12 +134,14 @@ export function EditPropertyModal({
 		mode: 'onBlur',
 	})
 
+	const { createMaskedHandler } = useMaskedInput(setValue)
+
 	const listingType = watch('listingType')
 	const propertyType = watch('type')
 	const notesValue = watch('notes') || ''
 	const selectedOwnerId = watch('ownerId')
 
-	const steps = getStepsForPropertyType(propertyType || 'house')
+	const steps = getPropertyStepsForType(propertyType || 'house')
 	const currentStepId = steps[currentStep]?.id
 	const currentStepData = steps[currentStep]
 	const isLastStep = currentStep === steps.length - 1
@@ -385,9 +219,9 @@ export function EditPropertyModal({
 			setPrimaryPhotoId(primary?.id || null)
 
 			setCurrentStep(0)
-			setCepError(null)
+			clearCepError()
 		}
-	}, [property, isOpen, reset])
+	}, [property, isOpen, reset, clearCepError])
 
 	// Photo management handlers
 	const handleFiles = useCallback(
@@ -504,7 +338,7 @@ export function EditPropertyModal({
 	}, [])
 
 	const handleDragOver = useCallback(
-		(e: React.DragEvent) => {
+		(e: DragEvent) => {
 			e.preventDefault()
 			if (canAddMorePhotos) {
 				setIsDragging(true)
@@ -513,13 +347,13 @@ export function EditPropertyModal({
 		[canAddMorePhotos],
 	)
 
-	const handleDragLeave = useCallback((e: React.DragEvent) => {
+	const handleDragLeave = useCallback((e: DragEvent) => {
 		e.preventDefault()
 		setIsDragging(false)
 	}, [])
 
 	const handleDrop = useCallback(
-		(e: React.DragEvent) => {
+		(e: DragEvent) => {
 			e.preventDefault()
 			setIsDragging(false)
 			if (canAddMorePhotos) {
@@ -530,7 +364,7 @@ export function EditPropertyModal({
 	)
 
 	const handleInputChange = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
+		(e: ChangeEvent<HTMLInputElement>) => {
 			handleFiles(e.target.files)
 			if (fileInputRef.current) {
 				fileInputRef.current.value = ''
@@ -560,58 +394,15 @@ export function EditPropertyModal({
 		[setValue],
 	)
 
-	const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const masked = applyMask(e.target.value, 'cep')
-		setValue('zipCode', masked, { shouldValidate: false })
-	}
-
-	const handleCurrencyChange =
-		(field: 'rentalPrice' | 'salePrice' | 'iptuPrice' | 'condoFee') =>
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			const masked = applyMask(e.target.value, 'currency')
-			setValue(field, masked, { shouldValidate: false })
+	const handleCepBlur = async (e: FocusEvent<HTMLInputElement>) => {
+		const result = await fetchAddress(e.target.value)
+		if (result) {
+			setValue('address', result.address)
+			setValue('neighborhood', result.neighborhood)
+			setValue('city', result.city)
+			setValue('state', result.state)
 		}
-
-	const handlePercentageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		let value = e.target.value.replace(/\D/g, '')
-		if (value.length > 4) value = value.slice(0, 4)
-		if (Number.parseInt(value, 10) > 10000) value = '10000'
-		const numValue = Number.parseInt(value, 10) || 0
-		const formatted = numValue > 0 ? `${(numValue / 100).toFixed(2)}%` : ''
-		setValue('commissionPercentage', formatted, { shouldValidate: false })
 	}
-
-	const fetchAddressByCep = useCallback(
-		async (cep: string) => {
-			const cleanCep = cep.replace(/\D/g, '')
-			if (cleanCep.length !== 8) return
-
-			setCepLoading(true)
-			setCepError(null)
-
-			try {
-				const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
-				if (!response.ok) throw new Error('Erro ao buscar CEP')
-
-				const data: ViaCepResponse = await response.json()
-				if (data.erro) {
-					setCepError('CEP nao encontrado')
-					return
-				}
-
-				setValue('address', data.logradouro || '')
-				setValue('neighborhood', data.bairro || '')
-				setValue('city', data.localidade || '')
-				setValue('state', data.uf || '')
-				setCepError(null)
-			} catch {
-				setCepError('Erro ao buscar CEP. Preencha manualmente.')
-			} finally {
-				setCepLoading(false)
-			}
-		},
-		[setValue],
-	)
 
 	const validateCurrentStep = async (): Promise<boolean> => {
 		switch (currentStepId) {
@@ -745,7 +536,7 @@ export function EditPropertyModal({
 						photoId: photo.id,
 					})
 				} catch {
-					toast.error(`Erro ao remover foto`)
+					toast.error('Erro ao remover foto')
 				}
 			}
 
@@ -834,14 +625,14 @@ export function EditPropertyModal({
 				URL.revokeObjectURL(photo.preview)
 			}
 			reset()
-			setCepError(null)
+			clearCepError()
 			setCurrentStep(0)
 			setExistingPhotos([])
 			setNewPhotos([])
 			setPrimaryPhotoId(null)
 			onClose()
 		}
-	}, [updateMutation.isPending, isUploading, newPhotos, reset, onClose])
+	}, [updateMutation.isPending, isUploading, newPhotos, reset, clearCepError, onClose])
 
 	const isSubmitting = updateMutation.isPending || isUploading
 
@@ -1231,7 +1022,7 @@ export function EditPropertyModal({
 								{...register('status')}
 								label="Status do Imovel"
 								error={errors.status?.message}
-								options={STATUS_OPTIONS}
+								options={STATUS_OPTIONS_NO_EMPTY}
 								fullWidth
 								required
 								disabled={isSubmitting}
@@ -1361,8 +1152,8 @@ export function EditPropertyModal({
 										error={errors.zipCode?.message}
 										fullWidth
 										disabled={isSubmitting || cepLoading}
-										onChange={handleCepChange}
-										onBlur={(e) => fetchAddressByCep(e.target.value)}
+										onChange={createMaskedHandler('zipCode', 'cep')}
+										onBlur={handleCepBlur}
 										maxLength={9}
 										rightIcon={
 											cepLoading ? <Loader2 size={18} className={styles.spinner} /> : undefined
@@ -1463,7 +1254,7 @@ export function EditPropertyModal({
 										label="Valor do Aluguel"
 										placeholder="R$ 0,00"
 										error={errors.rentalPrice?.message}
-										onChange={handleCurrencyChange('rentalPrice')}
+										onChange={createMaskedHandler('rentalPrice', 'currency')}
 										fullWidth
 										required
 										disabled={isSubmitting}
@@ -1476,7 +1267,7 @@ export function EditPropertyModal({
 										label="Valor de Venda"
 										placeholder="R$ 0,00"
 										error={errors.salePrice?.message}
-										onChange={handleCurrencyChange('salePrice')}
+										onChange={createMaskedHandler('salePrice', 'currency')}
 										fullWidth
 										required
 										disabled={isSubmitting}
@@ -1491,7 +1282,7 @@ export function EditPropertyModal({
 									label="IPTU (mensal)"
 									placeholder="R$ 0,00"
 									error={errors.iptuPrice?.message}
-									onChange={handleCurrencyChange('iptuPrice')}
+									onChange={createMaskedHandler('iptuPrice', 'currency')}
 									fullWidth
 									disabled={isSubmitting}
 									leftIcon={<FileText size={18} />}
@@ -1501,7 +1292,7 @@ export function EditPropertyModal({
 									label="Condominio"
 									placeholder="R$ 0,00"
 									error={errors.condoFee?.message}
-									onChange={handleCurrencyChange('condoFee')}
+									onChange={createMaskedHandler('condoFee', 'currency')}
 									fullWidth
 									disabled={isSubmitting}
 									leftIcon={<Building2 size={18} />}
@@ -1523,7 +1314,7 @@ export function EditPropertyModal({
 								label="Percentual de Comissao"
 								placeholder="5.00%"
 								error={errors.commissionPercentage?.message}
-								onChange={handlePercentageChange}
+								onChange={createMaskedHandler('commissionPercentage', 'percentage')}
 								fullWidth
 								disabled={isSubmitting}
 								leftIcon={<Percent size={18} />}

@@ -23,6 +23,11 @@ type CreateTenantInput = {
 	employer?: string
 	emergencyContact?: string
 	emergencyPhone?: string
+	rg?: string
+	nationality?: string
+	maritalStatus?: 'solteiro' | 'casado' | 'divorciado' | 'viuvo' | 'uniao_estavel'
+	profession?: string
+	photoUrl?: string
 	notes?: string
 	createdBy: User
 }
@@ -43,6 +48,11 @@ type CreateTenantOutput = {
 	employer: string | null
 	emergencyContact: string | null
 	emergencyPhone: string | null
+	rg: string | null
+	nationality: string | null
+	maritalStatus: string | null
+	profession: string | null
+	photoUrl: string | null
 	notes: string | null
 	createdAt: Date
 }
@@ -113,6 +123,11 @@ export class CreateTenantUseCase {
 				employer: input.employer?.trim() || null,
 				emergencyContact: input.emergencyContact?.trim() || null,
 				emergencyPhone: normalizedEmergencyPhone,
+				rg: input.rg?.trim() || null,
+				nationality: input.nationality?.trim() || null,
+				maritalStatus: input.maritalStatus || null,
+				profession: input.profession?.trim() || null,
+				photoUrl: input.photoUrl || null,
 				notes: input.notes?.trim() || null,
 				createdBy: createdBy.id,
 			})
@@ -142,6 +157,11 @@ export class CreateTenantUseCase {
 				employer: tenant.employer,
 				emergencyContact: tenant.emergencyContact,
 				emergencyPhone: tenant.emergencyPhone,
+				rg: tenant.rg,
+				nationality: tenant.nationality,
+				maritalStatus: tenant.maritalStatus,
+				profession: tenant.profession,
+				photoUrl: tenant.photoUrl,
 				notes: tenant.notes,
 				createdAt: tenant.createdAt,
 			}

@@ -1,8 +1,11 @@
 import { api } from '@/lib/api'
+import type { UploadEntityType } from './upload'
 
 export interface PresignedUrlInput {
 	fileName: string
 	contentType: string
+	entityType: UploadEntityType
+	entityId: string
 	fieldId?: string
 	allowedTypes?: string[]
 }

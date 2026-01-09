@@ -611,7 +611,9 @@ export function EditPropertyModal({
 						getPresignedUrl({
 							fileName: photo.file.name,
 							contentType: photo.file.type,
-							fieldId: `property-${property.id}`,
+							entityType: 'property',
+							entityId: property.id,
+							fieldId: 'photos',
 							allowedTypes: ['image/*'],
 						}),
 					)

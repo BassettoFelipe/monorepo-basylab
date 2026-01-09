@@ -541,7 +541,9 @@ export function EditPropertyOwnerModal({
 				try {
 					const uploadResult = await uploadWithPresignedUrl({
 						file: photoFile,
-						fieldId: 'property-owner-photo',
+						entityType: 'property_owner',
+						entityId: propertyOwner.id,
+						fieldId: 'photo',
 					})
 					photoUrl = uploadResult.url
 				} catch (photoError) {

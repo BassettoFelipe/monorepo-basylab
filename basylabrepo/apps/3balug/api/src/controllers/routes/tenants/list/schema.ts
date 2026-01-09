@@ -21,7 +21,13 @@ export const tenantResponseSchema = t.Object({
 	employer: t.Union([t.String(), t.Null()]),
 	emergencyContact: t.Union([t.String(), t.Null()]),
 	emergencyPhone: t.Union([t.String(), t.Null()]),
+	rg: t.Union([t.String(), t.Null()]),
+	nationality: t.Union([t.String(), t.Null()]),
+	maritalStatus: t.Union([t.String(), t.Null()]),
+	profession: t.Union([t.String(), t.Null()]),
+	photoUrl: t.Union([t.String(), t.Null()]),
 	notes: t.Union([t.String(), t.Null()]),
+	createdAt: t.Date(),
 })
 
 export const listTenantsResponseSchema = t.Object({

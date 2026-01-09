@@ -2,6 +2,7 @@ export type MaskType =
 	| 'cardNumber'
 	| 'cpf'
 	| 'cnpj'
+	| 'rg'
 	| 'phone'
 	| 'cep'
 	| 'date'
@@ -19,6 +20,8 @@ export function applyMask(value: string, maskType: MaskType): string {
 			return applyCpfMask(digits)
 		case 'cnpj':
 			return applyCnpjMask(digits)
+		case 'rg':
+			return applyRgMask(digits)
 		case 'phone':
 			return applyPhoneMask(digits)
 		case 'cep':
@@ -76,6 +79,21 @@ function applyCnpjMask(digits: string): string {
 		return `${limited.slice(0, 2)}.${limited.slice(2, 5)}.${limited.slice(5, 8)}/${limited.slice(8)}`
 	}
 	return `${limited.slice(0, 2)}.${limited.slice(2, 5)}.${limited.slice(5, 8)}/${limited.slice(8, 12)}-${limited.slice(12)}`
+}
+
+function applyRgMask(digits: string): string {
+	const limited = digits.slice(0, 9)
+
+	if (limited.length <= 2) {
+		return limited
+	}
+	if (limited.length <= 5) {
+		return `${limited.slice(0, 2)}.${limited.slice(2)}`
+	}
+	if (limited.length <= 8) {
+		return `${limited.slice(0, 2)}.${limited.slice(2, 5)}.${limited.slice(5)}`
+	}
+	return `${limited.slice(0, 2)}.${limited.slice(2, 5)}.${limited.slice(5, 8)}-${limited.slice(8)}`
 }
 
 function applyPhoneMask(digits: string): string {

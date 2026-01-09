@@ -1,9 +1,12 @@
 import { api } from '@/lib/api'
 
+export type UploadEntityType = 'tenant' | 'property_owner' | 'property' | 'user'
+
 interface UploadWithPresignedUrlParams {
 	file: File
-	fieldId: string
-	maxFileSize?: number
+	entityType: UploadEntityType
+	entityId: string
+	fieldId?: string
 	allowedTypes?: string[]
 }
 
@@ -22,6 +25,8 @@ interface PresignedUrlResponse {
 
 export async function uploadWithPresignedUrl({
 	file,
+	entityType,
+	entityId,
 	fieldId,
 }: UploadWithPresignedUrlParams): Promise<{
 	url: string
@@ -30,9 +35,11 @@ export async function uploadWithPresignedUrl({
 	size: number
 	contentType: string
 }> {
-	const { data: response } = await api.post<PresignedUrlResponse>('/files/presigned-url', {
+	const { data: response } = await api.post<PresignedUrlResponse>('/api/files/presigned-url', {
 		fileName: file.name,
 		contentType: file.type,
+		entityType,
+		entityId,
 		fieldId,
 	})
 

@@ -23,14 +23,12 @@ export function HeroSection() {
 					</div>
 
 					<h1 className="hero__title">
-						Crie grades horarias{' '}
-						<span className="hero__title-highlight">sem conflitos</span>
+						Crie grades horarias <span className="hero__title-highlight">sem conflitos</span>
 					</h1>
 
 					<p className="hero__description">
-						O Gradely simplifica a criacao de horarios escolares. Cadastre
-						professores, turmas e disciplinas, e gere grades otimizadas em
-						minutos. Chega de planilhas e trabalho manual.
+						O Gradely simplifica a criacao de horarios escolares. Cadastre professores, turmas e
+						disciplinas, e gere grades otimizadas em minutos. Chega de planilhas e trabalho manual.
 					</p>
 
 					<div className="hero__ctas">
@@ -43,11 +41,7 @@ export function HeroSection() {
 								stroke="currentColor"
 								strokeWidth={2}
 							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									d="M13 7l5 5m0 0l-5 5m5-5H6"
-								/>
+								<path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
 							</svg>
 						</a>
 						<a href="#como-funciona" className="hero__cta hero__cta--secondary">
@@ -129,9 +123,7 @@ export function HeroSection() {
 								<div className="hero__dashboard-dot hero__dashboard-dot--yellow" />
 								<div className="hero__dashboard-dot hero__dashboard-dot--green" />
 							</div>
-							<div className="hero__dashboard-title">
-								Grade de Horarios - 7o Ano A
-							</div>
+							<div className="hero__dashboard-title">Grade de Horarios - 7o Ano A</div>
 						</div>
 
 						<div className="hero__schedule">
@@ -145,72 +137,32 @@ export function HeroSection() {
 
 							{/* Time slots */}
 							<div className="hero__schedule-time">07:30</div>
-							<div className="hero__schedule-cell hero__schedule-cell--math">
-								Mat
-							</div>
-							<div className="hero__schedule-cell hero__schedule-cell--port">
-								Port
-							</div>
-							<div className="hero__schedule-cell hero__schedule-cell--hist">
-								Hist
-							</div>
-							<div className="hero__schedule-cell hero__schedule-cell--math">
-								Mat
-							</div>
-							<div className="hero__schedule-cell hero__schedule-cell--cien">
-								Cien
-							</div>
+							<div className="hero__schedule-cell hero__schedule-cell--math">Mat</div>
+							<div className="hero__schedule-cell hero__schedule-cell--port">Port</div>
+							<div className="hero__schedule-cell hero__schedule-cell--hist">Hist</div>
+							<div className="hero__schedule-cell hero__schedule-cell--math">Mat</div>
+							<div className="hero__schedule-cell hero__schedule-cell--cien">Cien</div>
 
 							<div className="hero__schedule-time">08:20</div>
-							<div className="hero__schedule-cell hero__schedule-cell--math">
-								Mat
-							</div>
-							<div className="hero__schedule-cell hero__schedule-cell--port">
-								Port
-							</div>
-							<div className="hero__schedule-cell hero__schedule-cell--geo">
-								Geo
-							</div>
-							<div className="hero__schedule-cell hero__schedule-cell--hist">
-								Hist
-							</div>
-							<div className="hero__schedule-cell hero__schedule-cell--cien">
-								Cien
-							</div>
+							<div className="hero__schedule-cell hero__schedule-cell--math">Mat</div>
+							<div className="hero__schedule-cell hero__schedule-cell--port">Port</div>
+							<div className="hero__schedule-cell hero__schedule-cell--geo">Geo</div>
+							<div className="hero__schedule-cell hero__schedule-cell--hist">Hist</div>
+							<div className="hero__schedule-cell hero__schedule-cell--cien">Cien</div>
 
 							<div className="hero__schedule-time">09:10</div>
-							<div className="hero__schedule-cell hero__schedule-cell--port">
-								Port
-							</div>
-							<div className="hero__schedule-cell hero__schedule-cell--geo">
-								Geo
-							</div>
-							<div className="hero__schedule-cell hero__schedule-cell--cien">
-								Cien
-							</div>
-							<div className="hero__schedule-cell hero__schedule-cell--port">
-								Port
-							</div>
-							<div className="hero__schedule-cell hero__schedule-cell--hist">
-								Hist
-							</div>
+							<div className="hero__schedule-cell hero__schedule-cell--port">Port</div>
+							<div className="hero__schedule-cell hero__schedule-cell--geo">Geo</div>
+							<div className="hero__schedule-cell hero__schedule-cell--cien">Cien</div>
+							<div className="hero__schedule-cell hero__schedule-cell--port">Port</div>
+							<div className="hero__schedule-cell hero__schedule-cell--hist">Hist</div>
 
 							<div className="hero__schedule-time">10:20</div>
-							<div className="hero__schedule-cell hero__schedule-cell--hist">
-								Hist
-							</div>
-							<div className="hero__schedule-cell hero__schedule-cell--cien">
-								Cien
-							</div>
-							<div className="hero__schedule-cell hero__schedule-cell--port">
-								Port
-							</div>
-							<div className="hero__schedule-cell hero__schedule-cell--geo">
-								Geo
-							</div>
-							<div className="hero__schedule-cell hero__schedule-cell--math">
-								Mat
-							</div>
+							<div className="hero__schedule-cell hero__schedule-cell--hist">Hist</div>
+							<div className="hero__schedule-cell hero__schedule-cell--cien">Cien</div>
+							<div className="hero__schedule-cell hero__schedule-cell--port">Port</div>
+							<div className="hero__schedule-cell hero__schedule-cell--geo">Geo</div>
+							<div className="hero__schedule-cell hero__schedule-cell--math">Mat</div>
 						</div>
 
 						{/* Floating notification */}
@@ -224,18 +176,12 @@ export function HeroSection() {
 									stroke="currentColor"
 									strokeWidth={2}
 								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										d="M5 13l4 4L19 7"
-									/>
+									<path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
 								</svg>
 							</div>
 							<div className="hero__notification-content">
 								<span className="hero__notification-title">Tudo certo!</span>
-								<span className="hero__notification-text">
-									Nenhum conflito encontrado
-								</span>
+								<span className="hero__notification-text">Nenhum conflito encontrado</span>
 							</div>
 						</div>
 

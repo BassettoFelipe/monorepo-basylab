@@ -22,6 +22,11 @@ export const tenants = pgTable(
 		employer: text('employer'), // Empregador/Empresa onde trabalha
 		emergencyContact: text('emergency_contact'), // Nome do contato de emergência
 		emergencyPhone: text('emergency_phone'), // Telefone do contato de emergência
+		rg: text('rg'), // RG do inquilino
+		nationality: text('nationality'), // Nacionalidade
+		maritalStatus: text('marital_status'), // Estado civil
+		profession: text('profession'), // Profissão
+		photoUrl: text('photo_url'), // URL da foto do inquilino
 		notes: text('notes'),
 		createdBy: uuid('created_by')
 			.notNull()

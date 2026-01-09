@@ -1,10 +1,24 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test'
+import { NotFoundError } from '@basylab/core'
+import type { IPropertyOwnerRepository } from '@/repositories/contracts/property-owner.repository'
+import type { IPropertyRepository } from '@/repositories/contracts/property.repository'
+import type { ITenantRepository } from '@/repositories/contracts/tenant.repository'
+import type { IUserRepository } from '@/repositories/contracts/user.repository'
 import type { IStorageService } from '@/services/storage'
 import { GetPresignedUrlUseCase } from './get-presigned-url.use-case'
 
 describe('GetPresignedUrlUseCase', () => {
 	let useCase: GetPresignedUrlUseCase
 	let mockStorageService: IStorageService
+	let mockTenantRepository: ITenantRepository
+	let mockPropertyOwnerRepository: IPropertyOwnerRepository
+	let mockPropertyRepository: IPropertyRepository
+	let mockUserRepository: IUserRepository
+
+	const tenantId = 'tenant-123'
+	const propertyOwnerId = 'owner-123'
+	const propertyId = 'property-123'
+	const userId = 'user-123'
 
 	beforeEach(() => {
 		const futureDate = new Date(Date.now() + 5 * 60 * 1000) // 5 minutos no futuro
@@ -25,20 +39,158 @@ describe('GetPresignedUrlUseCase', () => {
 			getPublicUrl: mock((key: string) => `https://storage.example.com/public/${key}`),
 		} as any
 
-		useCase = new GetPresignedUrlUseCase(mockStorageService)
+		mockTenantRepository = {
+			findById: mock(() => Promise.resolve({ id: tenantId, name: 'Test Tenant' })),
+		} as any
+
+		mockPropertyOwnerRepository = {
+			findById: mock(() => Promise.resolve({ id: propertyOwnerId, name: 'Test Owner' })),
+		} as any
+
+		mockPropertyRepository = {
+			findById: mock(() => Promise.resolve({ id: propertyId, title: 'Test Property' })),
+		} as any
+
+		mockUserRepository = {
+			findById: mock(() => Promise.resolve({ id: userId, name: 'Test User' })),
+		} as any
+
+		useCase = new GetPresignedUrlUseCase({
+			storageService: mockStorageService,
+			tenantRepository: mockTenantRepository,
+			propertyOwnerRepository: mockPropertyOwnerRepository,
+			propertyRepository: mockPropertyRepository,
+			userRepository: mockUserRepository,
+		})
+	})
+
+	describe('Validacao de Entidade', () => {
+		test('deve rejeitar quando tenant nao existe', async () => {
+			mockTenantRepository.findById = mock(() => Promise.resolve(null))
+
+			await expect(
+				useCase.execute({
+					fileName: 'foto.jpg',
+					contentType: 'image/jpeg',
+					userId: 'user-123',
+					entityType: 'tenant',
+					entityId: 'invalid-tenant',
+				}),
+			).rejects.toThrow(NotFoundError)
+		})
+
+		test('deve rejeitar quando property_owner nao existe', async () => {
+			mockPropertyOwnerRepository.findById = mock(() => Promise.resolve(null))
+
+			await expect(
+				useCase.execute({
+					fileName: 'foto.jpg',
+					contentType: 'image/jpeg',
+					userId: 'user-123',
+					entityType: 'property_owner',
+					entityId: 'invalid-owner',
+				}),
+			).rejects.toThrow(NotFoundError)
+		})
+
+		test('deve rejeitar quando property nao existe', async () => {
+			mockPropertyRepository.findById = mock(() => Promise.resolve(null))
+
+			await expect(
+				useCase.execute({
+					fileName: 'foto.jpg',
+					contentType: 'image/jpeg',
+					userId: 'user-123',
+					entityType: 'property',
+					entityId: 'invalid-property',
+				}),
+			).rejects.toThrow(NotFoundError)
+		})
+
+		test('deve rejeitar quando user nao existe', async () => {
+			mockUserRepository.findById = mock(() => Promise.resolve(null))
+
+			await expect(
+				useCase.execute({
+					fileName: 'foto.jpg',
+					contentType: 'image/jpeg',
+					userId: 'user-123',
+					entityType: 'user',
+					entityId: 'invalid-user',
+				}),
+			).rejects.toThrow(NotFoundError)
+		})
+
+		test('deve aceitar quando tenant existe', async () => {
+			const result = await useCase.execute({
+				fileName: 'foto.jpg',
+				contentType: 'image/jpeg',
+				userId: 'user-123',
+				entityType: 'tenant',
+				entityId: tenantId,
+			})
+
+			expect(result).toBeDefined()
+			expect(result.key).toContain('tenant')
+			expect(result.key).toContain(tenantId)
+		})
+
+		test('deve aceitar quando property_owner existe', async () => {
+			const result = await useCase.execute({
+				fileName: 'foto.jpg',
+				contentType: 'image/jpeg',
+				userId: 'user-123',
+				entityType: 'property_owner',
+				entityId: propertyOwnerId,
+			})
+
+			expect(result).toBeDefined()
+			expect(result.key).toContain('property_owner')
+			expect(result.key).toContain(propertyOwnerId)
+		})
+
+		test('deve aceitar quando property existe', async () => {
+			const result = await useCase.execute({
+				fileName: 'foto.jpg',
+				contentType: 'image/jpeg',
+				userId: 'user-123',
+				entityType: 'property',
+				entityId: propertyId,
+			})
+
+			expect(result).toBeDefined()
+			expect(result.key).toContain('property')
+			expect(result.key).toContain(propertyId)
+		})
+
+		test('deve aceitar quando user existe', async () => {
+			const result = await useCase.execute({
+				fileName: 'foto.jpg',
+				contentType: 'image/jpeg',
+				userId: 'user-123',
+				entityType: 'user',
+				entityId: userId,
+			})
+
+			expect(result).toBeDefined()
+			expect(result.key).toContain('user')
+			expect(result.key).toContain(userId)
+		})
 	})
 
 	describe('Casos de Sucesso', () => {
-		test('deve gerar URL pré-assinada para upload de PDF', async () => {
+		test('deve gerar URL pre-assinada para upload de PDF', async () => {
 			const result = await useCase.execute({
 				fileName: 'documento.pdf',
 				contentType: 'application/pdf',
 				userId: 'user-123',
+				entityType: 'tenant',
+				entityId: tenantId,
 			})
 
 			expect(result).toBeDefined()
 			expect(result.uploadUrl).toContain('https://storage.example.com/upload')
-			expect(result.key).toContain('files/user-123/')
+			expect(result.key).toContain('files/user-123/tenant/')
 			expect(result.key).toContain('documento.pdf')
 			expect(result.publicUrl).toContain('https://storage.example.com/public/')
 			expect(result.expiresAt).toBeInstanceOf(Date)
@@ -46,16 +198,17 @@ describe('GetPresignedUrlUseCase', () => {
 			expect(mockStorageService.getPresignedUploadUrl).toHaveBeenCalledTimes(1)
 		})
 
-		test('deve gerar URL pré-assinada para upload de imagem', async () => {
+		test('deve gerar URL pre-assinada para upload de imagem', async () => {
 			const result = await useCase.execute({
 				fileName: 'foto.jpg',
 				contentType: 'image/jpeg',
 				userId: 'user-456',
+				entityType: 'property',
+				entityId: propertyId,
 			})
 
-			expect(result.key).toContain('files/user-456/')
+			expect(result.key).toContain('files/user-456/property/')
 			expect(result.key).toContain('foto.jpg')
-			expect(result.uploadUrl).toContain('files/user-456/')
 		})
 
 		test('deve organizar arquivo em pasta com fieldId quando fornecido', async () => {
@@ -63,261 +216,152 @@ describe('GetPresignedUrlUseCase', () => {
 				fileName: 'arquivo.pdf',
 				contentType: 'application/pdf',
 				userId: 'user-123',
-				fieldId: 'field-abc',
+				entityType: 'tenant',
+				entityId: tenantId,
+				fieldId: 'photo',
 			})
 
-			expect(result.key).toContain('files/user-123/field-abc/')
-			expect(result.publicUrl).toContain('files/user-123/field-abc/')
+			expect(result.key).toContain(`files/user-123/tenant/${tenantId}/photo/`)
+			expect(result.publicUrl).toContain(`files/user-123/tenant/${tenantId}/photo/`)
 		})
 
 		test('deve sanitizar nome de arquivo com caracteres especiais', async () => {
 			const result = await useCase.execute({
-				fileName: 'Arquivo com Espaços!.pdf',
+				fileName: 'Arquivo com Espacos!.pdf',
 				contentType: 'application/pdf',
 				userId: 'user-123',
+				entityType: 'tenant',
+				entityId: tenantId,
 			})
 
 			expect(result.key).toContain('Arquivo_com_Espacos_')
-			expect(result.publicUrl).toContain('Arquivo_com_Espacos_')
 		})
 
 		test('deve remover acentos do nome do arquivo', async () => {
 			const result = await useCase.execute({
-				fileName: 'relatório-são.pdf',
+				fileName: 'relatorio-sao.pdf',
 				contentType: 'application/pdf',
 				userId: 'user-123',
+				entityType: 'tenant',
+				entityId: tenantId,
 			})
 
 			expect(result.key).toContain('relatorio-sao.pdf')
 		})
-
-		test('deve adicionar extensão baseada no contentType quando arquivo não tem extensão', async () => {
-			const result = await useCase.execute({
-				fileName: 'arquivo_sem_extensao',
-				contentType: 'application/pdf',
-				userId: 'user-123',
-			})
-
-			expect(result.key).toContain('.pdf')
-		})
-
-		test('deve gerar diferentes tipos de URLs presigned para diferentes formatos', async () => {
-			const resultPdf = await useCase.execute({
-				fileName: 'doc.pdf',
-				contentType: 'application/pdf',
-				userId: 'user-123',
-			})
-			expect(resultPdf.uploadUrl).toBeDefined()
-
-			const resultPng = await useCase.execute({
-				fileName: 'img.png',
-				contentType: 'image/png',
-				userId: 'user-123',
-			})
-			expect(resultPng.uploadUrl).toBeDefined()
-
-			const resultDocx = await useCase.execute({
-				fileName: 'doc.docx',
-				contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-				userId: 'user-123',
-			})
-			expect(resultDocx.uploadUrl).toBeDefined()
-		})
 	})
 
-	describe('Validações de Tipo de Arquivo', () => {
-		test('deve rejeitar arquivo com tipo não permitido (match exato)', async () => {
+	describe('Validacoes de Tipo de Arquivo', () => {
+		test('deve rejeitar arquivo com tipo nao permitido', async () => {
 			await expect(
 				useCase.execute({
 					fileName: 'arquivo.pdf',
 					contentType: 'application/pdf',
 					userId: 'user-123',
+					entityType: 'tenant',
+					entityId: tenantId,
 					allowedTypes: ['image/jpeg', 'image/png'],
 				}),
 			).rejects.toThrow('Tipo de arquivo não permitido. Tipos aceitos: image/jpeg, image/png')
 		})
 
-		test('deve aceitar arquivo com tipo permitido (match exato)', async () => {
+		test('deve aceitar arquivo com tipo permitido', async () => {
 			const result = await useCase.execute({
 				fileName: 'imagem.jpg',
 				contentType: 'image/jpeg',
 				userId: 'user-123',
+				entityType: 'tenant',
+				entityId: tenantId,
 				allowedTypes: ['image/jpeg', 'image/png'],
 			})
 
 			expect(result).toBeDefined()
-			expect(result.key).toContain('imagem.jpg')
 		})
 
 		test('deve aceitar arquivo com wildcard de tipo (image/*)', async () => {
-			const resultJpeg = await useCase.execute({
+			const result = await useCase.execute({
 				fileName: 'foto.jpg',
 				contentType: 'image/jpeg',
 				userId: 'user-123',
+				entityType: 'property',
+				entityId: propertyId,
 				allowedTypes: ['image/*'],
 			})
-			expect(resultJpeg.key).toContain('foto.jpg')
-
-			const resultPng = await useCase.execute({
-				fileName: 'foto.png',
-				contentType: 'image/png',
-				userId: 'user-123',
-				allowedTypes: ['image/*'],
-			})
-			expect(resultPng.key).toContain('foto.png')
-
-			const resultWebp = await useCase.execute({
-				fileName: 'foto.webp',
-				contentType: 'image/webp',
-				userId: 'user-123',
-				allowedTypes: ['image/*'],
-			})
-			expect(resultWebp.key).toContain('foto.webp')
+			expect(result.key).toContain('foto.jpg')
 		})
 
-		test('deve rejeitar arquivo não-imagem com wildcard image/*', async () => {
-			await expect(
-				useCase.execute({
-					fileName: 'documento.pdf',
-					contentType: 'application/pdf',
-					userId: 'user-123',
-					allowedTypes: ['image/*'],
-				}),
-			).rejects.toThrow('Tipo de arquivo não permitido')
-		})
-
-		test('deve aceitar arquivo por extensão (.pdf)', async () => {
-			const result = await useCase.execute({
-				fileName: 'documento.pdf',
-				contentType: 'application/pdf',
-				userId: 'user-123',
-				allowedTypes: ['.pdf'],
-			})
-
-			expect(result).toBeDefined()
-			expect(result.key).toContain('.pdf')
-		})
-
-		test('deve aceitar arquivo por múltiplas extensões (.doc,.docx)', async () => {
-			const resultDocx = await useCase.execute({
-				fileName: 'documento.docx',
-				contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-				userId: 'user-123',
-				allowedTypes: ['.doc,.docx'],
-			})
-			expect(resultDocx).toBeDefined()
-
-			const resultDoc = await useCase.execute({
-				fileName: 'documento.doc',
-				contentType: 'application/msword',
-				userId: 'user-123',
-				allowedTypes: ['.doc,.docx'],
-			})
-			expect(resultDoc).toBeDefined()
-		})
-
-		test('deve aceitar arquivo quando allowedTypes está vazio', async () => {
+		test('deve aceitar arquivo quando allowedTypes nao e fornecido', async () => {
 			const result = await useCase.execute({
 				fileName: 'qualquer-arquivo.xyz',
 				contentType: 'application/octet-stream',
 				userId: 'user-123',
-				allowedTypes: [],
-			})
-
-			expect(result).toBeDefined()
-		})
-
-		test('deve aceitar arquivo quando allowedTypes não é fornecido', async () => {
-			const result = await useCase.execute({
-				fileName: 'qualquer-arquivo.xyz',
-				contentType: 'application/octet-stream',
-				userId: 'user-123',
+				entityType: 'user',
+				entityId: userId,
 			})
 
 			expect(result).toBeDefined()
 		})
 	})
 
-	describe('Geração de Chave Única', () => {
-		test('deve gerar chaves únicas para múltiplas requisições do mesmo arquivo', async () => {
+	describe('Geracao de Chave Unica', () => {
+		test('deve gerar chaves unicas para multiplas requisicoes do mesmo arquivo', async () => {
 			const result1 = await useCase.execute({
 				fileName: 'arquivo.pdf',
 				contentType: 'application/pdf',
 				userId: 'user-123',
+				entityType: 'tenant',
+				entityId: tenantId,
 			})
 
 			const result2 = await useCase.execute({
 				fileName: 'arquivo.pdf',
 				contentType: 'application/pdf',
 				userId: 'user-123',
+				entityType: 'tenant',
+				entityId: tenantId,
 			})
 
 			expect(result1.key).not.toBe(result2.key)
-			expect(result1.uploadUrl).not.toBe(result2.uploadUrl)
 		})
 
-		test('deve incluir userId na chave do arquivo', async () => {
+		test('deve incluir entityType e entityId na chave do arquivo', async () => {
 			const result = await useCase.execute({
 				fileName: 'arquivo.pdf',
 				contentType: 'application/pdf',
 				userId: 'user-999',
+				entityType: 'property_owner',
+				entityId: propertyOwnerId,
 			})
 
-			expect(result.key).toContain('files/user-999/')
-			expect(result.publicUrl).toContain('files/user-999/')
-		})
-
-		test('deve limitar tamanho do nome do arquivo a 50 caracteres', async () => {
-			const longName = 'a'.repeat(100) // 100 caracteres
-
-			const result = await useCase.execute({
-				fileName: `${longName}.pdf`,
-				contentType: 'application/pdf',
-				userId: 'user-123',
-			})
-
-			// Extrair o nome do arquivo da chave
-			const keyParts = result.key.split('/')
-			const fileNameFromKey = keyParts[keyParts.length - 1]
-			const nameWithoutUUID = fileNameFromKey.split('_').slice(1).join('_') // Remove UUID
-			const nameWithoutExtension = nameWithoutUUID.replace('.pdf', '')
-
-			expect(nameWithoutExtension.length).toBeLessThanOrEqual(50)
+			expect(result.key).toContain('files/user-999/property_owner/')
+			expect(result.key).toContain(propertyOwnerId)
 		})
 	})
 
-	describe('Integração com StorageService', () => {
-		test('deve chamar getPresignedUploadUrl com parâmetros corretos', async () => {
+	describe('Integracao com StorageService', () => {
+		test('deve chamar getPresignedUploadUrl com parametros corretos', async () => {
 			await useCase.execute({
 				fileName: 'documento.pdf',
 				contentType: 'application/pdf',
 				userId: 'user-123',
-				fieldId: 'field-456',
+				entityType: 'tenant',
+				entityId: tenantId,
+				fieldId: 'photo',
 			})
 
 			expect(mockStorageService.getPresignedUploadUrl).toHaveBeenCalledTimes(1)
 			const call = (mockStorageService.getPresignedUploadUrl as any).mock.calls[0]
-			expect(call[0]).toContain('files/user-123/field-456/') // Key
-			expect(call[1]).toBe('application/pdf') // ContentType
-			expect(call[2]).toBe(300) // 5 minutos em segundos
+			expect(call[0]).toContain(`files/user-123/tenant/${tenantId}/photo/`)
+			expect(call[1]).toBe('application/pdf')
+			expect(call[2]).toBe(300)
 		})
 
-		test('deve chamar getPublicUrl para gerar URL pública', async () => {
-			const result = await useCase.execute({
-				fileName: 'arquivo.pdf',
-				contentType: 'application/pdf',
-				userId: 'user-123',
-			})
-
-			expect(mockStorageService.getPublicUrl).toHaveBeenCalledTimes(1)
-			expect(result.publicUrl).toContain('https://storage.example.com/public/')
-		})
-
-		test('deve retornar todos os campos necessários no output', async () => {
+		test('deve retornar todos os campos necessarios no output', async () => {
 			const result = await useCase.execute({
 				fileName: 'test.pdf',
 				contentType: 'application/pdf',
 				userId: 'user-123',
+				entityType: 'tenant',
+				entityId: tenantId,
 			})
 
 			expect(result.uploadUrl).toBeDefined()

@@ -46,43 +46,76 @@ export function Header() {
   useEffect(() => {
     // Skip scroll handling on legal pages
     if (isLegalPage) return;
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const docHeight =
-        document.documentElement.scrollHeight - window.innerHeight;
 
-      // Update scroll progress
-      const scrollPercent = docHeight > 0 ? scrollTop / docHeight : 0;
-      setScrollProgress(Math.min(Math.max(scrollPercent, 0), 1));
+    // Cache DOM references para evitar queries repetidas
+    let footerEl: Element | null = null;
+    let sectionEls: Map<string, HTMLElement | null> = new Map();
+    let rafId: number | null = null;
+    let lastScrollTop = -1;
 
-      // Update nav visibility
-      const footer = document.querySelector("footer");
-      if (footer) {
-        const footerTop = footer.getBoundingClientRect().top;
-        const windowHeight = window.innerHeight;
-        const isFooterVisible = footerTop < windowHeight - 100;
-        setShowNav(scrollTop > 300 && !isFooterVisible);
-      } else {
-        setShowNav(scrollTop > 300);
+    // Inicializar cache de elementos
+    const initCache = () => {
+      footerEl = document.querySelector("footer");
+      for (const item of navItems) {
+        sectionEls.set(item.sectionId, document.getElementById(item.sectionId));
       }
-
-      // Update active section
-      const headerHeight = 150;
-      const scrollPosition = scrollTop + headerHeight;
-
-      for (let i = navItems.length - 1; i >= 0; i--) {
-        const element = document.getElementById(navItems[i].sectionId);
-        if (element && scrollPosition >= element.offsetTop) {
-          setActiveSection(navItems[i].sectionId);
-          return;
-        }
-      }
-      setActiveSection(null);
     };
 
+    const handleScroll = () => {
+      // Usar RAF para throttle natural
+      if (rafId) return;
+
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const scrollTop = window.scrollY;
+
+        // Skip se scroll nao mudou significativamente
+        if (Math.abs(scrollTop - lastScrollTop) < 5) return;
+        lastScrollTop = scrollTop;
+
+        const docHeight =
+          document.documentElement.scrollHeight - window.innerHeight;
+
+        // Update scroll progress
+        const scrollPercent = docHeight > 0 ? scrollTop / docHeight : 0;
+        setScrollProgress(Math.min(Math.max(scrollPercent, 0), 1));
+
+        // Update nav visibility (usando cache)
+        if (footerEl) {
+          const footerTop = footerEl.getBoundingClientRect().top;
+          const windowHeight = window.innerHeight;
+          const isFooterVisible = footerTop < windowHeight - 100;
+          setShowNav(scrollTop > 300 && !isFooterVisible);
+        } else {
+          setShowNav(scrollTop > 300);
+        }
+
+        // Update active section (usando cache)
+        const headerHeight = 150;
+        const scrollPosition = scrollTop + headerHeight;
+
+        for (let i = navItems.length - 1; i >= 0; i--) {
+          const element = sectionEls.get(navItems[i].sectionId);
+          if (element && scrollPosition >= element.offsetTop) {
+            setActiveSection(navItems[i].sectionId);
+            return;
+          }
+        }
+        setActiveSection(null);
+      });
+    };
+
+    initCache();
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+      // Limpar cache
+      footerEl = null;
+      sectionEls.clear();
+    };
   }, [isLegalPage]);
 
   // Don't render on legal pages

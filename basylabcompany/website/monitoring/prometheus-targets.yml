@@ -1,0 +1,19 @@
+# Prometheus Scrape Targets para basylab.com.br
+#
+# Adicionar este arquivo ao prometheus.yml na VPS:
+# scrape_configs:
+#   - job_name: 'basylab-site'
+#     file_sd_configs:
+#       - files:
+#           - '/etc/prometheus/targets/basylab-site.yml'
+#
+# Ou copiar o conteudo para /etc/prometheus/prometheus.yml
+
+# Target do site basylab.com.br
+- targets:
+    - 'localhost:3005'
+  labels:
+    job: 'basylab-site'
+    env: 'production'
+    app: 'nextjs'
+    domain: 'basylab.com.br'

@@ -215,9 +215,17 @@ export const CardSwap = ({
         node.removeEventListener("mouseenter", pause);
         node.removeEventListener("mouseleave", resume);
         clearInterval(intervalRef.current);
+        // Cleanup GSAP timeline para evitar memory leak
+        tlRef.current?.kill();
+        tlRef.current = null;
       };
     }
-    return () => clearInterval(intervalRef.current);
+    return () => {
+      clearInterval(intervalRef.current);
+      // Cleanup GSAP timeline para evitar memory leak
+      tlRef.current?.kill();
+      tlRef.current = null;
+    };
   }, [cardDistance, verticalDistance, delay, pauseOnHover, skewAmount, easing]);
 
   const rendered = childArr.map((child, i) => {

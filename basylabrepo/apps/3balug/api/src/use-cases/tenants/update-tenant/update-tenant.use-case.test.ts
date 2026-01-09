@@ -355,7 +355,7 @@ describe('UpdateTenantUseCase', () => {
 					cpf: '996.908.529-81',
 					updatedBy: ownerUser,
 				}),
-			).rejects.toThrow('Já existe um locatário cadastrado com este documento')
+			).rejects.toThrow('Já existe um locatário cadastrado com este CPF na sua empresa.')
 		})
 
 		test('deve permitir atualizar locatário mantendo o mesmo CPF', async () => {

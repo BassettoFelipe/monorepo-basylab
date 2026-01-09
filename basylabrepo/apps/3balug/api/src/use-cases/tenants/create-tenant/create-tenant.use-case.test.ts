@@ -250,7 +250,7 @@ describe('CreateTenantUseCase', () => {
 					cpf: '343.487.494-18',
 					createdBy: ownerUser,
 				}),
-			).rejects.toThrow('Já existe um locatário cadastrado com este documento')
+			).rejects.toThrow('Já existe um locatário cadastrado com este CPF na sua empresa.')
 		})
 
 		test('deve permitir mesmo CPF em empresas diferentes', async () => {

@@ -14,6 +14,7 @@ import { Logo } from '@/components/Logo/Logo'
 import { ProgressBar } from '@/components/ProgressBar/ProgressBar'
 import { Select } from '@/components/Select/Select'
 import { Skeleton } from '@/components/Skeleton/Skeleton'
+import { useUser } from '@/queries/auth/useUser'
 import { useMyCustomFieldsQuery } from '@/queries/custom-fields/useMyCustomFieldsQuery'
 import { useSaveMyCustomFieldsMutation } from '@/queries/custom-fields/useSaveMyCustomFieldsMutation'
 import { uploadWithPresignedUrl } from '@/services/files/upload'
@@ -24,6 +25,7 @@ import * as styles from './SetupProfilePage.css'
 
 export function SetupProfilePage() {
 	const navigate = useNavigate()
+	const { user } = useUser()
 	const { data, isLoading, error } = useMyCustomFieldsQuery()
 	const saveMutation = useSaveMyCustomFieldsMutation()
 
@@ -240,9 +242,9 @@ export function SetupProfilePage() {
 				uploadTasks.map((task) =>
 					uploadWithPresignedUrl({
 						file: task.file,
+						entityType: 'user',
+						entityId: user!.id,
 						fieldId: task.fieldId,
-						maxFileSize: task.maxFileSize,
-						allowedTypes: task.allowedTypes,
 					}).then((result) => ({
 						fieldId: task.fieldId,
 						...result,

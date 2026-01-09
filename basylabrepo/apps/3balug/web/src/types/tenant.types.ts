@@ -1,3 +1,13 @@
+export type MaritalStatus = 'solteiro' | 'casado' | 'divorciado' | 'viuvo' | 'uniao_estavel'
+
+export const MARITAL_STATUS_LABELS: Record<MaritalStatus, string> = {
+	solteiro: 'Solteiro(a)',
+	casado: 'Casado(a)',
+	divorciado: 'Divorciado(a)',
+	viuvo: 'Viuvo(a)',
+	uniao_estavel: 'Uniao Estavel',
+}
+
 export interface Tenant {
 	id: string
 	name: string
@@ -13,6 +23,11 @@ export interface Tenant {
 	employer: string | null
 	emergencyContact: string | null
 	emergencyPhone: string | null
+	rg: string | null
+	nationality: string | null
+	maritalStatus: MaritalStatus | null
+	profession: string | null
+	photoUrl: string | null
 	notes: string | null
 	createdAt: string
 	updatedAt: string
@@ -32,6 +47,11 @@ export interface CreateTenantInput {
 	employer?: string
 	emergencyContact?: string
 	emergencyPhone?: string
+	rg?: string
+	nationality?: string
+	maritalStatus?: MaritalStatus
+	profession?: string
+	photoUrl?: string
 	notes?: string
 }
 
@@ -49,6 +69,11 @@ export interface UpdateTenantInput {
 	employer?: string | null
 	emergencyContact?: string | null
 	emergencyPhone?: string | null
+	rg?: string | null
+	nationality?: string | null
+	maritalStatus?: MaritalStatus | null
+	profession?: string | null
+	photoUrl?: string | null
 	notes?: string | null
 }
 

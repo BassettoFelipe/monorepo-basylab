@@ -42,6 +42,11 @@ export const modal = style({
 	display: 'flex',
 	flexDirection: 'column',
 	animation: `${slideUp} 0.3s ease-out`,
+	// Reset dialog default positioning to work with flex container
+	position: 'relative',
+	margin: 0,
+	padding: 0,
+	border: 'none',
 })
 
 export const modalSm = style({

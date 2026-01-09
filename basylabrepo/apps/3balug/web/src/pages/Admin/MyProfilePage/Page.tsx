@@ -322,9 +322,9 @@ export function MyProfilePage() {
 				uploadTasks.map((task) =>
 					uploadWithPresignedUrl({
 						file: task.file,
+						entityType: 'user',
+						entityId: user.id,
 						fieldId: task.fieldId,
-						maxFileSize: task.maxFileSize,
-						allowedTypes: task.allowedTypes,
 					}).then((result) => ({
 						fieldId: task.fieldId,
 						...result,

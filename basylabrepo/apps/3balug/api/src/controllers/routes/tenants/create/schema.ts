@@ -14,6 +14,19 @@ export const createTenantBodySchema = t.Object({
 	employer: t.Optional(t.String({ maxLength: 200 })),
 	emergencyContact: t.Optional(t.String({ maxLength: 200 })),
 	emergencyPhone: t.Optional(t.String({ minLength: 10, maxLength: 15 })),
+	rg: t.Optional(t.String({ maxLength: 20 })),
+	nationality: t.Optional(t.String({ maxLength: 100 })),
+	maritalStatus: t.Optional(
+		t.Union([
+			t.Literal('solteiro'),
+			t.Literal('casado'),
+			t.Literal('divorciado'),
+			t.Literal('viuvo'),
+			t.Literal('uniao_estavel'),
+		]),
+	),
+	profession: t.Optional(t.String({ maxLength: 200 })),
+	photoUrl: t.Optional(t.String({ maxLength: 500 })),
 	notes: t.Optional(t.String({ maxLength: 2000 })),
 })
 
@@ -36,6 +49,11 @@ export const createTenantResponseSchema = t.Object({
 		employer: t.Union([t.String(), t.Null()]),
 		emergencyContact: t.Union([t.String(), t.Null()]),
 		emergencyPhone: t.Union([t.String(), t.Null()]),
+		rg: t.Union([t.String(), t.Null()]),
+		nationality: t.Union([t.String(), t.Null()]),
+		maritalStatus: t.Union([t.String(), t.Null()]),
+		profession: t.Union([t.String(), t.Null()]),
+		photoUrl: t.Union([t.String(), t.Null()]),
 		notes: t.Union([t.String(), t.Null()]),
 		createdAt: t.Date(),
 	}),

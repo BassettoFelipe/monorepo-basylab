@@ -17,7 +17,18 @@ const queryClient = new QueryClient({
 			retry: 1,
 		},
 		mutations: {
-			retry: 2,
+			retry: (failureCount, error) => {
+				if (failureCount >= 2) return false
+
+				// Verifica o status do erro
+				const status = (error as { status?: number })?.status
+
+				// Retry apenas para erros de servidor (5xx) ou sem status (erro de rede)
+				if (!status) return true
+				if (status >= 500) return true
+
+				return false
+			},
 			retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
 		},
 	},

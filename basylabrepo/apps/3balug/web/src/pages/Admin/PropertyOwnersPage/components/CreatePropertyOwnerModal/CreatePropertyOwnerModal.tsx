@@ -30,6 +30,7 @@ import { useCepLookup } from '@/hooks/useCepLookup'
 import { useMaskedInput } from '@/hooks/useMaskedInput'
 import { useUploadDocumentMutation } from '@/queries/documents/documents.queries'
 import { useCreatePropertyOwnerMutation } from '@/queries/property-owners/useCreatePropertyOwnerMutation'
+import { useUpdatePropertyOwnerMutation } from '@/queries/property-owners/useUpdatePropertyOwnerMutation'
 import {
 	type CreatePropertyOwnerFormData,
 	createPropertyOwnerSchema,
@@ -122,6 +123,7 @@ const INITIAL_DOCUMENT_SLOTS: DocumentSlot[] = [
 
 export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwnerModalProps) {
 	const createMutation = useCreatePropertyOwnerMutation()
+	const updatePropertyOwnerMutation = useUpdatePropertyOwnerMutation()
 	const uploadDocumentMutation = useUploadDocumentMutation()
 	const [currentStep, setCurrentStep] = useState(0)
 	const [documentSlots, setDocumentSlots] = useState<DocumentSlot[]>(INITIAL_DOCUMENT_SLOTS)
@@ -396,28 +398,12 @@ export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwne
 	}
 
 	const onSubmit = async (data: CreatePropertyOwnerFormData) => {
+		// Previne multiplas submissoes
+		if (createMutation.isPending || isUploading || isUploadingPhoto) {
+			return
+		}
+
 		try {
-			let photoUrl: string | undefined
-
-			// Upload da foto primeiro, se houver
-			if (photoFile) {
-				setIsUploadingPhoto(true)
-				try {
-					const uploadResult = await uploadWithPresignedUrl({
-						file: photoFile,
-						fieldId: 'property-owner-photo',
-					})
-					photoUrl = uploadResult.url
-				} catch (photoError) {
-					const errorMsg = getUploadErrorMessage(photoError, photoFile?.name)
-					toast.error(errorMsg)
-					setIsUploadingPhoto(false)
-					return
-				} finally {
-					setIsUploadingPhoto(false)
-				}
-			}
-
 			const payload = {
 				...data,
 				document: data.document.replace(/\D/g, ''),
@@ -436,12 +422,37 @@ export function CreatePropertyOwnerModal({ isOpen, onClose }: CreatePropertyOwne
 				city: data.city || undefined,
 				state: data.state || undefined,
 				birthDate: data.birthDate || undefined,
-				photoUrl,
 				notes: data.notes || undefined,
 			}
+
+			// Primeiro cria o proprietario sem a foto
 			const response = await createMutation.mutateAsync(payload)
 			const ownerId = response.data.id
 
+			// Upload da foto apenas apos cadastro bem-sucedido
+			if (photoFile) {
+				setIsUploadingPhoto(true)
+				try {
+					const uploadResult = await uploadWithPresignedUrl({
+						file: photoFile,
+						entityType: 'property_owner',
+						entityId: ownerId,
+						fieldId: 'photo',
+					})
+					// Atualiza o proprietario com a URL da foto
+					await updatePropertyOwnerMutation.mutateAsync({
+						id: ownerId,
+						input: { photoUrl: uploadResult.url },
+					})
+				} catch (photoError) {
+					const errorMsg = getUploadErrorMessage(photoError, photoFile?.name)
+					toast.error(`Proprietario criado, mas houve erro ao enviar foto: ${errorMsg}`)
+				} finally {
+					setIsUploadingPhoto(false)
+				}
+			}
+
+			// Upload dos documentos apos cadastro bem-sucedido
 			const slotsWithFiles = documentSlots.filter((slot) => slot.files.length > 0)
 			if (slotsWithFiles.length > 0) {
 				setIsUploading(true)

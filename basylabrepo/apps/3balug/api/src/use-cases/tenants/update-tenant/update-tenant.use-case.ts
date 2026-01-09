@@ -27,6 +27,11 @@ type UpdateTenantInput = {
 	employer?: string | null
 	emergencyContact?: string | null
 	emergencyPhone?: string | null
+	rg?: string | null
+	nationality?: string | null
+	maritalStatus?: 'solteiro' | 'casado' | 'divorciado' | 'viuvo' | 'uniao_estavel' | null
+	profession?: string | null
+	photoUrl?: string | null
 	notes?: string | null
 	updatedBy: User
 }
@@ -145,6 +150,26 @@ export class UpdateTenantUseCase {
 
 		if (input.notes !== undefined) {
 			updateData.notes = input.notes?.trim() || null
+		}
+
+		if (input.rg !== undefined) {
+			updateData.rg = input.rg?.trim() || null
+		}
+
+		if (input.nationality !== undefined) {
+			updateData.nationality = input.nationality?.trim() || null
+		}
+
+		if (input.maritalStatus !== undefined) {
+			updateData.maritalStatus = input.maritalStatus || null
+		}
+
+		if (input.profession !== undefined) {
+			updateData.profession = input.profession?.trim() || null
+		}
+
+		if (input.photoUrl !== undefined) {
+			updateData.photoUrl = input.photoUrl || null
 		}
 
 		if (Object.keys(updateData).length === 0) {

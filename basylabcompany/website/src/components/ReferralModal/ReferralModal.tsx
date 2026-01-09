@@ -149,22 +149,26 @@ function TypingText({ text, delay = 0 }: { text: string; delay?: number }) {
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+
+    const timeoutId = setTimeout(() => {
       let currentIndex = 0;
-      const interval = setInterval(() => {
+      intervalId = setInterval(() => {
         if (currentIndex <= text.length) {
           setDisplayedText(text.slice(0, currentIndex));
           currentIndex++;
         } else {
-          clearInterval(interval);
+          if (intervalId) clearInterval(intervalId);
           setIsComplete(true);
         }
       }, 25);
-
-      return () => clearInterval(interval);
     }, delay);
 
-    return () => clearTimeout(timeout);
+    // Cleanup correto: limpar tanto timeout quanto interval
+    return () => {
+      clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [text, delay]);
 
   return (

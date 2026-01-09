@@ -223,6 +223,11 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 	}
 
 	const onSubmit = async (data: CreatePropertyFormData) => {
+		// Previne multiplas submissoes
+		if (createMutation.isPending || isUploading) {
+			return
+		}
+
 		try {
 			const features = {
 				hasPool: data.hasPool === true,
@@ -284,7 +289,9 @@ export function CreatePropertyModal({ isOpen, onClose }: CreatePropertyModalProp
 						getPresignedUrl({
 							fileName: photo.file.name,
 							contentType: photo.file.type,
-							fieldId: `property-${propertyId}`,
+							entityType: 'property',
+							entityId: propertyId,
+							fieldId: 'photos',
 							allowedTypes: ['image/*'],
 						}),
 					)

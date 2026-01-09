@@ -1,10 +1,15 @@
 import {
+	ArrowDownAZ,
+	ArrowUpAZ,
 	Calendar,
+	ChevronDown,
 	ChevronLeft,
 	ChevronRight,
+	ChevronUp,
 	DollarSign,
 	Edit,
 	Eye,
+	Filter,
 	Mail,
 	MapPin,
 	Phone,
@@ -20,31 +25,26 @@ import { Button } from '@/components/Button/Button'
 import { ConfirmDialog } from '@/components/ConfirmDialog/ConfirmDialog'
 import { EmptyState } from '@/components/EmptyState/EmptyState'
 import { Input } from '@/components/Input/Input'
+import { Select } from '@/components/Select/Select'
 import { Skeleton } from '@/components/Skeleton/Skeleton'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { AdminLayout } from '@/layouts/AdminLayout/AdminLayout'
 import { useDeleteTenantMutation } from '@/queries/tenants/useDeleteTenantMutation'
 import { useTenantQuery } from '@/queries/tenants/useTenantQuery'
 import { useTenantsQuery } from '@/queries/tenants/useTenantsQuery'
-import type { Tenant } from '@/types/tenant.types'
+import type { MaritalStatus, Tenant, TenantSortBy, TenantSortOrder } from '@/types/tenant.types'
+import { BRAZILIAN_STATES, MARITAL_STATUS_OPTIONS } from '@/types/tenant.types'
 import { getAvatarColor, getInitials } from '@/utils/avatar'
-import { formatDate, formatDocument, formatPhone } from '@/utils/format'
+import { formatCurrencyFromCents, formatDate, formatDocument, formatPhone } from '@/utils/format'
 import { getPaginationPages } from '@/utils/pagination'
 import { CreateTenantModal } from './components/CreateTenantModal/CreateTenantModal'
 import { EditTenantModal } from './components/EditTenantModal/EditTenantModal'
 import { ViewTenantModal } from './components/ViewTenantModal/ViewTenantModal'
 import * as styles from './styles.css'
 
-const formatCurrency = (value: number | null) => {
-	if (value === null || value === undefined) return null
-	return new Intl.NumberFormat('pt-BR', {
-		style: 'currency',
-		currency: 'BRL',
-	}).format(value)
-}
-
 export function TenantsPage() {
 	const [searchParams, setSearchParams] = useSearchParams()
+	const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
 	const [tenantToDelete, setTenantToDelete] = useState<Tenant | null>(null)
 
 	const limit = 20
@@ -88,6 +88,15 @@ export function TenantsPage() {
 
 	const search = searchFromUrl
 	const page = Number(searchParams.get('page')) || 1
+	const state = searchParams.get('state') || undefined
+	const city = searchParams.get('city') || undefined
+	const hasEmail = searchParams.get('hasEmail')
+	const hasPhone = searchParams.get('hasPhone')
+	const maritalStatus = (searchParams.get('maritalStatus') as MaritalStatus) || undefined
+	const createdAtStart = searchParams.get('createdAtStart') || undefined
+	const createdAtEnd = searchParams.get('createdAtEnd') || undefined
+	const sortBy = (searchParams.get('sortBy') as TenantSortBy) || 'name'
+	const sortOrder = (searchParams.get('sortOrder') as TenantSortOrder) || 'asc'
 
 	const modalAction = searchParams.get('modal')
 	const editId = searchParams.get('id')
@@ -97,8 +106,28 @@ export function TenantsPage() {
 	const isEditModalOpen = modalAction === 'edit' && !!editId
 	const isDeleteDialogOpen = modalAction === 'delete' && !!editId
 
+	// Conta quantos filtros avancados estao ativos
+	const activeFiltersCount = [
+		state,
+		city,
+		hasEmail,
+		hasPhone,
+		maritalStatus,
+		createdAtStart,
+		createdAtEnd,
+	].filter(Boolean).length
+
 	const { data, isLoading, error } = useTenantsQuery({
 		search: search || undefined,
+		state,
+		city,
+		hasEmail: hasEmail === 'true' ? true : hasEmail === 'false' ? false : undefined,
+		hasPhone: hasPhone === 'true' ? true : hasPhone === 'false' ? false : undefined,
+		maritalStatus,
+		createdAtStart,
+		createdAtEnd,
+		sortBy,
+		sortOrder,
 		page,
 		limit,
 	})
@@ -119,6 +148,33 @@ export function TenantsPage() {
 		}
 		setSearchParams(newParams)
 		setSearchInput('')
+	}
+
+	const handleSort = (field: TenantSortBy) => {
+		if (sortBy === field) {
+			updateSearchParams({
+				sortOrder: sortOrder === 'asc' ? 'desc' : 'asc',
+				page: '1',
+			})
+		} else {
+			updateSearchParams({
+				sortBy: field,
+				sortOrder: 'asc',
+				page: '1',
+			})
+		}
+	}
+
+	const getSortIcon = (field: TenantSortBy) => {
+		const isActive = sortBy === field
+		if (isActive) {
+			return sortOrder === 'asc' ? (
+				<ArrowUpAZ size={14} className={styles.sortIconActive} />
+			) : (
+				<ArrowDownAZ size={14} className={styles.sortIconActive} />
+			)
+		}
+		return <ArrowUpAZ size={14} className={styles.sortIcon} />
 	}
 
 	const openCreateModal = () => {
@@ -195,8 +251,57 @@ export function TenantsPage() {
 							fullWidth
 						/>
 					</div>
+					<div className={styles.filterItem}>
+						<label className={styles.filterLabel} htmlFor="state-filter">
+							Estado
+						</label>
+						<Select
+							id="state-filter"
+							value={state || ''}
+							onChange={(e) => {
+								updateSearchParams({ state: e.target.value, page: '1' })
+							}}
+							options={[
+								{ value: '', label: 'Todos' },
+								...BRAZILIAN_STATES.map((s) => ({ value: s.value, label: s.label })),
+							]}
+							fullWidth
+						/>
+					</div>
+					<div className={styles.filterItem}>
+						<label className={styles.filterLabel} htmlFor="maritalStatus-filter">
+							Estado Civil
+						</label>
+						<Select
+							id="maritalStatus-filter"
+							value={maritalStatus || ''}
+							onChange={(e) => {
+								updateSearchParams({ maritalStatus: e.target.value, page: '1' })
+							}}
+							options={[
+								{ value: '', label: 'Todos' },
+								...MARITAL_STATUS_OPTIONS.map((s) => ({ value: s.value, label: s.label })),
+							]}
+							fullWidth
+						/>
+					</div>
 					<div className={styles.filterActions}>
-						{search && (
+						<Button
+							variant="outline"
+							size="small"
+							onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+							title={
+								showAdvancedFilters ? 'Ocultar filtros avancados' : 'Mostrar filtros avancados'
+							}
+						>
+							<Filter size={16} />
+							Filtros
+							{activeFiltersCount > 0 && (
+								<span className={styles.filterBadge}>{activeFiltersCount}</span>
+							)}
+							{showAdvancedFilters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+						</Button>
+						{(search || activeFiltersCount > 0 || sortBy !== 'name' || sortOrder !== 'asc') && (
 							<Button
 								variant="outline"
 								size="small"
@@ -209,6 +314,137 @@ export function TenantsPage() {
 						)}
 					</div>
 				</div>
+
+				{showAdvancedFilters && (
+					<>
+						<div className={styles.filterDivider} />
+						<div className={styles.filterRow}>
+							<div className={styles.filterItem}>
+								<label className={styles.filterLabel} htmlFor="city-filter">
+									Cidade
+								</label>
+								<Input
+									id="city-filter"
+									value={city || ''}
+									onChange={(e) => {
+										updateSearchParams({ city: e.target.value, page: '1' })
+									}}
+									placeholder="Filtrar por cidade..."
+									fullWidth
+								/>
+							</div>
+							<div className={styles.filterItem}>
+								<label className={styles.filterLabel} htmlFor="hasEmail-filter">
+									Email
+								</label>
+								<Select
+									id="hasEmail-filter"
+									value={hasEmail || ''}
+									onChange={(e) => {
+										updateSearchParams({ hasEmail: e.target.value, page: '1' })
+									}}
+									options={[
+										{ value: '', label: 'Todos' },
+										{ value: 'true', label: 'Com email' },
+										{ value: 'false', label: 'Sem email' },
+									]}
+									fullWidth
+								/>
+							</div>
+							<div className={styles.filterItem}>
+								<label className={styles.filterLabel} htmlFor="hasPhone-filter">
+									Telefone
+								</label>
+								<Select
+									id="hasPhone-filter"
+									value={hasPhone || ''}
+									onChange={(e) => {
+										updateSearchParams({ hasPhone: e.target.value, page: '1' })
+									}}
+									options={[
+										{ value: '', label: 'Todos' },
+										{ value: 'true', label: 'Com telefone' },
+										{ value: 'false', label: 'Sem telefone' },
+									]}
+									fullWidth
+								/>
+							</div>
+						</div>
+						<div className={styles.filterRow} style={{ marginTop: '16px' }}>
+							<div className={styles.filterItem}>
+								<label className={styles.filterLabel} htmlFor="createdAtStart-filter">
+									Cadastrado a partir de
+								</label>
+								<Input
+									id="createdAtStart-filter"
+									type="date"
+									value={createdAtStart ? createdAtStart.split('T')[0] : ''}
+									onChange={(e) => {
+										updateSearchParams({
+											createdAtStart: e.target.value ? new Date(e.target.value).toISOString() : '',
+											page: '1',
+										})
+									}}
+									fullWidth
+								/>
+							</div>
+							<div className={styles.filterItem}>
+								<label className={styles.filterLabel} htmlFor="createdAtEnd-filter">
+									Cadastrado ate
+								</label>
+								<Input
+									id="createdAtEnd-filter"
+									type="date"
+									value={createdAtEnd ? createdAtEnd.split('T')[0] : ''}
+									onChange={(e) => {
+										updateSearchParams({
+											createdAtEnd: e.target.value ? new Date(e.target.value).toISOString() : '',
+											page: '1',
+										})
+									}}
+									fullWidth
+								/>
+							</div>
+							<div className={styles.filterItem}>
+								<label className={styles.filterLabel} htmlFor="sortBy-filter">
+									Ordenar por
+								</label>
+								<Select
+									id="sortBy-filter"
+									value={sortBy}
+									onChange={(e) => {
+										updateSearchParams({ sortBy: e.target.value, page: '1' })
+									}}
+									options={[
+										{ value: 'name', label: 'Nome' },
+										{ value: 'createdAt', label: 'Data de cadastro' },
+										{ value: 'monthlyIncome', label: 'Renda mensal' },
+										{ value: 'city', label: 'Cidade' },
+										{ value: 'state', label: 'Estado' },
+									]}
+									fullWidth
+								/>
+							</div>
+							<div className={styles.filterItem}>
+								<label className={styles.filterLabel} htmlFor="sortOrder-filter">
+									Ordem
+								</label>
+								<Select
+									id="sortOrder-filter"
+									value={sortOrder}
+									onChange={(e) => {
+										updateSearchParams({ sortOrder: e.target.value, page: '1' })
+									}}
+									options={[
+										{ value: 'asc', label: 'Crescente' },
+										{ value: 'desc', label: 'Decrescente' },
+									]}
+									fullWidth
+								/>
+							</div>
+						</div>
+					</>
+				)}
 			</div>
 
 			{isLoading && (
@@ -294,15 +530,19 @@ export function TenantsPage() {
 
 			{!isLoading && !error && data && data.data.length === 0 && (
 				<EmptyState
-					icon={search ? SearchX : Users}
-					title={search ? 'Nenhum inquilino encontrado' : 'Nenhum inquilino cadastrado'}
+					icon={search || activeFiltersCount > 0 ? SearchX : Users}
+					title={
+						search || activeFiltersCount > 0
+							? 'Nenhum inquilino encontrado'
+							: 'Nenhum inquilino cadastrado'
+					}
 					description={
-						search
+						search || activeFiltersCount > 0
 							? 'Nenhum inquilino corresponde aos filtros aplicados. Tente ajustar os criterios de busca.'
 							: 'Adicione inquilinos para gerenciar seus contratos.'
 					}
 					action={
-						search
+						search || activeFiltersCount > 0
 							? {
 									label: 'Limpar Filtros',
 									onClick: clearAllFilters,
@@ -321,18 +561,58 @@ export function TenantsPage() {
 						<table className={styles.table}>
 							<thead className={styles.tableHeader}>
 								<tr>
-									<th className={`${styles.tableHeaderCell} ${styles.colTenant}`}>Inquilino</th>
+									<th
+										className={`${styles.tableHeaderCell} ${styles.colTenant} ${styles.sortableHeader}`}
+									>
+										<button
+											type="button"
+											className={styles.sortableHeaderContent}
+											onClick={() => handleSort('name')}
+										>
+											Inquilino {getSortIcon('name')}
+										</button>
+									</th>
 									<th className={`${styles.tableHeaderCell} ${styles.colContact}`}>Contato</th>
-									<th className={`${styles.tableHeaderCell} ${styles.colLocation}`}>Localizacao</th>
-									<th className={`${styles.tableHeaderCell} ${styles.colIncome}`}>Renda</th>
-									<th className={`${styles.tableHeaderCell} ${styles.colDate}`}>Cadastro</th>
+									<th
+										className={`${styles.tableHeaderCell} ${styles.colLocation} ${styles.sortableHeader}`}
+									>
+										<button
+											type="button"
+											className={styles.sortableHeaderContent}
+											onClick={() => handleSort('city')}
+										>
+											Localizacao {getSortIcon('city')}
+										</button>
+									</th>
+									<th
+										className={`${styles.tableHeaderCell} ${styles.colIncome} ${styles.sortableHeader}`}
+									>
+										<button
+											type="button"
+											className={styles.sortableHeaderContent}
+											onClick={() => handleSort('monthlyIncome')}
+										>
+											Renda {getSortIcon('monthlyIncome')}
+										</button>
+									</th>
+									<th
+										className={`${styles.tableHeaderCell} ${styles.colDate} ${styles.sortableHeader}`}
+									>
+										<button
+											type="button"
+											className={styles.sortableHeaderContent}
+											onClick={() => handleSort('createdAt')}
+										>
+											Cadastro {getSortIcon('createdAt')}
+										</button>
+									</th>
 									<th className={`${styles.tableHeaderCell} ${styles.colActions}`}>Acoes</th>
 								</tr>
 							</thead>
 							<tbody>
 								{data.data.map((tenant) => {
 									const avatarColor = getAvatarColor(tenant.name)
-									const formattedIncome = formatCurrency(tenant.monthlyIncome)
+									const formattedIncome = formatCurrencyFromCents(tenant.monthlyIncome)
 
 									return (
 										<tr key={tenant.id} className={styles.tableRow}>
@@ -429,9 +709,7 @@ export function TenantsPage() {
 											<td className={`${styles.tableCell} ${styles.colDate}`}>
 												<div className={styles.contactRow}>
 													<Calendar size={14} className={styles.contactIcon} />
-													<span className={styles.contactText}>
-														{formatDate(tenant.createdAt)}
-													</span>
+													<span className={styles.contactText}>{formatDate(tenant.createdAt)}</span>
 												</div>
 											</td>
 											<td className={`${styles.tableCell} ${styles.colActions}`}>

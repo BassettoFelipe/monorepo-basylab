@@ -7,7 +7,7 @@ export const useTenantsQuery = (params?: ListTenantsParams) => {
 	return useQuery<ListTenantsResponse>({
 		queryKey: queryKeys.tenants.list(params),
 		queryFn: () => listTenants(params),
-		staleTime: 0,
+		staleTime: 1000 * 60 * 2, // 2 minutos - reduz requisicoes desnecessarias
 		gcTime: 1000 * 60 * 5,
 	})
 }

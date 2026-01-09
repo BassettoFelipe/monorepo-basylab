@@ -33,8 +33,22 @@ export const queryKeys = {
 	},
 	tenants: {
 		all: ['tenants'] as const,
-		list: (params?: { search?: string; page?: number; limit?: number }) =>
-			['tenants', 'list', params] as const,
+		list: (params?: {
+			search?: string
+			state?: string
+			city?: string
+			hasEmail?: boolean
+			hasPhone?: boolean
+			minIncome?: number
+			maxIncome?: number
+			maritalStatus?: string
+			createdAtStart?: string
+			createdAtEnd?: string
+			sortBy?: string
+			sortOrder?: string
+			page?: number
+			limit?: number
+		}) => ['tenants', 'list', params] as const,
 		detail: (id: string) => ['tenants', id] as const,
 	},
 	properties: {
